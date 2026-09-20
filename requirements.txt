@@ -1,0 +1,10 @@
+matplotlib
+pandas
+numpy
+pillow
+tqdm
+torch
+transformers>=4.49.0
+accelerate
+qwen-vl-utils
+scikit-learn

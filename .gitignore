@@ -1,0 +1,31 @@
+# Large / regenerable activation dumps (~150MB+ of .npy, over GitHub's 100MB
+# per-file limit). Regenerate with: python probe.py --stage extract
+probe_output/activations/
+
+# Generated clock images -- regenerable from clocks.py, not source data.
+#   data/            -> python clocks.py --n 500 --seed 42
+#   data_balanced/    -> python clocks.py --balanced --out_dir data_balanced
+#   data_positions/   -> python balanced_clocks.py
+data/
+data_balanced/
+data_positions/
+
+# Archives (Kaggle download bundles etc.)
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Secrets / local config
+.env
+
+# Editor / OS cruft
+.ipynb_checkpoints/
+.DS_Store

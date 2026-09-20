@@ -1,0 +1,501 @@
+filename,true_hour,true_minute,true_minute_number,true_hour_number,said_minute_number,said_hour_number,pred_hour,pred_minute,raw_answer,minute_desc_ok,hour_desc_ok,answer_ok
+clock_0000.png,7,51,10,7,10,8,8,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 8. Therefore, the time is 08:10.",True,False,False
+clock_0001.png,11,7,1,11,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0002.png,5,38,8,5,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",False,True,False
+clock_0003.png,10,18,4,10,4,10,10,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:04.",True,True,False
+clock_0004.png,7,10,2,7,2,7,7,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:02.",True,True,False
+clock_0005.png,11,23,5,11,4,5,5,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:04.",True,False,False
+clock_0006.png,5,35,7,5,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,False,False
+clock_0007.png,8,23,5,8,6,8,8,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 8. Therefore, the time is 08:30.",True,True,False
+clock_0008.png,3,21,4,3,3,4,4,15,"The long minute hand is pointing at the 3, and the short hour hand is pointing at the 4. Therefore, the time shown on the clock is 04:15.",True,False,False
+clock_0009.png,5,1,12,5,12,5,5,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",True,True,False
+clock_0010.png,8,43,9,8,9,8,8,45,"The long minute hand is pointing at the 9, and the short hour hand is pointing at the 8. Therefore, the time is 08:45.",True,True,False
+clock_0011.png,6,1,12,6,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",True,True,False
+clock_0012.png,12,20,4,12,4,3,3,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:20.",True,False,False
+clock_0013.png,1,11,2,1,2,1,1,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:02.",True,True,False
+clock_0014.png,10,21,4,10,4,10,10,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:04.",True,True,False
+clock_0015.png,12,24,5,12,5,4,4,5,"The long minute hand is pointing at the number 5, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:05.",True,False,False
+clock_0016.png,1,26,5,1,5,2,2,30,"The long minute hand is pointing at the number 5, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:30.",True,False,False
+clock_0017.png,11,41,8,11,12,8,8,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 8. Therefore, the time is 08:00.",False,False,False
+clock_0018.png,12,59,12,12,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0019.png,3,43,9,3,4,9,9,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:20.",False,False,False
+clock_0020.png,7,51,10,7,10,8,8,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 8. Therefore, the time is 08:10.",True,False,False
+clock_0021.png,9,2,12,9,12,9,9,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",True,True,False
+clock_0022.png,5,50,10,5,6,10,10,30,"The long minute hand is pointing at the number 6, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:30.",False,False,False
+clock_0023.png,7,20,4,7,4,7,7,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:04.",True,True,False
+clock_0024.png,9,38,8,9,8,7,7,8,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 7. Therefore, the time is 07:08.",True,False,False
+clock_0025.png,2,3,1,2,2,1,1,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:02.",True,False,False
+clock_0026.png,9,59,12,9,12,6,6,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 6. Therefore, the time is 06:00.",True,False,False
+clock_0027.png,2,57,11,2,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",False,False,False
+clock_0028.png,9,25,5,9,5,9,9,5,"The long minute hand is pointing at the number 5, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:05.",True,True,False
+clock_0029.png,5,1,12,5,12,5,5,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",True,True,False
+clock_0030.png,4,27,5,4,6,4,4,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 4. Therefore, the time is 04:30.",True,True,False
+clock_0031.png,12,6,1,12,12,1,1,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:00.",True,False,False
+clock_0032.png,12,7,1,12,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0033.png,3,13,3,3,3,2,2,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:15.",True,False,False
+clock_0034.png,1,35,7,1,2,10,10,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:02.",False,False,False
+clock_0035.png,2,39,8,2,3,8,8,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:00.",False,False,False
+clock_0036.png,4,1,12,4,12,4,4,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:00.",True,True,False
+clock_0037.png,6,53,11,6,10,7,7,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 7. Therefore, the time is 07:10.",True,False,False
+clock_0038.png,10,3,1,10,12,9,9,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",True,False,False
+clock_0039.png,6,28,6,6,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0040.png,2,25,5,2,5,3,3,5,"The long minute hand is pointing at the number 5, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:05.",True,False,False
+clock_0041.png,12,33,7,12,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",False,False,False
+clock_0042.png,10,35,7,10,6,10,10,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 10. Therefore, the time is 10:30.",True,True,False
+clock_0043.png,8,13,3,8,3,8,8,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:15.",True,True,False
+clock_0044.png,7,59,12,7,12,8,8,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 8. Therefore, the time is 08:00.",True,False,False
+clock_0045.png,9,39,8,9,8,9,9,8,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 9. Therefore, the time is 09:08.",True,True,False
+clock_0046.png,5,15,3,5,3,5,5,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",True,True,False
+clock_0047.png,2,46,9,2,3,9,9,15,"The long minute hand is pointing at the 3, and the short hour hand is pointing at the 9. Therefore, the time is 09:15.",False,False,False
+clock_0048.png,5,23,5,5,6,4,4,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 4. Therefore, the time is 04:30.",True,False,False
+clock_0049.png,10,24,5,10,5,10,10,5,"The long minute hand is pointing at the number 5, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:05.",True,True,False
+clock_0050.png,12,59,12,12,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0051.png,12,44,9,12,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30 or 09:00.",False,False,False
+clock_0052.png,9,28,6,9,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",True,True,False
+clock_0053.png,1,24,5,1,5,2,2,30,"The long minute hand is pointing at the number 5, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:30.",True,False,False
+clock_0054.png,7,8,2,7,12,7,7,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",False,True,False
+clock_0055.png,8,0,12,8,12,8,8,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:00.",True,True,True
+clock_0056.png,12,7,1,12,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0057.png,8,10,2,8,2,8,8,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:02.",True,True,False
+clock_0058.png,3,16,3,3,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",True,False,False
+clock_0059.png,8,34,7,8,7,10,10,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 10. Therefore, the time is 10:07.",True,False,False
+clock_0060.png,3,32,6,3,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,True,False
+clock_0061.png,11,4,1,11,12,1,1,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:00.",True,False,False
+clock_0062.png,10,38,8,10,10,8,8,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 8. Therefore, the time is 08:10.",False,False,False
+clock_0063.png,10,40,8,10,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",False,False,False
+clock_0064.png,12,6,1,12,12,1,1,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:00.",True,False,False
+clock_0065.png,9,7,1,9,12,9,9,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:00.",True,True,False
+clock_0066.png,12,33,7,12,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",False,False,False
+clock_0067.png,1,47,9,1,2,9,9,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:02.",False,False,False
+clock_0068.png,7,22,4,7,6,4,4,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 4. Therefore, the time is 04:30.",False,False,False
+clock_0069.png,8,36,7,8,7,8,8,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 8. Therefore, the time is 08:07.",True,True,False
+clock_0070.png,3,43,9,3,4,9,9,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:20.",False,False,False
+clock_0071.png,8,21,4,8,4,8,8,4,"The long minute hand is pointing at the 4, and the short hour hand is pointing at the 8. Therefore, the time is 08:04.",True,True,False
+clock_0072.png,11,34,7,11,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0073.png,1,34,7,1,2,10,10,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:02.",False,False,False
+clock_0074.png,5,46,9,5,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",False,False,False
+clock_0075.png,3,0,12,3,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,True,True
+clock_0076.png,5,25,5,5,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,True,False
+clock_0077.png,7,13,3,7,3,7,7,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:15.",True,True,False
+clock_0078.png,7,26,5,7,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,False,False
+clock_0079.png,9,14,3,9,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",True,True,False
+clock_0080.png,10,41,8,10,8,7,7,40,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 7. Therefore, the time is 07:40.",True,False,False
+clock_0081.png,12,12,2,12,2,1,1,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:02.",True,False,False
+clock_0082.png,3,31,6,3,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time shown on the clock is 03:30.",True,True,False
+clock_0083.png,7,48,10,7,10,8,8,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 8. Therefore, the time is 08:10.",True,False,False
+clock_0084.png,4,31,6,4,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,False,False
+clock_0085.png,4,29,6,4,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,False,False
+clock_0086.png,5,22,4,5,4,6,6,24,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:24.",True,False,False
+clock_0087.png,7,44,9,7,9,8,8,45,"The long minute hand is pointing at the 9, and the short hour hand is pointing at the 8. Therefore, the time is 08:45.",True,False,False
+clock_0088.png,11,28,6,11,6,10,10,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 10. Therefore, the time is 10:30.",True,False,False
+clock_0089.png,4,12,2,4,4,3,3,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:20.",False,False,False
+clock_0090.png,7,58,12,7,12,8,8,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 8. Therefore, the time is 08:00.",True,False,False
+clock_0091.png,3,21,4,3,3,4,4,15,"The long minute hand is pointing at the 3, and the short hour hand is pointing at the 4. Therefore, the time shown on the clock is 04:15.",True,False,False
+clock_0092.png,12,1,12,12,12,6,6,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 6. Therefore, the time is 06:00.",True,False,False
+clock_0093.png,10,44,9,10,9,3,3,45,"The long minute hand is pointing at the 9, and the short hour hand is pointing at the 3. Therefore, the time is 03:45.",True,False,False
+clock_0094.png,9,52,10,9,10,2,2,50,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 2. Therefore, the time is 02:50.",True,False,False
+clock_0095.png,6,27,5,6,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,False,False
+clock_0096.png,12,43,9,12,12,9,9,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:00.",False,False,False
+clock_0097.png,12,19,4,12,4,2,2,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:04.",True,False,False
+clock_0098.png,11,57,11,11,12,6,6,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 6. Therefore, the time is 06:00.",True,False,False
+clock_0099.png,7,27,5,7,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,False,False
+clock_0100.png,9,38,8,9,8,7,7,8,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 7. Therefore, the time is 07:08.",True,False,False
+clock_0101.png,1,0,12,1,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0102.png,9,26,5,9,5,9,9,30,"The long minute hand is pointing at the 5, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",True,True,False
+clock_0103.png,9,51,10,9,10,9,9,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 9. Therefore, the time is 09:10.",True,True,False
+clock_0104.png,9,2,12,9,12,9,9,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",True,True,False
+clock_0105.png,7,5,1,7,12,7,7,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",True,True,False
+clock_0106.png,8,26,5,8,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,False,False
+clock_0107.png,9,36,7,9,7,9,9,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 9. Therefore, the time is 09:07.",True,True,False
+clock_0108.png,1,50,10,1,10,2,2,0,"The long minute hand is pointing at the number 10, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,False,False
+clock_0109.png,10,43,9,10,9,3,3,45,"The long minute hand is pointing at the 9, and the short hour hand is pointing at the 3. Therefore, the time is 03:45.",True,False,False
+clock_0110.png,8,14,3,8,3,8,8,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:00.",True,True,False
+clock_0111.png,11,53,11,11,12,9,9,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:00.",True,False,False
+clock_0112.png,8,40,8,8,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",False,False,False
+clock_0113.png,4,48,10,4,5,10,10,5,"The long minute hand is pointing at the number 5, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:05.",False,False,False
+clock_0114.png,1,57,11,1,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,False,False
+clock_0115.png,4,11,2,4,2,3,3,12,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:12.",True,False,False
+clock_0116.png,7,1,12,7,12,7,7,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",True,True,False
+clock_0117.png,3,48,10,3,4,10,10,4,"The long minute hand is pointing at the 4, and the short hour hand is pointing at the 10. Therefore, the time is 10:04.",False,False,False
+clock_0118.png,5,48,10,5,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",False,False,False
+clock_0119.png,8,16,3,8,3,8,8,0,"The long minute hand is pointing at the 3, and the short hour hand is pointing at the 8. Therefore, the time is 08:00.",True,True,False
+clock_0120.png,11,48,10,11,12,10,10,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 10. Therefore, the time is 10:00.",False,False,False
+clock_0121.png,2,1,12,2,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,True,False
+clock_0122.png,12,53,11,12,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0123.png,7,36,7,7,7,6,6,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 6. Therefore, the time is 06:07.",True,False,False
+clock_0124.png,1,0,12,1,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0125.png,3,1,12,3,3,9,9,15,"The long minute hand is pointing at the 3, and the short hour hand is pointing at the 9. Therefore, the time is 09:15.",False,False,False
+clock_0126.png,5,43,9,5,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",False,False,False
+clock_0127.png,10,31,6,10,6,3,3,0,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0128.png,6,31,6,6,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0129.png,7,3,1,7,12,7,7,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",True,True,False
+clock_0130.png,7,10,2,7,2,7,7,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:02.",True,True,False
+clock_0131.png,8,58,12,8,12,9,9,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",True,False,False
+clock_0132.png,1,37,7,1,2,10,10,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:02.",False,False,False
+clock_0133.png,8,4,1,8,12,8,8,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:00.",True,True,False
+clock_0134.png,4,33,7,4,6,4,4,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 4. Therefore, the time is 04:30.",True,True,False
+clock_0135.png,6,21,4,6,4,6,6,24,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:24.",True,True,False
+clock_0136.png,11,47,9,11,12,9,9,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",False,False,False
+clock_0137.png,1,8,2,1,2,1,1,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:02.",True,True,False
+clock_0138.png,12,58,12,12,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0139.png,6,15,3,6,3,6,6,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:15.",True,True,True
+clock_0140.png,3,19,4,3,4,3,3,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:20.",True,True,False
+clock_0141.png,12,58,12,12,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0142.png,4,18,4,4,4,3,3,20,"The long minute hand is pointing at the 4, and the short hour hand is pointing at the 3. Therefore, the time shown on the clock is 03:20.",True,False,False
+clock_0143.png,10,2,12,10,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0144.png,3,19,4,3,4,3,3,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:20.",True,True,False
+clock_0145.png,7,51,10,7,10,8,8,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 8. Therefore, the time is 08:10.",True,False,False
+clock_0146.png,9,32,6,9,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0147.png,8,38,8,8,6,8,8,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 8. Therefore, the time is 08:30.",False,True,False
+clock_0148.png,2,39,8,2,3,8,8,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:00.",False,False,False
+clock_0149.png,1,10,2,1,2,10,10,2,"The long minute hand is pointing at the 2, and the short hour hand is pointing at the 10. Therefore, the time is 10:02.",True,False,False
+clock_0150.png,12,56,11,12,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0151.png,9,49,10,9,10,9,9,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 9. Therefore, the time is 09:10.",True,True,False
+clock_0152.png,7,30,6,7,6,3,3,0,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0153.png,10,34,7,10,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0154.png,7,59,12,7,12,8,8,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 8. Therefore, the time is 08:00.",True,False,False
+clock_0155.png,10,47,9,10,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",False,False,False
+clock_0156.png,9,51,10,9,10,9,9,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 9. Therefore, the time is 09:10.",True,True,False
+clock_0157.png,12,48,10,12,10,9,9,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 9. Therefore, the time is 09:10.",True,False,False
+clock_0158.png,2,0,12,2,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,True,True
+clock_0159.png,12,4,1,12,12,1,1,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:00.",True,False,False
+clock_0160.png,5,31,6,5,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,True,False
+clock_0161.png,11,54,11,11,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0162.png,9,40,8,9,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",False,True,False
+clock_0163.png,3,18,4,3,4,3,3,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:20.",True,True,False
+clock_0164.png,3,19,4,3,4,3,3,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:20.",True,True,False
+clock_0165.png,8,53,11,8,12,9,9,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",True,False,False
+clock_0166.png,8,32,6,8,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0167.png,8,51,10,8,10,9,9,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 9. Therefore, the time is 09:10.",True,False,False
+clock_0168.png,11,48,10,11,12,10,10,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 10. Therefore, the time is 10:00.",False,False,False
+clock_0169.png,8,35,7,8,7,6,6,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 6. Therefore, the time is 06:07.",True,False,False
+clock_0170.png,6,39,8,6,6,8,8,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 8. Therefore, the time is 08:30.",False,False,False
+clock_0171.png,4,34,7,4,6,4,4,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 4. Therefore, the time is 04:30.",True,True,False
+clock_0172.png,9,34,7,9,7,9,9,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 9. Therefore, the time is 09:07.",True,True,False
+clock_0173.png,9,28,6,9,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",True,True,False
+clock_0174.png,2,45,9,2,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",False,False,False
+clock_0175.png,2,1,12,2,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,True,False
+clock_0176.png,6,34,7,6,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0177.png,9,35,7,9,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",True,True,False
+clock_0178.png,1,3,1,1,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0179.png,1,13,3,1,3,2,2,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:15.",True,False,False
+clock_0180.png,5,47,9,5,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",False,False,False
+clock_0181.png,4,55,11,4,12,5,5,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",True,False,False
+clock_0182.png,8,6,1,8,12,8,8,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:00.",True,True,False
+clock_0183.png,3,16,3,3,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",True,False,False
+clock_0184.png,1,47,9,1,2,9,9,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:02.",False,False,False
+clock_0185.png,12,58,12,12,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0186.png,3,21,4,3,3,4,4,15,"The long minute hand is pointing at the 3, and the short hour hand is pointing at the 4. Therefore, the time shown on the clock is 04:15.",True,False,False
+clock_0187.png,7,21,4,7,4,6,6,20,"The long minute hand is pointing at the 4, and the short hour hand is pointing at the 6. Therefore, the time is 06:20.",True,False,False
+clock_0188.png,6,37,7,6,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0189.png,3,53,11,3,12,4,4,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:00.",True,False,False
+clock_0190.png,8,26,5,8,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,False,False
+clock_0191.png,11,33,7,11,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0192.png,5,29,6,5,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0193.png,1,27,5,1,2,6,6,12,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:12.",False,False,False
+clock_0194.png,1,4,1,1,12,1,1,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:00.",True,True,False
+clock_0195.png,12,47,9,12,12,9,9,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:00.",False,False,False
+clock_0196.png,3,3,1,3,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",False,False,False
+clock_0197.png,3,48,10,3,4,10,10,4,"The long minute hand is pointing at the 4, and the short hour hand is pointing at the 10. Therefore, the time is 10:04.",False,False,False
+clock_0198.png,1,43,9,1,2,9,9,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:02.",False,False,False
+clock_0199.png,12,29,6,12,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,False,False
+clock_0200.png,5,5,1,5,12,7,7,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 7. Therefore, the time is 07:00.",True,False,False
+clock_0201.png,3,59,12,3,12,4,4,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:00.",True,False,False
+clock_0202.png,9,36,7,9,7,9,9,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 9. Therefore, the time is 09:07.",True,True,False
+clock_0203.png,8,28,6,8,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",True,False,False
+clock_0204.png,1,45,9,1,2,9,9,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:02.",False,False,False
+clock_0205.png,5,30,6,5,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,True,True
+clock_0206.png,3,59,12,3,12,4,4,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:00.",True,False,False
+clock_0207.png,1,51,10,1,10,2,2,0,"The long minute hand is pointing at the number 10, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,False,False
+clock_0208.png,5,31,6,5,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,True,False
+clock_0209.png,7,32,6,7,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,True,False
+clock_0210.png,3,17,3,3,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",True,False,False
+clock_0211.png,9,41,8,9,8,9,9,0,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",True,True,False
+clock_0212.png,6,57,11,6,12,7,7,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 7. Therefore, the time is 07:00.",True,False,False
+clock_0213.png,3,39,8,3,8,3,3,40,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 3. Therefore, the time is 03:40.",True,True,False
+clock_0214.png,8,49,10,8,10,9,9,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 9. Therefore, the time is 09:10.",True,False,False
+clock_0215.png,6,22,4,6,6,4,4,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 4. Therefore, the time is 04:30.",False,False,False
+clock_0216.png,2,26,5,2,3,5,5,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",False,False,False
+clock_0217.png,10,1,12,10,12,9,9,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",True,False,False
+clock_0218.png,10,16,3,10,3,10,10,30,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:30.",True,True,False
+clock_0219.png,8,32,6,8,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0220.png,9,42,8,9,6,8,8,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 8. Therefore, the time is 08:30.",False,False,False
+clock_0221.png,6,47,9,6,7,9,9,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 9. Therefore, the time is 09:07.",False,False,False
+clock_0222.png,7,28,6,7,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,False,False
+clock_0223.png,10,54,11,10,12,10,10,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:00.",True,True,False
+clock_0224.png,10,34,7,10,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0225.png,2,24,5,2,5,3,3,5,"The long minute hand is pointing at the number 5, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:05.",True,False,False
+clock_0226.png,8,12,2,8,2,8,8,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:02.",True,True,False
+clock_0227.png,12,57,11,12,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0228.png,7,56,11,7,12,8,8,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 8. Therefore, the time is 08:00.",True,False,False
+clock_0229.png,4,44,9,4,9,5,5,45,"The long minute hand is pointing at the number 9, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:45.",True,False,False
+clock_0230.png,4,0,12,4,12,4,4,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:00.",True,True,True
+clock_0231.png,8,45,9,8,9,3,3,45,"The long minute hand is pointing at the 9, and the short hour hand is pointing at the 3. Therefore, the time is 03:45.",True,False,False
+clock_0232.png,12,50,10,12,10,2,2,50,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 2. Therefore, the time is 02:50.",True,False,False
+clock_0233.png,7,14,3,7,3,7,7,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:15.",True,True,False
+clock_0234.png,12,33,7,12,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",False,False,False
+clock_0235.png,2,31,6,2,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time shown on the clock is 03:30.",True,False,False
+clock_0236.png,7,21,4,7,4,6,6,20,"The long minute hand is pointing at the 4, and the short hour hand is pointing at the 6. Therefore, the time is 06:20.",True,False,False
+clock_0237.png,3,24,5,3,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,True,False
+clock_0238.png,10,21,4,10,4,10,10,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:04.",True,True,False
+clock_0239.png,10,57,11,10,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0240.png,6,48,10,6,10,7,7,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 7. Therefore, the time is 07:10.",True,False,False
+clock_0241.png,4,41,8,4,8,5,5,8,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 5. Therefore, the time is 05:08.",True,False,False
+clock_0242.png,6,14,3,6,3,6,6,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:15.",True,True,False
+clock_0243.png,6,42,8,6,6,8,8,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 8. Therefore, the time is 08:30.",False,False,False
+clock_0244.png,12,36,7,12,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0245.png,1,7,1,1,2,1,1,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:02.",True,True,False
+clock_0246.png,5,59,12,5,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",True,False,False
+clock_0247.png,12,43,9,12,12,9,9,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:00.",False,False,False
+clock_0248.png,5,38,8,5,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",False,True,False
+clock_0249.png,4,5,1,4,12,4,4,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:00.",True,True,False
+clock_0250.png,4,29,6,4,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,False,False
+clock_0251.png,3,54,11,3,12,4,4,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:00.",True,False,False
+clock_0252.png,8,51,10,8,10,9,9,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 9. Therefore, the time is 09:10.",True,False,False
+clock_0253.png,2,59,12,2,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0254.png,10,29,6,10,6,10,10,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 10. Therefore, the time is 10:30.",True,True,False
+clock_0255.png,3,16,3,3,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",True,False,False
+clock_0256.png,8,18,4,8,4,8,8,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:04.",True,True,False
+clock_0257.png,12,57,11,12,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0258.png,7,25,5,7,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,False,False
+clock_0259.png,5,25,5,5,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,True,False
+clock_0260.png,5,22,4,5,4,6,6,24,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:24.",True,False,False
+clock_0261.png,9,11,2,9,2,9,9,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:02.",True,True,False
+clock_0262.png,5,0,12,5,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",True,False,False
+clock_0263.png,10,57,11,10,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0264.png,1,46,9,1,2,9,9,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:02.",False,False,False
+clock_0265.png,2,31,6,2,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time shown on the clock is 03:30.",True,False,False
+clock_0266.png,6,47,9,6,7,9,9,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 9. Therefore, the time is 09:07.",False,False,False
+clock_0267.png,9,39,8,9,8,9,9,8,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 9. Therefore, the time is 09:08.",True,True,False
+clock_0268.png,5,0,12,5,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",True,False,False
+clock_0269.png,7,4,1,7,12,7,7,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",True,True,False
+clock_0270.png,6,28,6,6,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0271.png,7,2,12,7,12,7,7,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 7. Therefore, the time is 07:00.",True,True,False
+clock_0272.png,12,25,5,12,5,10,10,5,"The long minute hand is pointing at the number 5, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:05.",True,False,False
+clock_0273.png,3,36,7,3,4,7,7,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:20.",False,False,False
+clock_0274.png,6,56,11,6,12,7,7,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 7. Therefore, the time is 07:00.",True,False,False
+clock_0275.png,12,4,1,12,12,1,1,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:00.",True,False,False
+clock_0276.png,1,29,6,1,2,6,6,12,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:12.",False,False,False
+clock_0277.png,4,4,1,4,12,4,4,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:00.",True,True,False
+clock_0278.png,12,15,3,12,3,12,12,3,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 12. Therefore, the time shown on the clock is 12:03.",True,True,False
+clock_0279.png,10,25,5,10,5,10,10,5,"The long minute hand is pointing at the number 5, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:05.",True,True,False
+clock_0280.png,5,38,8,5,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",False,True,False
+clock_0281.png,4,32,6,4,6,4,4,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 4. Therefore, the time is 04:30.",True,True,False
+clock_0282.png,5,22,4,5,4,6,6,24,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:24.",True,False,False
+clock_0283.png,10,9,2,10,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",False,False,False
+clock_0284.png,6,4,1,6,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",True,True,False
+clock_0285.png,4,33,7,4,6,4,4,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 4. Therefore, the time is 04:30.",True,True,False
+clock_0286.png,4,30,6,4,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,False,False
+clock_0287.png,10,57,11,10,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0288.png,3,57,11,3,12,4,4,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:00.",True,False,False
+clock_0289.png,1,55,11,1,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,False,False
+clock_0290.png,5,44,9,5,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30 or 09:00.",False,False,False
+clock_0291.png,4,15,3,4,3,4,4,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:15.",True,True,True
+clock_0292.png,8,15,3,8,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",True,False,False
+clock_0293.png,7,1,12,7,12,7,7,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",True,True,False
+clock_0294.png,1,27,5,1,2,6,6,12,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:12.",False,False,False
+clock_0295.png,11,19,4,11,4,10,10,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:04.",True,False,False
+clock_0296.png,8,11,2,8,2,8,8,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:02.",True,True,False
+clock_0297.png,2,34,7,2,3,7,7,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",False,False,False
+clock_0298.png,12,32,6,12,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,False,False
+clock_0299.png,1,50,10,1,10,2,2,0,"The long minute hand is pointing at the number 10, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,False,False
+clock_0300.png,11,36,7,11,12,7,7,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 7. Therefore, the time is 07:00.",False,False,False
+clock_0301.png,12,2,12,12,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",True,False,False
+clock_0302.png,1,32,6,1,2,6,6,12,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:12.",False,False,False
+clock_0303.png,8,9,2,8,2,8,8,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:02.",True,True,False
+clock_0304.png,11,43,9,11,12,9,9,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",False,False,False
+clock_0305.png,12,30,6,12,6,12,12,0,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 12. Therefore, the time is 12:00.",True,True,False
+clock_0306.png,2,50,10,2,10,3,3,50,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 3. Therefore, the time is 03:50.",True,False,False
+clock_0307.png,2,34,7,2,3,7,7,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",False,False,False
+clock_0308.png,7,16,3,7,3,7,7,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",True,True,False
+clock_0309.png,10,7,1,10,12,1,1,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:00.",True,False,False
+clock_0310.png,10,9,2,10,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",False,False,False
+clock_0311.png,10,33,7,10,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0312.png,3,40,8,3,4,9,9,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:20.",False,False,False
+clock_0313.png,7,3,1,7,12,7,7,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",True,True,False
+clock_0314.png,10,52,10,10,10,2,2,50,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 2. Therefore, the time is 02:50.",True,False,False
+clock_0315.png,2,44,9,2,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",False,False,False
+clock_0316.png,11,28,6,11,6,10,10,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 10. Therefore, the time is 10:30.",True,False,False
+clock_0317.png,8,35,7,8,7,6,6,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 6. Therefore, the time is 06:07.",True,False,False
+clock_0318.png,9,20,4,9,4,9,9,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:04.",True,True,False
+clock_0319.png,9,35,7,9,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",True,True,False
+clock_0320.png,10,36,7,10,7,10,10,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 10. Therefore, the time is 10:07.",True,True,False
+clock_0321.png,9,23,5,9,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",True,True,False
+clock_0322.png,3,48,10,3,4,10,10,4,"The long minute hand is pointing at the 4, and the short hour hand is pointing at the 10. Therefore, the time is 10:04.",False,False,False
+clock_0323.png,3,47,9,3,4,9,9,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:20.",False,False,False
+clock_0324.png,4,17,3,4,4,3,3,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:20.",True,False,False
+clock_0325.png,1,38,8,1,2,8,8,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:02.",False,False,False
+clock_0326.png,8,22,4,8,8,4,4,8,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 4. Therefore, the time is 04:08.",False,False,False
+clock_0327.png,5,11,2,5,2,5,5,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:02.",True,True,False
+clock_0328.png,1,54,11,1,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,False,False
+clock_0329.png,7,24,5,7,5,6,6,30,"The long minute hand is pointing at the 5, and the short hour hand is pointing at the 6. Therefore, the time is 06:30.",True,False,False
+clock_0330.png,3,40,8,3,4,9,9,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:20.",False,False,False
+clock_0331.png,1,48,10,1,10,2,2,0,"The long minute hand is pointing at the number 10, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,False,False
+clock_0332.png,4,47,9,4,5,9,9,30,"The long minute hand is pointing at the number 5, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:30.",False,False,False
+clock_0333.png,9,21,4,9,4,9,9,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:04.",True,True,False
+clock_0334.png,11,18,4,11,4,10,10,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:04.",True,False,False
+clock_0335.png,1,35,7,1,2,10,10,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:02.",False,False,False
+clock_0336.png,12,40,8,12,12,9,9,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:00.",False,False,False
+clock_0337.png,3,11,2,3,2,3,3,12,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:12.",True,True,False
+clock_0338.png,9,6,1,9,12,9,9,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:00.",True,True,False
+clock_0339.png,12,13,3,12,3,12,12,3,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 12. Therefore, the time shown on the clock is 12:03.",True,True,False
+clock_0340.png,4,18,4,4,4,3,3,20,"The long minute hand is pointing at the 4, and the short hour hand is pointing at the 3. Therefore, the time shown on the clock is 03:20.",True,False,False
+clock_0341.png,10,46,9,10,9,3,3,45,"The long minute hand is pointing at the 9, and the short hour hand is pointing at the 3. Therefore, the time is 03:45.",True,False,False
+clock_0342.png,5,4,1,5,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0343.png,3,11,2,3,2,3,3,12,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:12.",True,True,False
+clock_0344.png,9,51,10,9,10,9,9,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 9. Therefore, the time is 09:10.",True,True,False
+clock_0345.png,11,20,4,11,4,10,10,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:04.",True,False,False
+clock_0346.png,4,52,10,4,10,5,5,10,"The long minute hand is pointing at the number 10, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:10.",True,False,False
+clock_0347.png,7,15,3,7,3,7,7,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",True,True,False
+clock_0348.png,9,38,8,9,8,7,7,8,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 7. Therefore, the time is 07:08.",True,False,False
+clock_0349.png,5,41,8,5,6,8,8,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 8. Therefore, the time is 08:30.",False,False,False
+clock_0350.png,10,38,8,10,10,8,8,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 8. Therefore, the time is 08:10.",False,False,False
+clock_0351.png,10,4,1,10,12,1,1,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:00.",True,False,False
+clock_0352.png,3,22,4,3,3,4,4,15,"The long minute hand is pointing at the 3, and the short hour hand is pointing at the 4. Therefore, the time is 04:15.",True,False,False
+clock_0353.png,11,10,2,11,2,10,10,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:02.",True,False,False
+clock_0354.png,2,46,9,2,3,9,9,15,"The long minute hand is pointing at the 3, and the short hour hand is pointing at the 9. Therefore, the time is 09:15.",False,False,False
+clock_0355.png,12,8,2,12,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",False,False,False
+clock_0356.png,10,57,11,10,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0357.png,12,16,3,12,3,2,2,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:15.",True,False,False
+clock_0358.png,6,6,1,6,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",True,True,False
+clock_0359.png,8,41,8,8,8,9,9,8,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 9. Therefore, the time is 09:08.",True,False,False
+clock_0360.png,9,49,10,9,10,9,9,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 9. Therefore, the time is 09:10.",True,True,False
+clock_0361.png,11,57,11,11,12,6,6,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 6. Therefore, the time is 06:00.",True,False,False
+clock_0362.png,2,4,1,2,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,True,False
+clock_0363.png,5,37,7,5,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0364.png,3,7,1,3,3,2,2,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:15.",False,False,False
+clock_0365.png,1,21,4,1,4,2,2,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:04.",True,False,False
+clock_0366.png,4,16,3,4,3,4,4,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:15.",True,True,False
+clock_0367.png,7,24,5,7,5,6,6,30,"The long minute hand is pointing at the 5, and the short hour hand is pointing at the 6. Therefore, the time is 06:30.",True,False,False
+clock_0368.png,4,35,7,4,6,4,4,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 4. Therefore, the time is 04:30.",True,True,False
+clock_0369.png,6,59,12,6,12,6,6,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 6. Therefore, the time is 06:00.",True,True,False
+clock_0370.png,3,43,9,3,4,9,9,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:20.",False,False,False
+clock_0371.png,6,38,8,6,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",False,False,False
+clock_0372.png,11,9,2,11,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",False,False,False
+clock_0373.png,10,18,4,10,4,10,10,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:04.",True,True,False
+clock_0374.png,7,2,12,7,12,7,7,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 7. Therefore, the time is 07:00.",True,True,False
+clock_0375.png,2,27,5,2,3,5,5,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",False,False,False
+clock_0376.png,10,19,4,10,4,10,10,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:04.",True,True,False
+clock_0377.png,12,7,1,12,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0378.png,9,38,8,9,8,7,7,8,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 7. Therefore, the time is 07:08.",True,False,False
+clock_0379.png,1,2,12,1,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0380.png,12,56,11,12,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0381.png,12,48,10,12,10,9,9,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 9. Therefore, the time is 09:10.",True,False,False
+clock_0382.png,9,55,11,9,12,9,9,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",True,True,False
+clock_0383.png,1,37,7,1,2,10,10,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:02.",False,False,False
+clock_0384.png,5,5,1,5,12,7,7,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 7. Therefore, the time is 07:00.",True,False,False
+clock_0385.png,10,43,9,10,9,3,3,45,"The long minute hand is pointing at the 9, and the short hour hand is pointing at the 3. Therefore, the time is 03:45.",True,False,False
+clock_0386.png,5,15,3,5,3,5,5,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",True,True,False
+clock_0387.png,6,20,4,6,4,6,6,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:20.",True,True,True
+clock_0388.png,11,59,12,11,12,6,6,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 6. Therefore, the time is 06:00.",True,False,False
+clock_0389.png,5,35,7,5,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,False,False
+clock_0390.png,3,18,4,3,4,3,3,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:20.",True,True,False
+clock_0391.png,4,56,11,4,12,5,5,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",True,False,False
+clock_0392.png,2,46,9,2,3,9,9,15,"The long minute hand is pointing at the 3, and the short hour hand is pointing at the 9. Therefore, the time is 09:15.",False,False,False
+clock_0393.png,9,48,10,9,9,10,10,45,"The long minute hand is pointing at the 9, and the short hour hand is pointing at the 10. Therefore, the time is 10:45.",True,False,False
+clock_0394.png,1,52,10,1,10,2,2,0,"The long minute hand is pointing at the number 10, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,False,False
+clock_0395.png,6,53,11,6,10,7,7,10,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 7. Therefore, the time is 07:10.",True,False,False
+clock_0396.png,3,15,3,3,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",True,False,False
+clock_0397.png,7,56,11,7,12,8,8,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 8. Therefore, the time is 08:00.",True,False,False
+clock_0398.png,11,11,2,11,2,10,10,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:02.",True,False,False
+clock_0399.png,10,31,6,10,6,3,3,0,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0400.png,8,37,7,8,6,8,8,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 8. Therefore, the time is 08:30.",True,True,False
+clock_0401.png,12,23,5,12,4,5,5,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:04.",True,False,False
+clock_0402.png,12,52,10,12,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",False,False,False
+clock_0403.png,8,57,11,8,12,9,9,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",True,False,False
+clock_0404.png,12,35,7,12,6,10,10,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 10. Therefore, the time is 10:30.",True,False,False
+clock_0405.png,10,7,1,10,12,1,1,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:00.",True,False,False
+clock_0406.png,10,59,12,10,12,3,3,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 3. Therefore, the time is 03:00.",True,False,False
+clock_0407.png,2,27,5,2,3,5,5,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",False,False,False
+clock_0408.png,12,36,7,12,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0409.png,9,35,7,9,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",True,True,False
+clock_0410.png,11,53,11,11,12,9,9,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:00.",True,False,False
+clock_0411.png,1,8,2,1,2,1,1,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:02.",True,True,False
+clock_0412.png,1,52,10,1,10,2,2,0,"The long minute hand is pointing at the number 10, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,False,False
+clock_0413.png,4,12,2,4,4,3,3,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:20.",False,False,False
+clock_0414.png,12,47,9,12,12,9,9,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:00.",False,False,False
+clock_0415.png,3,5,1,3,3,12,12,3,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 12. Therefore, the time shown on the clock is 12:03.",False,False,False
+clock_0416.png,2,50,10,2,10,3,3,50,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 3. Therefore, the time is 03:50.",True,False,False
+clock_0417.png,5,46,9,5,6,9,9,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 9. Therefore, the time is 09:30.",False,False,False
+clock_0418.png,9,1,12,9,12,9,9,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 9. Therefore, the time is 09:00.",True,True,False
+clock_0419.png,10,55,11,10,12,10,10,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:00.",True,True,False
+clock_0420.png,2,58,12,2,3,9,9,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:00.",False,False,False
+clock_0421.png,5,54,11,5,6,10,10,30,"The long minute hand is pointing at the number 6, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:30.",False,False,False
+clock_0422.png,8,32,6,8,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0423.png,6,0,12,6,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",True,True,True
+clock_0424.png,2,31,6,2,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time shown on the clock is 03:30.",True,False,False
+clock_0425.png,1,10,2,1,2,10,10,2,"The long minute hand is pointing at the 2, and the short hour hand is pointing at the 10. Therefore, the time is 10:02.",True,False,False
+clock_0426.png,5,25,5,5,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,True,False
+clock_0427.png,9,21,4,9,4,9,9,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:04.",True,True,False
+clock_0428.png,11,26,5,11,12,5,5,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",False,False,False
+clock_0429.png,1,12,2,1,2,1,1,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:02.",True,True,False
+clock_0430.png,1,33,7,1,2,6,6,12,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:12.",False,False,False
+clock_0431.png,9,34,7,9,7,9,9,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 9. Therefore, the time is 09:07.",True,True,False
+clock_0432.png,1,20,4,1,4,2,2,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:20.",True,False,False
+clock_0433.png,7,5,1,7,12,7,7,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",True,True,False
+clock_0434.png,12,16,3,12,3,2,2,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:15.",True,False,False
+clock_0435.png,5,30,6,5,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,True,True
+clock_0436.png,5,37,7,5,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0437.png,3,52,10,3,12,4,4,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:00.",False,False,False
+clock_0438.png,7,36,7,7,7,6,6,7,"The long minute hand is pointing at the 7, and the short hour hand is pointing at the 6. Therefore, the time is 06:07.",True,False,False
+clock_0439.png,5,36,7,5,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0440.png,10,9,2,10,12,2,2,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",False,False,False
+clock_0441.png,3,16,3,3,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",True,False,False
+clock_0442.png,5,13,3,5,3,5,5,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",True,True,False
+clock_0443.png,9,45,9,9,9,3,3,45,"The long minute hand is pointing at the 9, and the short hour hand is pointing at the 3. Therefore, the time is 03:45.",True,False,False
+clock_0444.png,1,50,10,1,10,2,2,0,"The long minute hand is pointing at the number 10, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,False,False
+clock_0445.png,4,0,12,4,12,4,4,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:00.",True,True,True
+clock_0446.png,1,39,8,1,2,8,8,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:02.",False,False,False
+clock_0447.png,2,27,5,2,3,5,5,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",False,False,False
+clock_0448.png,8,38,8,8,6,8,8,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 8. Therefore, the time is 08:30.",False,True,False
+clock_0449.png,10,57,11,10,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0450.png,2,53,11,2,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",False,False,False
+clock_0451.png,6,2,12,6,12,6,6,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:00.",True,True,False
+clock_0452.png,11,49,10,11,10,2,2,0,"The long minute hand is pointing at the number 10, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:00.",True,False,False
+clock_0453.png,12,0,12,12,12,6,6,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 6. Therefore, the time is 06:00.",True,False,False
+clock_0454.png,6,43,9,6,6,10,10,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 10. Therefore, the time is 10:30.",False,False,False
+clock_0455.png,5,29,6,5,6,7,7,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 7. Therefore, the time is 07:30.",True,False,False
+clock_0456.png,11,56,11,11,12,6,6,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 6. Therefore, the time is 06:00.",True,False,False
+clock_0457.png,1,47,9,1,2,9,9,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:02.",False,False,False
+clock_0458.png,7,14,3,7,3,7,7,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:15.",True,True,False
+clock_0459.png,5,20,4,5,4,6,6,24,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 6. Therefore, the time shown on the clock is 06:24.",True,False,False
+clock_0460.png,2,10,2,2,2,3,3,12,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:12.",True,False,False
+clock_0461.png,3,38,8,3,4,3,3,20,"The long minute hand is pointing at the 4, and the short hour hand is pointing at the 3. Therefore, the time is 03:20.",False,True,False
+clock_0462.png,6,59,12,6,12,6,6,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 6. Therefore, the time is 06:00.",True,True,False
+clock_0463.png,2,37,7,2,3,7,7,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",False,False,False
+clock_0464.png,2,33,7,2,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,False,False
+clock_0465.png,2,29,6,2,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time shown on the clock is 03:30.",True,False,False
+clock_0466.png,11,50,10,11,10,2,2,50,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 2. Therefore, the time is 02:50.",True,False,False
+clock_0467.png,2,51,10,2,3,10,10,30,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:30.",False,False,False
+clock_0468.png,9,37,7,9,6,8,8,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 8. Therefore, the time is 08:30.",True,False,False
+clock_0469.png,1,23,5,1,2,4,4,10,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 4. Therefore, the time shown on the clock is 04:10.",False,False,False
+clock_0470.png,12,29,6,12,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,False,False
+clock_0471.png,7,41,8,7,8,7,7,40,"The long minute hand is pointing at the 8, and the short hour hand is pointing at the 7. Therefore, the time is 07:40.",True,True,False
+clock_0472.png,3,16,3,3,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",True,False,False
+clock_0473.png,5,28,6,5,6,5,5,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 5. Therefore, the time is 05:30.",True,True,False
+clock_0474.png,4,9,2,4,2,3,3,12,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:12.",True,False,False
+clock_0475.png,8,16,3,8,3,8,8,0,"The long minute hand is pointing at the 3, and the short hour hand is pointing at the 8. Therefore, the time is 08:00.",True,True,False
+clock_0476.png,10,16,3,10,3,10,10,30,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:30.",True,True,False
+clock_0477.png,12,19,4,12,4,2,2,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 2. Therefore, the time shown on the clock is 02:04.",True,False,False
+clock_0478.png,8,4,1,8,12,8,8,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:00.",True,True,False
+clock_0479.png,2,5,1,2,2,3,3,12,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:12.",True,False,False
+clock_0480.png,5,1,12,5,12,5,5,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",True,True,False
+clock_0481.png,11,42,8,11,12,8,8,0,"The long minute hand is pointing at the 12, and the short hour hand is pointing at the 8. Therefore, the time is 08:00.",False,False,False
+clock_0482.png,11,50,10,11,10,2,2,50,"The long minute hand is pointing at the 10, and the short hour hand is pointing at the 2. Therefore, the time is 02:50.",True,False,False
+clock_0483.png,9,22,4,9,4,9,9,20,"The long minute hand is pointing at the 4, and the short hour hand is pointing at the 9. Therefore, the time is 09:20.",True,True,False
+clock_0484.png,7,15,3,7,3,7,7,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 7. Therefore, the time shown on the clock is 07:00.",True,True,False
+clock_0485.png,11,53,11,11,12,9,9,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:00.",True,False,False
+clock_0486.png,8,3,1,8,12,8,8,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:00.",True,True,False
+clock_0487.png,8,3,1,8,12,8,8,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 8. Therefore, the time shown on the clock is 08:00.",True,True,False
+clock_0488.png,8,24,5,8,5,8,8,5,"The long minute hand is pointing at the 5, and the short hour hand is pointing at the 8. Therefore, the time is 08:05.",True,True,False
+clock_0489.png,3,31,6,3,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time shown on the clock is 03:30.",True,True,False
+clock_0490.png,3,26,5,3,6,3,3,30,"The long minute hand is pointing at the 6, and the short hour hand is pointing at the 3. Therefore, the time is 03:30.",True,True,False
+clock_0491.png,2,57,11,2,3,9,9,15,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:15.",False,False,False
+clock_0492.png,3,18,4,3,4,3,3,20,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:20.",True,True,False
+clock_0493.png,5,4,1,5,12,3,3,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 3. Therefore, the time shown on the clock is 03:00.",True,False,False
+clock_0494.png,2,27,5,2,3,5,5,0,"The long minute hand is pointing at the number 3, and the short hour hand is pointing at the number 5. Therefore, the time shown on the clock is 05:00.",False,False,False
+clock_0495.png,10,21,4,10,4,10,10,4,"The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 10. Therefore, the time shown on the clock is 10:04.",True,True,False
+clock_0496.png,5,5,1,5,12,7,7,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 7. Therefore, the time is 07:00.",True,False,False
+clock_0497.png,1,4,1,1,12,1,1,0,"The long minute hand is pointing at the number 12, and the short hour hand is pointing at the number 1. Therefore, the time shown on the clock is 01:00.",True,True,False
+clock_0498.png,9,11,2,9,2,9,9,2,"The long minute hand is pointing at the number 2, and the short hour hand is pointing at the number 9. Therefore, the time shown on the clock is 09:02.",True,True,False
+clock_0499.png,10,45,9,10,9,3,3,45,"The long minute hand is pointing at the 9, and the short hour hand is pointing at the 3. Therefore, the time is 03:45.",True,False,False
