@@ -120,6 +120,49 @@ def find_image_token_id(model, processor):
     return processor.tokenizer.convert_tokens_to_ids("<|image_pad|>")
 
 
+def load_model(model_id=MODEL_ID):
+    """Load Qwen2.5-VL-3B-Instruct + its processor in float16 with
+    device_map="auto". Shared by extract_activations (below) and
+    intervene.py's causal-intervention experiments, so there's exactly one
+    place that knows how to load the model.
+
+    transformers is imported here (not at module level) so that anything
+    that only needs the CPU-only parts of this file (e.g. `--stage probe`)
+    still works in an environment without transformers/a GPU installed.
+    """
+    from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
+    print(f"Loading {model_id} in float16 ...")
+    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+        model_id, torch_dtype=torch.float16, device_map="auto")
+    processor = AutoProcessor.from_pretrained(model_id)
+    model.eval()
+    return model, processor
+
+
+def make_vision_hook(vision_holder):
+    """Build a forward hook that captures the vision tower's output into
+    `vision_holder["out"]` (a plain dict the caller owns and can clear/read
+    around each image). Depending on the transformers version this module
+    returns a bare tensor, a tuple, or a ModelOutput object -- handle all
+    three. (Confirmed necessary in practice: the real Qwen2.5-VL vision
+    tower on Kaggle returned a ModelOutput here, not a bare tensor.)
+
+    Factored out so intervene.py can register the exact same hook, and (for
+    Experiment A's vision-encoder patch) a variant that also overwrites the
+    output instead of only reading it.
+    """
+    def hook(module, inputs_, output):
+        tensor = output
+        if hasattr(tensor, "last_hidden_state"):
+            tensor = tensor.last_hidden_state
+        elif isinstance(tensor, (tuple, list)):
+            tensor = tensor[0]
+        if not torch.is_tensor(tensor):
+            return
+        vision_holder["out"] = tensor.detach()
+    return hook
+
+
 @torch.no_grad()
 def process_one_image(model, processor, image_path, image_token_id, vision_holder,
                        prompt=PROMPT, max_new_tokens=16):
@@ -233,38 +276,19 @@ def extract_activations(data_csv=DATA_CSV, images_dir=IMAGES_DIR, out_dir=ACTIVA
     probe`, which never needs the model, works even in an environment
     without transformers/a GPU installed.
     """
-    from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration, set_seed
+    from transformers import set_seed
     set_seed(seed)
 
     df = pd.read_csv(data_csv)
     if max_images is not None:
         df = df.head(max_images)
 
-    print(f"Loading {model_id} in float16 ...")
-    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-        model_id, torch_dtype=torch.float16, device_map="auto")
-    processor = AutoProcessor.from_pretrained(model_id)
-    model.eval()
+    model, processor = load_model(model_id)
 
     image_token_id = find_image_token_id(model, processor)
     vision_module = find_vision_module(model)
     vision_holder = {}
-
-    def _capture_vision_output(module, inputs_, output):
-        # Depending on the transformers version this module returns a bare
-        # tensor, a tuple, or a ModelOutput object -- handle all three.
-        # (Confirmed necessary in practice: the real Qwen2.5-VL vision tower
-        # on Kaggle returned a ModelOutput here, not a bare tensor.)
-        tensor = output
-        if hasattr(tensor, "last_hidden_state"):
-            tensor = tensor.last_hidden_state
-        elif isinstance(tensor, (tuple, list)):
-            tensor = tensor[0]
-        if not torch.is_tensor(tensor):
-            return
-        vision_holder["out"] = tensor.detach()
-
-    vision_module.register_forward_hook(_capture_vision_output)
+    vision_module.register_forward_hook(make_vision_hook(vision_holder))
 
     last_all, meanpool_all, vision_all, rows = [], [], [], []
     for _, r in tqdm(df.iterrows(), total=len(df), desc="Extracting activations"):
@@ -406,7 +430,7 @@ def classification_metrics(y_true, y_pred, mask=None):
 def diagnose_and_clean_layer(X, label):
     """Check one layer's activation matrix (N, H) for NaN/Inf, repair it if
     it's only partially bad, and drop zero-variance columns before PCA sees
-    it. Returns (X_clean, status, note):
+    it. Returns (X_clean, status, note, kept_mask):
       - status "ok":       X had no non-finite values; nothing changed
                             except dropping any zero-variance columns.
       - status "repaired": X had some non-finite values, which were replaced
@@ -416,13 +440,20 @@ def diagnose_and_clean_layer(X, label):
       - status "skipped":  nothing usable was left (X_clean is None) -- the
                             caller should skip this layer rather than fit a
                             probe on it.
+      - kept_mask: bool array of length X.shape[1] (the ORIGINAL feature
+        count passed in), True for columns that survived into X_clean (all
+        False if skipped). Lets a caller scatter a direction/coefficient
+        vector computed on X_clean back into full raw-activation space --
+        used by `fit_probe_direction` for the causal-intervention probe.
     `X` must already be float64 (the caller casts before calling this).
     """
+    n_features = X.shape[1]
     n_bad = int((~np.isfinite(X)).sum())
     note = ""
 
     if n_bad == 0:
         status = "ok"
+        kept_mask = np.ones(n_features, dtype=bool)
     else:
         n_bad_images = int((~np.isfinite(X)).any(axis=1).sum())
         print(f"  {label}: {n_bad} non-finite value(s) across {n_bad_images}/{len(X)} images")
@@ -440,12 +471,13 @@ def diagnose_and_clean_layer(X, label):
         # from -- drop it outright rather than inventing a value.
         has_any_finite = finite.any(axis=0)
         if not has_any_finite.any():
-            return None, "skipped", f"all {X.size} values in this layer were non-finite"
+            return None, "skipped", f"all {X.size} values in this layer were non-finite", np.zeros(n_features, dtype=bool)
 
         X = X[:, has_any_finite]
         col_mean = col_mean[has_any_finite]
         bad_mask = ~np.isfinite(X)
         X = np.where(bad_mask, np.broadcast_to(col_mean, X.shape), X)
+        kept_mask = has_any_finite.copy()
 
         n_dropped_allbad = int((~has_any_finite).sum())
         status = "repaired"
@@ -461,11 +493,12 @@ def diagnose_and_clean_layer(X, label):
     if n_dropped_zerovar:
         note = (note + "; " if note else "") + f"{n_dropped_zerovar} zero-variance column(s) dropped"
     X = X[:, keep]
+    kept_mask[kept_mask] = keep  # narrow the mask by this second filter too
 
     if X.shape[1] == 0:
-        return None, "skipped", (note + "; no usable columns remained" if note else "no usable columns remained")
+        return None, "skipped", (note + "; no usable columns remained" if note else "no usable columns remained"), np.zeros(n_features, dtype=bool)
 
-    return X, status, note
+    return X, status, note, kept_mask
 
 
 def clean_representation(activations, prefix):
@@ -480,8 +513,8 @@ def clean_representation(activations, prefix):
     for layer in range(n_layers):
         X = activations[:, layer, :].astype(np.float64)
         cleaned.append(diagnose_and_clean_layer(X, f"{prefix} layer {layer}"))
-    n_skipped = sum(1 for _, status, _ in cleaned if status == "skipped")
-    n_repaired = sum(1 for _, status, _ in cleaned if status == "repaired")
+    n_skipped = sum(1 for _, status, _, _ in cleaned if status == "skipped")
+    n_repaired = sum(1 for _, status, _, _ in cleaned if status == "repaired")
     if n_skipped or n_repaired:
         print(f"  -> {prefix}: {n_repaired} layer(s) repaired, {n_skipped} layer(s) skipped "
               f"(of {n_layers} total)")
@@ -504,7 +537,7 @@ def probe_one_representation(cleaned_layers, prefix, targets, hand, correct_mask
     y_reg, y_clf = targets[hand]["regression"], targets[hand]["classification"]
 
     rows = []
-    for layer, (X, status, note) in enumerate(cleaned_layers):
+    for layer, (X, status, note, _kept_mask) in enumerate(cleaned_layers):
         if status == "skipped":
             for split_name, mask in [("all", None), ("correct", correct_mask), ("wrong", ~correct_mask)]:
                 n = int(mask.sum()) if mask is not None else len(y_reg)
@@ -548,7 +581,7 @@ def shuffled_label_control(cleaned_layers, prefix, targets, hand, n_components, 
     y_clf = targets[hand]["classification"][perm]
 
     rows = []
-    for layer, (X, status, note) in enumerate(cleaned_layers):
+    for layer, (X, status, note, _kept_mask) in enumerate(cleaned_layers):
         if status == "skipped":
             rows.append({
                 "representation": prefix, "layer": layer, "hand": hand, "split": "shuffled_labels",
@@ -723,16 +756,32 @@ def print_summary(results_df, control_df, majority_baselines, index_df, out_dir)
     return summary_df
 
 
+def _load_representation_array(activations_dir, representation):
+    """Load one saved activation array by representation name, always
+    shaped (N, layers, H) -- vision_encoder gets a size-1 "layers" axis
+    added so every caller can use the same per-layer code regardless of
+    representation. Loaded as-saved (float32 from a current
+    extract_activations run, or possibly float16 from an older one) --
+    diagnose_and_clean_layer casts each layer up to float64 itself, so we
+    don't need to touch dtype here.
+    """
+    filename = {
+        "hidden_last": "hidden_last.npy",
+        "hidden_meanpool": "hidden_meanpool.npy",
+        "vision_encoder": "vision_meanpool.npy",
+    }[representation]
+    arr = np.load(os.path.join(activations_dir, filename))
+    if representation == "vision_encoder":
+        arr = arr[:, None, :]
+    return arr
+
+
 def run_probing(activations_dir=ACTIVATIONS_DIR, out_dir=RESULTS_DIR,
                  n_components=N_COMPONENTS, n_splits=N_SPLITS, seed=SEED):
     index_df = pd.read_csv(os.path.join(activations_dir, "index.csv"))
-    # Loaded as-saved (float32 from a current extract_activations run, or
-    # possibly float16 from an older run) -- diagnose_and_clean_layer casts
-    # each layer up to float64 itself, so we don't need to touch dtype here.
-    hidden_last = np.load(os.path.join(activations_dir, "hidden_last.npy"))
-    hidden_meanpool = np.load(os.path.join(activations_dir, "hidden_meanpool.npy"))
-    vision_meanpool = np.load(os.path.join(activations_dir, "vision_meanpool.npy"))
-    vision_meanpool = vision_meanpool[:, None, :]  # treat as a single "layer" so it reuses the same code
+    hidden_last = _load_representation_array(activations_dir, "hidden_last")
+    hidden_meanpool = _load_representation_array(activations_dir, "hidden_meanpool")
+    vision_meanpool = _load_representation_array(activations_dir, "vision_encoder")
 
     n_components = safe_n_components(len(index_df), n_splits, n_components)
     targets = build_targets(index_df)
@@ -849,15 +898,137 @@ def recover_activations(activations_dir=ACTIVATIONS_DIR):
 
 
 # ---------------------------------------------------------------------------
+# STAGE "direction": fit + save a steering direction, for intervene.py
+# ---------------------------------------------------------------------------
+
+def fit_probe_direction(activations_dir=ACTIVATIONS_DIR, out_dir=RESULTS_DIR,
+                         representation="hidden_last", hand="minute",
+                         layer=None, n_components=N_COMPONENTS, seed=SEED):
+    """Refit the regression probe for one (representation, hand) at ONE
+    layer, on ALL available images (no cross-validation split -- for a
+    causal-intervention experiment we want the single best-fit probe, not a
+    held-out generalization estimate), and save it as a STEERING DIRECTION
+    in raw activation space, so intervene.py can load and use it without
+    needing scikit-learn itself.
+
+    If `layer` is None, reads probe_output/probe_results/per_layer_results.csv
+    (must already exist -- i.e. run `--stage probe` first) and auto-picks
+    the layer with the highest R^2 on split='all' for this representation/hand.
+    """
+    index_df = pd.read_csv(os.path.join(activations_dir, "index.csv"))
+    acts = _load_representation_array(activations_dir, representation)
+
+    if layer is None:
+        results_path = os.path.join(out_dir, "per_layer_results.csv")
+        if not os.path.exists(results_path):
+            raise FileNotFoundError(
+                f"{results_path} not found -- run `python probe.py --stage probe` first, "
+                "or pass --direction_layer explicitly.")
+        results_df = pd.read_csv(results_path)
+        sub = results_df[(results_df["representation"] == representation) &
+                          (results_df["hand"] == hand) & (results_df["split"] == "all") &
+                          (results_df["status"] != "skipped")]
+        if len(sub) == 0:
+            raise ValueError(f"No usable layers found for {representation}/{hand} in {results_path}.")
+        layer = int(sub.loc[sub["r2"].idxmax(), "layer"])
+        print(f"Auto-selected layer {layer} (highest R^2 on the 'all' split) for {representation}/{hand}.")
+
+    X_raw = acts[:, layer, :].astype(np.float64)
+    X_clean, status, note, kept_mask = diagnose_and_clean_layer(X_raw, f"{representation} layer {layer}")
+    if status == "skipped":
+        raise ValueError(f"Layer {layer} of {representation} has no usable data: {note}")
+
+    targets = build_targets(index_df)
+    y = targets[hand]["regression"]  # (N, 2): sin, cos of the true angle
+
+    n_components_eff = min(n_components, X_clean.shape[1], X_clean.shape[0] - 1)
+    scaler = StandardScaler().fit(X_clean)
+    X_scaled = scaler.transform(X_clean)
+    pca = PCA(n_components=n_components_eff, random_state=seed).fit(X_scaled)
+    X_pca = pca.transform(X_scaled)
+    ridge = Ridge(alpha=10.0).fit(X_pca, y)
+    r2_train = ridge.score(X_pca, y)  # train-set R^2 -- a sanity number, not held-out
+
+    # The fitted pipeline is a LINEAR map from raw activations to (sin, cos):
+    #   x_scaled = (x - scaler.mean_) / scaler.scale_
+    #   z        = (x_scaled - pca.mean_) @ pca.components_.T
+    #   y_pred   = z @ ridge.coef_.T + ridge.intercept_
+    # Chaining these (chain rule) gives the Jacobian dy_pred/dx in RAW
+    # activation space -- its two columns are the directions that increase
+    # the sin-readout and cos-readout, respectively. This is exactly what
+    # "steer along the probe direction" means: moving activations along a
+    # combination of these two columns changes what the probe reads off as
+    # the angle.
+    M = pca.components_.T @ ridge.coef_.T           # (n_kept_features, 2)
+    J = M / scaler.scale_[:, None]                   # (n_kept_features, 2)
+
+    # Scatter back into the FULL raw activation space (kept_mask marks which
+    # of the original columns survived cleaning; dropped columns get
+    # direction 0, since the probe never looked at them).
+    n_features_full = acts.shape[2]
+    w_sin_full = np.zeros(n_features_full)
+    w_cos_full = np.zeros(n_features_full)
+    w_sin_full[kept_mask] = J[:, 0]
+    w_cos_full[kept_mask] = J[:, 1]
+
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, f"probe_direction_{representation}_{hand}.npz")
+    np.savez(
+        out_path,
+        representation=representation, hand=hand, layer=layer,
+        w_sin_full=w_sin_full, w_cos_full=w_cos_full, kept_mask=kept_mask,
+        n_components=n_components_eff, r2_train=r2_train, n_images=len(X_clean),
+        # Raw pipeline parameters too (in the kept-columns, reduced space) --
+        # lets a caller recompute the EXACT predicted angle from any raw
+        # hidden-state vector via `apply_saved_probe`, as a rigorous check
+        # that a steering intervention actually moved the probe's readout
+        # (rather than trusting the linear Jacobian approximation above,
+        # which is exact for this pipeline but good to double-check).
+        scaler_mean=scaler.mean_, scaler_scale=scaler.scale_,
+        pca_components=pca.components_, pca_mean=pca.mean_,
+        ridge_coef=ridge.coef_, ridge_intercept=ridge.intercept_,
+    )
+    print(f"Saved steering direction for {representation}/{hand} at layer {layer} "
+          f"(train R^2={r2_train:.3f}, n={len(X_clean)}) to '{out_path}'.")
+    return out_path
+
+
+def load_probe_direction(path):
+    """Load a direction saved by `fit_probe_direction`, as a plain dict of
+    numpy arrays / native Python scalars (unwraps 0-d arrays with .item())."""
+    data = np.load(path, allow_pickle=False)
+    return {k: (data[k].item() if data[k].shape == () else data[k]) for k in data.files}
+
+
+def apply_saved_probe(direction_data, h_full):
+    """Given a raw (n_features_full,) hidden-state vector `h_full` and a
+    direction dict from `load_probe_direction`, recompute the probe's
+    predicted angle (in degrees) using the exact saved pipeline parameters.
+    Used by intervene.py to verify a steering intervention actually moved
+    the represented angle, independent of whether the model's stated
+    answer changed."""
+    mask = direction_data["kept_mask"]
+    h = h_full[mask]
+    h_scaled = (h - direction_data["scaler_mean"]) / direction_data["scaler_scale"]
+    z = (h_scaled - direction_data["pca_mean"]) @ direction_data["pca_components"].T
+    y = z @ direction_data["ridge_coef"].T + direction_data["ridge_intercept"]
+    return float(np.degrees(np.arctan2(y[0], y[1])))
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(
         description="Probe Qwen2.5-VL-3B's hidden states for the true clock-hand angles.")
-    parser.add_argument("--stage", choices=["extract", "probe", "all"], default="all",
+    parser.add_argument("--stage", choices=["extract", "probe", "direction", "all"], default="all",
                          help="'extract': GPU activation extraction only. 'probe': CPU probing + "
-                              "analysis only, from already-saved activations. 'all': both.")
+                              "analysis only, from already-saved activations. 'direction': refit one "
+                              "probe on all images and save it as a steering direction for "
+                              "intervene.py (run this explicitly -- 'all' does NOT include it, since "
+                              "it's a separate downstream need, not part of the standard pipeline). "
+                              "'all': extract + probe.")
     parser.add_argument("--recover", action="store_true",
                          help="repair already-saved activations in place (cast to float32, impute "
                               "non-finite values with the column mean) instead of running a stage; "
@@ -873,6 +1044,14 @@ def main():
                          help="PCA components kept before the linear probe")
     parser.add_argument("--n_splits", type=int, default=N_SPLITS, help="cross-validation folds")
     parser.add_argument("--seed", type=int, default=SEED)
+    parser.add_argument("--direction_representation", type=str, default="hidden_last",
+                         choices=["hidden_last", "hidden_meanpool", "vision_encoder"],
+                         help="(--stage direction) which saved representation to fit the steering direction on")
+    parser.add_argument("--direction_hand", type=str, default="minute", choices=["minute", "hour"],
+                         help="(--stage direction) which hand's angle to fit the steering direction for")
+    parser.add_argument("--direction_layer", type=int, default=None,
+                         help="(--stage direction) layer to fit at; default: auto-pick the best layer "
+                              "from per_layer_results.csv (requires --stage probe to have run first)")
     args = parser.parse_args()
 
     if args.recover:
@@ -887,6 +1066,11 @@ def main():
     if args.stage in ("probe", "all"):
         run_probing(activations_dir=args.activations_dir, out_dir=args.results_dir,
                     n_components=args.n_components, n_splits=args.n_splits, seed=args.seed)
+
+    if args.stage == "direction":
+        fit_probe_direction(activations_dir=args.activations_dir, out_dir=args.results_dir,
+                             representation=args.direction_representation, hand=args.direction_hand,
+                             layer=args.direction_layer, n_components=args.n_components, seed=args.seed)
 
 
 if __name__ == "__main__":

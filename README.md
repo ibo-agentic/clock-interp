@@ -9,6 +9,13 @@ misread analog clocks, especially swapping the hour and minute hands.
 - **Step 2: probing.** Is the true hand angle linearly decodable from the
   model's hidden states, even on images where its final answer is wrong? If
   so, the information was there -- the model just failed to use it.
+- **Step 3: causal intervention.** Probing only shows the angle is present;
+  it can't show the model actually *uses* it. This step tests that causally:
+  patch one clock's hidden states into another's forward pass and see if the
+  stated minute moves, and steer along the probe's own weight direction and
+  see if that moves it. No results yet -- `intervene.py` is written and
+  tested (see "How to run" below); results go here once it's been run on
+  Kaggle.
 
 ## Results
 
@@ -122,7 +129,8 @@ clock positions other than the handful of familiar landmarks (12, 9, 6).
 | `clocks.py` | Draws synthetic analog clock PNGs + a metadata CSV of ground-truth times |
 | `eval_behavior.py` | Loads Qwen2.5-VL-3B-Instruct and asks it to read each clock |
 | `analyze.py` | Computes accuracy metrics, hand-swap rate, and saves example error images |
-| `probe.py` | Step 2: extracts hidden states and probes them for the hand angles |
+| `probe.py` | Step 2: extracts hidden states, probes them for the hand angles, and (via `--stage direction`) fits+saves a steering direction for Step 3 |
+| `intervene.py` | Step 3: causal interventions -- activation patching between clocks (Experiment A) and steering along the probe direction (Experiment B) |
 | `balanced_clocks.py` | Generates `data_positions/`: 480 clocks at exactly the 12 clock-number minute positions (40 each), for the position-accuracy breakdown |
 | `describe_check.py` | "Describe the hands, then answer" prompt -- logs whether each hand was *described* correctly, separately from whether the final answer was correct |
 | `eval_prompt2.py` | `eval_behavior.py` with the describe-then-answer prompt, for quick spot checks (small sample) |
@@ -135,7 +143,7 @@ Directories produced by the scripts (gitignored where regenerable -- see
 
 ```
 data/                    # clock_0000.png ... clock_0499.png + data.csv (Step 1, gitignored)
-data_balanced/            # 480 clocks, equal count per minute value + data.csv (Step 2 probing input, gitignored)
+data_balanced/            # 480 clocks, equal count per minute value + data.csv (Step 2/3 input, gitignored)
 data_positions/            # 480 clocks, 12 exact minute positions x 40 + data.csv (position-breakdown input, gitignored)
 results/                 # results.csv, describe.csv, describe_positions.csv, prompt2.csv,
                           # describe20.csv, parse_failures.csv (checked in -- all small CSVs)
@@ -144,7 +152,10 @@ analysis_output/         # summary.txt, by_hour.csv, by_minute_bucket.csv, examp
 probe_output/
   activations/            # hidden_last.npy, hidden_meanpool.npy, vision_meanpool.npy, index.csv (gitignored, ~150MB+)
   probe_results/          # per_layer_results.csv, shuffled_label_control.csv, summary.txt,
-                          # summary_table.csv, layers_minute.png, layers_hour.png (checked in)
+                          # summary_table.csv, layers_minute.png, layers_hour.png, and (after
+                          # `--stage direction`) probe_direction_<representation>_<hand>.npz (all checked in)
+intervene_output/         # experiment_a_trials.csv, experiment_a_summary.csv/.txt, experiment_a_layers.png,
+                          # experiment_b_trials.csv, experiment_b_summary.csv/.txt, experiment_b_steering.png
 ```
 
 ## Option A: Run on Kaggle (recommended)
@@ -191,11 +202,19 @@ python clocks.py --balanced --out_dir data_balanced
 # 5. Step 2: extract hidden states (needs a GPU) then probe them (CPU, fast)
 python probe.py --stage extract   # slow: loads the model, runs all 480 images
 python probe.py --stage probe     # fast: fits/cross-validates the probes, makes plots
+
+# 6. Step 3: fit + save a steering direction for Experiment B (needs --stage probe's output)
+python probe.py --stage direction
+
+# 7. Step 3: causal interventions (needs a GPU) -- smoke-test first, then the full sweep
+python intervene.py --max_pairs 1 --layers 0,1,21,36   # quick correctness check, a few minutes
+python intervene.py                                     # full sweep, both experiments
 ```
 
 Each script also has a `--help` for its full option list, and each exposes a
 plain Python function (`generate_dataset`, `run_eval`, `run_analysis`,
-`extract_activations`, `run_probing`) so you can call it directly from a
+`extract_activations`, `run_probing`, `fit_probe_direction`,
+`run_experiment_a`, `run_experiment_b`) so you can call it directly from a
 notebook or another script instead of the CLI.
 
 ## What each script does
@@ -352,6 +371,84 @@ hand, correct vs. wrong vs. shuffled, side by side), and `layers_minute.png`
 / `layers_hour.png` (R² and accuracy vs. layer, all/correct/wrong lines plus
 the shuffled-label reference line).
 
+**`--stage direction`** (CPU only) refits the minute-hand probe on ALL
+images (no CV split -- for steering we want the single best-fit probe, not
+a held-out estimate) at one layer (auto-picked as the best from
+`per_layer_results.csv`, or given via `--direction_layer`), and saves it as
+a **steering direction in raw activation space** to
+`probe_output/probe_results/probe_direction_hidden_last_minute.npz`: the
+fitted pipeline (`StandardScaler` -> `PCA` -> `Ridge`) is a linear map from
+activations to `(sin, cos)`, so the chain rule gives a Jacobian whose two
+columns are the raw-activation-space directions that increase the sin- and
+cos-readouts -- exactly what Experiment B steers along. `probe.py::apply_saved_probe`
+recomputes the exact predicted angle from any raw hidden-state vector using
+this same saved pipeline, which `intervene.py` uses to verify a steering
+intervention actually moved the probe's internal readout.
+
+### `intervene.py` (Step 3)
+
+Two experiments testing, causally, whether the angle information that
+probing finds is ever actually *used*. Both reuse `probe.py`'s model
+loading, vision-module/image-token-id finding, and vision-encoder hook
+(imported, not copy-pasted), plus `eval_behavior.py`'s answer parser.
+Run with `--experiment a` / `--experiment b` / `--experiment both` (default).
+
+**Experiment A -- activation patching between clocks.** For a pair of clocks
+(A, B) with the same hour but minutes at least `--min_gap` (default 15)
+apart: cache B's full per-position hidden states at every layer, then run A
+while a hook *replaces* the hidden state at a chosen layer and set of token
+positions with B's -- and check whether A's stated minute moves toward B's.
+Swept over every layer (0 = the embedding layer / input to the first
+decoder block, 1..36 = each decoder block's output -- the same indexing
+`output_hidden_states=True` uses) and three position sets (`image_tokens`,
+`final_token`, `all_positions`), plus a **vision-encoder ceiling condition**
+that replaces the whole vision-tower output instead of an LLM layer (if
+swapping the *entire* visual representation doesn't move the answer,
+nothing downstream will). Two controls, run on the same grid: patching from
+a **same-minute** clock (should change nothing, since the ground truth is
+unchanged) and patching in **matched-norm random noise** (isolates "does
+perturbing this position at all matter" from "does B's specific content
+matter"). Outcome measures per trial: the patched minute, whether it moved
+*toward* B's minute (`circular_dist_minutes` decreased vs. the unpatched
+baseline), a 0-1 **shift score** (how much of the gap between A and B's
+minutes closed -- not clipped, so overshoot/backward movement are visible),
+and whether the answer changed at all. **A layer/position patch is only
+called causally load-bearing if it moves the answer clearly more than its
+own noise and same-minute controls at that same layer** -- not against an
+assumed 50% chance level (see the printed summary for why: when A and B are
+near-maximally far apart, even a uniformly random perturbation has good
+odds of landing "closer" by pure geometry).
+
+**Experiment B -- steering along the probe direction.** Loads the direction
+saved by `probe.py --stage direction`. For each trial image, the steering
+target is `(true_minute + --target_offset) % 60` (default: diametrically
+opposite, the clearest possible target). The direction vector for that
+target is `w_sin * sin(target) + w_cos * cos(target)` (a "prototype"
+direction for that specific angle), normalized, then added -- scaled by
+`alpha` times *that image's own* last-token activation norm at the
+probe's layer, so alpha is self-normalizing across images -- to the
+residual stream at the **final token position** (matching what the probe
+was actually trained on). Swept over `--alphas` (default
+`-2,-1,-0.5,-0.25,0,0.25,0.5,1,2`). Two things are measured per trial: (1)
+whether the *stated* minute moved toward the target, same shift-score
+machinery as Experiment A; and (2) whether the *probe's own readout*
+(recomputed via `apply_saved_probe` on the steered activation vector, no
+new forward pass needed) moved toward the target. This separates two very
+different outcomes that look identical from the outside: "steering failed
+to move the representation" vs. "the representation moved but the model's
+output ignored it" -- if (2) tracks alpha closely while (1) stays flat,
+it's the second one. Controlled against steering along a **fixed random
+direction** of the same norm, run through the identical pipeline.
+
+Both experiments print a **time estimate** partway through their first few
+trials (measured, not guessed) before committing to the full sweep, and
+support `--max_pairs` (cap trial count) and `--layers` (Experiment A: a
+comma-separated layer subset, e.g. `0,1,21,36`) for a quick smoke test.
+Output: `intervene_output/experiment_a_trials.csv` (every individual
+trial) / `experiment_a_summary.csv`+`.txt` (aggregated per layer x
+position-set x condition) / `experiment_a_layers.png`, and the equivalent
+`experiment_b_*` files.
+
 ## Notes for Kaggle's T4 (16GB)
 
 - `float16` keeps the ~3B parameter model comfortably under the 16GB budget
@@ -374,3 +471,20 @@ the shuffled-label reference line).
   cross-validated Ridge/LogisticRegression fits fast at ~2000+ raw hidden
   dimensions with only ~480 images, and to reduce overfitting risk from
   fitting a linear model with more features than samples.
+- `intervene.py` caches each source image's FULL per-position, per-layer
+  hidden states (not just the pooled vectors `probe.py` keeps) so it can
+  patch any layer/position combination -- roughly 150-250MB per cached
+  image, held only transiently (per pair/trial image, not accumulated
+  across the whole run), well inside a T4's RAM. Compute-wise, Experiment
+  A's default settings (`--n_pairs 5`, every layer, all 3 position sets,
+  3 conditions) run on the order of ~1500-1700 `generate()` calls; each is
+  small (`--max_new_tokens 16`) but the hook adds a little overhead per
+  call, so expect it to take longer than a single `eval_behavior.py` pass
+  over the same image count -- the printed time estimate (measured from the
+  first few trials, not guessed) tells you the real number before it
+  commits to the full sweep. `--max_pairs 1 --layers 0,1,21,36` finishes in
+  a couple of minutes and is worth running first to confirm the hooks work
+  correctly against the real model (they're tested locally against a fake
+  decoder stack, but transformers-version quirks -- like the vision
+  hook's bare-tensor/tuple/ModelOutput ambiguity that already bit this
+  project once -- can only be confirmed against the real thing).
