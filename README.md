@@ -476,6 +476,59 @@ trial) / `experiment_a_summary.csv`+`.txt` (aggregated per layer x
 position-set x condition) / `experiment_a_layers.png`, and the equivalent
 `experiment_b_*` files.
 
+**The "moved toward the true minute" metric is confounded, and there's a
+second metric that isn't.** The model states the true minute correctly only
+~2-3% of the time even when looking straight at the source clock
+(unpatched) -- so comparing a patched/steered answer to the *true* minute
+is largely testing that baseline failure rate, not the intervention. This
+shows up starkly on the vision-encoder ceiling condition: swapping the
+*entire* visual representation changes A's answer ~97% of the time, but
+only "moves toward B's true minute" ~38% of the time -- not because the
+intervention is weak, but because B's *own unpatched answer* is itself
+rarely the true minute, so there's little truth for a successful transfer to
+move toward.
+
+The fix: **transfer-to-baseline** metrics compare the patched/steered
+answer to what the model *itself* says, unpatched, about the patch
+source/target -- not to ground truth. For Experiment A: `exact_transfer` /
+`minute_transfer` / `hour_transfer` compare patched-A's answer to B's own
+baseline answer (or, for `same_minute` trials, the same-minute partner's
+baseline; noise reuses B's baseline so it's comparable to `real_b`
+apples-to-apples). These are restricted to pairs where A's and the target's
+*baseline* answers already differ -- when they already agree (common, e.g.
+the model defaulting to `:30`), "transfer" would be trivially "successful"
+regardless of what the patch did, so those pairs are excluded and the
+exclusion rate is reported per condition. For Experiment B:
+`minute_transfer_to_target` / `hour_transfer_to_target` /
+`exact_transfer_to_target` compare the steered answer to the model's own
+unpatched answer for a *real* clock image that actually shows the target
+minute (`find_real_image_with_minute`, one extra `run_baseline` call per
+trial image, reused across every alpha/direction). Both experiments keep
+the old "toward true minute"/"toward true target" numbers too, clearly
+labeled, since they're still meaningful for framing (e.g. "the model rarely
+states the truth even when it *should* transfer") -- but the transfer-to-
+baseline numbers are the ones that isolate the intervention's effect.
+`print_experiment_a_summary` and `print_experiment_b_summary` print both
+tables side by side with this distinction spelled out; `intervene.py`'s
+module docstring and the summary output itself carry the same caveat so it
+isn't lost outside this README.
+
+**`--analyze_only`** re-derives Experiment A's transfer-to-baseline summary
+from an already-saved `experiment_a_trials.csv` without re-running the
+(expensive, GPU-bound) sweep -- useful for a run that finished before this
+metric existed, or just to re-print/re-save the summary. If the CSV already
+has the `a_baseline_*`/`b_baseline_*` columns, this is a CPU-only,
+seconds-long re-analysis that doesn't load the model at all. If it doesn't
+(an older run), pass **`--recompute_baselines`** to backfill them cheaply:
+one `run_baseline` (no patching) `generate()` call per unique image
+filename referenced in the CSV, deduplicated -- much cheaper than redoing
+the full sweep. Note that an old CSV's `patched_hour`/raw patched-answer
+text was never saved (only `patched_minute` was), so `exact_transfer`/
+`hour_transfer` can't be recovered retroactively for it this way -- only
+`minute_transfer` can; `--analyze_only` prints this limitation explicitly
+rather than silently omitting or fabricating the missing columns. Example:
+`python intervene.py --analyze_only --recompute_baselines --out_dir intervene_output`.
+
 **`--verify`** exists because a clean null result (patching/steering doesn't
 move the answer) and a silently broken hook (patching/steering doesn't run
 at all) look IDENTICAL in the experiment output -- and a broken hook is by

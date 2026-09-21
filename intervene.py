@@ -720,9 +720,39 @@ def find_same_minute_partner(df, a_row, exclude, rng):
     return candidates.sample(n=1, random_state=int(rng.randint(0, 2**31 - 1))).iloc[0]
 
 
+def find_real_image_with_minute(df, minute, rng, exclude_filename=None):
+    """A real clock image with the given minute value (any hour) -- used by
+    Experiment B to get a concrete "what does the model say about a clock
+    that actually shows the target minute" baseline, instead of only
+    comparing the steered answer against the abstract true target minute
+    (which the model states correctly only ~2-3% of the time even when
+    looking straight at it -- see module docstring). Returns None if no
+    such image exists in `df`."""
+    candidates = df[df["minute"] == minute]
+    if exclude_filename is not None:
+        candidates = candidates[candidates["filename"] != exclude_filename]
+    if len(candidates) == 0:
+        return None
+    return candidates.sample(n=1, random_state=int(rng.randint(0, 2**31 - 1))).iloc[0]
+
+
 # ---------------------------------------------------------------------------
 # Experiment A: the sweep
 # ---------------------------------------------------------------------------
+
+def _baseline_fields(prefix, base):
+    """The (hour, minute, raw answer) of a run_baseline(...) result, as CSV
+    columns named `{prefix}_baseline_hour` etc. -- saved for EVERY trial row
+    (not just once per pair) so `--analyze_only` can recompute transfer
+    metrics straight from experiment_a_trials.csv without re-joining
+    anything. `prefix` is "a" or "b"; for condition="same_minute" rows, `base`
+    is the same-minute PARTNER's baseline (not real B's) -- consistent with
+    how the "b_file" column is already repurposed for that condition."""
+    return {
+        f"{prefix}_baseline_hour": base["pred_hour"],
+        f"{prefix}_baseline_minute": base["pred_minute"],
+        f"{prefix}_baseline_answer": base["raw_answer"],
+    }
 
 def run_experiment_a(model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
                       df, images_dir, out_dir, n_pairs=N_PAIRS, max_pairs=None, min_gap=MIN_GAP_MINUTES,
@@ -788,7 +818,10 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owners, vi
                     "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"], "condition": "real_b",
                     "layer": layer, "position_set": pos_name, "a_true_minute": int(a["minute"]),
                     "b_true_minute": int(b["minute"]), "source_minute": int(b["minute"]),
-                    "baseline_minute": baseline_a_minute, "patched_minute": pred_minute if ok else None,
+                    **_baseline_fields("a", base_a), **_baseline_fields("b", base_b),
+                    "baseline_minute": baseline_a_minute,
+                    "patched_hour": pred_hour if ok else None, "patched_minute": pred_minute if ok else None,
+                    "patched_answer": ans,
                     "moved_toward": moved, "shift_score": shift,
                     "answer_changed": (ans != base_a["raw_answer"]),
                 })
@@ -804,7 +837,10 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owners, vi
                         "condition": "same_minute", "layer": layer, "position_set": pos_name,
                         "a_true_minute": int(a["minute"]), "b_true_minute": int(same_row["minute"]),
                         "source_minute": int(a["minute"]),
-                        "baseline_minute": baseline_a_minute, "patched_minute": pred_minute_s if ok_s else None,
+                        **_baseline_fields("a", base_a), **_baseline_fields("b", base_same),
+                        "baseline_minute": baseline_a_minute,
+                        "patched_hour": pred_hour_s if ok_s else None, "patched_minute": pred_minute_s if ok_s else None,
+                        "patched_answer": ans_same,
                         "moved_toward": moved_s, "shift_score": shift_s,
                         "answer_changed": (ans_same != base_a["raw_answer"]),
                     })
@@ -819,7 +855,13 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owners, vi
                     "pair": pair_idx, "a_file": a["filename"], "b_file": None, "condition": "noise",
                     "layer": layer, "position_set": pos_name, "a_true_minute": int(a["minute"]),
                     "b_true_minute": int(b["minute"]), "source_minute": int(b["minute"]),
-                    "baseline_minute": baseline_a_minute, "patched_minute": pred_minute_n if ok_n else None,
+                    # the noise control's "transfer target" is B's baseline (same reference as
+                    # real_b -- see the module docstring/README for why: this is what lets us ask
+                    # "does noise achieve the same apparent transfer as real B, to the SAME target?"
+                    **_baseline_fields("a", base_a), **_baseline_fields("b", base_b),
+                    "baseline_minute": baseline_a_minute,
+                    "patched_hour": pred_hour_n if ok_n else None, "patched_minute": pred_minute_n if ok_n else None,
+                    "patched_answer": ans_noise,
                     "moved_toward": moved_n, "shift_score": shift_n,
                     "answer_changed": (ans_noise != base_a["raw_answer"]),
                 })
@@ -845,7 +887,10 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owners, vi
                 "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"], "condition": "real_b",
                 "layer": -1, "position_set": "vision_encoder", "a_true_minute": int(a["minute"]),
                 "b_true_minute": int(b["minute"]), "source_minute": int(b["minute"]),
-                "baseline_minute": baseline_a_minute, "patched_minute": pred_minute_v if ok_v else None,
+                **_baseline_fields("a", base_a), **_baseline_fields("b", base_b),
+                "baseline_minute": baseline_a_minute,
+                "patched_hour": pred_hour_v if ok_v else None, "patched_minute": pred_minute_v if ok_v else None,
+                "patched_answer": ans_v,
                 "moved_toward": moved_v, "shift_score": shift_v,
                 "answer_changed": (ans_v != base_a["raw_answer"]),
             })
@@ -912,9 +957,13 @@ def plot_experiment_a(summary_df, out_dir):
 
 def print_experiment_a_summary(summary_df, trials_df, vision_method):
     """A compact text table: for each position set, the BEST layer's
-    real_b result next to the same layer's controls."""
+    real_b result next to the same layer's controls. These are the
+    "toward TRUE minute" metrics -- see print_transfer_summary_a for the
+    transfer-to-baseline metrics, which are NOT confounded by how rarely
+    the model states the true minute even when looking straight at the
+    source (read that one as primary; this one is kept for continuity)."""
     import transformers
-    lines = ["=== EXPERIMENT A SUMMARY (activation patching) ===", ""]
+    lines = ["=== EXPERIMENT A SUMMARY -- TOWARD TRUE MINUTE (activation patching) ===", ""]
     n_pairs = trials_df["pair"].nunique()
     lines.append(f"n pairs: {n_pairs}")
     lines.append(f"transformers=={transformers.__version__}")
@@ -972,10 +1021,249 @@ def print_experiment_a_summary(summary_df, trials_df, vision_method):
     lines.append("stay close to noise's at the same layer/position (not clearly higher), and 'chg%' stays")
     lines.append("low across the WHOLE sweep including the vision-encoder ceiling, THAT null result is")
     lines.append("the finding: the angle information is present but the model's answer doesn't use it.")
+    lines.append("")
+    lines.append("CAUTION -- these 'moved toward TRUE minute' numbers are further confounded on top of the")
+    lines.append("chance-level geometry above: the model states the TRUE minute correctly only ~2-3% of")
+    lines.append("the time even when looking straight at the source, so 'moved%'/'chg%' here are capped by")
+    lines.append("that baseline failure rate regardless of what the patch actually did. See the")
+    lines.append("TRANSFER-TO-BASELINE summary below for the metric that isn't confounded this way --")
+    lines.append("compare it, not this table, when judging whether the intervention had a real effect.")
 
     text = "\n".join(lines)
     print("\n" + text)
     return text
+
+
+# ---------------------------------------------------------------------------
+# Experiment A: transfer-to-baseline metric (fixes the "moved toward TRUE
+# minute" confound above -- see module docstring)
+# ---------------------------------------------------------------------------
+#
+# The "toward true minute" metrics compare the PATCHED answer to the patch
+# source's TRUE minute. But the model states the true minute correctly only
+# ~2-3% of the time even when looking directly at the source (unpatched) --
+# so "didn't move toward the true minute" is mostly just that baseline
+# failure rate showing up again, not evidence the patch had no effect. The
+# vision-ceiling result makes this obvious: swapping the ENTIRE visual
+# representation changes the answer ~97% of the time, but only "moves
+# toward B's true minute" ~38% of the time -- a huge causal effect, mostly
+# invisible to the old metric.
+#
+# The fix: compare the PATCHED answer to the model's OWN UNPATCHED answer
+# about the patch source (its "baseline"), not to the source's true minute.
+# This is well-defined regardless of whether that baseline answer is
+# correct, so it isn't capped by the ~2-3% true-answer rate.
+
+def compute_transfer_columns(trials_df):
+    """Add transfer-to-baseline columns to a copy of `trials_df`:
+      - baselines_differ: 1.0/0.0/NaN -- do A's and the patch target's
+        UNPATCHED answers already differ? (NaN if either baseline didn't
+        parse.) Trials where this is 0.0 (baselines already agree) are
+        EXCLUDED from the transfer rates below by the caller, since
+        "transfer" would be trivially "successful" there even for a
+        completely inert patch.
+      - exact_transfer / minute_transfer / hour_transfer: 1.0/0.0/NaN,
+        comparing the PATCHED answer to the TARGET's baseline answer
+        (b_baseline_*) -- NaN if either didn't parse, or if this trials.csv
+        predates saving patched_hour (see `backfill_baselines`), in which
+        case exact/hour_transfer are NaN throughout but minute_transfer
+        still works (patched_minute has always been saved).
+    "Target" means B's baseline for condition in (real_b, noise), and the
+    same-minute partner's baseline for condition == same_minute -- matching
+    how the `b_file`/`b_baseline_*` columns are already populated per
+    condition (see `_baseline_fields`).
+    """
+    df = trials_df.copy()
+    if "patched_hour" not in df.columns:
+        df["patched_hour"] = np.nan
+    for col in ("a_baseline_hour", "a_baseline_minute", "b_baseline_hour", "b_baseline_minute"):
+        if col not in df.columns:
+            df[col] = np.nan
+
+    a_valid = df["a_baseline_hour"].notna() & df["a_baseline_minute"].notna()
+    b_valid = df["b_baseline_hour"].notna() & df["b_baseline_minute"].notna()
+    both_valid = a_valid & b_valid
+    same_as_target = (df["a_baseline_hour"] == df["b_baseline_hour"]) & \
+                      (df["a_baseline_minute"] == df["b_baseline_minute"])
+    df["baselines_differ"] = np.where(both_valid, (~same_as_target).astype(float), np.nan)
+
+    p_valid = df["patched_hour"].notna() & df["patched_minute"].notna()
+    usable = p_valid & b_valid
+    exact = (df["patched_hour"] == df["b_baseline_hour"]) & (df["patched_minute"] == df["b_baseline_minute"])
+    minute_eq = (df["patched_minute"] == df["b_baseline_minute"])
+    hour_eq = (df["patched_hour"] == df["b_baseline_hour"])
+
+    df["exact_transfer"] = np.where(usable, exact.astype(float), np.nan)
+    df["hour_transfer"] = np.where(usable, hour_eq.astype(float), np.nan)
+    # minute_transfer only needs patched_minute + b_baseline_minute (not hour),
+    # so it stays computable even for a pre-patched_hour (old-format) CSV.
+    minute_usable = df["patched_minute"].notna() & df["b_baseline_minute"].notna()
+    df["minute_transfer"] = np.where(minute_usable, minute_eq.astype(float), np.nan)
+
+    return df
+
+
+def baseline_agreement_stats(trials_df):
+    """How often A's and the patch target's BASELINE (unpatched) answers
+    already agree, per condition -- computed once per (pair, condition),
+    since baseline answers don't depend on layer/position_set. High
+    agreement means the transfer test below has limited power for that
+    condition (most of its pairs get excluded from the "differ" restriction
+    -- report this so that's visible, not silently baked into a smaller n)."""
+    df = compute_transfer_columns(trials_df.drop_duplicates(subset=["pair", "condition"]))
+    df = df[df["baselines_differ"].notna()]
+    if len(df) == 0:
+        return pd.DataFrame(columns=["n_pairs", "frac_identical"])
+    agg = df.groupby("condition").agg(
+        n_pairs=("baselines_differ", "size"),
+        frac_identical=("baselines_differ", lambda s: (1 - s).mean()),
+    )
+    return agg
+
+
+def summarize_transfer_a(trials_df, out_dir):
+    """Per (condition, layer, position_set): transfer-to-baseline rates,
+    computed ONLY on trials where the baseline answers already differ (see
+    compute_transfer_columns) -- otherwise transfer would be trivially
+    satisfied regardless of the patch."""
+    df = compute_transfer_columns(trials_df)
+    restricted = df[df["baselines_differ"] == 1.0]
+
+    summary = restricted.groupby(["condition", "layer", "position_set"]).agg(
+        n=("exact_transfer", "size"),
+        n_usable=("minute_transfer", lambda s: s.notna().sum()),
+        exact_transfer_rate=("exact_transfer", "mean"),
+        minute_transfer_rate=("minute_transfer", "mean"),
+        hour_transfer_rate=("hour_transfer", "mean"),
+    ).reset_index()
+
+    os.makedirs(out_dir, exist_ok=True)
+    summary.to_csv(os.path.join(out_dir, "experiment_a_transfer_summary.csv"), index=False)
+    df.to_csv(os.path.join(out_dir, "experiment_a_trials_with_transfer.csv"), index=False)
+    return summary
+
+
+def print_transfer_summary_a(summary_df, agreement_stats, trials_df):
+    """A compact text table, mirroring `print_experiment_a_summary`'s
+    layout: for each position set, the BEST layer's real_b transfer rate
+    next to same_minute/noise at that same layer, plus the vision-ceiling
+    row. This is the PRIMARY table for judging whether the intervention had
+    a real effect -- see print_experiment_a_summary for why the older
+    'toward true minute' table is confounded."""
+    lines = ["=== EXPERIMENT A SUMMARY -- TRANSFER TO BASELINE (fixes the true-minute confound) ===", ""]
+    lines.append("Compares the PATCHED answer to what the model ITSELF says (unpatched) about the patch")
+    lines.append("source/target, NOT to its true minute -- well-defined regardless of whether that answer")
+    lines.append("is correct, so it isn't capped by how rarely the model states the truth.")
+    lines.append("")
+    if "patched_hour" not in trials_df.columns or trials_df["patched_hour"].isna().all():
+        lines.append("NOTE: patched_hour is missing from this data (an older run) -- exact_transfer and")
+        lines.append("hour_transfer are NaN throughout; only minute_transfer is available. Re-run the full")
+        lines.append("sweep to get exact/hour transfer for this run.")
+        lines.append("")
+
+    lines.append("Baseline agreement rate per condition (A's and the target's UNPATCHED answers already")
+    lines.append("identical -- EXCLUDED from the transfer rates below, since transfer there would be")
+    lines.append("trivially 'successful' regardless of what the patch did):")
+    for cond in ("real_b", "same_minute", "noise"):
+        if cond in agreement_stats.index:
+            r = agreement_stats.loc[cond]
+            lines.append(f"  {cond:<14}: {r['frac_identical']:.1%} of {int(r['n_pairs'])} pairs")
+    lines.append("")
+
+    header = f"{'position_set':<14}{'best_layer':>11}  ||  {'condition':<13}{'exact%':>8}{'minute%':>9}" \
+             f"{'hour%':>7}{'n_usable':>10}"
+    lines.append(header)
+
+    for pos_name in ("image_tokens", "final_token", "all_positions"):
+        real = summary_df[(summary_df["condition"] == "real_b") & (summary_df["position_set"] == pos_name) &
+                           (summary_df["layer"] >= 0) & (summary_df["n_usable"] >= 5)]
+        if len(real) == 0:
+            lines.append(f"{pos_name:<14}  (no usable trials -- fewer than 5 differing-baseline pairs "
+                         "at every layer)")
+            continue
+        best_layer = int(real.loc[real["minute_transfer_rate"].idxmax(), "layer"])
+
+        for i, cond in enumerate(("real_b", "same_minute", "noise")):
+            row = summary_df[(summary_df["condition"] == cond) & (summary_df["position_set"] == pos_name) &
+                              (summary_df["layer"] == best_layer)]
+            if len(row) == 0:
+                continue
+            r = row.iloc[0]
+            prefix = f"{pos_name:<14}{best_layer:>11}" if i == 0 else f"{'':<14}{'':>11}"
+            lines.append(
+                f"{prefix}  ||  {cond:<13}{r['exact_transfer_rate']:>8.1%}{r['minute_transfer_rate']:>9.1%}"
+                f"{r['hour_transfer_rate']:>7.1%}{int(r['n_usable']):>10}"
+            )
+
+    ceiling = summary_df[(summary_df["condition"] == "real_b") & (summary_df["layer"] == -1)]
+    if len(ceiling):
+        c = ceiling.iloc[0]
+        lines.append("")
+        lines.append(f"vision-encoder ceiling: exact_transfer={c['exact_transfer_rate']:.1%}, "
+                     f"minute_transfer={c['minute_transfer_rate']:.1%}, hour_transfer={c['hour_transfer_rate']:.1%} "
+                     f"(n_usable={int(c['n_usable'])}/{int(c['n'])})")
+
+    lines.append("")
+    lines.append("As with the true-minute table, compare real_b's numbers to same-minute/noise AT THE SAME")
+    lines.append("layer, not in isolation -- that's the actual test of whether B's specific content matters.")
+
+    text = "\n".join(lines)
+    print("\n" + text)
+    return text
+
+
+def recompute_baselines_for_files(model, processor, image_token_id, image_features_owners, vision_method,
+                                   images_dir, filenames, max_new_tokens=MAX_NEW_TOKENS):
+    """Re-run ONLY the (cheap) baseline generate() call for each filename in
+    `filenames` (deduplicated), with NO patching -- used to backfill full
+    baseline answers (hour, minute, raw text) for an --analyze_only
+    re-analysis of an experiment_a_trials.csv that predates saving them,
+    without redoing the full (slow) patching sweep. Returns a DataFrame:
+    filename, baseline_hour, baseline_minute, baseline_answer,
+    baseline_parse_success."""
+    unique_files = sorted(set(f for f in filenames if isinstance(f, str) and f))
+    print(f"Recomputing baselines for {len(unique_files)} unique image(s) ({max_new_tokens} tokens each, "
+          "no patching -- much cheaper than the full sweep).")
+    rows = []
+    for fn in tqdm(unique_files, desc="Recomputing baselines"):
+        path = os.path.join(images_dir, fn)
+        base = run_baseline(model, processor, path, image_token_id, image_features_owners, vision_method,
+                             max_new_tokens=max_new_tokens)
+        rows.append({
+            "filename": fn, "baseline_hour": base["pred_hour"], "baseline_minute": base["pred_minute"],
+            "baseline_answer": base["raw_answer"], "baseline_parse_success": base["parse_success"],
+        })
+    return pd.DataFrame(rows)
+
+
+def backfill_baselines(trials_df, baselines_df):
+    """Merge a `recompute_baselines_for_files(...)` lookup table into
+    `trials_df`, filling in a_baseline_*/b_baseline_* wherever they're
+    missing or absent entirely (an old-format CSV). Does NOT and CANNOT
+    backfill patched_hour/patched_answer -- those require re-running the
+    actual PATCHED trial (the full sweep), not just a baseline; prints a
+    clear note if they're absent so that limitation isn't silently hidden."""
+    df = trials_df.copy()
+    lut = baselines_df.set_index("filename")
+
+    def lookup(filenames, field):
+        return [lut.at[f, field] if (isinstance(f, str) and f in lut.index) else np.nan for f in filenames]
+
+    if "a_baseline_hour" not in df.columns or df["a_baseline_hour"].isna().all():
+        df["a_baseline_hour"] = lookup(df["a_file"], "baseline_hour")
+        df["a_baseline_minute"] = lookup(df["a_file"], "baseline_minute")
+        df["a_baseline_answer"] = lookup(df["a_file"], "baseline_answer")
+        print(f"Backfilled a_baseline_* for {df['a_baseline_hour'].notna().sum()}/{len(df)} rows.")
+    if "b_baseline_hour" not in df.columns or df["b_baseline_hour"].isna().all():
+        df["b_baseline_hour"] = lookup(df["b_file"], "baseline_hour")
+        df["b_baseline_minute"] = lookup(df["b_file"], "baseline_minute")
+        df["b_baseline_answer"] = lookup(df["b_file"], "baseline_answer")
+        print(f"Backfilled b_baseline_* for {df['b_baseline_hour'].notna().sum()}/{len(df)} rows.")
+    if "patched_hour" not in df.columns:
+        print("NOTE: this trials.csv predates saving patched_hour/patched_answer -- exact_transfer and "
+              "hour_transfer cannot be computed retroactively for it (only minute_transfer can, from the "
+              "already-saved patched_minute). Re-run the full sweep to get exact/hour transfer for this run.")
+    return df
 
 
 # ---------------------------------------------------------------------------
@@ -1006,7 +1294,8 @@ def run_experiment_b(model, processor, decoder_layers, image_token_id, image_fea
 
     n_total = len(trial_images) * len(alphas) * 2
     print(f"Experiment B: {len(trial_images)} image(s) x {len(alphas)} alpha(s) x 2 directions "
-          f"(probe / random) = {n_total} generate() calls.")
+          f"(probe / random) = {n_total} generate() calls, plus up to {len(trial_images)} extra baseline "
+          f"calls (one per image, for a real target-minute clock's own unpatched answer).")
 
     rows = []
     t_start = time.perf_counter()
@@ -1020,6 +1309,20 @@ def run_experiment_b(model, processor, decoder_layers, image_token_id, image_fea
         true_minute = int(row["minute"])
         target_minute = (true_minute + target_offset) % 60
         target_rad = np.radians(target_minute * 6.0)  # minute -> degrees, matching hand_angles' convention
+
+        # A REAL clock showing the target minute, and the model's own
+        # (unpatched) answer for it -- one extra generate() call per trial
+        # image, reused across every alpha/direction below. This is what
+        # lets us ask "did steering make the output look like what the
+        # model itself says for a target-minute clock", not just "did it
+        # move toward the abstract true target minute" (which the model
+        # states correctly only ~2-3% of the time even unpatched).
+        target_row = find_real_image_with_minute(df, target_minute, rng, exclude_filename=row["filename"])
+        target_base = None
+        if target_row is not None:
+            target_path = os.path.join(images_dir, target_row["filename"])
+            target_base = run_baseline(model, processor, target_path, image_token_id, image_features_owners,
+                                        vision_method, max_new_tokens=max_new_tokens)
 
         h_final = base["hidden_states"][layer][-1].numpy().astype(np.float64)  # the steered position
         h_norm = float(np.linalg.norm(h_final))
@@ -1047,13 +1350,34 @@ def run_experiment_b(model, processor, decoder_layers, image_token_id, image_fea
                 pred_hour, pred_minute, ok = parse_time_answer(ans)
                 moved, shift = score_shift(baseline_minute, pred_minute if ok else None, target_minute)
 
+                # Transfer-to-target-baseline: does the steered answer match what
+                # the model ITSELF says (unpatched) about a real clock showing the
+                # target minute -- rather than only whether it moved toward the
+                # abstract true target minute (see the note in the module
+                # docstring/README on why the latter alone is confounded).
+                minute_transfer_to_target = hour_transfer_to_target = exact_transfer_to_target = float("nan")
+                if ok and target_base is not None and target_base["parse_success"]:
+                    minute_transfer_to_target = float(pred_minute == target_base["pred_minute"])
+                    hour_transfer_to_target = float(pred_hour == target_base["pred_hour"])
+                    exact_transfer_to_target = float(bool(minute_transfer_to_target) and bool(hour_transfer_to_target))
+
                 rows.append({
                     "file": row["filename"], "true_minute": true_minute, "target_minute": target_minute,
-                    "direction": dir_name, "alpha": alpha, "baseline_minute": baseline_minute,
-                    "patched_minute": pred_minute if ok else None, "moved_toward": moved, "shift_score": shift,
+                    "direction": dir_name, "alpha": alpha, "baseline_hour": base["pred_hour"],
+                    "baseline_minute": baseline_minute,
+                    "patched_hour": pred_hour if ok else None, "patched_minute": pred_minute if ok else None,
+                    "patched_answer": ans,
+                    "moved_toward": moved, "shift_score": shift,
                     "answer_changed": (ans != base["raw_answer"]),
                     "probe_angle_before_deg": angle_before, "probe_angle_after_deg": angle_after,
                     "probe_moved_toward": probe_moved, "probe_shift_score": probe_shift,
+                    "target_image_file": target_row["filename"] if target_row is not None else None,
+                    "target_baseline_hour": target_base["pred_hour"] if target_base is not None else None,
+                    "target_baseline_minute": target_base["pred_minute"] if target_base is not None else None,
+                    "target_baseline_answer": target_base["raw_answer"] if target_base is not None else None,
+                    "minute_transfer_to_target": minute_transfer_to_target,
+                    "hour_transfer_to_target": hour_transfer_to_target,
+                    "exact_transfer_to_target": exact_transfer_to_target,
                 })
 
                 n_timed += 1
@@ -1071,6 +1395,10 @@ def run_experiment_b(model, processor, decoder_layers, image_token_id, image_fea
 
 
 def summarize_experiment_b(trials_df, out_dir):
+    trials_df = trials_df.copy()
+    for col in ("minute_transfer_to_target", "exact_transfer_to_target"):
+        if col not in trials_df.columns:
+            trials_df[col] = np.nan
     summary = trials_df.groupby(["direction", "alpha"]).agg(
         n=("answer_changed", "size"),
         n_parsed=("moved_toward", lambda s: s.notna().sum()),
@@ -1079,6 +1407,9 @@ def summarize_experiment_b(trials_df, out_dir):
         pct_answer_changed=("answer_changed", "mean"),
         pct_probe_moved_toward=("probe_moved_toward", "mean"),
         mean_probe_shift_score=("probe_shift_score", "mean"),
+        n_target_usable=("minute_transfer_to_target", lambda s: s.notna().sum()),
+        pct_minute_transfer_to_target=("minute_transfer_to_target", "mean"),
+        pct_exact_transfer_to_target=("exact_transfer_to_target", "mean"),
     ).reset_index()
     summary.to_csv(os.path.join(out_dir, "experiment_b_summary.csv"), index=False)
     return summary
@@ -1114,20 +1445,32 @@ def plot_experiment_b(summary_df, out_dir):
 
 def print_experiment_b_summary(summary_df):
     lines = ["=== EXPERIMENT B SUMMARY (steering) ===", ""]
-    header = f"{'direction':<17}{'alpha':>7}{'n':>5}{'out_moved%':>11}{'out_shift':>10}{'out_chg%':>9}" \
-             f"{'probe_moved%':>13}{'probe_shift':>12}"
+    lines.append("'toward true target' columns compare the steered answer to the ABSTRACT true target")
+    lines.append("minute -- confounded the same way as Experiment A's old metric (see README): the model")
+    lines.append("states the true minute correctly only ~2-3% of the time even unpatched. 'transfer to")
+    lines.append("target baseline' compares instead to what the model ITSELF says (unpatched) about a")
+    lines.append("REAL clock that actually shows the target minute -- well-defined regardless of whether")
+    lines.append("that answer is correct. Read the second set as primary.")
+    lines.append("")
+    header = f"{'direction':<17}{'alpha':>7}{'n':>5} | {'toward true target':^30} | " \
+             f"{'transfer to target baseline':^19} | {'probe (internal)':^21}"
     lines.append(header)
+    subheader = f"{'':<17}{'':>7}{'':>5} | {'moved%':>9}{'shift':>8}{'chg%':>8}{'probe_mv%':>5} | " \
+                f"{'minute%':>10}{'exact%':>9} | {'moved%':>10}{'shift':>11}"
+    lines.append(subheader)
     for _, r in summary_df.sort_values(["direction", "alpha"]).iterrows():
         lines.append(
-            f"{r['direction']:<17}{r['alpha']:>7.2f}{int(r['n']):>5}{r['pct_moved_toward']:>11.1%}"
-            f"{r['mean_shift_score']:>10.2f}{r['pct_answer_changed']:>9.1%}"
-            f"{r['pct_probe_moved_toward']:>13.1%}{r['mean_probe_shift_score']:>12.2f}"
+            f"{r['direction']:<17}{r['alpha']:>7.2f}{int(r['n']):>5} | "
+            f"{r['pct_moved_toward']:>9.1%}{r['mean_shift_score']:>8.2f}{r['pct_answer_changed']:>8.1%}{'':>5} | "
+            f"{r['pct_minute_transfer_to_target']:>10.1%}{r['pct_exact_transfer_to_target']:>9.1%} | "
+            f"{r['pct_probe_moved_toward']:>10.1%}{r['mean_probe_shift_score']:>11.2f}"
         )
     lines.append("")
-    lines.append("'probe_moved%'/'probe_shift' verify the intervention internally: they measure whether")
-    lines.append("the probe's OWN readout of the angle moved toward the target, independent of whether")
-    lines.append("the stated answer did. If probe_shift tracks alpha closely but out_shift stays flat,")
-    lines.append("steering is moving the representation but the output ignores it -- not that steering failed.")
+    lines.append("'probe moved%'/'probe shift' (internal) verify the intervention internally: they measure")
+    lines.append("whether the probe's OWN readout of the angle moved toward the target, independent of")
+    lines.append("whether the stated answer did. If probe shift tracks alpha closely but the output columns")
+    lines.append("stay flat, steering is moving the representation but the output ignores it -- not that")
+    lines.append("steering failed.")
 
     text = "\n".join(lines)
     print("\n" + text)
@@ -1407,6 +1750,73 @@ def parse_alphas_arg(value):
     return [float(x) for x in value.split(",") if x.strip() != ""]
 
 
+def setup_model_and_vision(args, df):
+    """Load the model and determine ONCE which mechanism actually
+    intercepts the image representation for it -- shared by the normal
+    experiment/--verify path and --analyze_only's optional baseline-
+    recompute step, so neither has to duplicate this."""
+    model, processor = load_model(args.model_id)
+    image_token_id = find_image_token_id(model, processor)
+    decoder_layers = find_decoder_layers(model)
+    image_features_owners = find_all_image_features_owners(model)
+    print(f"Found {len(decoder_layers)} decoder layers.")
+
+    sample_path = os.path.join(args.images_dir, df.iloc[0]["filename"])
+    vision_method = determine_vision_interception_method(model, processor, image_features_owners, sample_path,
+                                                          requested=args.vision_method)
+    return model, processor, image_token_id, decoder_layers, image_features_owners, vision_method
+
+
+def run_analyze_only(args, df):
+    """--analyze_only: skip the sweep, load an existing experiment_a_trials.csv
+    from --out_dir, backfill baseline-answer columns if needed and
+    requested (--recompute_baselines), and (re)compute + print + save the
+    transfer-to-baseline summary. Does NOT load the model unless
+    --recompute_baselines is actually needed -- a pure re-analysis of an
+    already-complete CSV is a CPU-only, seconds-long operation."""
+    trials_path = os.path.join(args.out_dir, "experiment_a_trials.csv")
+    if not os.path.exists(trials_path):
+        raise FileNotFoundError(f"--analyze_only: '{trials_path}' not found -- run the sweep "
+                                 "(without --analyze_only) at least once first.")
+    trials_a = pd.read_csv(trials_path)
+    print(f"--analyze_only: loaded {len(trials_a)} trial(s) from '{trials_path}'.")
+
+    has_baselines = ("a_baseline_hour" in trials_a.columns and not trials_a["a_baseline_hour"].isna().all() and
+                      "b_baseline_hour" in trials_a.columns and not trials_a["b_baseline_hour"].isna().all())
+    if not has_baselines:
+        if not args.recompute_baselines:
+            raise ValueError(
+                f"'{trials_path}' is missing baseline-answer columns (a_baseline_hour/b_baseline_hour) -- "
+                "this looks like an older run. Pass --recompute_baselines to backfill them cheaply (one "
+                "generate() call per unique image, no patching), or re-run the full sweep.")
+        model, processor, image_token_id, decoder_layers, image_features_owners, vision_method = \
+            setup_model_and_vision(args, df)
+        unique_files = pd.concat([trials_a["a_file"], trials_a["b_file"]]).dropna().unique().tolist()
+        baselines_df = recompute_baselines_for_files(
+            model, processor, image_token_id, image_features_owners, vision_method, args.images_dir,
+            unique_files, max_new_tokens=args.max_new_tokens)
+        os.makedirs(args.out_dir, exist_ok=True)
+        baselines_df.to_csv(os.path.join(args.out_dir, "experiment_a_baselines.csv"), index=False)
+        trials_a = backfill_baselines(trials_a, baselines_df)
+        trials_a.to_csv(trials_path, index=False)
+        print(f"Backfilled and re-saved '{trials_path}' -- future --analyze_only runs on this out_dir "
+              "won't need --recompute_baselines again.")
+
+    summary_a = summarize_experiment_a(trials_a, args.out_dir)
+    plot_experiment_a(summary_a, args.out_dir)
+    # vision_method isn't necessarily known here (no model loaded if baselines were
+    # already present) -- read it back from the vision-ceiling rows' own record if
+    # possible, else report "unknown" rather than guessing.
+    vision_method_seen = "unknown (not re-determined in --analyze_only; see run's own console log)"
+    text_a = print_experiment_a_summary(summary_a, trials_a, vision_method_seen)
+    transfer_summary_a = summarize_transfer_a(trials_a, args.out_dir)
+    agreement_stats_a = baseline_agreement_stats(trials_a)
+    text_transfer_a = print_transfer_summary_a(transfer_summary_a, agreement_stats_a, trials_a)
+    with open(os.path.join(args.out_dir, "experiment_a_summary.txt"), "w") as f:
+        f.write(text_a + "\n\n" + text_transfer_a + "\n")
+    print(f"\n--analyze_only done. Summaries (re)written to '{args.out_dir}/'.")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Causal interventions (activation patching + steering) on the clock-reading failure.")
@@ -1454,22 +1864,26 @@ def main():
                          help=f"Experiment B: comma-separated alpha values (default: {DEFAULT_ALPHAS})")
     parser.add_argument("--max_new_tokens", type=int, default=MAX_NEW_TOKENS)
     parser.add_argument("--seed", type=int, default=SEED)
+    parser.add_argument("--analyze_only", action="store_true",
+                         help="skip the sweep entirely: load an existing experiment_a_trials.csv from "
+                              "--out_dir and (re)compute the transfer-to-baseline summary from it. Ignores "
+                              "--verify/--experiment. Combine with --recompute_baselines if that CSV "
+                              "predates saving baseline answers (an older run).")
+    parser.add_argument("--recompute_baselines", action="store_true",
+                         help="with --analyze_only: if the loaded trials.csv is missing baseline-answer "
+                              "columns, recompute them cheaply (one generate() call per unique image, no "
+                              "patching -- see recompute_baselines_for_files) instead of redoing the full "
+                              "sweep. Needs the model loaded, unlike a plain --analyze_only.")
     args = parser.parse_args()
 
     df = pd.read_csv(args.data_csv)
 
-    model, processor = load_model(args.model_id)
-    image_token_id = find_image_token_id(model, processor)
-    decoder_layers = find_decoder_layers(model)
-    image_features_owners = find_all_image_features_owners(model)
-    print(f"Found {len(decoder_layers)} decoder layers.")
+    if args.analyze_only:
+        run_analyze_only(args, df)
+        return
 
-    # Determine ONCE (not per-call) which mechanism actually intercepts the
-    # image representation for this model, and share it across --verify and
-    # both experiments -- see determine_vision_interception_method.
-    sample_path = os.path.join(args.images_dir, df.iloc[0]["filename"])
-    vision_method = determine_vision_interception_method(model, processor, image_features_owners, sample_path,
-                                                          requested=args.vision_method)
+    model, processor, image_token_id, decoder_layers, image_features_owners, vision_method = \
+        setup_model_and_vision(args, df)
 
     os.makedirs(args.out_dir, exist_ok=True)
 
@@ -1488,8 +1902,11 @@ def main():
         summary_a = summarize_experiment_a(trials_a, args.out_dir)
         plot_experiment_a(summary_a, args.out_dir)
         text_a = print_experiment_a_summary(summary_a, trials_a, vision_method)
+        transfer_summary_a = summarize_transfer_a(trials_a, args.out_dir)
+        agreement_stats_a = baseline_agreement_stats(trials_a)
+        text_transfer_a = print_transfer_summary_a(transfer_summary_a, agreement_stats_a, trials_a)
         with open(os.path.join(args.out_dir, "experiment_a_summary.txt"), "w") as f:
-            f.write(text_a + "\n")
+            f.write(text_a + "\n\n" + text_transfer_a + "\n")
 
     if args.experiment in ("b", "both"):
         if not os.path.exists(args.direction_path):
