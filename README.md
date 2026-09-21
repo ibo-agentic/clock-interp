@@ -206,16 +206,19 @@ python probe.py --stage probe     # fast: fits/cross-validates the probes, makes
 # 6. Step 3: fit + save a steering direction for Experiment B (needs --stage probe's output)
 python probe.py --stage direction
 
-# 7. Step 3: causal interventions (needs a GPU) -- smoke-test first, then the full sweep
+# 7. Step 3: verify the intervention mechanism actually works, BEFORE trusting a null result
+python intervene.py --verify --experiment none
+
+# 8. Step 3: causal interventions (needs a GPU) -- smoke-test first, then the full sweep
 python intervene.py --max_pairs 1 --layers 0,1,21,36   # quick correctness check, a few minutes
-python intervene.py                                     # full sweep, both experiments
+python intervene.py --verify                            # full sweep, both experiments, verified
 ```
 
 Each script also has a `--help` for its full option list, and each exposes a
 plain Python function (`generate_dataset`, `run_eval`, `run_analysis`,
 `extract_activations`, `run_probing`, `fit_probe_direction`,
-`run_experiment_a`, `run_experiment_b`) so you can call it directly from a
-notebook or another script instead of the CLI.
+`run_experiment_a`, `run_experiment_b`, `run_verification`) so you can call
+it directly from a notebook or another script instead of the CLI.
 
 ## What each script does
 
@@ -448,6 +451,31 @@ Output: `intervene_output/experiment_a_trials.csv` (every individual
 trial) / `experiment_a_summary.csv`+`.txt` (aggregated per layer x
 position-set x condition) / `experiment_a_layers.png`, and the equivalent
 `experiment_b_*` files.
+
+**`--verify`** exists because a clean null result (patching/steering doesn't
+move the answer) and a silently broken hook (patching/steering doesn't run
+at all) look IDENTICAL in the experiment output -- and a broken hook is by
+far the likelier explanation for a suspiciously total null (e.g. the
+vision-encoder ceiling condition showing exactly 0% answer-change across
+every trial). `--verify` checks the mechanism directly, independent of the
+experiment logic: for a few (A, B) pairs, it (1) confirms the vision-encoder
+swap actually writes a different tensor (reported as a relative L2
+difference, not a boolean) and that the difference propagates into the
+LLM's hidden states (checked at the embedding layer and one layer
+downstream -- if that's bit-identical, the hook isn't reaching the forward
+path used for generation); (2) runs a maximally aggressive version of the
+same intervention -- zeroing the vision output entirely, and separately
+replacing it with a random-noise image's -- and confirms the ANSWER changes
+at all; and (3) for Experiment A's decoder-layer patching, confirms the
+patched positions actually differ downstream of the patched layer (checked
+one layer down and at the final layer) and reports what fraction of
+sequence positions each position set covers, so a silently-empty
+`image_tokens` mask can't hide. Ends with a blunt PASS/FAIL verdict, plus
+`verification_report.txt` / `verification_vision_swap.csv` /
+`verification_decoder_patch.csv` saved into `--out_dir` so every result
+carries its own evidence. Combine with `--experiment none` for a fast
+standalone check (a few pairs, no full sweep), or with a real experiment run
+to verify and produce results in one command.
 
 ## Notes for Kaggle's T4 (16GB)
 

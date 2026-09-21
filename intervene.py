@@ -122,6 +122,18 @@ def angle_deg_to_minute(angle_deg):
     return (angle_deg / 6.0) % 60
 
 
+def relative_l2_diff(x, y):
+    """||x - y|| / ||x||, as a plain float -- used by --verify to report a
+    magnitude, not just a boolean, for "did this intervention actually
+    change anything". NaN if x is ~0 (nothing to take a ratio against)."""
+    x = torch.as_tensor(x).reshape(-1).float()
+    y = torch.as_tensor(y).reshape(-1).float()
+    denom = x.norm().item()
+    if denom < 1e-8:
+        return float("nan")
+    return (x - y).norm().item() / denom
+
+
 # ---------------------------------------------------------------------------
 # Finding the decoder layer stack, and the patch-hook machinery
 # ---------------------------------------------------------------------------
@@ -275,8 +287,15 @@ def vision_patched(vision_module, replacement):
 # Running the model: baseline caching + patched generation
 # ---------------------------------------------------------------------------
 
-def build_inputs(processor, image_path, prompt=PROMPT):
-    image = Image.open(image_path).convert("RGB")
+def build_inputs(processor, image_path_or_image, prompt=PROMPT):
+    """`image_path_or_image` is normally a path (all the normal experiment
+    code passes one). --verify's random-noise-image check also passes an
+    already-in-memory PIL.Image directly (no need to round-trip it through
+    disk just to satisfy this function)."""
+    if isinstance(image_path_or_image, str):
+        image = Image.open(image_path_or_image).convert("RGB")
+    else:
+        image = image_path_or_image.convert("RGB")
     messages = [{"role": "user", "content": [{"type": "image", "image": image},
                                               {"type": "text", "text": prompt}]}]
     chat_text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
@@ -288,6 +307,19 @@ def generate_answer(model, processor, inputs, max_new_tokens=MAX_NEW_TOKENS):
     generated_ids = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
     trimmed = generated_ids[0][inputs["input_ids"].shape[1]:]
     return processor.decode(trimmed, skip_special_tokens=True).strip()
+
+
+@torch.no_grad()
+def forward_hidden_states(model, inputs):
+    """One plain forward pass (no generation), returning the full per-layer
+    hidden_states tuple (CPU float32, one (seq, H) tensor per layer). Used
+    only by --verify to inspect what a patch actually produced, downstream
+    of wherever it was applied -- the normal experiments never need this
+    directly (run_baseline already captures it once per image)."""
+    outputs = model(**inputs, output_hidden_states=True)
+    hs = tuple(h[0].float().cpu() for h in outputs.hidden_states)
+    del outputs
+    return hs
 
 
 @torch.no_grad()
@@ -336,6 +368,28 @@ def run_baseline(model, processor, image_path, image_token_id, vision_holder,
         "raw_answer": raw_answer, "pred_hour": pred_hour, "pred_minute": pred_minute,
         "parse_success": ok,
     }
+
+
+def make_random_noise_image(size=512, rng=None):
+    """A random RGB noise image, same resolution as the clock renders (so
+    it tokenizes to the same number of image patches) -- used by
+    --verify's most aggressive vision-encoder sanity check: an image that
+    looks nothing like a clock at all."""
+    rng = rng if rng is not None else np.random.RandomState(0)
+    arr = rng.randint(0, 256, size=(size, size, 3), dtype=np.uint8)
+    return Image.fromarray(arr, mode="RGB")
+
+
+@torch.no_grad()
+def get_vision_output_for_image(model, processor, vision_module, vision_holder, image, prompt=PROMPT):
+    """One forward pass on an arbitrary PIL image (doesn't need to be part
+    of the dataset or saved to disk), returning just its vision-encoder
+    output -- used by --verify's random-noise-image extreme test."""
+    inputs = build_inputs(processor, image, prompt).to(model.device)
+    vision_holder.clear()
+    model(**inputs, output_hidden_states=False)
+    vision_out = vision_holder.get("out")
+    return vision_out.float().cpu() if vision_out is not None else None
 
 
 def position_masks(image_mask, seq_len):
@@ -810,6 +864,244 @@ def print_experiment_b_summary(summary_df):
 
 
 # ---------------------------------------------------------------------------
+# --verify: prove the interventions actually land, before trusting a null
+# ---------------------------------------------------------------------------
+#
+# A clean null (patching/steering doesn't move the answer) and a silently
+# broken hook (patching/steering doesn't run at all) look IDENTICAL from the
+# experiment output alone. These checks don't touch the experiment logic --
+# they just look, independently, at whether the tensors an intervention is
+# supposed to write actually get written and actually propagate.
+
+def verify_vision_swap(model, processor, vision_module, image_token_id, vision_holder,
+                        pairs, images_dir, max_new_tokens, rng):
+    """For a few (A, B) pairs: confirm that patching B's vision-encoder
+    output into A's forward pass (a) actually writes a tensor different
+    from A's own, (b) that difference propagates into the LLM's hidden
+    states (checked at layer 0 = the merged embeddings, and layer 1 = one
+    decoder block downstream -- if layer 1 is unaffected, the swap isn't
+    reaching the part of the forward pass that matters), and, once, (c)
+    that the model's ANSWER responds at all to a maximally aggressive
+    version of the same intervention: zeroing the vision output entirely,
+    or replacing it with a random-noise image's. If (c) never changes the
+    answer, the hook is not wired into the path used for generation -- a
+    bug, not a finding, regardless of what (a) and (b) show."""
+    records = []
+    lines = ["--- Vision-encoder swap verification ---"]
+
+    for pair_idx, (a, b) in enumerate(pairs):
+        a_path = os.path.join(images_dir, a["filename"])
+        b_path = os.path.join(images_dir, b["filename"])
+        base_a = run_baseline(model, processor, a_path, image_token_id, vision_holder, max_new_tokens=max_new_tokens)
+        base_b = run_baseline(model, processor, b_path, image_token_id, vision_holder, max_new_tokens=max_new_tokens)
+
+        if base_a["vision_output"] is None or base_b["vision_output"] is None:
+            lines.append(f"pair {pair_idx} ({a['filename']}/{b['filename']}): the vision hook did not fire "
+                         "during baseline capture -- cannot verify this pair.")
+            continue
+
+        # (a) the swap writes a genuinely different tensor
+        vision_diff = relative_l2_diff(base_a["vision_output"], base_b["vision_output"])
+
+        # (b) propagation into the LLM: same A input, only the vision-tower
+        # output differs, so ANY difference at layer 0/1 must come from the swap.
+        with vision_patched(vision_module, base_b["vision_output"]):
+            hs_patched = forward_hidden_states(model, base_a["inputs"])
+        hs_unpatched = base_a["hidden_states"]
+        mask = base_a["image_mask"]
+        layer0_diff = relative_l2_diff(hs_unpatched[0][mask], hs_patched[0][mask])
+        layer1_diff = relative_l2_diff(hs_unpatched[1][mask], hs_patched[1][mask])
+
+        record = {
+            "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"],
+            "vision_output_rel_l2_diff": vision_diff,
+            "layer0_rel_l2_diff_at_image_tokens": layer0_diff,
+            "layer1_rel_l2_diff_at_image_tokens": layer1_diff,
+        }
+        lines.append(
+            f"pair {pair_idx} ({a['filename']} <- {b['filename']}): "
+            f"vision_output rel L2 diff={vision_diff:.4f}, "
+            f"layer0 rel L2 diff at image tokens={layer0_diff:.4f}, "
+            f"layer1 rel L2 diff at image tokens={layer1_diff:.4f}"
+        )
+
+        # (c) extreme tests -- only need to run once, cheap enough to do so.
+        if pair_idx == 0:
+            zero_vision = torch.zeros_like(base_a["vision_output"])
+            with vision_patched(vision_module, zero_vision):
+                ans_zero = generate_answer(model, processor, base_a["inputs"], max_new_tokens)
+            changed_zero = (ans_zero != base_a["raw_answer"])
+
+            noise_image = make_random_noise_image(size=512, rng=rng)
+            noise_vision = get_vision_output_for_image(model, processor, vision_module, vision_holder, noise_image)
+            changed_noise, ans_noise = None, None
+            if noise_vision is not None and noise_vision.shape == base_a["vision_output"].shape:
+                with vision_patched(vision_module, noise_vision):
+                    ans_noise = generate_answer(model, processor, base_a["inputs"], max_new_tokens)
+                changed_noise = (ans_noise != base_a["raw_answer"])
+            else:
+                lines.append("  (skipped random-noise-image test: its vision output shape didn't match "
+                             "the clock images' -- unexpected, but doesn't affect the other checks)")
+
+            record.update({
+                "extreme_zero_answer": ans_zero, "extreme_zero_answer_changed": changed_zero,
+                "extreme_noise_image_answer": ans_noise, "extreme_noise_image_answer_changed": changed_noise,
+            })
+            lines.append(f"  baseline answer: {base_a['raw_answer']!r}")
+            lines.append(f"  EXTREME zero-vision answer: {ans_zero!r} (changed={changed_zero})")
+            if changed_noise is not None:
+                lines.append(f"  EXTREME random-noise-image answer: {ans_noise!r} (changed={changed_noise})")
+
+        records.append(record)
+
+    return lines, records
+
+
+def verify_decoder_patch(model, processor, decoder_layers, image_token_id, vision_holder,
+                          pairs, images_dir, layers, max_new_tokens):
+    """For a few (A, B) pairs and a few representative layers: report what
+    fraction of sequence positions each position set actually covers (so a
+    silently-empty 'image_tokens' mask -- meaning nothing was ever patched
+    -- is impossible to miss), and confirm a patch's effect (1) is present
+    at the patched layer itself and (2) propagates to a downstream layer
+    AND the final layer -- not just tautologically true at the exact spot
+    it was written."""
+    records = []
+    lines = ["--- Decoder-layer patch verification ---"]
+
+    for pair_idx, (a, b) in enumerate(pairs):
+        a_path = os.path.join(images_dir, a["filename"])
+        b_path = os.path.join(images_dir, b["filename"])
+        base_a = run_baseline(model, processor, a_path, image_token_id, vision_holder, max_new_tokens=max_new_tokens)
+        base_b = run_baseline(model, processor, b_path, image_token_id, vision_holder, max_new_tokens=max_new_tokens)
+
+        pos_masks = position_masks(base_a["image_mask"], base_a["seq_len"])
+        final_hs_idx = len(base_a["hidden_states"]) - 1
+
+        for pos_name, mask in pos_masks.items():
+            n_positions = int(mask.sum())
+            frac = n_positions / base_a["seq_len"]
+            lines.append(f"pair {pair_idx}, position_set='{pos_name}': covers {n_positions}/"
+                         f"{base_a['seq_len']} positions ({frac:.1%})")
+
+            for layer in layers:
+                with patched(decoder_layers, layer, mask, base_b["hidden_states"][layer], mode="replace"):
+                    hs_patched = forward_hidden_states(model, base_a["inputs"])
+                hs_unpatched = base_a["hidden_states"]
+
+                diff_at_layer = relative_l2_diff(hs_unpatched[layer][mask], hs_patched[layer][mask])
+                downstream_layer = min(layer + 1, final_hs_idx)
+                diff_downstream = relative_l2_diff(hs_unpatched[downstream_layer][mask], hs_patched[downstream_layer][mask])
+                diff_final = relative_l2_diff(hs_unpatched[final_hs_idx][mask], hs_patched[final_hs_idx][mask])
+
+                records.append({
+                    "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"],
+                    "position_set": pos_name, "n_positions": n_positions, "frac_positions": frac,
+                    "layer": layer, "rel_l2_diff_at_layer": diff_at_layer,
+                    "downstream_layer": downstream_layer, "rel_l2_diff_downstream": diff_downstream,
+                    "rel_l2_diff_final_layer": diff_final,
+                })
+                lines.append(
+                    f"  layer {layer}: diff-at-patch={diff_at_layer:.4f}, "
+                    f"diff-at-layer-{downstream_layer}={diff_downstream:.4f}, "
+                    f"diff-at-final-layer={diff_final:.4f}"
+                )
+
+    return lines, records
+
+
+def build_verification_verdict(vision_records, decoder_records):
+    """A blunt PASS/FAIL read of the numbers above, so a reviewer doesn't
+    have to eyeball a table of floats to know whether the hooks are
+    actually wired in."""
+    lines = ["--- Verdict ---"]
+    problems = []
+
+    vdf = pd.DataFrame(vision_records)
+    if len(vdf) == 0:
+        problems.append("No vision-swap verification data was collected at all (the vision hook never fired "
+                         "-- check find_vision_module against this transformers version).")
+    else:
+        if (vdf["layer1_rel_l2_diff_at_image_tokens"] < 1e-6).all():
+            problems.append("The vision swap produces a BIT-IDENTICAL layer-1 hidden state in EVERY pair "
+                             "tested -- the vision hook is very likely not reaching the forward path used "
+                             "for generation (cached embeds? hook registered on a module whose output isn't "
+                             "actually consumed downstream?).")
+        extreme_cols = [c for c in ("extreme_zero_answer_changed", "extreme_noise_image_answer_changed")
+                         if c in vdf.columns]
+        any_extreme_changed = any(vdf[c].fillna(False).any() for c in extreme_cols) if extreme_cols else False
+        if extreme_cols and not any_extreme_changed:
+            problems.append("Neither the zero-vision nor the random-noise-image EXTREME test changed the "
+                             "answer in ANY tested case. If even total replacement of the visual input "
+                             "doesn't move the answer, the hook is not wired into generation -- any null "
+                             "result from the real experiment is unverified until this is fixed.")
+
+    ddf = pd.DataFrame(decoder_records)
+    if len(ddf) == 0:
+        problems.append("No decoder-patch verification data was collected at all.")
+    else:
+        empty_masks = sorted(ddf.loc[ddf["frac_positions"] == 0, "position_set"].unique().tolist())
+        if empty_masks:
+            problems.append(f"Position set(s) {empty_masks} covered ZERO sequence positions in at least one "
+                             "pair -- that position set's sweep results are meaningless, since nothing was "
+                             "ever actually patched.")
+        if (ddf["rel_l2_diff_final_layer"] < 1e-6).all():
+            problems.append("Every decoder-layer patch tested produced a BIT-IDENTICAL final-layer hidden "
+                             "state -- patches are not propagating to the output at all, regardless of "
+                             "layer or position set.")
+
+    if problems:
+        lines.append("FAIL -- do not trust the experiment's null result yet:")
+        for p in problems:
+            lines.append(f"  - {p}")
+    else:
+        lines.append("PASS: the vision swap and decoder patches both write genuinely different tensors that")
+        lines.append("propagate downstream, and the extreme vision test(s) DO change the answer -- the")
+        lines.append("intervention mechanism is demonstrably wired into the forward path. A null result from")
+        lines.append("the main experiment reflects the model's actual behavior, not a broken hook.")
+
+    return lines
+
+
+def run_verification(model, processor, decoder_layers, vision_module, image_token_id, vision_holder,
+                      df, images_dir, out_dir, n_verify_pairs=3, verify_layers=None,
+                      min_gap=MIN_GAP_MINUTES, max_new_tokens=MAX_NEW_TOKENS, seed=SEED):
+    if verify_layers is None:
+        num_layers = len(decoder_layers)
+        verify_layers = sorted(set([0, 1, num_layers // 2, num_layers]))
+    rng = np.random.RandomState(seed)
+
+    pairs = build_pairs(df, n_pairs=n_verify_pairs, min_gap=min_gap, seed=seed)
+    if len(pairs) == 0:
+        raise ValueError("No (A, B) pairs available for --verify -- check --min_gap against this dataset.")
+
+    print(f"\n{'=' * 70}\nVERIFICATION: confirming interventions actually land, before trusting "
+          f"any null result\n{'=' * 70}")
+    print(f"Using {len(pairs)} pair(s), decoder layers {verify_layers}.")
+
+    vision_lines, vision_records = verify_vision_swap(
+        model, processor, vision_module, image_token_id, vision_holder, pairs, images_dir, max_new_tokens, rng)
+    decoder_lines, decoder_records = verify_decoder_patch(
+        model, processor, decoder_layers, image_token_id, vision_holder, pairs, images_dir,
+        verify_layers, max_new_tokens)
+    verdict_lines = build_verification_verdict(vision_records, decoder_records)
+
+    all_lines = ["=== VERIFICATION REPORT ===", ""] + vision_lines + [""] + decoder_lines + [""] + verdict_lines
+    text = "\n".join(all_lines)
+    print("\n" + text)
+
+    os.makedirs(out_dir, exist_ok=True)
+    with open(os.path.join(out_dir, "verification_report.txt"), "w") as f:
+        f.write(text + "\n")
+    pd.DataFrame(vision_records).to_csv(os.path.join(out_dir, "verification_vision_swap.csv"), index=False)
+    pd.DataFrame(decoder_records).to_csv(os.path.join(out_dir, "verification_decoder_patch.csv"), index=False)
+    print(f"\nVerification report saved to '{out_dir}/verification_report.txt' "
+          f"(+ verification_vision_swap.csv / verification_decoder_patch.csv).")
+
+    return text, vision_records, decoder_records
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -826,7 +1118,21 @@ def parse_alphas_arg(value):
 def main():
     parser = argparse.ArgumentParser(
         description="Causal interventions (activation patching + steering) on the clock-reading failure.")
-    parser.add_argument("--experiment", choices=["a", "b", "both"], default="both")
+    parser.add_argument("--experiment", choices=["a", "b", "both", "none"], default="both",
+                         help="'none' runs no experiment -- useful with --verify to just check the "
+                              "intervention mechanism without committing to a full sweep")
+    parser.add_argument("--verify", action="store_true",
+                         help="before running any selected experiment, verify that the vision-encoder "
+                              "swap and decoder-layer patches actually write different tensors and that "
+                              "the difference propagates downstream (see module docstring) -- prints and "
+                              "saves a verification report into --out_dir. Combine with --experiment none "
+                              "for a quick standalone check.")
+    parser.add_argument("--verify_pairs", type=int, default=3,
+                         help="--verify: number of (A, B) pairs to check (kept small -- this is a sanity "
+                              "check, not a statistical sweep)")
+    parser.add_argument("--verify_layers", type=parse_layers_arg, default=None,
+                         help="--verify: comma-separated decoder layers to check (default: 0, 1, a middle "
+                              "layer, and the final layer)")
     parser.add_argument("--data_csv", type=str, default=DATA_CSV)
     parser.add_argument("--images_dir", type=str, default=IMAGES_DIR)
     parser.add_argument("--direction_path", type=str, default=DIRECTION_PATH,
@@ -861,6 +1167,13 @@ def main():
     print(f"Found {len(decoder_layers)} decoder layers.")
 
     os.makedirs(args.out_dir, exist_ok=True)
+
+    if args.verify:
+        run_verification(
+            model, processor, decoder_layers, vision_module, image_token_id, vision_holder,
+            df, args.images_dir, args.out_dir, n_verify_pairs=args.verify_pairs,
+            verify_layers=args.verify_layers, min_gap=args.min_gap,
+            max_new_tokens=args.max_new_tokens, seed=args.seed)
 
     if args.experiment in ("a", "both"):
         trials_a = run_experiment_a(
