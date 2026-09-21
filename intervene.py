@@ -30,21 +30,45 @@ IMPORTANT FRAMING: if patching or steering does NOT move the stated answer
 anywhere in the sweep, that null result IS the finding (the model has the
 information and doesn't use it) -- it is reported as such, not treated as a
 bug to chase. But per --verify (below), that must be demonstrated, not
-assumed: a `--verify` run caught the vision-encoder intervention doing
-EXACTLY nothing (bit-identical downstream hidden states, no extreme test
-moved the answer) while looking superficially plausible (the captured
-tensor itself did differ). The root cause: this transformers version merges
-`self.get_image_features(pixel_values, ...).pooler_output` into
-`inputs_embeds`, a value produced by an EXTRA step downstream of the vision
-tower's own forward output -- hooking the vision tower's raw output (what
-this script did originally, and what `probe.py`'s Step 2 extraction still
-does) captures a real tensor, but not the one that actually reaches the
-LLM. The fix here monkey-patches `get_image_features` itself (see
-`find_image_features_owner` / `image_features_patched`), which is the
-actual point of consumption regardless of what happens inside it. Step 2's
-"vision_encoder" probing results were NOT run through this fix and should
-be treated as probing the vision tower's raw output, not necessarily the
-exact tensor the LLM consumes -- see README.md for the caveat.
+assumed -- this took TWO rounds to get right:
+
+  Round 1: a --verify run caught the vision-encoder intervention doing
+  EXACTLY nothing (bit-identical downstream hidden states, no extreme test
+  moved the answer) while looking superficially plausible (the captured
+  tensor itself did differ). Root cause: this transformers version merges
+  `self.get_image_features(pixel_values, ...).pooler_output` into
+  `inputs_embeds`, produced by an EXTRA step downstream of the vision
+  tower's own forward output -- hooking the tower directly (the original
+  approach, and what `probe.py`'s Step 2 extraction still does) captures a
+  real tensor that simply isn't the one that reaches the LLM.
+
+  Round 2: patching `get_image_features` fixed that, but --verify STILL
+  failed -- the wrapper never fired at all. Root cause: `get_image_features`
+  is defined on more than one object in the model's hierarchy (the
+  top-level `Qwen2_5_VLForConditionalGeneration` AND the inner
+  `Qwen2_5_VLModel` it wraps), and the call that actually matters
+  (`self.get_image_features(...)` inside `Qwen2_5_VLModel.forward`) goes
+  through the INNER object -- a separate Python instance from the outer
+  wrapper, with independently-resolved attributes. Patching only the outer
+  one (found via a `hasattr` check that happened to match first) had zero
+  effect on the inner one's own attribute resolution.
+
+  The current fix (see `find_all_image_features_owners`,
+  `image_features_patched`) patches EVERY object in the hierarchy that
+  defines `get_image_features`, binding each wrapper explicitly with
+  `types.MethodType`, and tracks which one (if any) actually fires. If NONE
+  fire, `determine_vision_interception_method` falls back to patching
+  `hidden_states[0]` (the fully merged embeddings) at the image-token
+  positions directly -- reusing the already-verified decoder-layer-0 patch
+  mechanism, which targets the exact tensor the decoder stack consumes
+  without needing to know where (or whether) get_image_features is
+  involved at all. `run_baseline` hard-fails (raises) if the primary method
+  doesn't fire during a required capture, rather than silently recording a
+  missing one -- silence is how round 2's bug went unnoticed for one
+  --verify iteration. Step 2's "vision_encoder" probing results were NOT
+  run through either fix and should be treated as probing the vision
+  tower's raw output, not necessarily the exact tensor the LLM consumes --
+  see README.md for the caveat.
 
 Reuses model loading, decoder-layer/image-token-id finding, and answer
 parsing from probe.py / eval_behavior.py rather than re-implementing them
@@ -72,6 +96,7 @@ import argparse
 import contextlib
 import os
 import time
+import types
 
 import numpy as np
 import pandas as pd
@@ -273,26 +298,43 @@ def patched(decoder_layers, layer, mask, values, mode="replace"):
         handle.remove()
 
 
-def find_image_features_owner(model):
-    """Find the object whose `get_image_features` method actually gets
-    called while building `inputs_embeds` -- NOT the vision tower's own
-    module. A --verify run proved these are different interception points
-    in this transformers version: `Qwen2_5_VLModel.forward` calls
-    `self.get_image_features(pixel_values, ...)` and merges its
-    `.pooler_output` into the text embeddings at image-token positions;
-    that pooler_output is produced by extra processing beyond the vision
-    tower's own forward return, so hooking the tower's raw output (as an
-    earlier version of this script did) captures a real tensor that simply
-    isn't the one the LLM ends up reading. Checks the top-level model
-    first, then `model.model`, mirroring probe.py's `find_vision_module` /
-    `find_decoder_layers` philosophy of not hardcoding one attribute path.
+def find_all_image_features_owners(model):
+    """Find EVERY distinct object in the model's hierarchy that defines a
+    callable `get_image_features` -- not just the first one found.
+
+    A prior version of this fix picked ONE owner (top-level model, else
+    model.model) and monkey-patched only that. A --verify run proved that
+    was the wrong one: `Qwen2_5_VLForConditionalGeneration` (top-level) DOES
+    define/inherit `get_image_features`, but the call that actually matters
+    happens inside `Qwen2_5_VLModel.forward` (model.model) as
+    `self.get_image_features(...)` -- a COMPLETELY SEPARATE Python object
+    with its own, independently-resolved attributes. Patching the outer
+    object has zero effect on the inner one. Since we can't be sure in
+    advance which object's method is the one that actually executes for a
+    given transformers version, we patch ALL of them (see
+    `image_features_patched`) and rely on --verify's hard-failure check to
+    prove at least one patch fired for real.
     """
-    if hasattr(model, "get_image_features"):
-        return model
-    if hasattr(model, "model") and hasattr(model.model, "get_image_features"):
-        return model.model
-    raise AttributeError("Could not find a `get_image_features` method on this model "
-                          "(checked the top-level model and model.model).")
+    seen_ids = set()
+    owners = []
+
+    def add(name, obj):
+        if obj is None or id(obj) in seen_ids:
+            return
+        if callable(getattr(obj, "get_image_features", None)):
+            owners.append((name, obj))
+            seen_ids.add(id(obj))
+
+    add("model", model)
+    add("model.model", getattr(model, "model", None))
+    for name, module in model.named_modules():
+        add(f"model.{name}", module)
+
+    if not owners:
+        raise AttributeError("Could not find any object with a `get_image_features` method "
+                              "anywhere in this model's hierarchy.")
+    print(f"Found get_image_features() on: {[name for name, _ in owners]}")
+    return owners
 
 
 def _extract_image_features_tensor(output):
@@ -327,45 +369,62 @@ def _replace_image_features_tensor(output, where, new_tensor):
 
 
 @contextlib.contextmanager
-def image_features_patched(owner, replacement=None, capture_holder=None):
-    """Monkey-patch `owner.get_image_features` (found via
-    `find_image_features_owner`) for the duration of a `with` block -- this
-    is the actual point of consumption for the image representation that
-    lands in the LLM's `inputs_embeds`, not the vision tower's own forward
-    output (see `find_image_features_owner`'s docstring for why that
-    distinction matters here).
+def image_features_patched(owners, replacement=None, capture_holder=None):
+    """Monkey-patch `get_image_features` on EVERY object in `owners` (see
+    `find_all_image_features_owners`) for the duration of a `with` block,
+    binding each wrapper explicitly with `types.MethodType` so it shadows
+    the class method exactly the way a real bound method would -- since we
+    don't know in advance which owner's method is the one that actually
+    executes, we intercept all of them and let whichever one fires do the
+    work.
 
-    If `replacement` is given, every call to get_image_features() during
-    the block returns `replacement` in place of the real image features
-    (Experiment A's vision ceiling condition, and --verify's extreme
-    zero/random-noise tests). If `capture_holder` is given (and
+    If `replacement` is given, the firing call returns `replacement` in
+    place of the real image features. If `capture_holder` is given (and
     `replacement` is None), the REAL return value is captured into
     `capture_holder["out"]` without altering behavior -- used for baseline
-    caching (`run_baseline`) so later trials have something to patch FROM.
-    The two are mutually exclusive per call; `run_baseline` never needs a
-    replacement, and every replacement call already knows what it's
-    substituting in, so it has no need to also capture the original.
+    caching (`run_baseline`).
+
+    Always writes into `capture_holder` (creating a private one if none was
+    given) two bookkeeping keys the caller can check afterward:
+      - "fired": True if ANY patched owner's method actually ran.
+      - "fired_by": which owner's name did so (from `owners`).
+    `run_baseline` uses these to hard-fail rather than silently record a
+    missing capture -- silent non-firing is exactly how the original bug
+    went unnoticed for one --verify iteration.
     """
-    original = owner.get_image_features
+    state = capture_holder if capture_holder is not None else {}
+    state["fired"] = False
+    state["fired_by"] = None
+    originals = []
 
-    def wrapped(*args, **kwargs):
-        real_output = original(*args, **kwargs)
-        real_tensor, where = _extract_image_features_tensor(real_output)
+    for name, owner in owners:
+        original_bound = getattr(owner, "get_image_features")
+        originals.append((owner, original_bound))
 
-        if capture_holder is not None:
-            capture_holder["out"] = real_tensor.detach() if real_tensor is not None else None
-            return real_output
+        def make_wrapped(original_bound, owner_name):
+            def wrapped(self, *args, **kwargs):
+                real_output = original_bound(*args, **kwargs)
+                real_tensor, where = _extract_image_features_tensor(real_output)
 
-        if replacement is None or real_tensor is None:
-            return real_output
-        new_tensor = replacement.to(dtype=real_tensor.dtype, device=real_tensor.device)
-        return _replace_image_features_tensor(real_output, where, new_tensor)
+                state["fired"] = True
+                state["fired_by"] = owner_name
 
-    owner.get_image_features = wrapped
+                if capture_holder is not None:
+                    capture_holder["out"] = real_tensor.detach() if real_tensor is not None else None
+
+                if replacement is None or real_tensor is None:
+                    return real_output
+                new_tensor = replacement.to(dtype=real_tensor.dtype, device=real_tensor.device)
+                return _replace_image_features_tensor(real_output, where, new_tensor)
+            return wrapped
+
+        owner.get_image_features = types.MethodType(make_wrapped(original_bound, name), owner)
+
     try:
-        yield
+        yield state
     finally:
-        owner.get_image_features = original
+        for owner, original_bound in originals:
+            owner.get_image_features = original_bound
 
 
 # ---------------------------------------------------------------------------
@@ -408,8 +467,8 @@ def forward_hidden_states(model, inputs):
 
 
 @torch.no_grad()
-def run_baseline(model, processor, image_path, image_token_id, image_features_owner,
-                  prompt=PROMPT, max_new_tokens=MAX_NEW_TOKENS):
+def run_baseline(model, processor, image_path, image_token_id, image_features_owners, vision_method,
+                  prompt=PROMPT, max_new_tokens=MAX_NEW_TOKENS, require_vision_capture=False):
     """Run one image with NO intervention. Returns everything later trials
     need from it:
       - inputs:        the tokenized+image-processed input dict (kept on
@@ -421,12 +480,17 @@ def run_baseline(model, processor, image_path, image_token_id, image_features_ow
                         RECEIVER image, as the norm reference for the
                         noise control.
       - image_mask:     (seq,) CPU bool tensor, which positions are image tokens.
-      - vision_output:  (n_patches, vision_dim) CPU float32 tensor, the
-                        image features get_image_features() actually
-                        produces for this image (the tensor that lands in
-                        inputs_embeds -- see find_image_features_owner),
-                        used for the vision-encoder ceiling condition. None
-                        if get_image_features couldn't be found/captured.
+      - vision_output:  (n_image_tokens, H) CPU float32 tensor, the image
+                        representation the LLM actually reads for this
+                        image -- captured differently depending on
+                        `vision_method` (see `determine_vision_interception_method`):
+                        for "get_image_features", whatever
+                        get_image_features() actually returns; for
+                        "embeds_fallback", hidden_states[0] at the
+                        image-token positions (the fully merged embeddings,
+                        read directly off `hidden_states` below at zero
+                        extra cost). Used for the vision-encoder ceiling
+                        condition (see `apply_vision_replacement`).
       - raw_answer / pred_hour / pred_minute / parse_success: this image's
                         own (unpatched) generated answer.
 
@@ -434,18 +498,43 @@ def run_baseline(model, processor, image_path, image_token_id, image_features_ow
     generate() call (for the answer), even when only used as a patch
     source and the answer is discarded -- a bit of redundant compute, but
     one simple function reused everywhere beats three near-identical ones.
+
+    If `vision_method == "get_image_features"` and `require_vision_capture`
+    is True, raises immediately when NO patched owner's method fires during
+    the forward pass, rather than silently returning `vision_output=None`.
+    Silent non-firing is exactly how the original bug (patching the wrong
+    object) went unnoticed for one --verify iteration -- callers that
+    specifically need a working capture (--verify itself) must ask for this;
+    ordinary experiment runs default to permissive (a broken vision capture
+    there just means the vision-ceiling condition gets skipped, not that
+    1000+ unrelated decoder-patch trials should crash).
     """
     inputs = build_inputs(processor, image_path, prompt).to(model.device)
 
-    holder = {}
-    with image_features_patched(image_features_owner, capture_holder=holder):
+    if vision_method == "get_image_features":
+        holder = {}
+        with image_features_patched(image_features_owners, capture_holder=holder):
+            outputs = model(**inputs, output_hidden_states=True)
+        if require_vision_capture and not holder.get("fired"):
+            raise RuntimeError(
+                f"get_image_features() never fired for '{image_path}' -- patched owners: "
+                f"{[name for name, _ in image_features_owners]}. A probe earlier in this run found "
+                "this method DOES work, so this is unexpected non-determinism; do not trust any "
+                "vision-ceiling result until this is understood."
+            )
+        vision_out = holder.get("out")
+        vision_output = vision_out.float().cpu() if vision_out is not None else None
+    else:
         outputs = model(**inputs, output_hidden_states=True)
+        vision_output = None  # filled in below once hidden_states[0] exists
+
     hidden_states = tuple(h[0].float().cpu() for h in outputs.hidden_states)
     input_ids = inputs["input_ids"][0]
     image_mask = (input_ids == image_token_id).cpu()
-    vision_out = holder.get("out")
-    vision_output = vision_out.float().cpu() if vision_out is not None else None
     del outputs
+
+    if vision_method == "embeds_fallback":
+        vision_output = hidden_states[0][image_mask].clone()
 
     raw_answer = generate_answer(model, processor, inputs, max_new_tokens)
     pred_hour, pred_minute, ok = parse_time_answer(raw_answer)
@@ -458,6 +547,78 @@ def run_baseline(model, processor, image_path, image_token_id, image_features_ow
     }
 
 
+def determine_vision_interception_method(model, processor, image_features_owners, sample_image_path):
+    """Probe, ONCE, which mechanism actually intercepts the image
+    representation the LLM reads for THIS model: try monkey-patching
+    get_image_features() first (the most surgical option -- it targets
+    exactly the image representation, before any merge-level processing).
+    If that doesn't fire during a real forward pass (as happened when the
+    wrong owner was patched), fall back to patching hidden_states[0] -- the
+    fully merged embeddings, at the image-token positions, right before the
+    decoder stack runs. That fallback targets the SAME tensor the LLM
+    actually consumes regardless of where or whether get_image_features is
+    involved at all, and reuses the already-verified decoder-layer-0 patch
+    mechanism (`patched`) rather than introducing new untested code.
+
+    Returns "get_image_features" or "embeds_fallback". Never returns a
+    method that doesn't work: the fallback is a plain forward hook via
+    PyTorch's own hook registration (not a monkey-patched Python method),
+    so unlike get_image_features() it cannot silently fail to fire -- if
+    the model runs at all, layer-0 patching runs.
+    """
+    inputs = build_inputs(processor, sample_image_path).to(model.device)
+    holder = {}
+    with image_features_patched(image_features_owners, capture_holder=holder):
+        model(**inputs, output_hidden_states=False)
+
+    if holder.get("fired"):
+        print(f"Vision interception: get_image_features() on '{holder['fired_by']}' fires correctly "
+              "-- using it directly.")
+        return "get_image_features"
+
+    print(f"Vision interception: get_image_features() did not fire on any of "
+          f"{[name for name, _ in image_features_owners]} during a real forward pass. Falling back to "
+          "patching hidden_states[0] (the merged embeddings) at the image-token positions -- this "
+          "targets the same tensor the decoder stack actually consumes, independent of where "
+          "get_image_features lives.")
+    return "embeds_fallback"
+
+
+def vision_replacement_from(vision_method, source_base):
+    """Pull the correctly-shaped replacement tensor for `apply_vision_replacement`
+    out of a `run_baseline(...)` result -- shape/meaning depends on
+    `vision_method`: for "get_image_features", (n_image_tokens, H); for
+    "embeds_fallback", the FULL (seq_len, H) hidden_states[0] (only its
+    image-token rows are actually used, matching `patched()`'s contract)."""
+    if vision_method == "get_image_features":
+        return source_base["vision_output"]
+    return source_base["hidden_states"][0]
+
+
+def zeroed_vision_replacement(vision_method, base):
+    """A same-shape all-zero replacement, for --verify's extreme zero test."""
+    if vision_method == "get_image_features":
+        return torch.zeros_like(base["vision_output"])
+    zeroed = base["hidden_states"][0].clone()
+    zeroed[base["image_mask"]] = 0.0
+    return zeroed
+
+
+@contextlib.contextmanager
+def apply_vision_replacement(vision_method, decoder_layers, image_features_owners, image_mask, replacement):
+    """Replace the image representation the LLM reads, for one
+    forward/generate call, using whichever interception method
+    `determine_vision_interception_method` found actually works for this
+    model. `replacement` must already be shaped for the active method (see
+    `vision_replacement_from` / `zeroed_vision_replacement`)."""
+    if vision_method == "get_image_features":
+        with image_features_patched(image_features_owners, replacement=replacement):
+            yield
+    else:
+        with patched(decoder_layers, layer=0, mask=image_mask, values=replacement, mode="replace"):
+            yield
+
+
 def make_random_noise_image(size=512, rng=None):
     """A random RGB noise image, same resolution as the clock renders (so
     it tokenizes to the same number of image patches) -- used by
@@ -466,20 +627,6 @@ def make_random_noise_image(size=512, rng=None):
     rng = rng if rng is not None else np.random.RandomState(0)
     arr = rng.randint(0, 256, size=(size, size, 3), dtype=np.uint8)
     return Image.fromarray(arr, mode="RGB")
-
-
-@torch.no_grad()
-def get_image_features_for_image(model, processor, image_features_owner, image, prompt=PROMPT):
-    """One forward pass on an arbitrary PIL image (doesn't need to be part
-    of the dataset or saved to disk), returning just the image features
-    get_image_features() produces for it -- used by --verify's
-    random-noise-image extreme test."""
-    inputs = build_inputs(processor, image, prompt).to(model.device)
-    holder = {}
-    with image_features_patched(image_features_owner, capture_holder=holder):
-        model(**inputs, output_hidden_states=False)
-    out = holder.get("out")
-    return out.float().cpu() if out is not None else None
 
 
 def position_masks(image_mask, seq_len):
@@ -562,7 +709,7 @@ def find_same_minute_partner(df, a_row, exclude, rng):
 # Experiment A: the sweep
 # ---------------------------------------------------------------------------
 
-def run_experiment_a(model, processor, decoder_layers, image_features_owner, image_token_id,
+def run_experiment_a(model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
                       df, images_dir, out_dir, n_pairs=N_PAIRS, max_pairs=None, min_gap=MIN_GAP_MINUTES,
                       layers=None, max_new_tokens=MAX_NEW_TOKENS, seed=SEED):
     rng = np.random.RandomState(seed)
@@ -592,15 +739,17 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owner, ima
         a_path = os.path.join(images_dir, a["filename"])
         b_path = os.path.join(images_dir, b["filename"])
 
-        base_a = run_baseline(model, processor, a_path, image_token_id, image_features_owner, max_new_tokens=max_new_tokens)
-        base_b = run_baseline(model, processor, b_path, image_token_id, image_features_owner, max_new_tokens=max_new_tokens)
+        base_a = run_baseline(model, processor, a_path, image_token_id, image_features_owners, vision_method,
+                               max_new_tokens=max_new_tokens)
+        base_b = run_baseline(model, processor, b_path, image_token_id, image_features_owners, vision_method,
+                               max_new_tokens=max_new_tokens)
 
         same_row = find_same_minute_partner(df, a, exclude=already_used, rng=rng)
         base_same = None
         if same_row is not None:
             same_path = os.path.join(images_dir, same_row["filename"])
-            base_same = run_baseline(model, processor, same_path, image_token_id, image_features_owner,
-                                      max_new_tokens=max_new_tokens)
+            base_same = run_baseline(model, processor, same_path, image_token_id, image_features_owners,
+                                      vision_method, max_new_tokens=max_new_tokens)
 
         if base_a["seq_len"] != base_b["seq_len"] or (base_same is not None and base_a["seq_len"] != base_same["seq_len"]):
             print(f"WARNING: sequence-length mismatch for pair ({a['filename']}, {b['filename']}) -- "
@@ -671,7 +820,9 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owner, ima
 
         # --- ceiling condition: replace the whole vision-encoder output ---
         if base_b["vision_output"] is not None:
-            with image_features_patched(image_features_owner, replacement=base_b["vision_output"]):
+            replacement = vision_replacement_from(vision_method, base_b)
+            with apply_vision_replacement(vision_method, decoder_layers, image_features_owners,
+                                           base_a["image_mask"], replacement):
                 ans_v = generate_answer(model, processor, base_a["inputs"], max_new_tokens)
             pred_hour_v, pred_minute_v, ok_v = parse_time_answer(ans_v)
             moved_v, shift_v = score_shift(baseline_a_minute, pred_minute_v if ok_v else None, int(b["minute"]))
@@ -683,6 +834,11 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owner, ima
                 "moved_toward": moved_v, "shift_score": shift_v,
                 "answer_changed": (ans_v != base_a["raw_answer"]),
             })
+        else:
+            print(f"WARNING: pair {pair_idx} ({a['filename']}/{b['filename']}): vision capture failed "
+                  "despite an earlier probe confirming it works -- skipping this pair's vision-ceiling "
+                  "trial (not the rest of the sweep). If this recurs, don't trust the ceiling condition's "
+                  "results for this run.")
 
     trials_df = pd.DataFrame(rows)
     os.makedirs(out_dir, exist_ok=True)
@@ -802,8 +958,8 @@ def print_experiment_a_summary(summary_df, trials_df):
 # Experiment B: steering along the probe direction
 # ---------------------------------------------------------------------------
 
-def run_experiment_b(model, processor, decoder_layers, image_token_id, image_features_owner, direction,
-                      df, images_dir, out_dir, n_trials=N_PAIRS, max_pairs=None,
+def run_experiment_b(model, processor, decoder_layers, image_token_id, image_features_owners, vision_method,
+                      direction, df, images_dir, out_dir, n_trials=N_PAIRS, max_pairs=None,
                       target_offset=TARGET_OFFSET_MINUTES, alphas=None,
                       max_new_tokens=MAX_NEW_TOKENS, seed=SEED):
     if alphas is None:
@@ -834,7 +990,8 @@ def run_experiment_b(model, processor, decoder_layers, image_token_id, image_fea
 
     for _, row in tqdm(trial_images.iterrows(), total=len(trial_images), desc="Experiment B images"):
         path = os.path.join(images_dir, row["filename"])
-        base = run_baseline(model, processor, path, image_token_id, image_features_owner, max_new_tokens=max_new_tokens)
+        base = run_baseline(model, processor, path, image_token_id, image_features_owners, vision_method,
+                             max_new_tokens=max_new_tokens)
 
         true_minute = int(row["minute"])
         target_minute = (true_minute + target_offset) % 60
@@ -963,7 +1120,7 @@ def print_experiment_b_summary(summary_df):
 # they just look, independently, at whether the tensors an intervention is
 # supposed to write actually get written and actually propagate.
 
-def verify_vision_swap(model, processor, image_features_owner, image_token_id,
+def verify_vision_swap(model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
                         pairs, images_dir, max_new_tokens, rng):
     """For a few (A, B) pairs: confirm that patching B's image features
     into A's forward pass (a) actually writes a tensor different from A's
@@ -974,32 +1131,33 @@ def verify_vision_swap(model, processor, image_features_owner, image_token_id,
     model's ANSWER responds at all to a maximally aggressive version of the
     same intervention: zeroing the image features entirely, or replacing
     them with a random-noise image's. If (c) never changes the answer, the
-    hook is not wired into the path used for generation -- a bug, not a
-    finding, regardless of what (a) and (b) show. All patching goes through
-    `image_features_patched` (monkey-patches `get_image_features`), NOT a
-    forward hook on the vision tower's own module -- see
-    `find_image_features_owner`'s docstring for why that distinction is
-    exactly the bug this check exists to catch."""
+    interception is not wired into the path used for generation -- a bug,
+    not a finding, regardless of what (a) and (b) show.
+
+    All patching goes through `apply_vision_replacement`, using whichever
+    `vision_method` was determined to actually work for this model (see
+    `determine_vision_interception_method`) -- NOT a forward hook on the
+    vision tower's own module, which was the original, now-disproven
+    approach (see module docstring)."""
     records = []
-    lines = ["--- Vision-encoder swap verification ---"]
+    lines = [f"--- Vision-encoder swap verification (method: {vision_method}) ---"]
 
     for pair_idx, (a, b) in enumerate(pairs):
         a_path = os.path.join(images_dir, a["filename"])
         b_path = os.path.join(images_dir, b["filename"])
-        base_a = run_baseline(model, processor, a_path, image_token_id, image_features_owner, max_new_tokens=max_new_tokens)
-        base_b = run_baseline(model, processor, b_path, image_token_id, image_features_owner, max_new_tokens=max_new_tokens)
-
-        if base_a["vision_output"] is None or base_b["vision_output"] is None:
-            lines.append(f"pair {pair_idx} ({a['filename']}/{b['filename']}): get_image_features() could not "
-                         "be captured during baseline capture -- cannot verify this pair.")
-            continue
+        base_a = run_baseline(model, processor, a_path, image_token_id, image_features_owners, vision_method,
+                               max_new_tokens=max_new_tokens, require_vision_capture=True)
+        base_b = run_baseline(model, processor, b_path, image_token_id, image_features_owners, vision_method,
+                               max_new_tokens=max_new_tokens, require_vision_capture=True)
 
         # (a) the swap writes a genuinely different tensor
         vision_diff = relative_l2_diff(base_a["vision_output"], base_b["vision_output"])
 
         # (b) propagation into the LLM: same A input, only the image features
         # differ, so ANY difference at layer 0/1 must come from the swap.
-        with image_features_patched(image_features_owner, replacement=base_b["vision_output"]):
+        replacement_b = vision_replacement_from(vision_method, base_b)
+        with apply_vision_replacement(vision_method, decoder_layers, image_features_owners,
+                                       base_a["image_mask"], replacement_b):
             hs_patched = forward_hidden_states(model, base_a["inputs"])
         hs_unpatched = base_a["hidden_states"]
         mask = base_a["image_mask"]
@@ -1007,7 +1165,7 @@ def verify_vision_swap(model, processor, image_features_owner, image_token_id,
         layer1_diff = relative_l2_diff(hs_unpatched[1][mask], hs_patched[1][mask])
 
         record = {
-            "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"],
+            "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"], "vision_method": vision_method,
             "vision_output_rel_l2_diff": vision_diff,
             "layer0_rel_l2_diff_at_image_tokens": layer0_diff,
             "layer1_rel_l2_diff_at_image_tokens": layer1_diff,
@@ -1021,16 +1179,20 @@ def verify_vision_swap(model, processor, image_features_owner, image_token_id,
 
         # (c) extreme tests -- only need to run once, cheap enough to do so.
         if pair_idx == 0:
-            zero_vision = torch.zeros_like(base_a["vision_output"])
-            with image_features_patched(image_features_owner, replacement=zero_vision):
+            zero_vision = zeroed_vision_replacement(vision_method, base_a)
+            with apply_vision_replacement(vision_method, decoder_layers, image_features_owners,
+                                           base_a["image_mask"], zero_vision):
                 ans_zero = generate_answer(model, processor, base_a["inputs"], max_new_tokens)
             changed_zero = (ans_zero != base_a["raw_answer"])
 
             noise_image = make_random_noise_image(size=512, rng=rng)
-            noise_vision = get_image_features_for_image(model, processor, image_features_owner, noise_image)
+            noise_base = run_baseline(model, processor, noise_image, image_token_id, image_features_owners,
+                                       vision_method, max_new_tokens=1, require_vision_capture=True)
+            noise_replacement = vision_replacement_from(vision_method, noise_base)
             changed_noise, ans_noise = None, None
-            if noise_vision is not None and noise_vision.shape == base_a["vision_output"].shape:
-                with image_features_patched(image_features_owner, replacement=noise_vision):
+            if noise_replacement is not None and noise_replacement.shape == replacement_b.shape:
+                with apply_vision_replacement(vision_method, decoder_layers, image_features_owners,
+                                               base_a["image_mask"], noise_replacement):
                     ans_noise = generate_answer(model, processor, base_a["inputs"], max_new_tokens)
                 changed_noise = (ans_noise != base_a["raw_answer"])
             else:
@@ -1051,7 +1213,7 @@ def verify_vision_swap(model, processor, image_features_owner, image_token_id,
     return lines, records
 
 
-def verify_decoder_patch(model, processor, decoder_layers, image_token_id, image_features_owner,
+def verify_decoder_patch(model, processor, decoder_layers, image_token_id, image_features_owners, vision_method,
                           pairs, images_dir, layers, max_new_tokens):
     """For a few (A, B) pairs and a few representative layers: report what
     fraction of sequence positions each position set actually covers (so a
@@ -1066,8 +1228,10 @@ def verify_decoder_patch(model, processor, decoder_layers, image_token_id, image
     for pair_idx, (a, b) in enumerate(pairs):
         a_path = os.path.join(images_dir, a["filename"])
         b_path = os.path.join(images_dir, b["filename"])
-        base_a = run_baseline(model, processor, a_path, image_token_id, image_features_owner, max_new_tokens=max_new_tokens)
-        base_b = run_baseline(model, processor, b_path, image_token_id, image_features_owner, max_new_tokens=max_new_tokens)
+        base_a = run_baseline(model, processor, a_path, image_token_id, image_features_owners, vision_method,
+                               max_new_tokens=max_new_tokens)
+        base_b = run_baseline(model, processor, b_path, image_token_id, image_features_owners, vision_method,
+                               max_new_tokens=max_new_tokens)
 
         pos_masks = position_masks(base_a["image_mask"], base_a["seq_len"])
         final_hs_idx = len(base_a["hidden_states"]) - 1
@@ -1113,14 +1277,16 @@ def build_verification_verdict(vision_records, decoder_records):
 
     vdf = pd.DataFrame(vision_records)
     if len(vdf) == 0:
-        problems.append("No vision-swap verification data was collected at all (get_image_features() could "
-                         "not be captured -- check find_image_features_owner against this transformers version).")
+        problems.append("No vision-swap verification data was collected at all -- if this is reached, "
+                         "verify_vision_swap must have found zero usable pairs (a hard failure on the "
+                         "capture itself raises directly, rather than leaving an empty result to reach "
+                         "here silently -- see run_baseline's require_vision_capture).")
     else:
         if (vdf["layer1_rel_l2_diff_at_image_tokens"] < 1e-6).all():
-            problems.append("The vision swap produces a BIT-IDENTICAL layer-1 hidden state in EVERY pair "
-                             "tested -- get_image_features() is very likely not the actual point of "
-                             "consumption in this transformers version (an extra step after it, or a "
-                             "different method entirely, might be what really lands in inputs_embeds).")
+            method = vdf["vision_method"].iloc[0] if "vision_method" in vdf.columns else "unknown"
+            problems.append(f"The vision swap (method: {method}) produces a BIT-IDENTICAL layer-1 hidden "
+                             "state in EVERY pair tested -- whatever this method is patching, it is not "
+                             "the actual point of consumption in this transformers version.")
         extreme_cols = [c for c in ("extreme_zero_answer_changed", "extreme_noise_image_answer_changed")
                          if c in vdf.columns]
         any_extreme_changed = any(vdf[c].fillna(False).any() for c in extreme_cols) if extreme_cols else False
@@ -1157,7 +1323,7 @@ def build_verification_verdict(vision_records, decoder_records):
     return lines
 
 
-def run_verification(model, processor, decoder_layers, image_features_owner, image_token_id,
+def run_verification(model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
                       df, images_dir, out_dir, n_verify_pairs=3, verify_layers=None,
                       min_gap=MIN_GAP_MINUTES, max_new_tokens=MAX_NEW_TOKENS, seed=SEED):
     if verify_layers is None:
@@ -1171,12 +1337,13 @@ def run_verification(model, processor, decoder_layers, image_features_owner, ima
 
     print(f"\n{'=' * 70}\nVERIFICATION: confirming interventions actually land, before trusting "
           f"any null result\n{'=' * 70}")
-    print(f"Using {len(pairs)} pair(s), decoder layers {verify_layers}.")
+    print(f"Using {len(pairs)} pair(s), decoder layers {verify_layers}, vision method '{vision_method}'.")
 
     vision_lines, vision_records = verify_vision_swap(
-        model, processor, image_features_owner, image_token_id, pairs, images_dir, max_new_tokens, rng)
+        model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
+        pairs, images_dir, max_new_tokens, rng)
     decoder_lines, decoder_records = verify_decoder_patch(
-        model, processor, decoder_layers, image_token_id, image_features_owner, pairs, images_dir,
+        model, processor, decoder_layers, image_token_id, image_features_owners, vision_method, pairs, images_dir,
         verify_layers, max_new_tokens)
     verdict_lines = build_verification_verdict(vision_records, decoder_records)
 
@@ -1255,22 +1422,27 @@ def main():
     model, processor = load_model(args.model_id)
     image_token_id = find_image_token_id(model, processor)
     decoder_layers = find_decoder_layers(model)
-    image_features_owner = find_image_features_owner(model)
-    print(f"Found {len(decoder_layers)} decoder layers; get_image_features() lives on "
-          f"{type(image_features_owner).__name__}.")
+    image_features_owners = find_all_image_features_owners(model)
+    print(f"Found {len(decoder_layers)} decoder layers.")
+
+    # Determine ONCE (not per-call) which mechanism actually intercepts the
+    # image representation for this model, and share it across --verify and
+    # both experiments -- see determine_vision_interception_method.
+    sample_path = os.path.join(args.images_dir, df.iloc[0]["filename"])
+    vision_method = determine_vision_interception_method(model, processor, image_features_owners, sample_path)
 
     os.makedirs(args.out_dir, exist_ok=True)
 
     if args.verify:
         run_verification(
-            model, processor, decoder_layers, image_features_owner, image_token_id,
+            model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
             df, args.images_dir, args.out_dir, n_verify_pairs=args.verify_pairs,
             verify_layers=args.verify_layers, min_gap=args.min_gap,
             max_new_tokens=args.max_new_tokens, seed=args.seed)
 
     if args.experiment in ("a", "both"):
         trials_a = run_experiment_a(
-            model, processor, decoder_layers, image_features_owner, image_token_id,
+            model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
             df, args.images_dir, args.out_dir, n_pairs=args.n_pairs, max_pairs=args.max_pairs,
             min_gap=args.min_gap, layers=args.layers, max_new_tokens=args.max_new_tokens, seed=args.seed)
         summary_a = summarize_experiment_a(trials_a, args.out_dir)
@@ -1286,8 +1458,8 @@ def main():
         else:
             direction = load_probe_direction(args.direction_path)
             trials_b = run_experiment_b(
-                model, processor, decoder_layers, image_token_id, image_features_owner, direction,
-                df, args.images_dir, args.out_dir, n_trials=args.n_pairs, max_pairs=args.max_pairs,
+                model, processor, decoder_layers, image_token_id, image_features_owners, vision_method,
+                direction, df, args.images_dir, args.out_dir, n_trials=args.n_pairs, max_pairs=args.max_pairs,
                 target_offset=args.target_offset, alphas=args.alphas,
                 max_new_tokens=args.max_new_tokens, seed=args.seed)
             summary_b = summarize_experiment_b(trials_b, args.out_dir)

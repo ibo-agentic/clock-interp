@@ -499,25 +499,49 @@ carries its own evidence. Combine with `--experiment none` for a fast
 standalone check (a few pairs, no full sweep), or with a real experiment run
 to verify and produce results in one command.
 
-**`--verify` earned its keep on the first real run**: it came back FAIL on
-the vision path (decoder-layer patching was fine). The captured tensor
-*did* differ between images (rel L2 diff 0.34), but the LLM's layer-0/1
-hidden states at image-token positions were bit-identical, and neither
-extreme test (zeroing the vision output, swapping in a random-noise image)
-changed the answer -- exactly the signature of a hook that isn't in the
-forward path. Root cause: this transformers version merges
-`get_image_features(...).pooler_output` into `inputs_embeds`, a value
-produced by extra processing *downstream* of the vision tower's own forward
-output; hooking the tower directly (the original approach, and what
-`probe.py`'s Step 2 extraction still does) captures a real tensor that
-simply isn't the one the LLM reads. The fix monkey-patches
-`get_image_features` itself (see `find_image_features_owner` /
-`image_features_patched` in `intervene.py`), which is the actual point of
-consumption regardless of what happens inside it -- re-verified against a
-fake model built to reproduce this exact bug shape (an object exposing both
-`.last_hidden_state` and `.pooler_output`, with only the latter consumed
-downstream) before trusting it against the real one. See the "Caveat" note
-under Probing above for what this means for Step 2's `vision_encoder` R².
+**`--verify` earned its keep -- twice -- before the vision path was trusted:**
+
+- **Round 1:** the first real run came back FAIL on the vision path
+  (decoder-layer patching was fine). The captured tensor *did* differ
+  between images (rel L2 diff 0.34), but the LLM's layer-0/1 hidden states
+  at image-token positions were bit-identical, and neither extreme test
+  (zeroing the vision output, swapping in a random-noise image) changed the
+  answer -- the signature of a hook that isn't in the forward path. Root
+  cause: this transformers version merges `get_image_features(...).pooler_output`
+  into `inputs_embeds`, produced by extra processing *downstream* of the
+  vision tower's own forward output; hooking the tower directly (the
+  original approach, and what `probe.py`'s Step 2 extraction still does)
+  captures a real tensor that simply isn't the one the LLM reads. Fix:
+  monkey-patch `get_image_features` itself instead of the tower.
+- **Round 2:** that fix STILL failed --verify, differently: "get_image_features()
+  could not be captured", every pair. `get_image_features` turned out to be
+  defined on *two* separate Python objects -- the top-level
+  `Qwen2_5_VLForConditionalGeneration` wrapper AND the inner
+  `Qwen2_5_VLModel` it wraps -- and the call that actually matters
+  (`self.get_image_features(...)` inside `Qwen2_5_VLModel.forward`) goes
+  through the inner one. Patching only the outer object (found first by a
+  `hasattr` check) had zero effect on the inner object's own,
+  independently-resolved attributes. Fix (`find_all_image_features_owners`
+  / `image_features_patched` in `intervene.py`): patch *every* object in
+  the hierarchy that defines `get_image_features`, bound per-instance with
+  `types.MethodType`, and track which one (if any) actually fires. If none
+  do, `determine_vision_interception_method` falls back to patching
+  `hidden_states[0]` at the image-token positions directly -- reusing the
+  already-verified decoder-layer-0 mechanism, which targets the exact
+  tensor the decoder stack consumes without needing to know where (or
+  whether) `get_image_features` is involved at all. `run_baseline` now
+  hard-fails (raises) rather than silently returning `vision_output=None`
+  when a *required* capture doesn't fire -- silence is exactly how round
+  2's bug went unnoticed for one --verify iteration.
+
+Both rounds were re-verified locally against fake models built to reproduce
+the exact bug shape (round 1: an object exposing both `.last_hidden_state`
+and `.pooler_output`, only the latter consumed downstream; round 2: a decoy
+`get_image_features` on the outer object wired to raise if ever called, plus
+a separate scenario where neither object's method fires at all, to confirm
+the fallback engages and still passes) before trusting either fix against
+the real model. See the "Caveat" note under Probing above for what this
+means for Step 2's `vision_encoder` R².
 
 ## Notes for Kaggle's T4 (16GB)
 
