@@ -63,8 +63,9 @@ from sklearn.model_selection import KFold, cross_val_predict
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
+from adapters import find_vision_module_generic, get_adapter, output_dir_for
 from clocks import hand_angles
-from eval_behavior import MODEL_ID, PROMPT, SEED, parse_time_answer
+from eval_behavior import PROMPT, SEED, parse_time_answer
 
 DATA_CSV = "data_balanced/data.csv"
 IMAGES_DIR = "data_balanced"
@@ -95,48 +96,14 @@ def hour_number(hour):
 # STAGE 1: extract activations (needs the model + a GPU)
 # ---------------------------------------------------------------------------
 
-def find_vision_module(model):
-    """Locate the vision tower by scanning the module tree for a class whose
-    name looks like a vision transformer, instead of hardcoding an attribute
-    path like `model.visual` -- that path has moved between transformers
-    versions, but the class naming has stayed recognizable. The first match
-    in `named_modules()` is the outermost vision module (PyTorch yields
-    parents before their children), which is what we want to hook.
-    """
-    for _, module in model.named_modules():
-        cls_name = type(module).__name__
-        if "VisionTransformer" in cls_name or ("Vision" in cls_name and cls_name.endswith("Model")):
-            return module
-    raise AttributeError("Could not find the vision tower in this model's module tree.")
-
-
-def find_image_token_id(model, processor):
-    """The placeholder token id used for each image patch in the input
-    sequence -- needed to select which hidden-state positions are image
-    tokens (for the mean-pooled-over-image-tokens representation)."""
-    token_id = getattr(model.config, "image_token_id", None)
-    if token_id is not None:
-        return token_id
-    return processor.tokenizer.convert_tokens_to_ids("<|image_pad|>")
-
-
-def load_model(model_id=MODEL_ID):
-    """Load Qwen2.5-VL-3B-Instruct + its processor in float16 with
-    device_map="auto". Shared by extract_activations (below) and
-    intervene.py's causal-intervention experiments, so there's exactly one
-    place that knows how to load the model.
-
-    transformers is imported here (not at module level) so that anything
-    that only needs the CPU-only parts of this file (e.g. `--stage probe`)
-    still works in an environment without transformers/a GPU installed.
-    """
-    from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
-    print(f"Loading {model_id} in float16 ...")
-    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-        model_id, torch_dtype=torch.float16, device_map="auto")
-    processor = AutoProcessor.from_pretrained(model_id)
-    model.eval()
-    return model, processor
+# find_vision_module / find_image_token_id / load_model: these used to be
+# defined here, Qwen-only. Model loading, build_inputs, and image-token-id
+# lookup are now behind adapters.py's ModelAdapter interface (one class per
+# model family) -- see adapters.py's module docstring. find_vision_module
+# is kept as a thin alias since it was ALREADY model-agnostic (scans by
+# class name, not a hardcoded path) and probe.py's own code below still
+# calls it by this name.
+find_vision_module = find_vision_module_generic
 
 
 def make_vision_hook(vision_holder):
@@ -164,8 +131,7 @@ def make_vision_hook(vision_holder):
 
 
 @torch.no_grad()
-def process_one_image(model, processor, image_path, image_token_id, vision_holder,
-                       prompt=PROMPT, max_new_tokens=16):
+def process_one_image(adapter, image_path, vision_holder, prompt=PROMPT, max_new_tokens=16):
     """Run one clock image through the model. Returns:
       - last_token_vecs: list of (hidden_dim,) float32 arrays, one per LLM
         layer (index 0 = embedding output, then each transformer block),
@@ -184,28 +150,23 @@ def process_one_image(model, processor, image_path, image_token_id, vision_holde
     silently turns into inf/NaN if stored as float16. float32 has no such
     problem at these magnitudes.
     """
-    image = Image.open(image_path).convert("RGB")
-    messages = [{"role": "user", "content": [{"type": "image", "image": image},
-                                              {"type": "text", "text": prompt}]}]
-    chat_text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    inputs = processor(text=[chat_text], images=[image], return_tensors="pt").to(model.device)
+    inputs = adapter.build_inputs(image_path, prompt)   # already on-device (see adapters.py)
 
     # --- forward pass: this is what we probe ---
     vision_holder.clear()
-    outputs = model(**inputs, output_hidden_states=True)
+    outputs = adapter.model(**inputs, output_hidden_states=True)
 
-    input_ids = inputs["input_ids"][0]
-    image_mask = (input_ids == image_token_id)
+    image_mask = adapter.image_token_positions(inputs)
     if not image_mask.any():
         # Should not happen, but never silently pool the wrong thing.
         print(f"WARNING: no image tokens found for {image_path}; pooling the full sequence instead.")
-        image_mask = torch.ones_like(input_ids, dtype=torch.bool)
+        image_mask = torch.ones(inputs["input_ids"].shape[1], dtype=torch.bool)
 
     last_token_vecs, meanpool_vecs = [], []
     for h in outputs.hidden_states:
         h0 = h[0]  # drop the batch dim -> (seq_len, hidden_dim)
         last_token_vecs.append(h0[-1].float().cpu().numpy())
-        meanpool_vecs.append(h0[image_mask].mean(dim=0).float().cpu().numpy())
+        meanpool_vecs.append(h0[image_mask.to(h0.device)].mean(dim=0).float().cpu().numpy())
 
     vision_out = vision_holder.get("out")
     if vision_out is None:
@@ -217,9 +178,7 @@ def process_one_image(model, processor, image_path, image_token_id, vision_holde
     del outputs  # free the hidden_states tuple before generate() runs
 
     # --- generate: only used to score whether the final answer was correct ---
-    generated_ids = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
-    trimmed = generated_ids[0][inputs["input_ids"].shape[1]:]
-    raw_reply = processor.decode(trimmed, skip_special_tokens=True).strip()
+    raw_reply = adapter.generate_answer(inputs, max_new_tokens)
 
     return last_token_vecs, meanpool_vecs, vision_vec, raw_reply
 
@@ -257,7 +216,7 @@ def _warn_nonfinite(name, arr):
 
 
 def extract_activations(data_csv=DATA_CSV, images_dir=IMAGES_DIR, out_dir=ACTIVATIONS_DIR,
-                         model_id=MODEL_ID, max_images=None, seed=SEED):
+                         model_id=None, adapter_name=None, max_images=None, seed=SEED):
     """Run every clock image through the model once, saving:
       - hidden_last.npy      (N, L+1, H) float32 -- last-token hidden state per layer
       - hidden_meanpool.npy  (N, L+1, H) float32 -- image-token-mean-pooled hidden state per layer
@@ -272,9 +231,13 @@ def extract_activations(data_csv=DATA_CSV, images_dir=IMAGES_DIR, out_dir=ACTIVA
     hidden size that's roughly 300MB total, which is fine to keep in host
     RAM even on a modest Kaggle instance.
 
-    transformers is imported here (not at module level) so that `--stage
-    probe`, which never needs the model, works even in an environment
-    without transformers/a GPU installed.
+    `model_id`/`adapter_name` resolve to a concrete adapter.py ModelAdapter
+    (see get_adapter) -- model loading, chat-input construction, and
+    image-token-id lookup are all behind that interface now, so this
+    function itself doesn't know or care which model family it's running.
+    transformers is imported (inside the adapter's own .load()) only once
+    that resolution happens, so `--stage probe`, which never needs the
+    model, still works in an environment without transformers/a GPU installed.
     """
     from transformers import set_seed
     set_seed(seed)
@@ -283,10 +246,10 @@ def extract_activations(data_csv=DATA_CSV, images_dir=IMAGES_DIR, out_dir=ACTIVA
     if max_images is not None:
         df = df.head(max_images)
 
-    model, processor = load_model(model_id)
+    adapter = get_adapter(model_id=model_id, adapter_name=adapter_name)
+    adapter.load(model_id)
 
-    image_token_id = find_image_token_id(model, processor)
-    vision_module = find_vision_module(model)
+    vision_module = find_vision_module(adapter.model)
     vision_holder = {}
     vision_module.register_forward_hook(make_vision_hook(vision_holder))
 
@@ -294,7 +257,7 @@ def extract_activations(data_csv=DATA_CSV, images_dir=IMAGES_DIR, out_dir=ACTIVA
     for _, r in tqdm(df.iterrows(), total=len(df), desc="Extracting activations"):
         path = os.path.join(images_dir, r["filename"])
         last_vecs, meanpool_vecs, vision_vec, raw_reply = process_one_image(
-            model, processor, path, image_token_id, vision_holder)
+            adapter, path, vision_holder)
 
         last_all.append(np.stack(last_vecs))
         meanpool_all.append(np.stack(meanpool_vecs))
@@ -324,7 +287,7 @@ def extract_activations(data_csv=DATA_CSV, images_dir=IMAGES_DIR, out_dir=ACTIVA
         if len(rows) % 50 == 0 and torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-    del model
+    del adapter
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
@@ -1047,9 +1010,17 @@ def main():
                               "ignores --stage. Run '--stage probe' afterward.")
     parser.add_argument("--data_csv", type=str, default=DATA_CSV)
     parser.add_argument("--images_dir", type=str, default=IMAGES_DIR)
-    parser.add_argument("--activations_dir", type=str, default=ACTIVATIONS_DIR)
-    parser.add_argument("--results_dir", type=str, default=RESULTS_DIR)
-    parser.add_argument("--model_id", type=str, default=MODEL_ID)
+    parser.add_argument("--activations_dir", type=str, default=ACTIVATIONS_DIR,
+                         help="activations are actually written to <activations_dir>/<model_short_name>/ "
+                              "(see adapters.output_dir_for) -- different models never overwrite each other's")
+    parser.add_argument("--results_dir", type=str, default=RESULTS_DIR,
+                         help="results are actually written to <results_dir>/<model_short_name>/")
+    parser.add_argument("--model_id", type=str, default=None,
+                         help="Hugging Face model id. Default: the resolved adapter's own default "
+                              "(Qwen2.5-VL-3B if neither --model_id nor --adapter is given).")
+    parser.add_argument("--adapter", type=str, default=None,
+                         help="which model-family adapter to use (see adapters.py) -- inferred from "
+                              "--model_id if omitted.")
     parser.add_argument("--max_images", type=int, default=None,
                          help="only process the first N images (for a quick smoke test)")
     parser.add_argument("--n_components", type=int, default=N_COMPONENTS,
@@ -1074,17 +1045,25 @@ def main():
                               "Overrides --direction_layer if given.")
     args = parser.parse_args()
 
+    # Resolve which adapter this run is for WITHOUT loading it yet (cheap --
+    # just picks the class), so every stage writes into that model's own
+    # <dir>/<short_name>/ subfolder and results from different models never
+    # collide (see adapters.output_dir_for).
+    adapter_for_dirs = get_adapter(model_id=args.model_id, adapter_name=args.adapter)
+    activations_dir = output_dir_for(args.activations_dir, adapter_for_dirs)
+    results_dir = output_dir_for(args.results_dir, adapter_for_dirs)
+
     if args.recover:
-        recover_activations(activations_dir=args.activations_dir)
+        recover_activations(activations_dir=activations_dir)
         return
 
     if args.stage in ("extract", "all"):
         extract_activations(data_csv=args.data_csv, images_dir=args.images_dir,
-                             out_dir=args.activations_dir, model_id=args.model_id,
+                             out_dir=activations_dir, model_id=args.model_id, adapter_name=args.adapter,
                              max_images=args.max_images, seed=args.seed)
 
     if args.stage in ("probe", "all"):
-        run_probing(activations_dir=args.activations_dir, out_dir=args.results_dir,
+        run_probing(activations_dir=activations_dir, out_dir=results_dir,
                     n_components=args.n_components, n_splits=args.n_splits, seed=args.seed)
 
     if args.stage == "direction":
@@ -1093,7 +1072,7 @@ def main():
         else:
             layers = [args.direction_layer]
         for layer in layers:
-            fit_probe_direction(activations_dir=args.activations_dir, out_dir=args.results_dir,
+            fit_probe_direction(activations_dir=activations_dir, out_dir=results_dir,
                                  representation=args.direction_representation, hand=args.direction_hand,
                                  layer=layer, n_components=args.n_components, seed=args.seed)
 

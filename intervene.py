@@ -92,11 +92,17 @@ assumed -- this took TWO rounds to get right:
   tower's raw output, not necessarily the exact tensor the LLM consumes --
   see README.md for the caveat.
 
-Reuses model loading, decoder-layer/image-token-id finding, and answer
-parsing from probe.py / eval_behavior.py rather than re-implementing them
-(see probe.py's `load_model`, `find_image_token_id`, `load_probe_direction`
-/ `apply_saved_probe` for Experiment B's direction). The vision-side
-interception is NOT reused from probe.py, for the reason above.
+Model loading, chat-input construction, generation, decoder-layer finding,
+and image-token-id finding are ALL now behind adapters.py's ModelAdapter
+interface (see adapters.py's module docstring) -- one class per model
+family (Qwen2.5-VL, Gemma 3, InternVL3), so replicating these experiments
+on a different model means writing an adapter, not editing this file.
+Reuses probe.py's `load_probe_direction`/`apply_saved_probe` for Experiment
+B's direction (representation-agnostic, unaffected by which model produced
+the underlying activations). The vision-ceiling interception mechanics
+(`image_features_patched`, `layer0_embed`) are model-AGNOSTIC by design
+(see adapters.py) -- NOT reused from probe.py's vision-tower hook, for the
+reason above.
 
 Usage:
     # 1. Make sure Experiment B has directions to load: one per layer in its
@@ -136,8 +142,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from eval_behavior import MODEL_ID, PROMPT, SEED, parse_time_answer
-from probe import apply_saved_probe, direction_path_for_layer, find_image_token_id, load_model, load_probe_direction
+from adapters import (find_all_image_features_owners_generic, find_decoder_layers_generic, get_adapter,
+                       output_dir_for, relative_depth, resolve_layers_arg)
+from eval_behavior import PROMPT, SEED, parse_time_answer
+from probe import apply_saved_probe, direction_path_for_layer, load_probe_direction
 
 DATA_CSV = "data_balanced/data.csv"
 IMAGES_DIR = "data_balanced"
@@ -220,19 +228,13 @@ def relative_l2_diff(x, y):
 # Finding the decoder layer stack, and the patch-hook machinery
 # ---------------------------------------------------------------------------
 
-def find_decoder_layers(model):
-    """Locate the LLM's stack of transformer decoder blocks by scanning the
-    module tree for a ModuleList whose children look like decoder layers --
-    same reasoning as probe.py's `find_vision_module`: robust to the exact
-    attribute path (e.g. `model.model.layers` vs `model.language_model.layers`)
-    moving between transformers versions, since the class naming has stayed
-    recognizable. The first match is what we want (an outer ModuleList
-    won't itself contain other ModuleLists of decoder layers in practice)."""
-    for _, module in model.named_modules():
-        if isinstance(module, torch.nn.ModuleList) and len(module) > 0:
-            if "DecoderLayer" in type(module[0]).__name__:
-                return module
-    raise AttributeError("Could not find the LLM decoder layer stack in this model's module tree.")
+# find_decoder_layers: this used to be defined here, Qwen-specific-looking
+# but actually never was (it scans by CLASS NAME PATTERN, not a hardcoded
+# attribute path) -- moved to adapters.py as find_decoder_layers_generic so
+# every adapter (Qwen, Gemma3, InternVL) shares the exact same scanner
+# instead of three near-duplicates. Kept as a local alias since intervene.py
+# (and its tests) call it by this name throughout.
+find_decoder_layers = find_decoder_layers_generic
 
 
 def _extract_hidden_states(args, kwargs):
@@ -341,42 +343,28 @@ def patched(decoder_layers, layer, mask, values, mode="replace"):
         handle.remove()
 
 
-def find_all_image_features_owners(model):
-    """Find EVERY distinct object in the model's hierarchy that defines a
-    callable `get_image_features` -- not just the first one found.
-
-    A prior version of this fix picked ONE owner (top-level model, else
-    model.model) and monkey-patched only that. A --verify run proved that
-    was the wrong one: `Qwen2_5_VLForConditionalGeneration` (top-level) DOES
-    define/inherit `get_image_features`, but the call that actually matters
-    happens inside `Qwen2_5_VLModel.forward` (model.model) as
-    `self.get_image_features(...)` -- a COMPLETELY SEPARATE Python object
-    with its own, independently-resolved attributes. Patching the outer
-    object has zero effect on the inner one. Since we can't be sure in
-    advance which object's method is the one that actually executes for a
-    given transformers version, we patch ALL of them (see
-    `image_features_patched`) and rely on --verify's hard-failure check to
-    prove at least one patch fired for real.
-    """
-    seen_ids = set()
-    owners = []
-
-    def add(name, obj):
-        if obj is None or id(obj) in seen_ids:
-            return
-        if callable(getattr(obj, "get_image_features", None)):
-            owners.append((name, obj))
-            seen_ids.add(id(obj))
-
-    add("model", model)
-    add("model.model", getattr(model, "model", None))
-    for name, module in model.named_modules():
-        add(f"model.{name}", module)
-
+# find_all_image_features_owners: moved to adapters.py as
+# find_all_image_features_owners_generic(model, method_name) -- unchanged
+# logic, just parameterized on the method name (Qwen/Gemma3 both use
+# "get_image_features"; InternVL's analogous method is "extract_feature",
+# see adapters.py) instead of hardcoding "get_image_features". A prior
+# version of this fix picked ONE owner (top-level model, else model.model)
+# and monkey-patched only that. A --verify run proved that was the wrong
+# one: `Qwen2_5_VLForConditionalGeneration` (top-level) DOES define/inherit
+# `get_image_features`, but the call that actually matters happens inside
+# `Qwen2_5_VLModel.forward` (model.model) as `self.get_image_features(...)`
+# -- a COMPLETELY SEPARATE Python object with its own, independently-resolved
+# attributes. Patching the outer object has zero effect on the inner one.
+# Since we can't be sure in advance which object's method is the one that
+# actually executes for a given transformers version, we patch ALL of them
+# (see `image_features_patched`) and rely on --verify's hard-failure check
+# to prove at least one patch fired for real.
+def find_all_image_features_owners(model, method_name="get_image_features"):
+    owners = find_all_image_features_owners_generic(model, method_name)
     if not owners:
-        raise AttributeError("Could not find any object with a `get_image_features` method "
+        raise AttributeError(f"Could not find any object with a `{method_name}` method "
                               "anywhere in this model's hierarchy.")
-    print(f"Found get_image_features() on: {[name for name, _ in owners]}")
+    print(f"Found {method_name}() on: {[name for name, _ in owners]}")
     return owners
 
 
@@ -474,26 +462,15 @@ def image_features_patched(owners, replacement=None, capture_holder=None):
 # Running the model: baseline caching + patched generation
 # ---------------------------------------------------------------------------
 
-def build_inputs(processor, image_path_or_image, prompt=PROMPT):
-    """`image_path_or_image` is normally a path (all the normal experiment
-    code passes one). --verify's random-noise-image check also passes an
-    already-in-memory PIL.Image directly (no need to round-trip it through
-    disk just to satisfy this function)."""
-    if isinstance(image_path_or_image, str):
-        image = Image.open(image_path_or_image).convert("RGB")
-    else:
-        image = image_path_or_image.convert("RGB")
-    messages = [{"role": "user", "content": [{"type": "image", "image": image},
-                                              {"type": "text", "text": prompt}]}]
-    chat_text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    return processor(text=[chat_text], images=[image], return_tensors="pt")
-
-
-@torch.no_grad()
-def generate_answer(model, processor, inputs, max_new_tokens=MAX_NEW_TOKENS):
-    generated_ids = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
-    trimmed = generated_ids[0][inputs["input_ids"].shape[1]:]
-    return processor.decode(trimmed, skip_special_tokens=True).strip()
+# build_inputs / generate_answer: these used to be free functions here,
+# hardcoded to Qwen's chat-template + processor + prompt-length-trimming
+# conventions. They're now `adapter.build_inputs(image, prompt)` /
+# `adapter.generate_answer(inputs, max_new_tokens)` (see adapters.py) --
+# every call site below takes an `adapter` and calls through it instead.
+# This is NOT just a rename: InternVL's generate() returns ONLY the new
+# tokens (no prompt-length trimming needed, unlike Qwen/Gemma3) -- baking
+# that convention into a free function here would have been silently wrong
+# for it. See adapters.py's module docstring for the full reasoning.
 
 
 @torch.no_grad()
@@ -510,7 +487,7 @@ def forward_hidden_states(model, inputs):
 
 
 @torch.no_grad()
-def run_baseline(model, processor, image_path, image_token_id, image_features_owners, vision_method,
+def run_baseline(adapter, image_features_owners, vision_method, image_path,
                   prompt=PROMPT, max_new_tokens=MAX_NEW_TOKENS, require_vision_capture=False):
     """Run one image with NO intervention. Returns everything later trials
     need from it:
@@ -552,12 +529,12 @@ def run_baseline(model, processor, image_path, image_token_id, image_features_ow
     there just means the vision-ceiling condition gets skipped, not that
     1000+ unrelated decoder-patch trials should crash).
     """
-    inputs = build_inputs(processor, image_path, prompt).to(model.device)
+    inputs = adapter.build_inputs(image_path, prompt)   # already on-device (see adapters.py)
 
     if vision_method == "get_image_features":
         holder = {}
         with image_features_patched(image_features_owners, capture_holder=holder):
-            outputs = model(**inputs, output_hidden_states=True)
+            outputs = adapter.model(**inputs, output_hidden_states=True)
         if require_vision_capture and not holder.get("fired"):
             raise RuntimeError(
                 f"get_image_features() never fired for '{image_path}' -- patched owners: "
@@ -568,18 +545,18 @@ def run_baseline(model, processor, image_path, image_token_id, image_features_ow
         vision_out = holder.get("out")
         vision_output = vision_out.float().cpu() if vision_out is not None else None
     else:
-        outputs = model(**inputs, output_hidden_states=True)
+        outputs = adapter.model(**inputs, output_hidden_states=True)
         vision_output = None  # filled in below once hidden_states[0] exists
 
     hidden_states = tuple(h[0].float().cpu() for h in outputs.hidden_states)
     input_ids = inputs["input_ids"][0]
-    image_mask = (input_ids == image_token_id).cpu()
+    image_mask = adapter.image_token_positions(inputs)
     del outputs
 
     if vision_method == "layer0_embed":
         vision_output = hidden_states[0][image_mask].clone()
 
-    raw_answer = generate_answer(model, processor, inputs, max_new_tokens)
+    raw_answer = adapter.generate_answer(inputs, max_new_tokens)
     pred_hour, pred_minute, ok = parse_time_answer(raw_answer)
 
     return {
@@ -590,10 +567,12 @@ def run_baseline(model, processor, image_path, image_token_id, image_features_ow
     }
 
 
-def determine_vision_interception_method(model, processor, image_features_owners, sample_image_path,
-                                          requested="auto"):
+def determine_vision_interception_method(requested="auto"):
     """Decide which mechanism intercepts the image representation the LLM
-    reads for THIS model. `requested` is `--vision_method`:
+    reads for THIS model. Model-agnostic: this is a pure decision based on
+    `requested` (`--vision_method`) -- it doesn't probe the model at all
+    (three real-model --verify rounds already showed a "does it fire" probe
+    isn't sufficient evidence something actually propagates; see below).
 
       - "layer0_embed": patch hidden_states[0] (the fully merged
         embeddings) at the image-token positions, right before the decoder
@@ -806,7 +785,7 @@ def _baseline_fields(prefix, base):
         f"{prefix}_baseline_answer": base["raw_answer"],
     }
 
-def run_experiment_a(model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
+def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_method,
                       df, images_dir, out_dir, n_pairs=N_PAIRS, max_pairs=None, min_gap=MIN_GAP_MINUTES,
                       layers=None, max_new_tokens=MAX_NEW_TOKENS, seed=SEED):
     rng = np.random.RandomState(seed)
@@ -836,17 +815,17 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owners, vi
         a_path = os.path.join(images_dir, a["filename"])
         b_path = os.path.join(images_dir, b["filename"])
 
-        base_a = run_baseline(model, processor, a_path, image_token_id, image_features_owners, vision_method,
+        base_a = run_baseline(adapter, image_features_owners, vision_method, a_path,
                                max_new_tokens=max_new_tokens)
-        base_b = run_baseline(model, processor, b_path, image_token_id, image_features_owners, vision_method,
+        base_b = run_baseline(adapter, image_features_owners, vision_method, b_path,
                                max_new_tokens=max_new_tokens)
 
         same_row = find_same_minute_partner(df, a, exclude=already_used, rng=rng)
         base_same = None
         if same_row is not None:
             same_path = os.path.join(images_dir, same_row["filename"])
-            base_same = run_baseline(model, processor, same_path, image_token_id, image_features_owners,
-                                      vision_method, max_new_tokens=max_new_tokens)
+            base_same = run_baseline(adapter, image_features_owners, vision_method, same_path,
+                                      max_new_tokens=max_new_tokens)
 
         if base_a["seq_len"] != base_b["seq_len"] or (base_same is not None and base_a["seq_len"] != base_same["seq_len"]):
             print(f"WARNING: sequence-length mismatch for pair ({a['filename']}, {b['filename']}) -- "
@@ -863,12 +842,13 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owners, vi
 
                 # --- real B patch: the main condition ---
                 with patched(decoder_layers, layer, mask, base_b["hidden_states"][layer], mode="replace"):
-                    ans = generate_answer(model, processor, base_a["inputs"], max_new_tokens)
+                    ans = adapter.generate_answer(base_a["inputs"], max_new_tokens)
                 pred_hour, pred_minute, ok = parse_time_answer(ans)
                 moved, shift = score_shift(baseline_a_minute, pred_minute if ok else None, int(b["minute"]))
                 rows.append({
                     "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"], "condition": "real_b",
-                    "layer": layer, "position_set": pos_name, "a_true_minute": int(a["minute"]),
+                    "layer": layer, "num_layers": num_layers, "relative_depth": relative_depth(layer, num_layers),
+                    "position_set": pos_name, "a_true_minute": int(a["minute"]),
                     "b_true_minute": int(b["minute"]), "source_minute": int(b["minute"]),
                     **_baseline_fields("a", base_a), **_baseline_fields("b", base_b),
                     "baseline_minute": baseline_a_minute,
@@ -881,12 +861,13 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owners, vi
                 # --- control (a): same-minute patch -- should change nothing ---
                 if base_same is not None:
                     with patched(decoder_layers, layer, mask, base_same["hidden_states"][layer], mode="replace"):
-                        ans_same = generate_answer(model, processor, base_a["inputs"], max_new_tokens)
+                        ans_same = adapter.generate_answer(base_a["inputs"], max_new_tokens)
                     pred_hour_s, pred_minute_s, ok_s = parse_time_answer(ans_same)
                     moved_s, shift_s = score_shift(baseline_a_minute, pred_minute_s if ok_s else None, int(a["minute"]))
                     rows.append({
                         "pair": pair_idx, "a_file": a["filename"], "b_file": same_row["filename"],
-                        "condition": "same_minute", "layer": layer, "position_set": pos_name,
+                        "condition": "same_minute", "layer": layer, "num_layers": num_layers,
+                        "relative_depth": relative_depth(layer, num_layers), "position_set": pos_name,
                         "a_true_minute": int(a["minute"]), "b_true_minute": int(same_row["minute"]),
                         "source_minute": int(a["minute"]),
                         **_baseline_fields("a", base_a), **_baseline_fields("b", base_same),
@@ -900,12 +881,13 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owners, vi
                 # --- control (b): matched-norm random noise ---
                 noise_vals = make_matched_noise(base_a["hidden_states"][layer], rng)
                 with patched(decoder_layers, layer, mask, noise_vals, mode="replace"):
-                    ans_noise = generate_answer(model, processor, base_a["inputs"], max_new_tokens)
+                    ans_noise = adapter.generate_answer(base_a["inputs"], max_new_tokens)
                 pred_hour_n, pred_minute_n, ok_n = parse_time_answer(ans_noise)
                 moved_n, shift_n = score_shift(baseline_a_minute, pred_minute_n if ok_n else None, int(b["minute"]))
                 rows.append({
                     "pair": pair_idx, "a_file": a["filename"], "b_file": None, "condition": "noise",
-                    "layer": layer, "position_set": pos_name, "a_true_minute": int(a["minute"]),
+                    "layer": layer, "num_layers": num_layers, "relative_depth": relative_depth(layer, num_layers),
+                    "position_set": pos_name, "a_true_minute": int(a["minute"]),
                     "b_true_minute": int(b["minute"]), "source_minute": int(b["minute"]),
                     # the noise control's "transfer target" is B's baseline (same reference as
                     # real_b -- see the module docstring/README for why: this is what lets us ask
@@ -932,12 +914,13 @@ def run_experiment_a(model, processor, decoder_layers, image_features_owners, vi
             replacement = vision_replacement_from(vision_method, base_b)
             with apply_vision_replacement(vision_method, decoder_layers, image_features_owners,
                                            base_a["image_mask"], replacement):
-                ans_v = generate_answer(model, processor, base_a["inputs"], max_new_tokens)
+                ans_v = adapter.generate_answer(base_a["inputs"], max_new_tokens)
             pred_hour_v, pred_minute_v, ok_v = parse_time_answer(ans_v)
             moved_v, shift_v = score_shift(baseline_a_minute, pred_minute_v if ok_v else None, int(b["minute"]))
             rows.append({
                 "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"], "condition": "real_b",
-                "layer": -1, "position_set": "vision_encoder", "a_true_minute": int(a["minute"]),
+                "layer": -1, "num_layers": num_layers, "relative_depth": float("nan"),  # not a decoder layer
+                "position_set": "vision_encoder", "a_true_minute": int(a["minute"]),
                 "b_true_minute": int(b["minute"]), "source_minute": int(b["minute"]),
                 **_baseline_fields("a", base_a), **_baseline_fields("b", base_b),
                 "baseline_minute": baseline_a_minute,
@@ -1298,13 +1281,22 @@ def summarize_per_layer_transfer_a(trials_df, out_dir):
     df = compute_transfer_columns(trials_df)
     restricted = df[df["minute_baselines_differ"] == 1.0]
 
-    summary = restricted.groupby(["condition", "layer", "position_set"]).agg(
+    agg_kwargs = dict(
         n=("minute_transfer", "size"),
         n_usable=("minute_transfer", lambda s: s.notna().sum()),
         to_b_rate=("minute_transfer", "mean"),
         stay_a_rate=("stay_a", "mean"),
         other_rate=("other_outcome", "mean"),
-    ).reset_index()
+    )
+    # relative_depth/num_layers are constant within each (layer, position_set) group
+    # (every trial at a given layer has the same depth) -- carried through so
+    # compare_models.py can plot the readout curve against relative depth across
+    # models with different layer counts, not just this model's own indices.
+    if "relative_depth" in restricted.columns:
+        agg_kwargs["relative_depth"] = ("relative_depth", "first")
+    if "num_layers" in restricted.columns:
+        agg_kwargs["num_layers"] = ("num_layers", "first")
+    summary = restricted.groupby(["condition", "layer", "position_set"]).agg(**agg_kwargs).reset_index()
 
     os.makedirs(out_dir, exist_ok=True)
     summary.to_csv(os.path.join(out_dir, "experiment_a_per_layer_transfer.csv"), index=False)
@@ -1381,7 +1373,7 @@ def print_per_layer_transfer_table_a(summary_df, num_layers=None):
     return text
 
 
-def recompute_baselines_for_files(model, processor, image_token_id, image_features_owners, vision_method,
+def recompute_baselines_for_files(adapter, image_features_owners, vision_method,
                                    images_dir, filenames, max_new_tokens=MAX_NEW_TOKENS):
     """Re-run ONLY the (cheap) baseline generate() call for each filename in
     `filenames` (deduplicated), with NO patching -- used to backfill full
@@ -1396,7 +1388,7 @@ def recompute_baselines_for_files(model, processor, image_token_id, image_featur
     rows = []
     for fn in tqdm(unique_files, desc="Recomputing baselines"):
         path = os.path.join(images_dir, fn)
-        base = run_baseline(model, processor, path, image_token_id, image_features_owners, vision_method,
+        base = run_baseline(adapter, image_features_owners, vision_method, path,
                              max_new_tokens=max_new_tokens)
         rows.append({
             "filename": fn, "baseline_hour": base["pred_hour"], "baseline_minute": base["pred_minute"],
@@ -1483,7 +1475,7 @@ def load_directions_for_layers(direction_dir, representation, hand, layers):
     return directions
 
 
-def run_experiment_b(model, processor, decoder_layers, image_token_id, image_features_owners, vision_method,
+def run_experiment_b(adapter, decoder_layers, image_features_owners, vision_method,
                       directions, df, images_dir, out_dir, n_trials=N_PAIRS, max_pairs=None,
                       target_offset=TARGET_OFFSET_MINUTES, alphas=None,
                       max_new_tokens=MAX_NEW_TOKENS, seed=SEED):
@@ -1517,6 +1509,7 @@ def run_experiment_b(model, processor, decoder_layers, image_token_id, image_fea
 
     layers = sorted(directions.keys())
     any_direction = directions[layers[0]]
+    num_layers = len(decoder_layers)
     print(f"Experiment B: steering IMAGE-TOKEN positions at layer(s) {layers} (from "
           f"'{any_direction['representation']}'/'{any_direction['hand']}'; per-layer train R^2: " +
           ", ".join(f"{L}={directions[L]['r2_train']:.3f}" for L in layers) + ").")
@@ -1543,7 +1536,7 @@ def run_experiment_b(model, processor, decoder_layers, image_token_id, image_fea
 
     for _, row in tqdm(trial_images.iterrows(), total=len(trial_images), desc="Experiment B images"):
         path = os.path.join(images_dir, row["filename"])
-        base = run_baseline(model, processor, path, image_token_id, image_features_owners, vision_method,
+        base = run_baseline(adapter, image_features_owners, vision_method, path,
                              max_new_tokens=max_new_tokens)
 
         true_hour = int(row["hour"])
@@ -1566,8 +1559,8 @@ def run_experiment_b(model, processor, decoder_layers, image_token_id, image_fea
         target_base = None
         if target_row is not None:
             target_path = os.path.join(images_dir, target_row["filename"])
-            target_base = run_baseline(model, processor, target_path, image_token_id, image_features_owners,
-                                        vision_method, max_new_tokens=max_new_tokens)
+            target_base = run_baseline(adapter, image_features_owners, vision_method, target_path,
+                                        max_new_tokens=max_new_tokens)
 
         image_mask = base["image_mask"]
         baseline_minute = base["pred_minute"] if base["parse_success"] else None
@@ -1614,7 +1607,7 @@ def run_experiment_b(model, processor, decoder_layers, image_token_id, image_fea
 
                     delta_t = torch.from_numpy(delta_np.astype(np.float32))
                     with patched(decoder_layers, layer, image_mask, delta_t, mode="add"):
-                        ans = generate_answer(model, processor, base["inputs"], max_new_tokens)
+                        ans = adapter.generate_answer(base["inputs"], max_new_tokens)
                     pred_hour, pred_minute, ok = parse_time_answer(ans)
                     moved, shift = score_shift(baseline_minute, pred_minute if ok else None, score_target)
 
@@ -1643,7 +1636,9 @@ def run_experiment_b(model, processor, decoder_layers, image_token_id, image_fea
 
                     rows.append({
                         "file": row["filename"], "hour": true_hour, "true_minute": true_minute,
-                        "target_minute": target_minute, "layer": layer, "direction": dir_name, "alpha": alpha,
+                        "target_minute": target_minute, "layer": layer, "num_layers": num_layers,
+                        "relative_depth": relative_depth(layer, num_layers),
+                        "direction": dir_name, "alpha": alpha,
                         "baseline_hour": base["pred_hour"], "baseline_minute": baseline_minute,
                         "patched_hour": pred_hour if ok else None, "patched_minute": pred_minute if ok else None,
                         "patched_answer": ans,
@@ -1801,7 +1796,7 @@ def print_experiment_b_summary(summary_df):
 # they just look, independently, at whether the tensors an intervention is
 # supposed to write actually get written and actually propagate.
 
-def verify_vision_swap(model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
+def verify_vision_swap(adapter, decoder_layers, image_features_owners, vision_method,
                         pairs, images_dir, max_new_tokens, rng):
     """For a few (A, B) pairs: confirm that patching B's image features
     into A's forward pass (a) actually writes a tensor different from A's
@@ -1826,9 +1821,9 @@ def verify_vision_swap(model, processor, decoder_layers, image_features_owners, 
     for pair_idx, (a, b) in enumerate(pairs):
         a_path = os.path.join(images_dir, a["filename"])
         b_path = os.path.join(images_dir, b["filename"])
-        base_a = run_baseline(model, processor, a_path, image_token_id, image_features_owners, vision_method,
+        base_a = run_baseline(adapter, image_features_owners, vision_method, a_path,
                                max_new_tokens=max_new_tokens, require_vision_capture=True)
-        base_b = run_baseline(model, processor, b_path, image_token_id, image_features_owners, vision_method,
+        base_b = run_baseline(adapter, image_features_owners, vision_method, b_path,
                                max_new_tokens=max_new_tokens, require_vision_capture=True)
 
         # (a) the swap writes a genuinely different tensor
@@ -1839,7 +1834,7 @@ def verify_vision_swap(model, processor, decoder_layers, image_features_owners, 
         replacement_b = vision_replacement_from(vision_method, base_b)
         with apply_vision_replacement(vision_method, decoder_layers, image_features_owners,
                                        base_a["image_mask"], replacement_b):
-            hs_patched = forward_hidden_states(model, base_a["inputs"])
+            hs_patched = forward_hidden_states(adapter.model, base_a["inputs"])
         hs_unpatched = base_a["hidden_states"]
         mask = base_a["image_mask"]
         layer0_diff = relative_l2_diff(hs_unpatched[0][mask], hs_patched[0][mask])
@@ -1863,18 +1858,18 @@ def verify_vision_swap(model, processor, decoder_layers, image_features_owners, 
             zero_vision = zeroed_vision_replacement(vision_method, base_a)
             with apply_vision_replacement(vision_method, decoder_layers, image_features_owners,
                                            base_a["image_mask"], zero_vision):
-                ans_zero = generate_answer(model, processor, base_a["inputs"], max_new_tokens)
+                ans_zero = adapter.generate_answer(base_a["inputs"], max_new_tokens)
             changed_zero = (ans_zero != base_a["raw_answer"])
 
             noise_image = make_random_noise_image(size=512, rng=rng)
-            noise_base = run_baseline(model, processor, noise_image, image_token_id, image_features_owners,
-                                       vision_method, max_new_tokens=1, require_vision_capture=True)
+            noise_base = run_baseline(adapter, image_features_owners, vision_method, noise_image,
+                                       max_new_tokens=1, require_vision_capture=True)
             noise_replacement = vision_replacement_from(vision_method, noise_base)
             changed_noise, ans_noise = None, None
             if noise_replacement is not None and noise_replacement.shape == replacement_b.shape:
                 with apply_vision_replacement(vision_method, decoder_layers, image_features_owners,
                                                base_a["image_mask"], noise_replacement):
-                    ans_noise = generate_answer(model, processor, base_a["inputs"], max_new_tokens)
+                    ans_noise = adapter.generate_answer(base_a["inputs"], max_new_tokens)
                 changed_noise = (ans_noise != base_a["raw_answer"])
             else:
                 lines.append("  (skipped random-noise-image test: its image features shape didn't match "
@@ -1894,7 +1889,7 @@ def verify_vision_swap(model, processor, decoder_layers, image_features_owners, 
     return lines, records
 
 
-def verify_decoder_patch(model, processor, decoder_layers, image_token_id, image_features_owners, vision_method,
+def verify_decoder_patch(adapter, decoder_layers, image_features_owners, vision_method,
                           pairs, images_dir, layers, max_new_tokens):
     """For a few (A, B) pairs and a few representative layers: report what
     fraction of sequence positions each position set actually covers (so a
@@ -1909,9 +1904,9 @@ def verify_decoder_patch(model, processor, decoder_layers, image_token_id, image
     for pair_idx, (a, b) in enumerate(pairs):
         a_path = os.path.join(images_dir, a["filename"])
         b_path = os.path.join(images_dir, b["filename"])
-        base_a = run_baseline(model, processor, a_path, image_token_id, image_features_owners, vision_method,
+        base_a = run_baseline(adapter, image_features_owners, vision_method, a_path,
                                max_new_tokens=max_new_tokens)
-        base_b = run_baseline(model, processor, b_path, image_token_id, image_features_owners, vision_method,
+        base_b = run_baseline(adapter, image_features_owners, vision_method, b_path,
                                max_new_tokens=max_new_tokens)
 
         pos_masks = position_masks(base_a["image_mask"], base_a["seq_len"])
@@ -1925,7 +1920,7 @@ def verify_decoder_patch(model, processor, decoder_layers, image_token_id, image
 
             for layer in layers:
                 with patched(decoder_layers, layer, mask, base_b["hidden_states"][layer], mode="replace"):
-                    hs_patched = forward_hidden_states(model, base_a["inputs"])
+                    hs_patched = forward_hidden_states(adapter.model, base_a["inputs"])
                 hs_unpatched = base_a["hidden_states"]
 
                 diff_at_layer = relative_l2_diff(hs_unpatched[layer][mask], hs_patched[layer][mask])
@@ -2004,7 +1999,7 @@ def build_verification_verdict(vision_records, decoder_records):
     return lines
 
 
-def run_verification(model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
+def run_verification(adapter, decoder_layers, image_features_owners, vision_method,
                       df, images_dir, out_dir, n_verify_pairs=3, verify_layers=None,
                       min_gap=MIN_GAP_MINUTES, max_new_tokens=MAX_NEW_TOKENS, seed=SEED):
     if verify_layers is None:
@@ -2019,19 +2014,22 @@ def run_verification(model, processor, decoder_layers, image_features_owners, vi
     import transformers
     print(f"\n{'=' * 70}\nVERIFICATION: confirming interventions actually land, before trusting "
           f"any null result\n{'=' * 70}")
-    print(f"transformers=={transformers.__version__}")
+    print(f"model: {adapter.short_name} ({type(adapter).__name__})   transformers=={transformers.__version__}")
     print(f"Using {len(pairs)} pair(s), decoder layers {verify_layers}, vision method '{vision_method}'.")
     if vision_method == "get_image_features":
         print("NOTE: get_image_features interception has failed --verify on three prior rounds on this "
-              "project's transformers version (wrong field; wrong owner object; right owner+field but the "
-              "merge step still didn't read the mutated value). Being re-tried here because --vision_method "
-              "explicitly requested it -- treat a PASS as newly re-earned, not assumed.")
+              "project's transformers version FOR QWEN (wrong field; wrong owner object; right owner+field "
+              "but the merge step still didn't read the mutated value) -- being re-tried here because "
+              "--vision_method explicitly requested it. For a DIFFERENT model this is its FIRST real-weight "
+              "test of this mechanism (adapters.py's Gemma3Adapter/InternVLAdapter were built from reading "
+              "source code, not run against real weights) -- treat a PASS as newly earned, not assumed, "
+              "regardless of what worked for Qwen.")
 
     vision_lines, vision_records = verify_vision_swap(
-        model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
+        adapter, decoder_layers, image_features_owners, vision_method,
         pairs, images_dir, max_new_tokens, rng)
     decoder_lines, decoder_records = verify_decoder_patch(
-        model, processor, decoder_layers, image_token_id, image_features_owners, vision_method, pairs, images_dir,
+        adapter, decoder_layers, image_features_owners, vision_method, pairs, images_dir,
         verify_layers, max_new_tokens)
     verdict_lines = build_verification_verdict(vision_records, decoder_records)
 
@@ -2054,36 +2052,52 @@ def run_verification(model, processor, decoder_layers, image_features_owners, vi
 # CLI
 # ---------------------------------------------------------------------------
 
-def parse_layers_arg(value):
+def resolve_layers_cli(value, num_layers):
+    """--layers / --steer_layers / --verify_layers CLI value -> a list of
+    ABSOLUTE layer indices, once `num_layers` is known (i.e. after the
+    adapter has loaded the model -- this can't happen at argparse parse
+    time, unlike the old parse_layers_arg, since 'rel:...' needs to know how
+    many decoder layers THIS model has). Accepts plain comma-separated
+    absolute indices, 'rel:f1,f2,...' (relative depth in [0,1] -- see
+    adapters.resolve_layers_arg), or 'readout_window' (this project's
+    Qwen-3B-specific absolute-layer finding, kept literal rather than
+    reinterpreted as relative). None passes through unchanged (callers use
+    their own default range)."""
     if value is None:
         return None
     if value.strip() == "readout_window":
         return list(READOUT_WINDOW_LAYERS_A)
-    return [int(x) for x in value.split(",") if x.strip() != ""]
+    return resolve_layers_arg(value, num_layers)
 
 
 def parse_alphas_arg(value):
     return [float(x) for x in value.split(",") if x.strip() != ""]
 
 
-def setup_model_and_vision(args, df):
-    """Load the model and determine ONCE which mechanism actually
-    intercepts the image representation for it -- shared by the normal
-    experiment/--verify path and --analyze_only's optional baseline-
-    recompute step, so neither has to duplicate this."""
-    model, processor = load_model(args.model_id)
-    image_token_id = find_image_token_id(model, processor)
-    decoder_layers = find_decoder_layers(model)
-    image_features_owners = find_all_image_features_owners(model)
-    print(f"Found {len(decoder_layers)} decoder layers.")
+def setup_model_and_vision(args):
+    """Resolve --model_id/--adapter to a concrete adapter (see adapters.py),
+    load it, and determine ONCE which mechanism actually intercepts the
+    image representation for it -- shared by the normal experiment/--verify
+    path and --analyze_only's optional baseline-recompute step, so neither
+    has to duplicate this."""
+    adapter = get_adapter(model_id=args.model_id, adapter_name=getattr(args, "adapter", None))
+    adapter.load(args.model_id)   # None falls through to the adapter's own default_model_id (see adapters.py)
+    decoder_layers = adapter.decoder_layers()
+    image_features_owners, _owners_method_name = adapter.image_features_owners()
+    print(f"Model: {adapter.short_name} ({type(adapter).__name__}). Found {len(decoder_layers)} decoder layers.")
 
-    sample_path = os.path.join(args.images_dir, df.iloc[0]["filename"])
-    vision_method = determine_vision_interception_method(model, processor, image_features_owners, sample_path,
-                                                          requested=args.vision_method)
-    return model, processor, image_token_id, decoder_layers, image_features_owners, vision_method
+    requested = args.vision_method
+    if requested == "get_image_features" and not adapter.supports_get_image_features:
+        print(f"WARNING: --vision_method get_image_features was requested, but {adapter.short_name}'s adapter "
+              "doesn't support it (image_features_owners() returned none -- see adapters.py's module "
+              "docstring on why that's fine in general). Falling back to layer0_embed, the trusted default "
+              "for every model.")
+        requested = "layer0_embed"
+    vision_method = determine_vision_interception_method(requested=requested)
+    return adapter, decoder_layers, image_features_owners, vision_method
 
 
-def run_analyze_only(args, df):
+def run_analyze_only(args):
     """--analyze_only: skip the sweep, load an existing experiment_a_trials.csv
     from --out_dir, backfill baseline-answer columns if needed and
     requested (--recompute_baselines), and (re)compute + print + save the
@@ -2105,11 +2119,10 @@ def run_analyze_only(args, df):
                 f"'{trials_path}' is missing baseline-answer columns (a_baseline_hour/b_baseline_hour) -- "
                 "this looks like an older run. Pass --recompute_baselines to backfill them cheaply (one "
                 "generate() call per unique image, no patching), or re-run the full sweep.")
-        model, processor, image_token_id, decoder_layers, image_features_owners, vision_method = \
-            setup_model_and_vision(args, df)
+        adapter, decoder_layers, image_features_owners, vision_method = setup_model_and_vision(args)
         unique_files = pd.concat([trials_a["a_file"], trials_a["b_file"]]).dropna().unique().tolist()
         baselines_df = recompute_baselines_for_files(
-            model, processor, image_token_id, image_features_owners, vision_method, args.images_dir,
+            adapter, image_features_owners, vision_method, args.images_dir,
             unique_files, max_new_tokens=args.max_new_tokens)
         os.makedirs(args.out_dir, exist_ok=True)
         baselines_df.to_csv(os.path.join(args.out_dir, "experiment_a_baselines.csv"), index=False)
@@ -2129,10 +2142,19 @@ def run_analyze_only(args, df):
     agreement_stats_a = baseline_agreement_stats(trials_a)
     text_transfer_a = print_transfer_summary_a(transfer_summary_a, agreement_stats_a, trials_a)
     per_layer_summary_a = summarize_per_layer_transfer_a(trials_a, args.out_dir)
-    # num_layers isn't known here without loading the model -- NUM_DECODER_LAYERS_HINT
-    # (see its docstring) stands in so the final-layer mechanics-artifact caveat still
-    # gets flagged correctly for this model's known layer count.
-    text_per_layer_a = print_per_layer_transfer_table_a(per_layer_summary_a, num_layers=NUM_DECODER_LAYERS_HINT)
+    # num_layers isn't known here without loading the model -- read it back from the
+    # trials CSV itself if this run saved it (every run since the multi-model adapter
+    # rewrite does); NUM_DECODER_LAYERS_HINT (Qwen-3B-specific, see its docstring) is
+    # only a fallback for a CSV old enough to predate that column.
+    if "num_layers" in trials_a.columns and trials_a["num_layers"].notna().any():
+        num_layers_seen = int(trials_a["num_layers"].dropna().iloc[0])
+    else:
+        num_layers_seen = NUM_DECODER_LAYERS_HINT
+        print(f"NOTE: this trials.csv predates saving num_layers -- assuming {NUM_DECODER_LAYERS_HINT} "
+              "(NUM_DECODER_LAYERS_HINT, Qwen-3B-specific) for the final-layer mechanics-artifact caveat. "
+              "If this run was actually a different model, that caveat may be misattributed to the wrong "
+              "layer -- re-run the sweep to get an accurate num_layers column.")
+    text_per_layer_a = print_per_layer_transfer_table_a(per_layer_summary_a, num_layers=num_layers_seen)
     with open(os.path.join(args.out_dir, "experiment_a_summary.txt"), "w") as f:
         f.write(text_a + "\n\n" + text_transfer_a + "\n\n" + text_per_layer_a + "\n")
     print(f"\n--analyze_only done. Summaries (re)written to '{args.out_dir}/'.")
@@ -2153,9 +2175,10 @@ def main():
     parser.add_argument("--verify_pairs", type=int, default=3,
                          help="--verify: number of (A, B) pairs to check (kept small -- this is a sanity "
                               "check, not a statistical sweep)")
-    parser.add_argument("--verify_layers", type=parse_layers_arg, default=None,
-                         help="--verify: comma-separated decoder layers to check (default: 0, 1, a middle "
-                              "layer, and the final layer)")
+    parser.add_argument("--verify_layers", type=str, default=None,
+                         help="--verify: comma-separated decoder layers to check, or 'rel:f1,f2,...' for "
+                              "relative depth in [0,1] (resolved once the model's layer count is known -- "
+                              "see resolve_layers_cli); default: 0, 1, a middle layer, and the final layer")
     parser.add_argument("--vision_method", choices=["auto", "get_image_features", "layer0_embed"], default="auto",
                          help="which mechanism intercepts the image representation for the vision-ceiling "
                               "condition and its --verify checks. 'layer0_embed' patches hidden_states[0] at "
@@ -2178,21 +2201,31 @@ def main():
                               "mean-pooled vector; only change this if you know what you're doing.")
     parser.add_argument("--direction_hand", type=str, default=DIRECTION_HAND, choices=["minute", "hour"],
                          help="Experiment B: which hand's angle the steering directions were fit for")
-    parser.add_argument("--steer_layers", type=parse_layers_arg, default=None,
-                         help=f"Experiment B: comma-separated layers to steer at (default: "
-                              f"{READOUT_WINDOW_LAYERS_B}, the readout window found by Experiment A's "
-                              "transfer analysis -- see module docstring). Also accepts 'readout_window' "
-                              "for Experiment A's (longer) window list.")
-    parser.add_argument("--out_dir", type=str, default=OUT_DIR)
-    parser.add_argument("--model_id", type=str, default=MODEL_ID)
+    parser.add_argument("--steer_layers", type=str, default=None,
+                         help=f"Experiment B: comma-separated layers to steer at, or 'rel:f1,f2,...' for "
+                              f"relative depth (default: {READOUT_WINDOW_LAYERS_B}, the readout window found "
+                              "by Experiment A's transfer analysis -- see module docstring). Also accepts "
+                              "'readout_window' for Experiment A's (longer) window list.")
+    parser.add_argument("--out_dir", type=str, default=OUT_DIR,
+                         help="results are written to <out_dir>/<model_short_name>/ (see "
+                              "adapters.output_dir_for) -- different models never overwrite each other's results")
+    parser.add_argument("--model_id", type=str, default=None,
+                         help="Hugging Face model id. Default: the resolved adapter's own default (Qwen2.5-VL-3B "
+                              "if neither --model_id nor --adapter is given -- this project's original model).")
+    parser.add_argument("--adapter", type=str, default=None,
+                         help="which model-family adapter to use (see adapters.py) -- inferred from "
+                              "--model_id if omitted; only needed to force a specific adapter for an "
+                              "unrecognized --model_id.")
     parser.add_argument("--n_pairs", type=int, default=N_PAIRS,
                          help="Experiment A: number of (A, B) pairs. Experiment B: number of steered images.")
     parser.add_argument("--max_pairs", type=int, default=None,
                          help="cap on pairs/images actually used, for a quick smoke test (overrides --n_pairs downward)")
-    parser.add_argument("--layers", type=parse_layers_arg, default=None,
-                         help="Experiment A: comma-separated layers to sweep, e.g. '0,1,21,36', or "
-                              "'readout_window' for the layers 16-24 window shorthand "
-                              f"({READOUT_WINDOW_LAYERS_A}) (default: every layer 0..num_layers)")
+    parser.add_argument("--layers", type=str, default=None,
+                         help="Experiment A: comma-separated layers to sweep, e.g. '0,1,21,36'; 'rel:f1,f2,...' "
+                              "for relative depth in [0,1] (resolved once the model's layer count is known -- "
+                              "same window works across models with different depths); or 'readout_window' "
+                              f"for the layers 16-24 window shorthand ({READOUT_WINDOW_LAYERS_A}, this "
+                              "project's Qwen-3B-specific finding) (default: every layer 0..num_layers)")
     parser.add_argument("--min_gap", type=int, default=MIN_GAP_MINUTES,
                          help="Experiment A: minimum circular minute gap between A and B")
     parser.add_argument("--target_offset", type=int, default=TARGET_OFFSET_MINUTES,
@@ -2216,39 +2249,42 @@ def main():
     df = pd.read_csv(args.data_csv)
 
     if args.analyze_only:
-        run_analyze_only(args, df)
+        run_analyze_only(args)
         return
 
-    model, processor, image_token_id, decoder_layers, image_features_owners, vision_method = \
-        setup_model_and_vision(args, df)
+    adapter, decoder_layers, image_features_owners, vision_method = setup_model_and_vision(args)
+    num_layers = len(decoder_layers)
+    out_dir = output_dir_for(args.out_dir, adapter)   # outputs/<short_name>/... -- never collides across models
+    layers = resolve_layers_cli(args.layers, num_layers)
+    verify_layers = resolve_layers_cli(args.verify_layers, num_layers)
+    steer_layers = resolve_layers_cli(args.steer_layers, num_layers) or list(READOUT_WINDOW_LAYERS_B)
 
-    os.makedirs(args.out_dir, exist_ok=True)
+    os.makedirs(out_dir, exist_ok=True)
 
     if args.verify:
         run_verification(
-            model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
-            df, args.images_dir, args.out_dir, n_verify_pairs=args.verify_pairs,
-            verify_layers=args.verify_layers, min_gap=args.min_gap,
+            adapter, decoder_layers, image_features_owners, vision_method,
+            df, args.images_dir, out_dir, n_verify_pairs=args.verify_pairs,
+            verify_layers=verify_layers, min_gap=args.min_gap,
             max_new_tokens=args.max_new_tokens, seed=args.seed)
 
     if args.experiment in ("a", "both"):
         trials_a = run_experiment_a(
-            model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
-            df, args.images_dir, args.out_dir, n_pairs=args.n_pairs, max_pairs=args.max_pairs,
-            min_gap=args.min_gap, layers=args.layers, max_new_tokens=args.max_new_tokens, seed=args.seed)
-        summary_a = summarize_experiment_a(trials_a, args.out_dir)
-        plot_experiment_a(summary_a, args.out_dir)
+            adapter, decoder_layers, image_features_owners, vision_method,
+            df, args.images_dir, out_dir, n_pairs=args.n_pairs, max_pairs=args.max_pairs,
+            min_gap=args.min_gap, layers=layers, max_new_tokens=args.max_new_tokens, seed=args.seed)
+        summary_a = summarize_experiment_a(trials_a, out_dir)
+        plot_experiment_a(summary_a, out_dir)
         text_a = print_experiment_a_summary(summary_a, trials_a, vision_method)
-        transfer_summary_a = summarize_transfer_a(trials_a, args.out_dir)
+        transfer_summary_a = summarize_transfer_a(trials_a, out_dir)
         agreement_stats_a = baseline_agreement_stats(trials_a)
         text_transfer_a = print_transfer_summary_a(transfer_summary_a, agreement_stats_a, trials_a)
-        per_layer_summary_a = summarize_per_layer_transfer_a(trials_a, args.out_dir)
-        text_per_layer_a = print_per_layer_transfer_table_a(per_layer_summary_a, num_layers=len(decoder_layers))
-        with open(os.path.join(args.out_dir, "experiment_a_summary.txt"), "w") as f:
+        per_layer_summary_a = summarize_per_layer_transfer_a(trials_a, out_dir)
+        text_per_layer_a = print_per_layer_transfer_table_a(per_layer_summary_a, num_layers=num_layers)
+        with open(os.path.join(out_dir, "experiment_a_summary.txt"), "w") as f:
             f.write(text_a + "\n\n" + text_transfer_a + "\n\n" + text_per_layer_a + "\n")
 
     if args.experiment in ("b", "both"):
-        steer_layers = args.steer_layers if args.steer_layers is not None else READOUT_WINDOW_LAYERS_B
         try:
             directions = load_directions_for_layers(
                 args.direction_dir, args.direction_representation, args.direction_hand, steer_layers)
@@ -2257,17 +2293,17 @@ def main():
             directions = None
         if directions is not None:
             trials_b = run_experiment_b(
-                model, processor, decoder_layers, image_token_id, image_features_owners, vision_method,
-                directions, df, args.images_dir, args.out_dir, n_trials=args.n_pairs, max_pairs=args.max_pairs,
+                adapter, decoder_layers, image_features_owners, vision_method,
+                directions, df, args.images_dir, out_dir, n_trials=args.n_pairs, max_pairs=args.max_pairs,
                 target_offset=args.target_offset, alphas=args.alphas,
                 max_new_tokens=args.max_new_tokens, seed=args.seed)
-            summary_b = summarize_experiment_b(trials_b, args.out_dir)
-            plot_experiment_b(summary_b, args.out_dir)
+            summary_b = summarize_experiment_b(trials_b, out_dir)
+            plot_experiment_b(summary_b, out_dir)
             text_b = print_experiment_b_summary(summary_b)
-            with open(os.path.join(args.out_dir, "experiment_b_summary.txt"), "w") as f:
+            with open(os.path.join(out_dir, "experiment_b_summary.txt"), "w") as f:
                 f.write(text_b + "\n")
 
-    print(f"\nAll outputs written to '{args.out_dir}/'.")
+    print(f"\nAll outputs written to '{out_dir}/'.")
 
 
 if __name__ == "__main__":

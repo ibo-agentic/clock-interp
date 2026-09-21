@@ -29,3 +29,6 @@ env/
 # Editor / OS cruft
 .ipynb_checkpoints/
 .DS_Store
+
+# Claude Code session metadata (local, not project content)
+.claude/

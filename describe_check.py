@@ -9,12 +9,10 @@ wrong time. This measures, over many images, how often:
   (d) the description is right BUT the final answer is wrong  <- the finding
 """
 import argparse, os, re
-import pandas as pd, torch
-from PIL import Image
+import pandas as pd
 from tqdm import tqdm
-from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration, set_seed
 
-MODEL_ID = "Qwen/Qwen2.5-VL-3B-Instruct"
+MODEL_ID = "Qwen/Qwen2.5-VL-3B-Instruct"   # this project's original model -- see adapters.py for others
 PROMPT = ("Look at the clock. Which number is the long minute hand pointing at? "
           "Then which number is the short hour hand pointing at? "
           "Finally give the time as HH:MM.")
@@ -37,31 +35,28 @@ def parse_reply(text):
             int(h.group(1)) if h else None,
             (int(t.group(1)), int(t.group(2))) if t else None)
 
-@torch.no_grad()
-def ask(model, processor, path, max_new_tokens=120):
-    img = Image.open(path).convert("RGB")
-    msgs = [{"role": "user", "content": [{"type": "image", "image": img},
-                                         {"type": "text", "text": PROMPT}]}]
-    text = processor.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
-    inputs = processor(text=[text], images=[img], return_tensors="pt").to(model.device)
-    out = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
-    trimmed = [o[len(i):] for i, o in zip(inputs.input_ids, out)]
-    return processor.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
+# ask(): used to be hardcoded Qwen chat-template + generate + trim -- now
+# just adapter.build_inputs/generate_answer (see adapters.py's module
+# docstring for why: this script asks a model something, and every script
+# that does that shares one interface now instead of three near-duplicates).
 
 def main(data_csv="data/data.csv", images_dir="data",
-         out_csv="results/describe.csv", max_images=None, seed=0):
+         out_csv=None, model_id=None, adapter_name=None, max_images=None, seed=0):
+    from transformers import set_seed
+    from adapters import get_adapter, output_dir_for
     set_seed(seed)
     df = pd.read_csv(data_csv)
     if max_images: df = df.head(max_images)
 
-    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-        MODEL_ID, torch_dtype=torch.float16, device_map="auto")
-    processor = AutoProcessor.from_pretrained(MODEL_ID)
-    model.eval()
+    adapter = get_adapter(model_id=model_id, adapter_name=adapter_name)
+    adapter.load(model_id)
+    if out_csv is None:
+        out_csv = os.path.join(output_dir_for("results", adapter), "describe.csv")
 
     rows = []
     for _, r in tqdm(df.iterrows(), total=len(df), desc="Describing clocks"):
-        reply = ask(model, processor, os.path.join(images_dir, r["filename"]))
+        inputs = adapter.build_inputs(os.path.join(images_dir, r["filename"]), PROMPT)
+        reply = adapter.generate_answer(inputs, max_new_tokens=120)
         said_min_num, said_hour_num, said_time = parse_reply(reply)
         tmn, thn = true_minute_number(r["minute"]), true_hour_number(r["hour"])
         rows.append({
@@ -102,9 +97,12 @@ def main(data_csv="data/data.csv", images_dir="data",
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--max_images", type=int, default=None)
-    p.add_argument("--out_csv", type=str, default="results/describe.csv")
+    p.add_argument("--out_csv", type=str, default=None,
+                    help="default: results/<model_short_name>/describe.csv")
     p.add_argument("--data_csv", type=str, default="data/data.csv")
     p.add_argument("--images_dir", type=str, default="data")
+    p.add_argument("--model_id", type=str, default=None)
+    p.add_argument("--adapter", type=str, default=None)
     a = p.parse_args()
-    main(data_csv=a.data_csv, images_dir=a.images_dir,
+    main(data_csv=a.data_csv, images_dir=a.images_dir, model_id=a.model_id, adapter_name=a.adapter,
          max_images=a.max_images, out_csv=a.out_csv)

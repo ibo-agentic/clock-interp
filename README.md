@@ -155,29 +155,43 @@ clock positions other than the handful of familiar landmarks (12, 9, 6).
 | `eval_prompt2.py` | `eval_behavior.py` with the describe-then-answer prompt, for quick spot checks (small sample) |
 | `text_only_check.py` | No-image sanity check: can the model do the "hand at number N -> minutes" conversion from a text description alone? |
 | `clock_behavior.ipynb` | Step 1, bundled into one notebook, for Kaggle |
+| `adapters.py` | One class per model family (Qwen2.5-VL, Gemma 3, InternVL3), behind a shared interface, so every script above can run against any of them -- see "Multi-model replication" below |
+| `run_model.sh` | Runs the full pipeline (behavior check -> describe check -> text-only check -> probe -> `--verify` -> Experiment A) for ONE model, in order |
+| `compare_models.py` | Builds one cross-model comparison table + a readout-curve-vs-relative-depth figure from multiple models' results |
 | `requirements.txt` | Python dependencies |
 
 Directories produced by the scripts (gitignored where regenerable -- see
-`.gitignore`; the Results section above says which script writes what):
+`.gitignore`; the Results section above says which script writes what).
+Since multi-model support (see "Multi-model replication" below), every
+script partitions its output by `<model_short_name>/` beneath ITS OWN
+base directory (unchanged base names -- `results/`, `probe_output/`,
+`intervene_output/` -- just one level deeper than before):
 
 ```
 data/                    # clock_0000.png ... clock_0499.png + data.csv (Step 1, gitignored)
 data_balanced/            # 480 clocks, equal count per minute value + data.csv (Step 2/3 input, gitignored)
 data_positions/            # 480 clocks, 12 exact minute positions x 40 + data.csv (position-breakdown input, gitignored)
-results/                 # results.csv, describe.csv, describe_positions.csv, prompt2.csv,
-                          # describe20.csv, parse_failures.csv (checked in -- all small CSVs)
+results/
+  <original Qwen-3B files>  # results.csv, describe.csv, describe_positions.csv, prompt2.csv,
+                          # describe20.csv, parse_failures.csv (from before multi-model support -- checked in)
+  <model_short_name>/     # results.csv, parse_failures.csv (eval_behavior.py); describe.csv
+                          # (describe_check.py); text_only.csv (text_only_check.py) -- one subfolder per model
 analysis_output/         # summary.txt, by_hour.csv, by_minute_bucket.csv, examples/*.png (Step 1 -- not currently
                           # present in this repo snapshot; regenerate via analyze.py, small enough to check in)
 probe_output/
   activations/            # hidden_last.npy, hidden_meanpool.npy, vision_meanpool.npy, index.csv (gitignored, ~150MB+)
-  probe_results/          # per_layer_results.csv, shuffled_label_control.csv, summary.txt,
-                          # summary_table.csv, layers_minute.png, layers_hour.png, and (after
-                          # `--stage direction`) one probe_direction_<representation>_<hand>_layer<N>.npz
-                          # per fitted layer (all checked in)
-intervene_output/         # experiment_a_trials.csv, experiment_a_summary.csv/.txt, experiment_a_layers.png,
+  probe_results/
+    <original Qwen-3B files>  # per_layer_results.csv, summary_table.csv, etc. (from before multi-model support)
+    <model_short_name>/   # the same files, per model -- summary_table.csv, per_layer_results.csv,
+                          # shuffled_label_control.csv, summary.txt, layers_minute.png, layers_hour.png,
+                          # and (after `--stage direction`) one probe_direction_<representation>_<hand>_layer<N>.npz
+                          # per fitted layer
+intervene_output/
+  <model_short_name>/     # experiment_a_trials.csv, experiment_a_summary.csv/.txt, experiment_a_layers.png,
                           # experiment_a_transfer_summary.csv, experiment_a_trials_with_transfer.csv,
                           # experiment_a_per_layer_transfer.csv, experiment_b_trials.csv,
                           # experiment_b_summary.csv/.txt, experiment_b_steering.png
+outputs/compare/         # compare_models.py: comparison_table.csv/.txt, readout_curves.png
 ```
 
 ## Option A: Run on Kaggle (recommended)
@@ -736,6 +750,113 @@ reports FAIL for `get_image_features` against it, and PASS for
 `layer0_embed` against the identical model) before trusting any fix against
 the real one. See the "Caveat" note under Probing above for what this
 means for Step 2's `vision_encoder` R².
+
+## Multi-model replication
+
+Every finding above was established on Qwen2.5-VL-3B-Instruct alone. To
+check it's not specific to that one model, every script now runs against
+any model with an **adapter** in `adapters.py`: `QwenVLAdapter` (also
+`Qwen2.5-VL-7B-Instruct` -- same architecture, bigger checkpoint),
+`Gemma3Adapter` (`google/gemma-3-4b-it`), and `InternVLAdapter` (also
+`InternVL3-8B` -- `OpenGVLab/InternVL3-2B`/`-8B`, a different vision
+encoder and, depending on checkpoint size, a different LLM backbone).
+
+**`adapters.py`** gives every script the SAME interface (`load`,
+`build_inputs`, `generate_answer`, `image_token_positions`,
+`decoder_layers`, `vision_module`, `image_features_owners`) instead of each
+one hardcoding Qwen's chat template and generation conventions. Much of
+this was already model-agnostic by accident: `find_decoder_layers`/
+`find_all_image_features_owners` scan the module tree by CLASS NAME
+PATTERN (`"...DecoderLayer"`, a callable `get_image_features`), not a
+hardcoded attribute path -- confirmed to match `Qwen2DecoderLayer`,
+`Gemma3DecoderLayer`, and (InternVL's inner LLM) `Qwen2DecoderLayer`/
+`LlamaDecoderLayer` alike, all without per-model code. What genuinely
+differs per model: how to build a prompt+image into inputs, how to decode
+a generated answer, and how to find the image-token id -- see each
+adapter's docstring in `adapters.py` for exactly what was verified against
+this environment's installed transformers source (Gemma3) or the model's
+actual downloaded custom code (InternVL) vs. what's still unverified
+against real weights.
+
+**Trust levels, read before using a non-Qwen adapter for anything that
+matters:** `QwenVLAdapter` is the exact code this project has run and
+verified since round 1, just relocated -- unchanged behavior (regression-
+tested against a fake model in `test_adapters_qwen_regression.py`).
+`Gemma3Adapter`/`InternVLAdapter` were built by reading real source (this
+environment's installed `transformers/models/gemma3/`, and the actual
+`modeling_internvl_chat.py` downloaded from OpenGVLab/InternVL3-2B's HF
+repo) rather than guessed from memory, and are structurally tested against
+fake models -- but **neither has been run against real weights**: this
+environment has no GPU, and `google/gemma-3-4b-it` is a **gated** HF repo
+(you need `HF_TOKEN` set, with access granted at its model page, before
+`Gemma3Adapter.load()` will work). **Run `--verify` for every new model
+before trusting ANY intervention result from it** -- this project's own
+history (three failed `--verify` rounds for Qwen's `get_image_features`
+path, looking fine by every superficial check for two of them) is exactly
+why that's not optional, and there's no reason a different model's adapter
+would be immune to the same class of bug on the first untested attempt.
+`InternVLAdapter` also doesn't support `get_image_features`-style vision
+interception at all (InternVL's analogous method is `extract_feature`,
+not intercepted) -- it only uses `layer0_embed`, which is this project's
+own trusted default for every model anyway.
+
+**`--model_id` / `--adapter`** were added to `eval_behavior.py`,
+`describe_check.py`, `text_only_check.py`, `probe.py`, and `intervene.py`.
+`--adapter` is only needed to force a specific adapter for a `--model_id`
+`get_adapter` doesn't recognize by substring match (it falls back to
+`QwenVLAdapter` with a warning rather than guessing at a different
+architecture's conventions). Each script writes its output to
+`<model_short_name>/` beneath its OWN existing base directory (see the
+directory listing above) via `adapters.output_dir_for`, so results from
+different models never collide.
+
+**Relative-depth layer arguments.** `--layers` (`intervene.py`),
+`--steer_layers`, and `--verify_layers` accept `rel:f1,f2,...` (floats in
+`[0,1]`) in addition to absolute indices, resolved to each model's actual
+layer count once it's loaded (`resolve_layers_cli` /
+`adapters.resolve_layers_arg`) -- so the SAME `--layers rel:0.4,0.5,0.6,0.7`
+sweeps "the same relative window" on a 28-layer and a 36-layer model,
+rather than the same absolute numbers landing at very different fractions
+of each model's depth. Every Experiment A/B output row also saves
+`num_layers` and `relative_depth` alongside the absolute `layer`, so a
+readout window found on one model can be compared to another's by
+POSITION IN THE STACK (see `compare_models.py` below). `--layers
+readout_window` is kept as a literal absolute-layer shorthand for THIS
+project's own Qwen-3B finding (layers 14-26), not reinterpreted as
+relative.
+
+**`run_model.sh`** runs the full pipeline for ONE model in order: behavior
+check, describe check, text-only check, probe extraction + probing,
+`--verify`, and Experiment A (with the transfer-to-baseline + per-layer
+analysis). Assumes `data/`, `data_balanced/`, `data_positions/` already
+exist (clock images don't depend on which VLM is being tested, so this
+doesn't regenerate them per model). Kaggle-friendly: `!bash run_model.sh
+<model_id> [adapter_name]` from a notebook cell works the same as from a
+shell. Pass `--smoke` to cap every stage to a handful of images/pairs --
+**always run this first on a new adapter** before committing to the full
+sweep, for the same reason `--verify` isn't optional (see Trust levels
+above):
+```
+./run_model.sh OpenGVLab/InternVL3-2B internvl3-2b --smoke   # a few minutes, sanity check first
+./run_model.sh OpenGVLab/InternVL3-2B internvl3-2b           # the real run, once --smoke + --verify look right
+```
+
+**`compare_models.py`** builds one table across every model with results
+under `results/` (minute/hour/exact accuracy from `eval_behavior.py`;
+self-consistency -- does the model's STATED description agree with its OWN
+stated final answer, independent of correctness -- from `describe_check.py`;
+text-only hand-to-time accuracy from `text_only_check.py`; best-layer and
+final-layer `hidden_meanpool`/minute probe R² from `probe.py`) plus ONE
+figure overlaying every model's Experiment A readout curve (image-token
+`to_B` transfer rate) against RELATIVE depth, so models with different
+layer counts are genuinely comparable on one axis. Every source file is
+optional -- a model missing a step still gets a row with `NaN` for what's
+missing, plus a printed note saying exactly what to run, rather than
+crashing the whole comparison:
+```
+python compare_models.py                                    # every model with results/ under it
+python compare_models.py --models qwen2.5-vl-3b,gemma-3-4b-it
+```
 
 ## Notes for Kaggle's T4 (16GB)
 
