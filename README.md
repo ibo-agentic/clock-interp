@@ -89,6 +89,25 @@ stack (`hidden_last` in `probe_output/probe_results/per_layer_results.csv`,
   randomly permuted) stays negative at every layer (R² between -0.005 and
   -0.28), confirming the probe is picking up a real, consistent signal in
   the activations rather than overfitting noise.
+- The `vision_encoder` representation (probed directly on the vision
+  tower's raw forward output, before it reaches the LLM at all) scores even
+  higher, **R² = 0.96** (`probe_output/probe_results/summary_table.csv`).
+
+  > **Caveat found while building Step 3's `--verify`:** in this
+  > transformers version, the tensor that actually reaches the LLM's
+  > `inputs_embeds` is `get_image_features(...).pooler_output`, produced by
+  > an extra step *downstream* of the vision tower's own forward output --
+  > confirmed by patching each and checking whether the LLM's hidden states
+  > actually change (they didn't, for the raw output; they do, for
+  > `pooler_output` -- see `intervene.py`'s module docstring and
+  > `verify_vision_swap`). Step 2's extraction (`probe.py`) was never
+  > updated to capture `pooler_output` specifically, so treat "R² = 0.96"
+  > above as a property of the vision tower's raw representation, not
+  > necessarily the exact tensor the LLM consumes -- they may differ. This
+  > doesn't affect the `hidden_last`/`hidden_meanpool` numbers above (those
+  > come from the LLM's own layers, downstream of wherever the merge
+  > happens either way), only the `vision_encoder` row's exact
+  > interpretation.
 
 Reproduce:
 ```
@@ -405,9 +424,12 @@ Swept over every layer (0 = the embedding layer / input to the first
 decoder block, 1..36 = each decoder block's output -- the same indexing
 `output_hidden_states=True` uses) and three position sets (`image_tokens`,
 `final_token`, `all_positions`), plus a **vision-encoder ceiling condition**
-that replaces the whole vision-tower output instead of an LLM layer (if
-swapping the *entire* visual representation doesn't move the answer,
-nothing downstream will). Two controls, run on the same grid: patching from
+that replaces the whole image representation the LLM actually consumes
+(`get_image_features(...).pooler_output`, not the vision tower's own raw
+output -- see the `--verify` note below for why that distinction matters)
+instead of an LLM layer (if swapping the *entire* visual representation
+doesn't move the answer, nothing downstream will). Two controls, run on the
+same grid: patching from
 a **same-minute** clock (should change nothing, since the ground truth is
 unchanged) and patching in **matched-norm random noise** (isolates "does
 perturbing this position at all matter" from "does B's specific content
@@ -476,6 +498,26 @@ sequence positions each position set covers, so a silently-empty
 carries its own evidence. Combine with `--experiment none` for a fast
 standalone check (a few pairs, no full sweep), or with a real experiment run
 to verify and produce results in one command.
+
+**`--verify` earned its keep on the first real run**: it came back FAIL on
+the vision path (decoder-layer patching was fine). The captured tensor
+*did* differ between images (rel L2 diff 0.34), but the LLM's layer-0/1
+hidden states at image-token positions were bit-identical, and neither
+extreme test (zeroing the vision output, swapping in a random-noise image)
+changed the answer -- exactly the signature of a hook that isn't in the
+forward path. Root cause: this transformers version merges
+`get_image_features(...).pooler_output` into `inputs_embeds`, a value
+produced by extra processing *downstream* of the vision tower's own forward
+output; hooking the tower directly (the original approach, and what
+`probe.py`'s Step 2 extraction still does) captures a real tensor that
+simply isn't the one the LLM reads. The fix monkey-patches
+`get_image_features` itself (see `find_image_features_owner` /
+`image_features_patched` in `intervene.py`), which is the actual point of
+consumption regardless of what happens inside it -- re-verified against a
+fake model built to reproduce this exact bug shape (an object exposing both
+`.last_hidden_state` and `.pooler_output`, with only the latter consumed
+downstream) before trusting it against the real one. See the "Caveat" note
+under Probing above for what this means for Step 2's `vision_encoder` R².
 
 ## Notes for Kaggle's T4 (16GB)
 
