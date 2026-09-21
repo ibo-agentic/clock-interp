@@ -424,12 +424,14 @@ Swept over every layer (0 = the embedding layer / input to the first
 decoder block, 1..36 = each decoder block's output -- the same indexing
 `output_hidden_states=True` uses) and three position sets (`image_tokens`,
 `final_token`, `all_positions`), plus a **vision-encoder ceiling condition**
-that replaces the whole image representation the LLM actually consumes
-(`get_image_features(...).pooler_output`, not the vision tower's own raw
-output -- see the `--verify` note below for why that distinction matters)
-instead of an LLM layer (if swapping the *entire* visual representation
-doesn't move the answer, nothing downstream will). Two controls, run on the
-same grid: patching from
+that replaces the whole image representation the LLM actually consumes,
+instead of a single LLM layer (if swapping the *entire* visual
+representation doesn't move the answer, nothing downstream will). Which
+mechanism captures/replaces that representation is controlled by
+`--vision_method` (`auto` / `get_image_features` / `layer0_embed`) -- see
+the `--verify` section below for why this took three rounds to get right,
+and why the default no longer trusts `get_image_features`. Two controls,
+run on the same grid: patching from
 a **same-minute** clock (should change nothing, since the ground truth is
 unchanged) and patching in **matched-norm random noise** (isolates "does
 perturbing this position at all matter" from "does B's specific content
@@ -499,48 +501,70 @@ carries its own evidence. Combine with `--experiment none` for a fast
 standalone check (a few pairs, no full sweep), or with a real experiment run
 to verify and produce results in one command.
 
-**`--verify` earned its keep -- twice -- before the vision path was trusted:**
+**`--verify` earned its keep -- three times -- before the vision path was
+trusted, and `get_image_features` interception ultimately lost:**
 
-- **Round 1:** the first real run came back FAIL on the vision path
-  (decoder-layer patching was fine). The captured tensor *did* differ
-  between images (rel L2 diff 0.34), but the LLM's layer-0/1 hidden states
-  at image-token positions were bit-identical, and neither extreme test
-  (zeroing the vision output, swapping in a random-noise image) changed the
-  answer -- the signature of a hook that isn't in the forward path. Root
-  cause: this transformers version merges `get_image_features(...).pooler_output`
-  into `inputs_embeds`, produced by extra processing *downstream* of the
-  vision tower's own forward output; hooking the tower directly (the
-  original approach, and what `probe.py`'s Step 2 extraction still does)
-  captures a real tensor that simply isn't the one the LLM reads. Fix:
-  monkey-patch `get_image_features` itself instead of the tower.
+- **Round 1:** FAIL on the vision path (decoder-layer patching was fine).
+  The captured tensor *did* differ between images (rel L2 diff 0.34), but
+  the LLM's layer-0/1 hidden states at image-token positions were
+  bit-identical, and neither extreme test (zeroing the vision output,
+  swapping in a random-noise image) changed the answer. Root cause: this
+  transformers version merges `get_image_features(...).pooler_output` into
+  `inputs_embeds`, produced by extra processing *downstream* of the vision
+  tower's own forward output; hooking the tower directly (the original
+  approach, and what `probe.py`'s Step 2 extraction still does) captures a
+  real tensor that simply isn't the one the LLM reads. Fix: monkey-patch
+  `get_image_features` itself instead of the tower.
 - **Round 2:** that fix STILL failed --verify, differently: "get_image_features()
   could not be captured", every pair. `get_image_features` turned out to be
   defined on *two* separate Python objects -- the top-level
   `Qwen2_5_VLForConditionalGeneration` wrapper AND the inner
-  `Qwen2_5_VLModel` it wraps -- and the call that actually matters
-  (`self.get_image_features(...)` inside `Qwen2_5_VLModel.forward`) goes
+  `Qwen2_5_VLModel` it wraps -- and the call that actually matters goes
   through the inner one. Patching only the outer object (found first by a
   `hasattr` check) had zero effect on the inner object's own,
-  independently-resolved attributes. Fix (`find_all_image_features_owners`
-  / `image_features_patched` in `intervene.py`): patch *every* object in
-  the hierarchy that defines `get_image_features`, bound per-instance with
-  `types.MethodType`, and track which one (if any) actually fires. If none
-  do, `determine_vision_interception_method` falls back to patching
-  `hidden_states[0]` at the image-token positions directly -- reusing the
-  already-verified decoder-layer-0 mechanism, which targets the exact
-  tensor the decoder stack consumes without needing to know where (or
-  whether) `get_image_features` is involved at all. `run_baseline` now
-  hard-fails (raises) rather than silently returning `vision_output=None`
-  when a *required* capture doesn't fire -- silence is exactly how round
-  2's bug went unnoticed for one --verify iteration.
+  independently-resolved attributes. Fix: patch *every* object in the
+  hierarchy that defines `get_image_features` (`find_all_image_features_owners`),
+  bound per-instance with `types.MethodType`, and track which one actually
+  fires.
+- **Round 3:** with the right owner *and* field finally patched --
+  confirmed firing ("get_image_features() on model.model fires correctly"),
+  confirmed the captured tensor differed (rel L2 0.34) -- --verify STILL
+  found layer-0/1 hidden states bit-identical. The merge step evidently
+  keeps a reference to something other than what the patch mutates; *why*
+  was not chased further. **`get_image_features` interception was retired**
+  as the default rather than debugged a fourth time. `intervene.py` now
+  defaults to (and `--verify` confirms) **`layer0_embed`**: patching
+  `hidden_states[0]` at the image-token positions directly, via a plain
+  PyTorch forward hook on the first decoder layer -- the exact mechanism
+  the decoder-patch sweep already uses and has repeatedly verified
+  propagates correctly (diffs 0.38 -> 0.50 through to the final layer).
+  This targets the same tensor the LLM consumes regardless of where, or
+  whether, `get_image_features` is involved at all.
 
-Both rounds were re-verified locally against fake models built to reproduce
-the exact bug shape (round 1: an object exposing both `.last_hidden_state`
-and `.pooler_output`, only the latter consumed downstream; round 2: a decoy
-`get_image_features` on the outer object wired to raise if ever called, plus
-a separate scenario where neither object's method fires at all, to confirm
-the fallback engages and still passes) before trusting either fix against
-the real model. See the "Caveat" note under Probing above for what this
+**Current state:** `--vision_method` is `{auto, get_image_features, layer0_embed}`
+(default `auto`, which now resolves to `layer0_embed` without attempting
+`get_image_features` at all -- three failed verification rounds was treated
+as a real result about this transformers version, not noise to average
+over). `get_image_features` remains available as an explicit,
+separately-verified opt-in (`--vision_method get_image_features`) for
+future retries (e.g. after a transformers upgrade) but is not trusted by
+default. Every summary and verification report states which mechanism
+produced its vision-ceiling numbers, plus the transformers version, so a
+reviewer sees this was checked rather than assumed -- see
+`print_experiment_a_summary`'s "vision-ceiling mechanism:" line and
+`run_verification`'s printed/saved report.
+
+All three rounds were re-verified locally against fake models built to
+reproduce each exact bug shape (round 1: an object exposing both
+`.last_hidden_state` and `.pooler_output`, only the latter consumed
+downstream; round 2: a decoy `get_image_features` on the outer object wired
+to raise if ever called, plus a scenario where neither object's method
+fires at all; round 3: a model where `get_image_features` fires and the
+replaced tensor genuinely differs, but the merge step discards the return
+value and recomputes independently -- confirming `--verify` correctly
+reports FAIL for `get_image_features` against it, and PASS for
+`layer0_embed` against the identical model) before trusting any fix against
+the real one. See the "Caveat" note under Probing above for what this
 means for Step 2's `vision_encoder` R².
 
 ## Notes for Kaggle's T4 (16GB)

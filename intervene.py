@@ -486,7 +486,7 @@ def run_baseline(model, processor, image_path, image_token_id, image_features_ow
                         `vision_method` (see `determine_vision_interception_method`):
                         for "get_image_features", whatever
                         get_image_features() actually returns; for
-                        "embeds_fallback", hidden_states[0] at the
+                        "layer0_embed", hidden_states[0] at the
                         image-token positions (the fully merged embeddings,
                         read directly off `hidden_states` below at zero
                         extra cost). Used for the vision-encoder ceiling
@@ -533,7 +533,7 @@ def run_baseline(model, processor, image_path, image_token_id, image_features_ow
     image_mask = (input_ids == image_token_id).cpu()
     del outputs
 
-    if vision_method == "embeds_fallback":
+    if vision_method == "layer0_embed":
         vision_output = hidden_states[0][image_mask].clone()
 
     raw_answer = generate_answer(model, processor, inputs, max_new_tokens)
@@ -547,48 +547,63 @@ def run_baseline(model, processor, image_path, image_token_id, image_features_ow
     }
 
 
-def determine_vision_interception_method(model, processor, image_features_owners, sample_image_path):
-    """Probe, ONCE, which mechanism actually intercepts the image
-    representation the LLM reads for THIS model: try monkey-patching
-    get_image_features() first (the most surgical option -- it targets
-    exactly the image representation, before any merge-level processing).
-    If that doesn't fire during a real forward pass (as happened when the
-    wrong owner was patched), fall back to patching hidden_states[0] -- the
-    fully merged embeddings, at the image-token positions, right before the
-    decoder stack runs. That fallback targets the SAME tensor the LLM
-    actually consumes regardless of where or whether get_image_features is
-    involved at all, and reuses the already-verified decoder-layer-0 patch
-    mechanism (`patched`) rather than introducing new untested code.
+def determine_vision_interception_method(model, processor, image_features_owners, sample_image_path,
+                                          requested="auto"):
+    """Decide which mechanism intercepts the image representation the LLM
+    reads for THIS model. `requested` is `--vision_method`:
 
-    Returns "get_image_features" or "embeds_fallback". Never returns a
-    method that doesn't work: the fallback is a plain forward hook via
-    PyTorch's own hook registration (not a monkey-patched Python method),
-    so unlike get_image_features() it cannot silently fail to fire -- if
-    the model runs at all, layer-0 patching runs.
+      - "layer0_embed": patch hidden_states[0] (the fully merged
+        embeddings) at the image-token positions, right before the decoder
+        stack runs. This is a plain PyTorch forward-hook on a decoder
+        layer -- the SAME mechanism the decoder-patch sweep already uses
+        and --verify has repeatedly confirmed propagates correctly (diffs
+        0.38 -> 0.50 through to the final layer). It targets the exact
+        tensor the LLM consumes regardless of where, or whether,
+        get_image_features is involved at all.
+
+      - "get_image_features": monkey-patch get_image_features() (see
+        `find_all_image_features_owners` / `image_features_patched`).
+        Returned immediately, without re-probing here -- run --verify to
+        confirm it actually propagates before trusting it. History on this
+        project: round 1 patched the wrong tensor field, round 2 patched
+        the wrong owner object, round 3 patched the right owner AND field
+        (confirmed firing, confirmed the captured tensor differed) and
+        --verify STILL found layer-0/1 hidden states bit-identical -- the
+        merge step evidently reads a different reference than the one we
+        mutate. Three failed verification rounds on this transformers
+        version is a real result, not a debugging dead end; further
+        chasing it was deliberately stopped in favor of "layer0_embed".
+
+      - "auto" (default): resolves to "layer0_embed", for the reason
+        above. Kept as a distinct name (rather than just changing
+        "layer0_embed"'s default) so a future run can explicitly ask for
+        "get_image_features" without it silently being what "auto" means.
     """
-    inputs = build_inputs(processor, sample_image_path).to(model.device)
-    holder = {}
-    with image_features_patched(image_features_owners, capture_holder=holder):
-        model(**inputs, output_hidden_states=False)
-
-    if holder.get("fired"):
-        print(f"Vision interception: get_image_features() on '{holder['fired_by']}' fires correctly "
-              "-- using it directly.")
+    if requested == "layer0_embed":
+        print("Vision interception: using layer0_embed (the verified decoder-layer-0 patch mechanism).")
+        return "layer0_embed"
+    if requested == "get_image_features":
+        print("Vision interception: using get_image_features, as explicitly requested via --vision_method "
+              "-- NOT re-verified here. This method has failed --verify on three separate prior rounds on "
+              "this transformers version (wrong field; wrong owner; right owner+field but the merge step "
+              "still didn't read the mutated value) -- run --verify before trusting any result from it.")
         return "get_image_features"
 
-    print(f"Vision interception: get_image_features() did not fire on any of "
-          f"{[name for name, _ in image_features_owners]} during a real forward pass. Falling back to "
-          "patching hidden_states[0] (the merged embeddings) at the image-token positions -- this "
-          "targets the same tensor the decoder stack actually consumes, independent of where "
-          "get_image_features lives.")
-    return "embeds_fallback"
+    # "auto": prefer layer0_embed outright. get_image_features is not
+    # re-probed here (see docstring) -- three real-model verification
+    # rounds already showed a "fires" check isn't sufficient evidence it
+    # actually propagates, and this project stopped chasing why.
+    print("Vision interception (auto): defaulting to layer0_embed -- get_image_features has failed "
+          "--verify on three prior rounds on this transformers version (see module docstring); pass "
+          "--vision_method get_image_features to try it again explicitly.")
+    return "layer0_embed"
 
 
 def vision_replacement_from(vision_method, source_base):
     """Pull the correctly-shaped replacement tensor for `apply_vision_replacement`
     out of a `run_baseline(...)` result -- shape/meaning depends on
     `vision_method`: for "get_image_features", (n_image_tokens, H); for
-    "embeds_fallback", the FULL (seq_len, H) hidden_states[0] (only its
+    "layer0_embed", the FULL (seq_len, H) hidden_states[0] (only its
     image-token rows are actually used, matching `patched()`'s contract)."""
     if vision_method == "get_image_features":
         return source_base["vision_output"]
@@ -895,12 +910,21 @@ def plot_experiment_a(summary_df, out_dir):
     plt.close(fig)
 
 
-def print_experiment_a_summary(summary_df, trials_df):
+def print_experiment_a_summary(summary_df, trials_df, vision_method):
     """A compact text table: for each position set, the BEST layer's
     real_b result next to the same layer's controls."""
+    import transformers
     lines = ["=== EXPERIMENT A SUMMARY (activation patching) ===", ""]
     n_pairs = trials_df["pair"].nunique()
     lines.append(f"n pairs: {n_pairs}")
+    lines.append(f"transformers=={transformers.__version__}")
+    lines.append(f"vision-ceiling mechanism: {vision_method}" +
+                 (" (patches hidden_states[0] at image-token positions -- the same mechanism the "
+                  "decoder-patch sweep above uses; get_image_features interception was attempted and "
+                  "failed --verify on three prior rounds on this transformers version, see README.md)"
+                  if vision_method == "layer0_embed" else
+                  " (NOT independently re-verified in this run -- run --verify to confirm before trusting "
+                  "the vision-ceiling row below)"))
     lines.append("")
     header = f"{'position_set':<14}{'best_layer':>11}{'moved%':>8}{'shift':>8}{'chg%':>7}  ||  " \
              f"{'same-min moved%':>16}{'same-min chg%':>14}  ||  {'noise moved%':>13}{'noise chg%':>11}"
@@ -935,9 +959,9 @@ def print_experiment_a_summary(summary_df, trials_df):
     if len(ceiling):
         c = ceiling.iloc[0]
         lines.append("")
-        lines.append(f"vision-encoder ceiling (whole visual representation swapped): "
-                      f"moved toward B {c['pct_moved_toward']:.1%}, mean shift {c['mean_shift_score']:.2f}, "
-                      f"answer changed {c['pct_answer_changed']:.1%}")
+        lines.append(f"vision-encoder ceiling [mechanism: {vision_method}] (whole visual representation "
+                      f"swapped): moved toward B {c['pct_moved_toward']:.1%}, "
+                      f"mean shift {c['mean_shift_score']:.2f}, answer changed {c['pct_answer_changed']:.1%}")
 
     lines.append("")
     lines.append("Read 'moved%' RELATIVE TO ITS OWN same-min/noise columns, not against an assumed 50%:")
@@ -1335,9 +1359,16 @@ def run_verification(model, processor, decoder_layers, image_features_owners, vi
     if len(pairs) == 0:
         raise ValueError("No (A, B) pairs available for --verify -- check --min_gap against this dataset.")
 
+    import transformers
     print(f"\n{'=' * 70}\nVERIFICATION: confirming interventions actually land, before trusting "
           f"any null result\n{'=' * 70}")
+    print(f"transformers=={transformers.__version__}")
     print(f"Using {len(pairs)} pair(s), decoder layers {verify_layers}, vision method '{vision_method}'.")
+    if vision_method == "get_image_features":
+        print("NOTE: get_image_features interception has failed --verify on three prior rounds on this "
+              "project's transformers version (wrong field; wrong owner object; right owner+field but the "
+              "merge step still didn't read the mutated value). Being re-tried here because --vision_method "
+              "explicitly requested it -- treat a PASS as newly re-earned, not assumed.")
 
     vision_lines, vision_records = verify_vision_swap(
         model, processor, decoder_layers, image_features_owners, vision_method, image_token_id,
@@ -1394,6 +1425,14 @@ def main():
     parser.add_argument("--verify_layers", type=parse_layers_arg, default=None,
                          help="--verify: comma-separated decoder layers to check (default: 0, 1, a middle "
                               "layer, and the final layer)")
+    parser.add_argument("--vision_method", choices=["auto", "get_image_features", "layer0_embed"], default="auto",
+                         help="which mechanism intercepts the image representation for the vision-ceiling "
+                              "condition and its --verify checks. 'layer0_embed' patches hidden_states[0] at "
+                              "the image-token positions (the same, already-verified mechanism the decoder-"
+                              "patch sweep uses). 'get_image_features' monkey-patches that method instead -- "
+                              "has failed --verify on three prior rounds on this project's transformers "
+                              "version; not recommended without re-verifying. 'auto' (default) currently "
+                              "resolves to 'layer0_embed' for that reason -- see determine_vision_interception_method.")
     parser.add_argument("--data_csv", type=str, default=DATA_CSV)
     parser.add_argument("--images_dir", type=str, default=IMAGES_DIR)
     parser.add_argument("--direction_path", type=str, default=DIRECTION_PATH,
@@ -1429,7 +1468,8 @@ def main():
     # image representation for this model, and share it across --verify and
     # both experiments -- see determine_vision_interception_method.
     sample_path = os.path.join(args.images_dir, df.iloc[0]["filename"])
-    vision_method = determine_vision_interception_method(model, processor, image_features_owners, sample_path)
+    vision_method = determine_vision_interception_method(model, processor, image_features_owners, sample_path,
+                                                          requested=args.vision_method)
 
     os.makedirs(args.out_dir, exist_ok=True)
 
@@ -1447,7 +1487,7 @@ def main():
             min_gap=args.min_gap, layers=args.layers, max_new_tokens=args.max_new_tokens, seed=args.seed)
         summary_a = summarize_experiment_a(trials_a, args.out_dir)
         plot_experiment_a(summary_a, args.out_dir)
-        text_a = print_experiment_a_summary(summary_a, trials_a)
+        text_a = print_experiment_a_summary(summary_a, trials_a, vision_method)
         with open(os.path.join(args.out_dir, "experiment_a_summary.txt"), "w") as f:
             f.write(text_a + "\n")
 
