@@ -149,7 +149,7 @@ clock positions other than the handful of familiar landmarks (12, 9, 6).
 | `eval_behavior.py` | Loads Qwen2.5-VL-3B-Instruct and asks it to read each clock |
 | `analyze.py` | Computes accuracy metrics, hand-swap rate, and saves example error images |
 | `probe.py` | Step 2: extracts hidden states, probes them for the hand angles, and (via `--stage direction`) fits+saves a steering direction for Step 3 |
-| `intervene.py` | Step 3: causal interventions -- activation patching between clocks (Experiment A) and steering along the probe direction (Experiment B) |
+| `intervene.py` | Step 3: causal interventions -- activation patching between clocks (Experiment A) and steering along the probe direction at image-token positions (Experiment B) |
 | `balanced_clocks.py` | Generates `data_positions/`: 480 clocks at exactly the 12 clock-number minute positions (40 each), for the position-accuracy breakdown |
 | `describe_check.py` | "Describe the hands, then answer" prompt -- logs whether each hand was *described* correctly, separately from whether the final answer was correct |
 | `eval_prompt2.py` | `eval_behavior.py` with the describe-then-answer prompt, for quick spot checks (small sample) |
@@ -172,9 +172,12 @@ probe_output/
   activations/            # hidden_last.npy, hidden_meanpool.npy, vision_meanpool.npy, index.csv (gitignored, ~150MB+)
   probe_results/          # per_layer_results.csv, shuffled_label_control.csv, summary.txt,
                           # summary_table.csv, layers_minute.png, layers_hour.png, and (after
-                          # `--stage direction`) probe_direction_<representation>_<hand>.npz (all checked in)
+                          # `--stage direction`) one probe_direction_<representation>_<hand>_layer<N>.npz
+                          # per fitted layer (all checked in)
 intervene_output/         # experiment_a_trials.csv, experiment_a_summary.csv/.txt, experiment_a_layers.png,
-                          # experiment_b_trials.csv, experiment_b_summary.csv/.txt, experiment_b_steering.png
+                          # experiment_a_transfer_summary.csv, experiment_a_trials_with_transfer.csv,
+                          # experiment_a_per_layer_transfer.csv, experiment_b_trials.csv,
+                          # experiment_b_summary.csv/.txt, experiment_b_steering.png
 ```
 
 ## Option A: Run on Kaggle (recommended)
@@ -222,8 +225,10 @@ python clocks.py --balanced --out_dir data_balanced
 python probe.py --stage extract   # slow: loads the model, runs all 480 images
 python probe.py --stage probe     # fast: fits/cross-validates the probes, makes plots
 
-# 6. Step 3: fit + save a steering direction for Experiment B (needs --stage probe's output)
-python probe.py --stage direction
+# 6. Step 3: fit + save one steering direction per layer for Experiment B's
+#    image-token steering sweep (needs --stage probe's output)
+python probe.py --stage direction --direction_representation hidden_meanpool \
+    --direction_hand minute --direction_layers 14,16,18,20,21,22,24
 
 # 7. Step 3: verify the intervention mechanism actually works, BEFORE trusting a null result
 python intervene.py --verify --experiment none
@@ -398,14 +403,30 @@ images (no CV split -- for steering we want the single best-fit probe, not
 a held-out estimate) at one layer (auto-picked as the best from
 `per_layer_results.csv`, or given via `--direction_layer`), and saves it as
 a **steering direction in raw activation space** to
-`probe_output/probe_results/probe_direction_hidden_last_minute.npz`: the
-fitted pipeline (`StandardScaler` -> `PCA` -> `Ridge`) is a linear map from
-activations to `(sin, cos)`, so the chain rule gives a Jacobian whose two
-columns are the raw-activation-space directions that increase the sin- and
-cos-readouts -- exactly what Experiment B steers along. `probe.py::apply_saved_probe`
-recomputes the exact predicted angle from any raw hidden-state vector using
-this same saved pipeline, which `intervene.py` uses to verify a steering
-intervention actually moved the probe's internal readout.
+`probe_output/probe_results/probe_direction_<representation>_<hand>_layer<N>.npz`
+(the layer is always part of the filename, so fitting several layers in a
+row never overwrites the previous one -- see `direction_path_for_layer`):
+the fitted pipeline (`StandardScaler` -> `PCA` -> `Ridge`) is a linear map
+from activations to `(sin, cos)`, so the chain rule gives a Jacobian whose
+two columns are the raw-activation-space directions that increase the
+sin- and cos-readouts -- exactly what Experiment B steers along.
+`probe.py::apply_saved_probe` recomputes the exact predicted angle from any
+raw hidden-state vector using this same saved pipeline, which `intervene.py`
+uses to verify a steering intervention actually moved the probe's internal
+readout.
+
+**`--direction_layers`** fits and saves ONE direction PER layer in a
+comma-separated list, in one command -- needed for Experiment B's per-layer
+image-token steering sweep, which needs a direction at every layer in its
+readout window, all fit on the SAME representation the steered positions
+actually are (`hidden_meanpool` -- mean-pooled over image-token positions;
+NOT `hidden_last`, which is the final-token representation the *earlier*
+version of Experiment B steered):
+```
+python probe.py --stage direction --direction_representation hidden_meanpool \
+    --direction_hand minute --direction_layers 14,16,18,20,21,22,24
+```
+Overrides `--direction_layer` (singular) if both are given.
 
 ### `intervene.py` (Step 3)
 
@@ -446,26 +467,58 @@ assumed 50% chance level (see the printed summary for why: when A and B are
 near-maximally far apart, even a uniformly random perturbation has good
 odds of landing "closer" by pure geometry).
 
-**Experiment B -- steering along the probe direction.** Loads the direction
-saved by `probe.py --stage direction`. For each trial image, the steering
-target is `(true_minute + --target_offset) % 60` (default: diametrically
-opposite, the clearest possible target). The direction vector for that
-target is `w_sin * sin(target) + w_cos * cos(target)` (a "prototype"
-direction for that specific angle), normalized, then added -- scaled by
-`alpha` times *that image's own* last-token activation norm at the
-probe's layer, so alpha is self-normalizing across images -- to the
-residual stream at the **final token position** (matching what the probe
-was actually trained on). Swept over `--alphas` (default
-`-2,-1,-0.5,-0.25,0,0.25,0.5,1,2`). Two things are measured per trial: (1)
-whether the *stated* minute moved toward the target, same shift-score
-machinery as Experiment A; and (2) whether the *probe's own readout*
-(recomputed via `apply_saved_probe` on the steered activation vector, no
-new forward pass needed) moved toward the target. This separates two very
-different outcomes that look identical from the outside: "steering failed
-to move the representation" vs. "the representation moved but the model's
-output ignored it" -- if (2) tracks alpha closely while (1) stays flat,
-it's the second one. Controlled against steering along a **fixed random
-direction** of the same norm, run through the identical pipeline.
+**Experiment B -- steering along the probe direction, at the IMAGE-TOKEN
+positions.** Loads one direction per layer from `--direction_dir` (saved by
+`probe.py --stage direction --direction_representation hidden_meanpool
+--direction_layers ...` -- see "WHERE THE MINUTE ACTUALLY LIVES" below for
+why the position AND the representation this steers changed from an
+earlier version). For each trial image and each layer in `--steer_layers`
+(default: the readout window found by the transfer analysis, `14,16,18,
+20,21,22,24`), the steering target is `(true_minute + --target_offset) %
+60` (default: diametrically opposite). The direction vector for that
+target is `w_sin * sin(target) + w_cos * cos(target)`, normalized, then
+added -- scaled by `alpha` times the *mean* residual-stream norm across
+that image's own image-token positions at that layer, so alpha is
+self-normalizing -- **uniformly to every image-token position** (not just
+the final token; adding the same delta to every position shifts their MEAN
+by exactly that delta, so the probe-readout check below can reuse that
+without an extra forward pass). Swept over `--alphas` (default
+`-2,-1,-0.5,-0.25,0,0.25,0.5,1,2`). Three directions, all run through the
+identical per-layer/alpha grid:
+  - `probe_direction`: points toward the target minute -- the thing under test.
+  - `random_direction`: one fixed random unit vector, reused everywhere, for
+    an apples-to-apples "does the *specific* direction matter" control.
+  - `own_angle_direction`: points toward the clock's own *true* minute
+    (not the target). Since the representation already encodes something
+    close to that (R^2 ~0.96), steering toward it should be close to a
+    no-op -- if it moves the answer about as much as `probe_direction`
+    does, the intervention is just generically disruptive at that
+    magnitude, not doing anything specific to the minute. `random_direction`
+    alone can't catch this (a random vector almost certainly points nowhere
+    near either angle).
+
+Two things are measured per trial: (1) whether the *stated* minute moved
+toward the target, same shift-score machinery as Experiment A; and (2)
+whether the *probe's own readout* (recomputed via `apply_saved_probe` on
+the steered mean-pooled image-token vector) moved toward the target. This
+separates two very different outcomes that look identical from the
+outside: "steering failed to move the representation" vs. "the
+representation moved but the model's output ignored it" -- if (2) tracks
+alpha closely while (1) stays flat, it's the second one. Each trial also
+reports the perturbation's norm relative to each image-token position's
+OWN residual-stream norm (`pert_rel_norm_mean/min/max` in the trials CSV,
+`pert/resid` in the printed summary) -- by construction the *mean* ratio
+equals `alpha`, but individual positions' norms vary, so the min/max show
+how uneven the *relative* disruption actually is across positions, not
+just whether `alpha` was chosen sanely.
+
+**NOT implemented:** steering only the image tokens nearest the minute
+hand's tip, rather than uniformly across all of them (an option that was
+considered). This needs a reliable pixel-to-patch-token mapping --
+this model's vision patchification grid, folded through matplotlib's
+default subplot-to-pixel layout for `clocks.py`'s renders -- that isn't
+established anywhere in this codebase, and getting it wrong would silently
+steer the wrong tokens, which is worse than not having the option at all.
 
 Both experiments print a **time estimate** partway through their first few
 trials (measured, not guessed) before committing to the full sweep, and
@@ -501,17 +554,81 @@ regardless of what the patch did, so those pairs are excluded and the
 exclusion rate is reported per condition. For Experiment B:
 `minute_transfer_to_target` / `hour_transfer_to_target` /
 `exact_transfer_to_target` compare the steered answer to the model's own
-unpatched answer for a *real* clock image that actually shows the target
-minute (`find_real_image_with_minute`, one extra `run_baseline` call per
-trial image, reused across every alpha/direction). Both experiments keep
-the old "toward true minute"/"toward true target" numbers too, clearly
-labeled, since they're still meaningful for framing (e.g. "the model rarely
-states the truth even when it *should* transfer") -- but the transfer-to-
-baseline numbers are the ones that isolate the intervention's effect.
-`print_experiment_a_summary` and `print_experiment_b_summary` print both
-tables side by side with this distinction spelled out; `intervene.py`'s
-module docstring and the summary output itself carry the same caveat so it
-isn't lost outside this README.
+unpatched answer for a *real, SAME-HOUR* clock image that actually shows
+the target minute (`find_real_image_with_hour_minute`, one extra
+`run_baseline` call per trial image, reused across every layer/alpha/
+direction). Same hour is required (not just the target minute) because
+steering is only supposed to move the *minute* representation -- comparing
+against a different-hour image would deflate `exact_transfer`/
+`hour_transfer` for a reason that has nothing to do with whether steering
+worked. `data_balanced` only has ~8 images per minute spread randomly
+across 12 hours, so a same-hour match often doesn't exist; when it
+doesn't, that trial's transfer columns are `NaN` rather than silently
+falling back to a different-hour comparison -- the printed summary and the
+trials CSV report how many trials actually got a usable target. Both
+experiments keep the old "toward true minute"/"toward true target" numbers
+too, clearly labeled, since they're still meaningful for framing (e.g.
+"the model rarely states the truth even when it *should* transfer") -- but
+the transfer-to-baseline numbers are the ones that isolate the
+intervention's effect. `print_experiment_a_summary` and
+`print_experiment_b_summary` print both tables side by side with this
+distinction spelled out; `intervene.py`'s module docstring and the summary
+output itself carry the same caveat so it isn't lost outside this README.
+
+**WHERE THE MINUTE ACTUALLY LIVES (n=60 finding that changed Experiment
+B).** The transfer-to-baseline metric above, applied to the completed n=60
+Experiment A run and restricted to pairs where A's and B's own STATED
+minutes differ (n=36), overturned an earlier "causally inert" reading of
+the same data: patching clock B's hidden states into A's **image-token
+positions** makes A's stated minute become B's own stated minute **100% of
+the time at layers 0/8/16, 92% at layer 21, 61% at layer 24, and 0% at
+layer 36**. Patching the **final-token position** transfers the minute
+**0% of the time at every layer**. So the stated minute is read out of the
+image-token positions somewhere in a window around layers 16-24; after
+that window it lives elsewhere -- and it was never at the final token at
+all, which is exactly where the earlier version of Experiment B was
+steering. **That's why Experiment B now steers image-token positions,
+using directions fit on mean-pooled image-token activations, swept over
+that readout window** (see the Experiment B description above) -- its
+earlier final-token null result wasn't evidence steering doesn't work, it
+was steering the wrong position.
+
+The **layer-36 (0% transfer) result is a KV-cache mechanics artifact, not
+evidence layer 36 doesn't matter**: the patch is only ever applied during
+the single prefill forward pass, and this transformers version computes
+attention/KV-caching for each decoder block from *that block's own
+unpatched input* -- patching the *last* block's *output* changes the
+residual stream at the image-token positions, but there is no block
+downstream of the last one left to re-attend to those positions, so the
+patch never reaches the logits for any generated token, first or later.
+`print_per_layer_transfer_table_a` flags this explicitly next to the
+model's actual final-layer row (passed as `num_layers`, or
+`NUM_DECODER_LAYERS_HINT` as a fallback when `--analyze_only` hasn't
+loaded the model to check directly) rather than letting it read as "this
+layer doesn't matter."
+
+**The per-layer curve is the primary result now, not a single "best
+layer."** `summarize_per_layer_transfer_a` / `print_per_layer_transfer_table_a`
+print a `to_B` / `stay_A` / `other` breakdown for EVERY swept layer (not
+just the best one), restricted to pairs where A's and the target's stated
+MINUTES differ (a stricter, minute-only version of the exact/hour-transfer
+restriction above): `to_B` = patched minute equals the target's baseline
+minute (the causal-transfer signal), `stay_A` = patched minute equals A's
+own baseline minute (patch had no visible effect), `other` = neither (the
+patch changed the answer, but not to a value either baseline predicts).
+These three sum to ~100% of usable trials per row. Written into
+`experiment_a_summary.txt` alongside the other two Experiment A tables,
+and saved as `experiment_a_per_layer_transfer.csv`.
+
+**A finer Experiment A sweep, for re-checking the readout window
+specifically**, without re-running the full 0-36 sweep or Experiment B:
+```
+python intervene.py --experiment a --layers 14,16,18,19,20,21,22,23,24,26
+python intervene.py --experiment a --layers readout_window   # identical, shorthand
+```
+(`--layers` already accepted any comma-separated layer list before this;
+`readout_window` is just a named shorthand for that specific list, added
+for convenience -- see `READOUT_WINDOW_LAYERS_A`.)
 
 **`--analyze_only`** re-derives Experiment A's transfer-to-baseline summary
 from an already-saved `experiment_a_trials.csv` without re-running the

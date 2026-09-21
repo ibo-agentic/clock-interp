@@ -19,12 +19,34 @@ produce the answer? This script tests that causally, two ways:
     controls.
 
   EXPERIMENT B -- STEERING ALONG THE PROBE DIRECTION
-    Add a scaled version of the fitted probe's weight direction to the
-    residual stream at its layer, and see whether that pushes the stated
-    minute toward a target -- and, independently, whether it moves the
-    PROBE's own readout of the angle (so we can tell "steering failed to
-    move the representation" apart from "the representation moved but the
-    output ignored it").
+    Add a scaled version of a fitted probe direction to the residual stream
+    at the IMAGE-TOKEN positions (uniformly, at every one of them -- see
+    "WHERE THE MINUTE ACTUALLY LIVES" below for why, not the final token),
+    and see whether that pushes the stated minute toward a target -- and,
+    independently, whether it moves the PROBE's own readout of the angle
+    (so we can tell "steering failed to move the representation" apart from
+    "the representation moved but the output ignored it").
+
+WHERE THE MINUTE ACTUALLY LIVES (from the n=60 Experiment A transfer
+analysis -- this overturned an earlier "causally inert" reading of the same
+data and is why Experiment B steers image tokens, not the final token):
+restricted to pairs where A's and B's own STATED minutes differ (n=36),
+patching clock B's hidden states into A's IMAGE-TOKEN positions makes A's
+stated minute become B's own stated minute 100% of the time at layers
+0/8/16, 92% at layer 21, 61% at layer 24, and 0% at layer 36. Patching the
+FINAL TOKEN transfers the minute 0% of the time at EVERY layer. So the
+stated minute is read out of the image-token positions somewhere in a
+window around layers 16-24; after that window it lives elsewhere (not at
+the final token, and not readable via this patch by layer 36). The
+layer-36 (0% transfer) result is a KV-cache mechanics artifact, not
+evidence layer 36 doesn't matter: during generation the patch is only ever
+applied during the single prefill forward pass, and this transformers
+version's decoder stack applies attention/KV-caching *inside* each block
+from that block's UNPATCHED input -- patching the LAST block's OUTPUT
+changes the residual stream at the image-token positions, but nothing
+downstream of the last block re-attends to those positions (there's no
+next block to do so), so it never reaches the logits used to pick ANY
+generated token, first or later. See `print_per_layer_transfer_table_a`.
 
 IMPORTANT FRAMING: if patching or steering does NOT move the stated answer
 anywhere in the sweep, that null result IS the finding (the model has the
@@ -77,15 +99,21 @@ parsing from probe.py / eval_behavior.py rather than re-implementing them
 interception is NOT reused from probe.py, for the reason above.
 
 Usage:
-    # 1. Make sure Experiment B has a direction to load (Experiment A does
-    #    not need this):
-    python probe.py --stage direction
+    # 1. Make sure Experiment B has directions to load: one per layer in its
+    #    steering window, fit on MEAN-POOLED IMAGE-TOKEN activations (not
+    #    hidden_last/final-token -- see "WHERE THE MINUTE ACTUALLY LIVES"
+    #    above for why Experiment B steers image tokens now):
+    python probe.py --stage direction --direction_representation hidden_meanpool \
+        --direction_hand minute --direction_layers 14,16,18,20,21,22,24
 
     # 2. Smoke-test on a couple of pairs and a handful of layers first:
     python intervene.py --max_pairs 1 --layers 0,1,21,36
 
-    # 3. Then the full sweep:
+    # 3. Then the full sweep. For just a finer Experiment A layer sweep in
+    #    the readout window (no need to also re-run B):
     python intervene.py
+    python intervene.py --experiment a --layers 14,16,18,19,20,21,22,23,24,26
+    python intervene.py --experiment a --layers readout_window   # same list, shorthand
 
 Must run on a Kaggle T4 (16GB): one image at a time, no batching, and every
 saved array is float32 (never float16 -- see probe.py's module docstring for
@@ -109,12 +137,27 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from eval_behavior import MODEL_ID, PROMPT, SEED, parse_time_answer
-from probe import apply_saved_probe, find_image_token_id, load_model, load_probe_direction
+from probe import apply_saved_probe, direction_path_for_layer, find_image_token_id, load_model, load_probe_direction
 
 DATA_CSV = "data_balanced/data.csv"
 IMAGES_DIR = "data_balanced"
-DIRECTION_PATH = "probe_output/probe_results/probe_direction_hidden_last_minute.npz"
+DIRECTION_DIR = "probe_output/probe_results"
+DIRECTION_REPRESENTATION = "hidden_meanpool"   # Experiment B steers image tokens -> fit on THEIR mean-pooled rep
+DIRECTION_HAND = "minute"
 OUT_DIR = "intervene_output"
+
+# The n=60 Experiment A transfer analysis (see module docstring) found the
+# stated minute is causally read out of image-token positions somewhere in
+# layers 16-24 -- these are the two sweep windows that follow from that:
+READOUT_WINDOW_LAYERS_A = [14, 16, 18, 19, 20, 21, 22, 23, 24, 26]   # Experiment A: --layers readout_window
+READOUT_WINDOW_LAYERS_B = [14, 16, 18, 20, 21, 22, 24]               # Experiment B: default --steer_layers
+
+# The number of decoder layers found on prior runs of this model -- used
+# ONLY as a fallback to flag the final-layer KV-cache mechanics artifact
+# (see module docstring) when --analyze_only hasn't loaded the model to
+# check the real count directly. main() always passes the real, freshly
+# measured count instead of relying on this.
+NUM_DECODER_LAYERS_HINT = 36
 
 N_PAIRS = 5              # default trial count -- see module docstring for the time budget this implies
 MIN_GAP_MINUTES = 15     # how far apart A and B's minutes must be (circular)
@@ -720,15 +763,24 @@ def find_same_minute_partner(df, a_row, exclude, rng):
     return candidates.sample(n=1, random_state=int(rng.randint(0, 2**31 - 1))).iloc[0]
 
 
-def find_real_image_with_minute(df, minute, rng, exclude_filename=None):
-    """A real clock image with the given minute value (any hour) -- used by
+def find_real_image_with_hour_minute(df, hour, minute, rng, exclude_filename=None):
+    """A real clock image showing exactly `hour`:`minute` -- used by
     Experiment B to get a concrete "what does the model say about a clock
     that actually shows the target minute" baseline, instead of only
     comparing the steered answer against the abstract true target minute
     (which the model states correctly only ~2-3% of the time even when
-    looking straight at it -- see module docstring). Returns None if no
-    such image exists in `df`."""
-    candidates = df[df["minute"] == minute]
+    looking straight at it -- see module docstring). SAME HOUR as the
+    steered clock is required (not just the target minute): steering is
+    only supposed to move the MINUTE representation, so comparing against a
+    different-hour image would make exact_transfer/hour_transfer meaningless
+    (their hour would differ from A's for a reason that has nothing to do
+    with whether steering worked). `data_balanced` only has ~8 images per
+    minute value spread randomly across 12 hours, so a same-hour match often
+    doesn't exist -- returns None in that case (same graceful-degradation
+    pattern as everywhere else in this module: the caller sets that trial's
+    transfer columns to NaN rather than falling back to a different-hour
+    comparison that would silently mean something different)."""
+    candidates = df[(df["hour"] == hour) & (df["minute"] == minute)]
     if exclude_filename is not None:
         candidates = candidates[candidates["filename"] != exclude_filename]
     if len(candidates) == 0:
@@ -1100,6 +1152,30 @@ def compute_transfer_columns(trials_df):
     minute_usable = df["patched_minute"].notna() & df["b_baseline_minute"].notna()
     df["minute_transfer"] = np.where(minute_usable, minute_eq.astype(float), np.nan)
 
+    # --- per-layer to_B / stay_A / other breakdown ---
+    # A stricter, MINUTE-ONLY version of "baselines_differ" above (which
+    # requires the full hour+minute tuple to differ): restricts to pairs
+    # where A's and the target's STATED MINUTES differ, which is the actual
+    # test of whether patching moved the stated minute specifically (an hour
+    # mismatch with the same stated minute wouldn't tell us anything about
+    # minute transfer either way). Used by summarize_per_layer_transfer_a /
+    # print_per_layer_transfer_table_a -- the per-layer curve is the primary
+    # result now (see module docstring's "WHERE THE MINUTE ACTUALLY LIVES").
+    a_minute_valid = df["a_baseline_minute"].notna()
+    b_minute_valid = df["b_baseline_minute"].notna()
+    both_minute_valid = a_minute_valid & b_minute_valid
+    df["minute_baselines_differ"] = np.where(
+        both_minute_valid, (df["a_baseline_minute"] != df["b_baseline_minute"]).astype(float), np.nan)
+
+    stay_a_usable = df["patched_minute"].notna() & a_minute_valid
+    stay_a = (df["patched_minute"] == df["a_baseline_minute"])
+    df["stay_a"] = np.where(stay_a_usable, stay_a.astype(float), np.nan)
+
+    other_usable = df["patched_minute"].notna() & both_minute_valid
+    other_outcome = ~((df["patched_minute"] == df["b_baseline_minute"]) |
+                       (df["patched_minute"] == df["a_baseline_minute"]))
+    df["other_outcome"] = np.where(other_usable, other_outcome.astype(float), np.nan)
+
     return df
 
 
@@ -1212,6 +1288,99 @@ def print_transfer_summary_a(summary_df, agreement_stats, trials_df):
     return text
 
 
+def summarize_per_layer_transfer_a(trials_df, out_dir):
+    """Per (condition, layer, position_set): the to_B / stay_A / other
+    breakdown, restricted to pairs where A's and the target's STATED
+    MINUTES differ (see `compute_transfer_columns`'s `minute_baselines_differ`)
+    -- the per-layer curve this produces (not just a single best layer) is
+    the primary result for judging where the stated minute is read out of,
+    per the n=60 transfer analysis (see module docstring)."""
+    df = compute_transfer_columns(trials_df)
+    restricted = df[df["minute_baselines_differ"] == 1.0]
+
+    summary = restricted.groupby(["condition", "layer", "position_set"]).agg(
+        n=("minute_transfer", "size"),
+        n_usable=("minute_transfer", lambda s: s.notna().sum()),
+        to_b_rate=("minute_transfer", "mean"),
+        stay_a_rate=("stay_a", "mean"),
+        other_rate=("other_outcome", "mean"),
+    ).reset_index()
+
+    os.makedirs(out_dir, exist_ok=True)
+    summary.to_csv(os.path.join(out_dir, "experiment_a_per_layer_transfer.csv"), index=False)
+    return summary
+
+
+def print_per_layer_transfer_table_a(summary_df, num_layers=None):
+    """The per-layer to_B / stay_A / other curve, for EVERY swept layer (not
+    just the best one) -- this table IS the primary result of the n=60
+    transfer analysis: it's what shows the stated minute being read out of
+    image-token positions in a window around layers 16-24, and nowhere at
+    the final-token position at any layer. `num_layers`, when known (pass
+    `len(decoder_layers)` from a live run; falls back to
+    NUM_DECODER_LAYERS_HINT when --analyze_only hasn't loaded the model),
+    flags the model's LAST decoder layer with the KV-cache mechanics-artifact
+    caveat (see module docstring) -- a 0% transfer rate there is expected and
+    uninterpretable as "this layer doesn't matter", not a real result."""
+    if num_layers is None:
+        num_layers = NUM_DECODER_LAYERS_HINT
+
+    lines = ["=== EXPERIMENT A SUMMARY -- PER-LAYER to_B / stay_A / other (image-token readout) ===", ""]
+    lines.append("Restricted to pairs where A's and the target's OWN STATED MINUTES differ (not just where")
+    lines.append("the full hour+minute baseline answer differs) -- the direct test of whether patching moved")
+    lines.append("the stated MINUTE specifically. to_B: patched minute == target's baseline minute. stay_A:")
+    lines.append("patched minute == A's own baseline minute (patch had no visible effect). other: neither --")
+    lines.append("the patch changed the answer, but not to either recognizable value. These three sum to")
+    lines.append("~100% of n_usable within each row.")
+    lines.append("")
+
+    header = f"{'layer':>6}  ||  {'real_b':^28}  ||  {'same_minute to_B%':>18}  ||  {'noise to_B%':>13}"
+    lines.append(header)
+    subheader = f"{'':>6}  ||  {'to_B%':>8}{'stay_A%':>10}{'other%':>9}{'n_usable':>10}  ||  {'':>18}  ||  {'':>13}"
+    lines.append(subheader)
+
+    for pos_name in ("image_tokens", "final_token", "all_positions"):
+        pos_df = summary_df[summary_df["position_set"] == pos_name]
+        if len(pos_df) == 0:
+            continue
+        lines.append(f"\n--- position_set = {pos_name} ---")
+        layers = sorted(pos_df[pos_df["layer"] >= 0]["layer"].unique())
+        for layer in layers:
+            real = pos_df[(pos_df["condition"] == "real_b") & (pos_df["layer"] == layer)]
+            same = pos_df[(pos_df["condition"] == "same_minute") & (pos_df["layer"] == layer)]
+            noise = pos_df[(pos_df["condition"] == "noise") & (pos_df["layer"] == layer)]
+            if len(real) == 0:
+                continue
+            r = real.iloc[0]
+            same_str = f"{same.iloc[0]['to_b_rate']:>18.1%}" if len(same) else f"{'--':>18}"
+            noise_str = f"{noise.iloc[0]['to_b_rate']:>13.1%}" if len(noise) else f"{'--':>13}"
+            marker = " *** FINAL LAYER -- see caveat below ***" if int(layer) == num_layers else ""
+            lines.append(
+                f"{int(layer):>6}  ||  {r['to_b_rate']:>8.1%}{r['stay_a_rate']:>10.1%}{r['other_rate']:>9.1%}"
+                f"{int(r['n_usable']):>10}  ||  {same_str}  ||  {noise_str}{marker}"
+            )
+        # vision-ceiling row, if present for this position_set's condition grid
+        ceiling = summary_df[(summary_df["condition"] == "real_b") & (summary_df["layer"] == -1)]
+        if len(ceiling) and pos_name == "image_tokens":
+            c = ceiling.iloc[0]
+            lines.append(f"{'vision-enc':>6}  ||  {c['to_b_rate']:>8.1%}{c['stay_a_rate']:>10.1%}"
+                         f"{c['other_rate']:>9.1%}{int(c['n_usable']):>10}  ||  (n/a)  ||  (n/a)")
+
+    lines.append("")
+    lines.append(f"NOTE on the layer-{num_layers} (final decoder layer) row above: patching it is a KV-cache")
+    lines.append("mechanics artifact, not a measurement of whether that layer matters. The patch only ever")
+    lines.append("applies during the single prefill forward pass; this transformers version computes")
+    lines.append("attention/KV-caching for each block from THAT block's UNPATCHED input, and there is no")
+    lines.append("block downstream of the last one to re-attend to the patched positions -- so a patch to")
+    lines.append("the last layer's image-token positions never reaches the logits for ANY generated token,")
+    lines.append("first or later. A near-0% rate there is expected regardless of whether the minute is")
+    lines.append("causally read out of image tokens at all -- read the window BELOW it (e.g. 16-24) instead.")
+
+    text = "\n".join(lines)
+    print("\n" + text)
+    return text
+
+
 def recompute_baselines_for_files(model, processor, image_token_id, image_features_owners, vision_method,
                                    images_dir, filenames, max_new_tokens=MAX_NEW_TOKENS):
     """Re-run ONLY the (cheap) baseline generate() call for each filename in
@@ -1267,35 +1436,106 @@ def backfill_baselines(trials_df, baselines_df):
 
 
 # ---------------------------------------------------------------------------
-# Experiment B: steering along the probe direction
+# Experiment B: steering along the probe direction, at the IMAGE-TOKEN
+# positions, swept over the readout window found by Experiment A's transfer
+# analysis (see module docstring's "WHERE THE MINUTE ACTUALLY LIVES") --
+# NOT the final token, which that analysis found transfers the minute 0% of
+# the time at every layer. This is a rewrite of the earlier final-token
+# version: that version's null result wasn't a finding, it was steering the
+# wrong position entirely.
 # ---------------------------------------------------------------------------
+#
+# NOT IMPLEMENTED: an option to steer only the image tokens nearest the
+# minute hand's tip, rather than uniformly across all of them. This would
+# need a reliable pixel-to-patch-token mapping (this model's vision
+# patchification grid, folded through matplotlib's default subplot-to-pixel
+# layout for clocks.py's renders) that isn't already established anywhere
+# in this codebase, and getting it wrong would silently corrupt which
+# tokens get steered -- worse than not having the option. Skipped rather
+# than guessed at; uniform steering across all image tokens is what's
+# implemented below.
+
+def load_directions_for_layers(direction_dir, representation, hand, layers):
+    """Load one steering direction per layer in `layers` (each saved by
+    `probe.py --stage direction --direction_representation ... --direction_layers ...`,
+    fit on MEAN-POOLED IMAGE-TOKEN activations so it matches the position
+    Experiment B now steers -- see module docstring). Returns
+    {layer: direction_dict}. Raises FileNotFoundError listing every missing
+    layer AND the exact probe.py command to fit them, if any are absent --
+    a silently partial sweep (steering only some of the requested layers)
+    would look identical to a full one in the output; loud failure here
+    is cheaper than that ambiguity."""
+    directions, missing = {}, []
+    for layer in layers:
+        path = direction_path_for_layer(direction_dir, representation, hand, layer)
+        if os.path.exists(path):
+            directions[layer] = load_probe_direction(path)
+        else:
+            missing.append((layer, path))
+    if missing:
+        missing_layers_str = ",".join(str(l) for l, _ in missing)
+        raise FileNotFoundError(
+            "Experiment B: missing steering direction file(s):\n" +
+            "\n".join(f"  layer {l}: {p}" for l, p in missing) +
+            f"\nFit them with:\n  python probe.py --stage direction --direction_representation "
+            f"{representation} --direction_hand {hand} --direction_layers {missing_layers_str}"
+        )
+    return directions
+
 
 def run_experiment_b(model, processor, decoder_layers, image_token_id, image_features_owners, vision_method,
-                      direction, df, images_dir, out_dir, n_trials=N_PAIRS, max_pairs=None,
+                      directions, df, images_dir, out_dir, n_trials=N_PAIRS, max_pairs=None,
                       target_offset=TARGET_OFFSET_MINUTES, alphas=None,
                       max_new_tokens=MAX_NEW_TOKENS, seed=SEED):
+    """`directions`: {layer: direction_dict}, one per layer to steer at (see
+    `load_directions_for_layers`) -- each MUST be fit on mean-pooled
+    image-token activations (representation='hidden_meanpool'), since the
+    steering delta is added uniformly across every image-token position and
+    the probe-readout check below reads it off the mean-pooled vector to
+    match (adding the SAME delta to every position shifts their mean by
+    exactly that delta -- no extra forward pass needed to check this,
+    same trick the old final-token version used with the last-token vector).
+
+    Three steering directions, all swept over the SAME alphas/layers/norms:
+      - probe_direction: points toward the TARGET minute (the thing being tested)
+      - random_direction: one fixed random unit vector, reused everywhere,
+        for an apples-to-apples "does the SPECIFIC direction matter" control
+      - own_angle_direction: points toward THIS clock's own TRUE minute --
+        since the representation already encodes something close to that
+        (R^2 ~0.96, see probe_output/), steering toward it should be close
+        to a no-op. If it moves the answer as much as probe_direction does,
+        that means the intervention is just generically disruptive at this
+        magnitude, not that it's doing anything about the MINUTE
+        specifically -- a sanity check `random_direction` alone can't give,
+        since a random direction almost certainly points nowhere near
+        either angle.
+    """
     if alphas is None:
         alphas = DEFAULT_ALPHAS
     if max_pairs is not None:
         n_trials = min(n_trials, max_pairs)
 
-    layer = direction["layer"]
-    w_sin, w_cos = direction["w_sin_full"], direction["w_cos_full"]
-    print(f"Experiment B: steering at layer {layer} (from '{direction['representation']}'/"
-          f"'{direction['hand']}', train R^2={direction['r2_train']:.3f}).")
+    layers = sorted(directions.keys())
+    any_direction = directions[layers[0]]
+    print(f"Experiment B: steering IMAGE-TOKEN positions at layer(s) {layers} (from "
+          f"'{any_direction['representation']}'/'{any_direction['hand']}'; per-layer train R^2: " +
+          ", ".join(f"{L}={directions[L]['r2_train']:.3f}" for L in layers) + ").")
 
     rng = np.random.RandomState(seed)
     trial_images = df.sample(frac=1, random_state=seed).reset_index(drop=True).head(n_trials)
 
-    # One fixed random direction, reused for every trial/alpha, so the
+    # One fixed random direction, reused for every trial/layer/alpha, so the
     # probe-direction vs. random-direction comparison is apples to apples.
-    random_dir = rng.standard_normal(w_sin.shape[0])
+    n_features_full = any_direction["w_sin_full"].shape[0]
+    random_dir = rng.standard_normal(n_features_full)
     random_dir_hat = random_dir / np.linalg.norm(random_dir)
 
-    n_total = len(trial_images) * len(alphas) * 2
-    print(f"Experiment B: {len(trial_images)} image(s) x {len(alphas)} alpha(s) x 2 directions "
-          f"(probe / random) = {n_total} generate() calls, plus up to {len(trial_images)} extra baseline "
-          f"calls (one per image, for a real target-minute clock's own unpatched answer).")
+    direction_names = ("probe_direction", "random_direction", "own_angle_direction")
+    n_total = len(trial_images) * len(layers) * len(alphas) * len(direction_names)
+    print(f"Experiment B: {len(trial_images)} image(s) x {len(layers)} layer(s) x {len(alphas)} alpha(s) x "
+          f"{len(direction_names)} directions (probe / random / own-angle) = {n_total} generate() calls, "
+          f"plus up to {len(trial_images)} extra baseline calls (one per image, for a real SAME-HOUR "
+          "target-minute clock's own unpatched answer).")
 
     rows = []
     t_start = time.perf_counter()
@@ -1306,91 +1546,137 @@ def run_experiment_b(model, processor, decoder_layers, image_token_id, image_fea
         base = run_baseline(model, processor, path, image_token_id, image_features_owners, vision_method,
                              max_new_tokens=max_new_tokens)
 
+        true_hour = int(row["hour"])
         true_minute = int(row["minute"])
         target_minute = (true_minute + target_offset) % 60
-        target_rad = np.radians(target_minute * 6.0)  # minute -> degrees, matching hand_angles' convention
+        target_rad = np.radians(target_minute * 6.0)   # minute -> degrees, matching hand_angles' convention
+        true_rad = np.radians(true_minute * 6.0)
 
-        # A REAL clock showing the target minute, and the model's own
-        # (unpatched) answer for it -- one extra generate() call per trial
-        # image, reused across every alpha/direction below. This is what
-        # lets us ask "did steering make the output look like what the
-        # model itself says for a target-minute clock", not just "did it
-        # move toward the abstract true target minute" (which the model
-        # states correctly only ~2-3% of the time even unpatched).
-        target_row = find_real_image_with_minute(df, target_minute, rng, exclude_filename=row["filename"])
+        # A REAL clock, SAME HOUR, showing the target minute, and the model's
+        # own (unpatched) answer for it -- one extra generate() call per
+        # trial image, reused across every layer/alpha/direction below. Same
+        # hour is required so exact_transfer/hour_transfer aren't deflated
+        # by an hour mismatch that has nothing to do with steering (see
+        # find_real_image_with_hour_minute); often has no match in
+        # data_balanced (~8 images/minute spread randomly over 12 hours), in
+        # which case this trial's transfer columns are NaN rather than
+        # silently falling back to a different-hour comparison.
+        target_row = find_real_image_with_hour_minute(df, true_hour, target_minute, rng,
+                                                        exclude_filename=row["filename"])
         target_base = None
         if target_row is not None:
             target_path = os.path.join(images_dir, target_row["filename"])
             target_base = run_baseline(model, processor, target_path, image_token_id, image_features_owners,
                                         vision_method, max_new_tokens=max_new_tokens)
 
-        h_final = base["hidden_states"][layer][-1].numpy().astype(np.float64)  # the steered position
-        h_norm = float(np.linalg.norm(h_final))
-        angle_before = apply_saved_probe(direction, h_final)
-        minute_before_probe = angle_deg_to_minute(angle_before)
-
-        v = w_sin * np.sin(target_rad) + w_cos * np.cos(target_rad)
-        v_hat = v / np.linalg.norm(v)
-
-        final_mask = torch.zeros(base["seq_len"], dtype=torch.bool)
-        final_mask[-1] = True
+        image_mask = base["image_mask"]
         baseline_minute = base["pred_minute"] if base["parse_success"] else None
 
-        for alpha in alphas:
-            for dir_name, dir_hat in (("probe_direction", v_hat), ("random_direction", random_dir_hat)):
-                delta_np = alpha * h_norm * dir_hat
-                h_after = h_final + delta_np
-                angle_after = apply_saved_probe(direction, h_after)
-                minute_after_probe = angle_deg_to_minute(angle_after)
-                probe_moved, probe_shift = score_shift(minute_before_probe, minute_after_probe, target_minute)
+        for layer in layers:
+            direction = directions[layer]
+            w_sin, w_cos = direction["w_sin_full"], direction["w_cos_full"]
 
-                delta_t = torch.from_numpy(delta_np.astype(np.float32))
-                with patched(decoder_layers, layer, final_mask, delta_t, mode="add"):
-                    ans = generate_answer(model, processor, base["inputs"], max_new_tokens)
-                pred_hour, pred_minute, ok = parse_time_answer(ans)
-                moved, shift = score_shift(baseline_minute, pred_minute if ok else None, target_minute)
+            h_image = base["hidden_states"][layer][image_mask].numpy().astype(np.float64)  # (n_img_tok, H)
+            per_position_norms = np.linalg.norm(h_image, axis=-1)                           # (n_img_tok,)
+            ref_norm = float(per_position_norms.mean())
+            h_meanpool_before = h_image.mean(axis=0)                                        # (H,)
+            angle_before = apply_saved_probe(direction, h_meanpool_before)
+            minute_before_probe = angle_deg_to_minute(angle_before)
 
-                # Transfer-to-target-baseline: does the steered answer match what
-                # the model ITSELF says (unpatched) about a real clock showing the
-                # target minute -- rather than only whether it moved toward the
-                # abstract true target minute (see the note in the module
-                # docstring/README on why the latter alone is confounded).
-                minute_transfer_to_target = hour_transfer_to_target = exact_transfer_to_target = float("nan")
-                if ok and target_base is not None and target_base["parse_success"]:
-                    minute_transfer_to_target = float(pred_minute == target_base["pred_minute"])
-                    hour_transfer_to_target = float(pred_hour == target_base["pred_hour"])
-                    exact_transfer_to_target = float(bool(minute_transfer_to_target) and bool(hour_transfer_to_target))
+            v_target = w_sin * np.sin(target_rad) + w_cos * np.cos(target_rad)
+            v_target_hat = v_target / np.linalg.norm(v_target)
+            v_own = w_sin * np.sin(true_rad) + w_cos * np.cos(true_rad)
+            v_own_hat = v_own / np.linalg.norm(v_own)
+            dir_hats = {"probe_direction": v_target_hat, "random_direction": random_dir_hat,
+                        "own_angle_direction": v_own_hat}
 
-                rows.append({
-                    "file": row["filename"], "true_minute": true_minute, "target_minute": target_minute,
-                    "direction": dir_name, "alpha": alpha, "baseline_hour": base["pred_hour"],
-                    "baseline_minute": baseline_minute,
-                    "patched_hour": pred_hour if ok else None, "patched_minute": pred_minute if ok else None,
-                    "patched_answer": ans,
-                    "moved_toward": moved, "shift_score": shift,
-                    "answer_changed": (ans != base["raw_answer"]),
-                    "probe_angle_before_deg": angle_before, "probe_angle_after_deg": angle_after,
-                    "probe_moved_toward": probe_moved, "probe_shift_score": probe_shift,
-                    "target_image_file": target_row["filename"] if target_row is not None else None,
-                    "target_baseline_hour": target_base["pred_hour"] if target_base is not None else None,
-                    "target_baseline_minute": target_base["pred_minute"] if target_base is not None else None,
-                    "target_baseline_answer": target_base["raw_answer"] if target_base is not None else None,
-                    "minute_transfer_to_target": minute_transfer_to_target,
-                    "hour_transfer_to_target": hour_transfer_to_target,
-                    "exact_transfer_to_target": exact_transfer_to_target,
-                })
+            for alpha in alphas:
+                for dir_name in direction_names:
+                    dir_hat = dir_hats[dir_name]
+                    # own_angle_direction is scored against THIS clock's own true minute
+                    # (steering toward what's already there should be close to a no-op),
+                    # not the target -- everything else is scored against the target.
+                    score_target = true_minute if dir_name == "own_angle_direction" else target_minute
 
-                n_timed += 1
-                if n_timed == 6:
-                    elapsed = time.perf_counter() - t_start
-                    per_trial = elapsed / n_timed
-                    print(f"\n[time estimate] ~{per_trial:.2f}s/trial -> ~{per_trial * n_total / 60:.1f} min total\n")
+                    # Same delta added to EVERY image-token position (mode="add" broadcasts
+                    # it across all masked rows -- see _apply_add_patch; unchanged mechanics,
+                    # already exercised for "add" mode by the prior final-token version and
+                    # for multi-position masks by Experiment A's --verify'd "replace" patches).
+                    delta_np = alpha * ref_norm * dir_hat  # (H,)
+
+                    # Adding the SAME delta to every image-token position shifts their MEAN
+                    # by exactly that delta -- no extra forward pass needed to check the probe
+                    # readout moved, same trick the final-token version used.
+                    h_meanpool_after = h_meanpool_before + delta_np
+                    angle_after = apply_saved_probe(direction, h_meanpool_after)
+                    minute_after_probe = angle_deg_to_minute(angle_after)
+                    probe_moved, probe_shift = score_shift(minute_before_probe, minute_after_probe, score_target)
+
+                    delta_t = torch.from_numpy(delta_np.astype(np.float32))
+                    with patched(decoder_layers, layer, image_mask, delta_t, mode="add"):
+                        ans = generate_answer(model, processor, base["inputs"], max_new_tokens)
+                    pred_hour, pred_minute, ok = parse_time_answer(ans)
+                    moved, shift = score_shift(baseline_minute, pred_minute if ok else None, score_target)
+
+                    # Transfer-to-target-baseline: does the steered answer match what the
+                    # model ITSELF says (unpatched) about a real, same-hour clock showing
+                    # the target minute -- rather than only whether it moved toward the
+                    # abstract true target minute (see module docstring on why the latter
+                    # alone is confounded). Always scored against the TARGET (not
+                    # score_target), including for own_angle_direction rows -- that's what
+                    # makes own_angle_direction's numbers a meaningful control: if it shows
+                    # an ELEVATED transfer-to-target rate despite pointing at a different
+                    # angle, the intervention is disruptive rather than semantically real.
+                    minute_transfer_to_target = hour_transfer_to_target = exact_transfer_to_target = float("nan")
+                    if ok and target_base is not None and target_base["parse_success"]:
+                        minute_transfer_to_target = float(pred_minute == target_base["pred_minute"])
+                        hour_transfer_to_target = float(pred_hour == target_base["pred_hour"])
+                        exact_transfer_to_target = float(bool(minute_transfer_to_target) and bool(hour_transfer_to_target))
+
+                    # Perturbation norm relative to the residual-stream norm AT THE IMAGE
+                    # TOKENS (req: know steering isn't just wrecking activations). ||delta||
+                    # is the same at every position (uniform add), but each position's OWN
+                    # norm differs, so the RELATIVE perturbation isn't uniform even though the
+                    # absolute one is -- report the spread, not just a single alpha-equals-ratio.
+                    pert_norm = float(np.linalg.norm(delta_np))
+                    rel_per_pos = pert_norm / np.clip(per_position_norms, 1e-8, None)
+
+                    rows.append({
+                        "file": row["filename"], "hour": true_hour, "true_minute": true_minute,
+                        "target_minute": target_minute, "layer": layer, "direction": dir_name, "alpha": alpha,
+                        "baseline_hour": base["pred_hour"], "baseline_minute": baseline_minute,
+                        "patched_hour": pred_hour if ok else None, "patched_minute": pred_minute if ok else None,
+                        "patched_answer": ans,
+                        "moved_toward": moved, "shift_score": shift,
+                        "answer_changed": (ans != base["raw_answer"]),
+                        "probe_angle_before_deg": angle_before, "probe_angle_after_deg": angle_after,
+                        "probe_moved_toward": probe_moved, "probe_shift_score": probe_shift,
+                        "target_image_file": target_row["filename"] if target_row is not None else None,
+                        "target_baseline_hour": target_base["pred_hour"] if target_base is not None else None,
+                        "target_baseline_minute": target_base["pred_minute"] if target_base is not None else None,
+                        "target_baseline_answer": target_base["raw_answer"] if target_base is not None else None,
+                        "minute_transfer_to_target": minute_transfer_to_target,
+                        "hour_transfer_to_target": hour_transfer_to_target,
+                        "exact_transfer_to_target": exact_transfer_to_target,
+                        "ref_norm_image_tokens": ref_norm, "pert_norm": pert_norm,
+                        "pert_rel_norm_mean": float(rel_per_pos.mean()),
+                        "pert_rel_norm_min": float(rel_per_pos.min()),
+                        "pert_rel_norm_max": float(rel_per_pos.max()),
+                    })
+
+                    n_timed += 1
+                    if n_timed == 6:
+                        elapsed = time.perf_counter() - t_start
+                        per_trial = elapsed / n_timed
+                        print(f"\n[time estimate] ~{per_trial:.2f}s/trial -> ~{per_trial * n_total / 60:.1f} min total\n")
 
     trials_df = pd.DataFrame(rows)
     os.makedirs(out_dir, exist_ok=True)
     trials_df.to_csv(os.path.join(out_dir, "experiment_b_trials.csv"), index=False)
+    n_target_usable = trials_df["target_image_file"].notna().sum()
     print(f"\nExperiment B: {len(trials_df)} trials over {len(trial_images)} images written to "
-          f"'{out_dir}/experiment_b_trials.csv'.")
+          f"'{out_dir}/experiment_b_trials.csv'. Same-hour target-minute baseline found for "
+          f"{n_target_usable}/{len(trials_df)} trial rows ({trials_df['file'].nunique()} unique images).")
     return trials_df
 
 
@@ -1399,7 +1685,8 @@ def summarize_experiment_b(trials_df, out_dir):
     for col in ("minute_transfer_to_target", "exact_transfer_to_target"):
         if col not in trials_df.columns:
             trials_df[col] = np.nan
-    summary = trials_df.groupby(["direction", "alpha"]).agg(
+    group_cols = ["layer", "direction", "alpha"] if "layer" in trials_df.columns else ["direction", "alpha"]
+    agg_kwargs = dict(
         n=("answer_changed", "size"),
         n_parsed=("moved_toward", lambda s: s.notna().sum()),
         pct_moved_toward=("moved_toward", "mean"),
@@ -1410,67 +1697,94 @@ def summarize_experiment_b(trials_df, out_dir):
         n_target_usable=("minute_transfer_to_target", lambda s: s.notna().sum()),
         pct_minute_transfer_to_target=("minute_transfer_to_target", "mean"),
         pct_exact_transfer_to_target=("exact_transfer_to_target", "mean"),
-    ).reset_index()
+    )
+    if "pert_rel_norm_mean" in trials_df.columns:
+        agg_kwargs["mean_pert_rel_norm"] = ("pert_rel_norm_mean", "mean")
+    summary = trials_df.groupby(group_cols).agg(**agg_kwargs).reset_index()
     summary.to_csv(os.path.join(out_dir, "experiment_b_summary.csv"), index=False)
     return summary
 
 
 def plot_experiment_b(summary_df, out_dir):
-    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
-    colors = {"probe_direction": "tab:blue", "random_direction": "tab:gray"}
+    """One row of 3 plots (stated-answer shift, probe-readout shift, %
+    answer-changed) PER STEERED LAYER, so the per-layer picture (does
+    steering work in the readout window and not outside it) is visible in
+    one figure rather than needing one file per layer."""
+    colors = {"probe_direction": "tab:blue", "random_direction": "tab:gray", "own_angle_direction": "tab:green"}
+    layers = sorted(summary_df["layer"].unique()) if "layer" in summary_df.columns else [None]
 
-    for dir_name, color in colors.items():
-        s = summary_df[summary_df["direction"] == dir_name].sort_values("alpha")
-        axes[0].plot(s["alpha"], s["mean_shift_score"], marker="o", color=color, label=dir_name)
-        axes[1].plot(s["alpha"], s["mean_probe_shift_score"], marker="s", color=color, label=dir_name)
-        axes[2].plot(s["alpha"], s["pct_answer_changed"], marker="o", color=color, label=dir_name)
+    fig, axes = plt.subplots(len(layers), 3, figsize=(16, 4.2 * len(layers)), squeeze=False)
+    for row_idx, layer in enumerate(layers):
+        layer_df = summary_df[summary_df["layer"] == layer] if layer is not None else summary_df
+        for dir_name, color in colors.items():
+            s = layer_df[layer_df["direction"] == dir_name].sort_values("alpha")
+            if len(s) == 0:
+                continue
+            axes[row_idx, 0].plot(s["alpha"], s["mean_shift_score"], marker="o", color=color, label=dir_name)
+            axes[row_idx, 1].plot(s["alpha"], s["mean_probe_shift_score"], marker="s", color=color, label=dir_name)
+            axes[row_idx, 2].plot(s["alpha"], s["pct_answer_changed"], marker="o", color=color, label=dir_name)
 
-    axes[0].axhline(0, color="lightgray", linewidth=1)
-    axes[0].set_title("Stated answer: shift toward target")
-    axes[1].axhline(0, color="lightgray", linewidth=1)
-    axes[1].set_title("Probe readout: shift toward target\n(did steering move the REPRESENTATION?)")
-    axes[2].set_title("% stated answer changed at all")
-    for ax in axes:
-        ax.set_xlabel("alpha (x this image's own activation norm)")
-        ax.legend(fontsize=8)
-    axes[0].set_ylabel("mean shift score")
-    axes[1].set_ylabel("mean shift score")
-    axes[2].set_ylabel("fraction")
+        axes[row_idx, 0].axhline(0, color="lightgray", linewidth=1)
+        axes[row_idx, 1].axhline(0, color="lightgray", linewidth=1)
+        layer_label = f"layer {layer}" if layer is not None else ""
+        axes[row_idx, 0].set_title(f"{layer_label}: stated answer shift toward target")
+        axes[row_idx, 1].set_title(f"{layer_label}: probe readout shift toward target")
+        axes[row_idx, 2].set_title(f"{layer_label}: % answer changed")
+        for ax in axes[row_idx]:
+            ax.set_xlabel("alpha (x mean image-token residual norm)")
+        axes[row_idx, 0].set_ylabel("mean shift score")
+        axes[row_idx, 1].set_ylabel("mean shift score")
+        axes[row_idx, 2].set_ylabel("fraction")
 
-    fig.suptitle("Experiment B: steering along the probe direction")
+    axes[0, 0].legend(fontsize=8)
+    fig.suptitle("Experiment B: steering the probe direction at image-token positions, per layer")
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "experiment_b_steering.png"), dpi=120)
     plt.close(fig)
 
 
 def print_experiment_b_summary(summary_df):
-    lines = ["=== EXPERIMENT B SUMMARY (steering) ===", ""]
+    lines = ["=== EXPERIMENT B SUMMARY (image-token steering, per layer) ===", ""]
     lines.append("'toward true target' columns compare the steered answer to the ABSTRACT true target")
     lines.append("minute -- confounded the same way as Experiment A's old metric (see README): the model")
     lines.append("states the true minute correctly only ~2-3% of the time even unpatched. 'transfer to")
-    lines.append("target baseline' compares instead to what the model ITSELF says (unpatched) about a")
-    lines.append("REAL clock that actually shows the target minute -- well-defined regardless of whether")
-    lines.append("that answer is correct. Read the second set as primary.")
+    lines.append("target baseline' compares instead to what the model ITSELF says (unpatched) about a REAL,")
+    lines.append("SAME-HOUR clock that actually shows the target minute -- well-defined regardless of")
+    lines.append("whether that answer is correct. Read the second set as primary.")
     lines.append("")
-    header = f"{'direction':<17}{'alpha':>7}{'n':>5} | {'toward true target':^30} | " \
-             f"{'transfer to target baseline':^19} | {'probe (internal)':^21}"
+    lines.append("own_angle_direction steers toward THIS clock's own TRUE minute (not the target) -- since")
+    lines.append("the representation already encodes something close to that, this should be close to a")
+    lines.append("no-op. If it changes the answer or elevates 'transfer to target baseline' about as much as")
+    lines.append("probe_direction does, the intervention is generically disruptive at this magnitude rather")
+    lines.append("than doing anything specific to the minute -- compare it here, not just random_direction.")
+    lines.append("")
+
+    header = f"{'layer':>5} {'direction':<19}{'alpha':>7}{'n':>5} | {'toward true target':^30} | " \
+             f"{'transfer to target baseline':^19} | {'probe (internal)':^21} | {'pert/resid':>10}"
     lines.append(header)
-    subheader = f"{'':<17}{'':>7}{'':>5} | {'moved%':>9}{'shift':>8}{'chg%':>8}{'probe_mv%':>5} | " \
-                f"{'minute%':>10}{'exact%':>9} | {'moved%':>10}{'shift':>11}"
+    subheader = f"{'':>5} {'':<19}{'':>7}{'':>5} | {'moved%':>9}{'shift':>8}{'chg%':>8}{'':>5} | " \
+                f"{'minute%':>10}{'exact%':>9} | {'moved%':>10}{'shift':>11} | {'rel_norm':>10}"
     lines.append(subheader)
-    for _, r in summary_df.sort_values(["direction", "alpha"]).iterrows():
+
+    sort_cols = ["layer", "direction", "alpha"] if "layer" in summary_df.columns else ["direction", "alpha"]
+    for _, r in summary_df.sort_values(sort_cols).iterrows():
+        layer_str = f"{int(r['layer']):>5} " if "layer" in summary_df.columns else f"{'':>5} "
+        pert_str = f"{r['mean_pert_rel_norm']:>10.2f}" if "mean_pert_rel_norm" in summary_df.columns else f"{'':>10}"
         lines.append(
-            f"{r['direction']:<17}{r['alpha']:>7.2f}{int(r['n']):>5} | "
+            f"{layer_str}{r['direction']:<19}{r['alpha']:>7.2f}{int(r['n']):>5} | "
             f"{r['pct_moved_toward']:>9.1%}{r['mean_shift_score']:>8.2f}{r['pct_answer_changed']:>8.1%}{'':>5} | "
             f"{r['pct_minute_transfer_to_target']:>10.1%}{r['pct_exact_transfer_to_target']:>9.1%} | "
-            f"{r['pct_probe_moved_toward']:>10.1%}{r['mean_probe_shift_score']:>11.2f}"
+            f"{r['pct_probe_moved_toward']:>10.1%}{r['mean_probe_shift_score']:>11.2f} | {pert_str}"
         )
     lines.append("")
     lines.append("'probe moved%'/'probe shift' (internal) verify the intervention internally: they measure")
     lines.append("whether the probe's OWN readout of the angle moved toward the target, independent of")
     lines.append("whether the stated answer did. If probe shift tracks alpha closely but the output columns")
     lines.append("stay flat, steering is moving the representation but the output ignores it -- not that")
-    lines.append("steering failed.")
+    lines.append("steering failed. 'pert/resid' is the mean ratio of the perturbation's norm to each")
+    lines.append("image-token position's OWN residual-stream norm (report req: confirm steering isn't just")
+    lines.append("wrecking activations) -- by construction this tracks alpha closely; see")
+    lines.append("pert_rel_norm_min/max in the trials CSV for how much it varies position-to-position.")
 
     text = "\n".join(lines)
     print("\n" + text)
@@ -1743,6 +2057,8 @@ def run_verification(model, processor, decoder_layers, image_features_owners, vi
 def parse_layers_arg(value):
     if value is None:
         return None
+    if value.strip() == "readout_window":
+        return list(READOUT_WINDOW_LAYERS_A)
     return [int(x) for x in value.split(",") if x.strip() != ""]
 
 
@@ -1812,8 +2128,13 @@ def run_analyze_only(args, df):
     transfer_summary_a = summarize_transfer_a(trials_a, args.out_dir)
     agreement_stats_a = baseline_agreement_stats(trials_a)
     text_transfer_a = print_transfer_summary_a(transfer_summary_a, agreement_stats_a, trials_a)
+    per_layer_summary_a = summarize_per_layer_transfer_a(trials_a, args.out_dir)
+    # num_layers isn't known here without loading the model -- NUM_DECODER_LAYERS_HINT
+    # (see its docstring) stands in so the final-layer mechanics-artifact caveat still
+    # gets flagged correctly for this model's known layer count.
+    text_per_layer_a = print_per_layer_transfer_table_a(per_layer_summary_a, num_layers=NUM_DECODER_LAYERS_HINT)
     with open(os.path.join(args.out_dir, "experiment_a_summary.txt"), "w") as f:
-        f.write(text_a + "\n\n" + text_transfer_a + "\n")
+        f.write(text_a + "\n\n" + text_transfer_a + "\n\n" + text_per_layer_a + "\n")
     print(f"\n--analyze_only done. Summaries (re)written to '{args.out_dir}/'.")
 
 
@@ -1845,8 +2166,23 @@ def main():
                               "resolves to 'layer0_embed' for that reason -- see determine_vision_interception_method.")
     parser.add_argument("--data_csv", type=str, default=DATA_CSV)
     parser.add_argument("--images_dir", type=str, default=IMAGES_DIR)
-    parser.add_argument("--direction_path", type=str, default=DIRECTION_PATH,
-                         help="Experiment B: path to the .npz saved by `python probe.py --stage direction`")
+    parser.add_argument("--direction_dir", type=str, default=DIRECTION_DIR,
+                         help="Experiment B: directory containing the per-layer .npz direction files saved "
+                              "by `python probe.py --stage direction --direction_layers ...` "
+                              "(see direction_path_for_layer)")
+    parser.add_argument("--direction_representation", type=str, default=DIRECTION_REPRESENTATION,
+                         choices=["hidden_last", "hidden_meanpool", "vision_encoder"],
+                         help="Experiment B: which representation the steering directions were fit on -- "
+                              "must be 'hidden_meanpool' (the default) since Experiment B steers "
+                              "IMAGE-TOKEN positions and the probe-readout check reads off their "
+                              "mean-pooled vector; only change this if you know what you're doing.")
+    parser.add_argument("--direction_hand", type=str, default=DIRECTION_HAND, choices=["minute", "hour"],
+                         help="Experiment B: which hand's angle the steering directions were fit for")
+    parser.add_argument("--steer_layers", type=parse_layers_arg, default=None,
+                         help=f"Experiment B: comma-separated layers to steer at (default: "
+                              f"{READOUT_WINDOW_LAYERS_B}, the readout window found by Experiment A's "
+                              "transfer analysis -- see module docstring). Also accepts 'readout_window' "
+                              "for Experiment A's (longer) window list.")
     parser.add_argument("--out_dir", type=str, default=OUT_DIR)
     parser.add_argument("--model_id", type=str, default=MODEL_ID)
     parser.add_argument("--n_pairs", type=int, default=N_PAIRS,
@@ -1854,8 +2190,9 @@ def main():
     parser.add_argument("--max_pairs", type=int, default=None,
                          help="cap on pairs/images actually used, for a quick smoke test (overrides --n_pairs downward)")
     parser.add_argument("--layers", type=parse_layers_arg, default=None,
-                         help="Experiment A: comma-separated layers to sweep, e.g. '0,1,21,36' "
-                              "(default: every layer 0..num_layers)")
+                         help="Experiment A: comma-separated layers to sweep, e.g. '0,1,21,36', or "
+                              "'readout_window' for the layers 16-24 window shorthand "
+                              f"({READOUT_WINDOW_LAYERS_A}) (default: every layer 0..num_layers)")
     parser.add_argument("--min_gap", type=int, default=MIN_GAP_MINUTES,
                          help="Experiment A: minimum circular minute gap between A and B")
     parser.add_argument("--target_offset", type=int, default=TARGET_OFFSET_MINUTES,
@@ -1905,18 +2242,23 @@ def main():
         transfer_summary_a = summarize_transfer_a(trials_a, args.out_dir)
         agreement_stats_a = baseline_agreement_stats(trials_a)
         text_transfer_a = print_transfer_summary_a(transfer_summary_a, agreement_stats_a, trials_a)
+        per_layer_summary_a = summarize_per_layer_transfer_a(trials_a, args.out_dir)
+        text_per_layer_a = print_per_layer_transfer_table_a(per_layer_summary_a, num_layers=len(decoder_layers))
         with open(os.path.join(args.out_dir, "experiment_a_summary.txt"), "w") as f:
-            f.write(text_a + "\n\n" + text_transfer_a + "\n")
+            f.write(text_a + "\n\n" + text_transfer_a + "\n\n" + text_per_layer_a + "\n")
 
     if args.experiment in ("b", "both"):
-        if not os.path.exists(args.direction_path):
-            print(f"\nSkipping Experiment B: '{args.direction_path}' not found. "
-                  f"Run `python probe.py --stage direction` first.")
-        else:
-            direction = load_probe_direction(args.direction_path)
+        steer_layers = args.steer_layers if args.steer_layers is not None else READOUT_WINDOW_LAYERS_B
+        try:
+            directions = load_directions_for_layers(
+                args.direction_dir, args.direction_representation, args.direction_hand, steer_layers)
+        except FileNotFoundError as e:
+            print(f"\nSkipping Experiment B: {e}")
+            directions = None
+        if directions is not None:
             trials_b = run_experiment_b(
                 model, processor, decoder_layers, image_token_id, image_features_owners, vision_method,
-                direction, df, args.images_dir, args.out_dir, n_trials=args.n_pairs, max_pairs=args.max_pairs,
+                directions, df, args.images_dir, args.out_dir, n_trials=args.n_pairs, max_pairs=args.max_pairs,
                 target_offset=args.target_offset, alphas=args.alphas,
                 max_new_tokens=args.max_new_tokens, seed=args.seed)
             summary_b = summarize_experiment_b(trials_b, args.out_dir)

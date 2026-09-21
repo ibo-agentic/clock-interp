@@ -972,7 +972,11 @@ def fit_probe_direction(activations_dir=ACTIVATIONS_DIR, out_dir=RESULTS_DIR,
     w_cos_full[kept_mask] = J[:, 1]
 
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, f"probe_direction_{representation}_{hand}.npz")
+    # The layer is always part of the filename (not just when explicitly
+    # requested) so fitting several layers in a row -- e.g. intervene.py's
+    # Experiment B image-token steering sweep, one direction per layer in
+    # the readout window -- never silently overwrites the previous one.
+    out_path = os.path.join(out_dir, f"probe_direction_{representation}_{hand}_layer{layer}.npz")
     np.savez(
         out_path,
         representation=representation, hand=hand, layer=layer,
@@ -998,6 +1002,14 @@ def load_probe_direction(path):
     numpy arrays / native Python scalars (unwraps 0-d arrays with .item())."""
     data = np.load(path, allow_pickle=False)
     return {k: (data[k].item() if data[k].shape == () else data[k]) for k in data.files}
+
+
+def direction_path_for_layer(out_dir, representation, hand, layer):
+    """The exact filename `fit_probe_direction` saves to for one
+    (representation, hand, layer) -- shared with intervene.py so it can
+    locate the per-layer direction files fit for Experiment B's image-token
+    steering sweep without duplicating the naming convention."""
+    return os.path.join(out_dir, f"probe_direction_{representation}_{hand}_layer{layer}.npz")
 
 
 def apply_saved_probe(direction_data, h_full):
@@ -1051,7 +1063,15 @@ def main():
                          help="(--stage direction) which hand's angle to fit the steering direction for")
     parser.add_argument("--direction_layer", type=int, default=None,
                          help="(--stage direction) layer to fit at; default: auto-pick the best layer "
-                              "from per_layer_results.csv (requires --stage probe to have run first)")
+                              "from per_layer_results.csv (requires --stage probe to have run first). "
+                              "Ignored if --direction_layers is given.")
+    parser.add_argument("--direction_layers", type=str, default=None,
+                         help="(--stage direction) comma-separated list of layers to fit ONE direction "
+                              "each for, saved as separate files (see direction_path_for_layer) -- e.g. "
+                              "intervene.py's Experiment B image-token steering sweep needs one direction "
+                              "per layer in its readout window: "
+                              "'--direction_representation hidden_meanpool --direction_layers 14,16,18,20,21,22,24'. "
+                              "Overrides --direction_layer if given.")
     args = parser.parse_args()
 
     if args.recover:
@@ -1068,9 +1088,14 @@ def main():
                     n_components=args.n_components, n_splits=args.n_splits, seed=args.seed)
 
     if args.stage == "direction":
-        fit_probe_direction(activations_dir=args.activations_dir, out_dir=args.results_dir,
-                             representation=args.direction_representation, hand=args.direction_hand,
-                             layer=args.direction_layer, n_components=args.n_components, seed=args.seed)
+        if args.direction_layers is not None:
+            layers = [int(x) for x in args.direction_layers.split(",") if x.strip() != ""]
+        else:
+            layers = [args.direction_layer]
+        for layer in layers:
+            fit_probe_direction(activations_dir=args.activations_dir, out_dir=args.results_dir,
+                                 representation=args.direction_representation, hand=args.direction_hand,
+                                 layer=layer, n_components=args.n_components, seed=args.seed)
 
 
 if __name__ == "__main__":
