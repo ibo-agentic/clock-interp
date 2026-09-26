@@ -696,10 +696,34 @@ def make_matched_noise(orig_vals, rng):
 # Experiment A: pairing
 # ---------------------------------------------------------------------------
 
-def build_pairs(df, n_pairs, min_gap=MIN_GAP_MINUTES, seed=SEED):
+def build_pairs(df, n_pairs, min_gap=MIN_GAP_MINUTES, seed=SEED, exclude_pairs=None):
     """Build up to `n_pairs` (A, B) row-pairs from `df`: same hour, minutes
     at least `min_gap` apart (circular). Sampled without replacement across
-    pairs (no image reused) so trials are independent of each other."""
+    pairs (no image reused) so trials are independent of each other.
+
+    DETERMINISM (relied on by --exclude_pairs_from / replication runs): for a
+    fixed (df, min_gap, seed), this is a STABLE, PREFIX-EXTENDING sequence --
+    build_pairs(df, n_pairs=100, seed=S)[:40] == build_pairs(df, n_pairs=40,
+    seed=S), verified directly against data_balanced/data.csv. So asking for
+    MORE pairs at the SAME seed as an earlier run reproduces that run's exact
+    pairs as a prefix, THEN extends -- it does not draw a fresh sample. If you
+    want pairs that don't overlap an earlier run, either use a different seed
+    (drops most, not all, overlap -- pairs are still drawn from the same
+    ~226-pair maximum matching for this dataset/min_gap) or pass
+    `exclude_pairs` (recommended for a real replication: guarantees zero
+    overlap, and this function keeps searching until it finds `n_pairs`
+    genuinely new ones rather than silently returning fewer).
+
+    `exclude_pairs`: optional set of frozenset({a_filename, b_filename}) --
+    order-insensitive, since swapping which image is "A" vs "B" is the same
+    underlying pair for this purpose (see `load_excluded_pairs`). Candidates
+    matching this set are skipped BEFORE being counted toward `n_pairs`, so
+    the function still returns up to `n_pairs` pairs (bounded only by how
+    many non-excluded, non-image-reusing candidates actually exist), not
+    `n_pairs` minus however many got excluded.
+    """
+    exclude_pairs = exclude_pairs or set()
+    n_excluded = 0
     rng = np.random.RandomState(seed)
     used, pairs = set(), []
     hours = list(df["hour"].unique())
@@ -723,11 +747,35 @@ def build_pairs(df, n_pairs, min_gap=MIN_GAP_MINUTES, seed=SEED):
         for a, b in candidates:
             if a["filename"] in used or b["filename"] in used:
                 continue
+            if frozenset((a["filename"], b["filename"])) in exclude_pairs:
+                n_excluded += 1
+                continue
             pairs.append((a, b))
             used.add(a["filename"])
             used.add(b["filename"])
             if len(pairs) >= n_pairs:
                 break
+    if exclude_pairs:
+        print(f"build_pairs: excluded {n_excluded} candidate pair(s) already present in "
+              f"--exclude_pairs_from ({len(exclude_pairs)} unique pair(s) loaded); "
+              f"{len(pairs)}/{n_pairs} requested new pair(s) found.")
+    return pairs
+
+
+def load_excluded_pairs(csv_path):
+    """Read an experiment_a_trials.csv from a PRIOR run and return the set of
+    (a_file, b_file) pairs it already used, as order-insensitive
+    frozenset({a_file, b_file}) -- for `build_pairs`'s `exclude_pairs`, so a
+    replication run is guaranteed to draw only pairs that prior run never
+    saw. Only condition=='real_b' rows define a real (A, B) PAIR in the sense
+    build_pairs means it -- same_minute/noise rows repurpose b_file for a
+    different image (the same-minute partner, or None), not the actual pair
+    partner, so including them here would exclude the wrong things."""
+    df = pd.read_csv(csv_path)
+    real_b = df[(df["condition"] == "real_b") & df["b_file"].notna()]
+    pairs = set(frozenset((a, b)) for a, b in zip(real_b["a_file"], real_b["b_file"]))
+    print(f"Loaded {len(pairs)} unique pair(s) to exclude from '{csv_path}' "
+          f"({len(real_b)} real_b row(s), {real_b['pair'].nunique()} unique pair-index(es)).")
     return pairs
 
 
@@ -787,9 +835,9 @@ def _baseline_fields(prefix, base):
 
 def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_method,
                       df, images_dir, out_dir, n_pairs=N_PAIRS, max_pairs=None, min_gap=MIN_GAP_MINUTES,
-                      layers=None, max_new_tokens=MAX_NEW_TOKENS, seed=SEED):
+                      layers=None, max_new_tokens=MAX_NEW_TOKENS, seed=SEED, exclude_pairs=None):
     rng = np.random.RandomState(seed)
-    pairs = build_pairs(df, n_pairs=n_pairs, min_gap=min_gap, seed=seed)
+    pairs = build_pairs(df, n_pairs=n_pairs, min_gap=min_gap, seed=seed, exclude_pairs=exclude_pairs)
     if max_pairs is not None:
         pairs = pairs[:max_pairs]
     if len(pairs) == 0:
@@ -846,6 +894,7 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
                 pred_hour, pred_minute, ok = parse_time_answer(ans)
                 moved, shift = score_shift(baseline_a_minute, pred_minute if ok else None, int(b["minute"]))
                 rows.append({
+                    "seed": seed,
                     "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"], "condition": "real_b",
                     "layer": layer, "num_layers": num_layers, "relative_depth": relative_depth(layer, num_layers),
                     "position_set": pos_name, "a_true_minute": int(a["minute"]),
@@ -865,6 +914,7 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
                     pred_hour_s, pred_minute_s, ok_s = parse_time_answer(ans_same)
                     moved_s, shift_s = score_shift(baseline_a_minute, pred_minute_s if ok_s else None, int(a["minute"]))
                     rows.append({
+                        "seed": seed,
                         "pair": pair_idx, "a_file": a["filename"], "b_file": same_row["filename"],
                         "condition": "same_minute", "layer": layer, "num_layers": num_layers,
                         "relative_depth": relative_depth(layer, num_layers), "position_set": pos_name,
@@ -885,6 +935,7 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
                 pred_hour_n, pred_minute_n, ok_n = parse_time_answer(ans_noise)
                 moved_n, shift_n = score_shift(baseline_a_minute, pred_minute_n if ok_n else None, int(b["minute"]))
                 rows.append({
+                    "seed": seed,
                     "pair": pair_idx, "a_file": a["filename"], "b_file": None, "condition": "noise",
                     "layer": layer, "num_layers": num_layers, "relative_depth": relative_depth(layer, num_layers),
                     "position_set": pos_name, "a_true_minute": int(a["minute"]),
@@ -918,6 +969,7 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
             pred_hour_v, pred_minute_v, ok_v = parse_time_answer(ans_v)
             moved_v, shift_v = score_shift(baseline_a_minute, pred_minute_v if ok_v else None, int(b["minute"]))
             rows.append({
+                "seed": seed,
                 "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"], "condition": "real_b",
                 "layer": -1, "num_layers": num_layers, "relative_depth": float("nan"),  # not a decoder layer
                 "position_set": "vision_encoder", "a_true_minute": int(a["minute"]),
@@ -2228,6 +2280,13 @@ def main():
                               "project's Qwen-3B-specific finding) (default: every layer 0..num_layers)")
     parser.add_argument("--min_gap", type=int, default=MIN_GAP_MINUTES,
                          help="Experiment A: minimum circular minute gap between A and B")
+    parser.add_argument("--exclude_pairs_from", type=str, default=None,
+                         help="Experiment A: path to a PRIOR run's experiment_a_trials.csv -- pairs already "
+                              "used there (by real_b (a_file, b_file), order-insensitive) are skipped, and "
+                              "build_pairs keeps searching until it finds --n_pairs genuinely NEW ones "
+                              "(see load_excluded_pairs). Use this for a replication run so it's guaranteed "
+                              "not to reuse pairs from an earlier run -- a different --seed alone does NOT "
+                              "guarantee that (pair selection is a deterministic, seed-extending sequence).")
     parser.add_argument("--target_offset", type=int, default=TARGET_OFFSET_MINUTES,
                          help="Experiment B: steering target = (true_minute + this) %% 60")
     parser.add_argument("--alphas", type=parse_alphas_arg, default=None,
@@ -2269,10 +2328,19 @@ def main():
             max_new_tokens=args.max_new_tokens, seed=args.seed)
 
     if args.experiment in ("a", "both"):
+        existing_trials_path = os.path.join(out_dir, "experiment_a_trials.csv")
+        if os.path.exists(existing_trials_path):
+            print(f"WARNING: '{existing_trials_path}' already exists and WILL BE OVERWRITTEN by this run "
+                  "(no append/versioning -- plain to_csv). Pass a different --out_dir if that's not intended "
+                  "(e.g. for a replication run you want to keep separate from an earlier one).")
+        exclude_pairs = None
+        if args.exclude_pairs_from is not None:
+            exclude_pairs = load_excluded_pairs(args.exclude_pairs_from)
         trials_a = run_experiment_a(
             adapter, decoder_layers, image_features_owners, vision_method,
             df, args.images_dir, out_dir, n_pairs=args.n_pairs, max_pairs=args.max_pairs,
-            min_gap=args.min_gap, layers=layers, max_new_tokens=args.max_new_tokens, seed=args.seed)
+            min_gap=args.min_gap, layers=layers, max_new_tokens=args.max_new_tokens, seed=args.seed,
+            exclude_pairs=exclude_pairs)
         summary_a = summarize_experiment_a(trials_a, out_dir)
         plot_experiment_a(summary_a, out_dir)
         text_a = print_experiment_a_summary(summary_a, trials_a, vision_method)

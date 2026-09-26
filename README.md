@@ -158,6 +158,7 @@ clock positions other than the handful of familiar landmarks (12, 9, 6).
 | `adapters.py` | One class per model family (Qwen2.5-VL, Gemma 3, InternVL3), behind a shared interface, so every script above can run against any of them -- see "Multi-model replication" below |
 | `run_model.sh` | Runs the full pipeline (behavior check -> describe check -> text-only check -> probe -> `--verify` -> Experiment A) for ONE model, in order |
 | `compare_models.py` | Builds one cross-model comparison table + a readout-curve-vs-relative-depth figure from multiple models' results |
+| `analyze_replication.py` | Pair-level statistical comparison (permutation test + bootstrap CIs) of Experiment A's readout-window transfer rate between models, for replicating a finding on fresh pairs -- see `intervene.py`'s `--exclude_pairs_from` |
 | `requirements.txt` | Python dependencies |
 
 Directories produced by the scripts (gitignored where regenerable -- see
@@ -643,6 +644,51 @@ python intervene.py --experiment a --layers readout_window   # identical, shorth
 (`--layers` already accepted any comma-separated layer list before this;
 `readout_window` is just a named shorthand for that specific list, added
 for convenience -- see `READOUT_WINDOW_LAYERS_A`.)
+
+**Replicating a finding on FRESH pairs (e.g. checking a cross-model
+difference found by looking at the data holds on pairs that weren't part of
+that look).** `--seed` fully determines pair selection AND the same-minute
+partner/noise draws for a run (one `np.random.RandomState(seed)` threads
+through all of it) -- but pair selection is a **stable, seed-extending
+sequence**: `build_pairs(df, n_pairs=100, seed=S)` starts with the exact
+same pairs as `build_pairs(df, n_pairs=40, seed=S)`, just continues further.
+So asking for MORE pairs at the SAME seed as an earlier run does NOT give
+you a fresh sample -- it reproduces that run's pairs as a prefix. A
+DIFFERENT seed reduces overlap but doesn't guarantee zero (both draws pull
+from the same finite pool -- `data_balanced/`'s 480 images give ~226 total
+extractable same-hour, `--min_gap`-apart pairs, verified directly against
+the real dataset).
+
+For a real replication, use **`--exclude_pairs_from <prior_trials.csv>`**:
+skips any (a_file, b_file) pair already present there (order-insensitive --
+swapping which image is "A" vs "B" is the same pair), and keeps searching
+until it finds the full `--n_pairs` requested that are genuinely new, rather
+than silently returning fewer. Every trial row also now saves `seed`, so a
+run's provenance is recoverable from its own CSV. Point `--out_dir` at a
+separate folder so the replication run can't collide with the original
+(writes are unconditional `to_csv` -- no append/versioning -- and `main()`
+prints a loud warning if `experiment_a_trials.csv` already exists at the
+resolved output path, but doesn't refuse to overwrite it):
+```
+python intervene.py --experiment a --model_id Qwen/Qwen2.5-VL-3B-Instruct \
+    --exclude_pairs_from intervene_output/qwen2.5-vl-3b/experiment_a_trials.csv \
+    --n_pairs 100 --seed 1 --out_dir intervene_output_replication
+```
+
+**`analyze_replication.py`** then runs the actual pair-level comparison: for
+each model, restricts to `condition=real_b`, `position_set=image_tokens`,
+layers with `relative_depth` inside a fixed window (default 0.60-0.73), and
+pairs where THAT model's own A/target baseline minutes differ; averages
+`minute_transfer` ("to_B") per pair across the window's layers (NaN layers
+skipped, not counted as 0); then compares the two models' pair-level means
+with a two-sided permutation test and reports bootstrap CIs for each mean
+and their difference:
+```
+python analyze_replication.py \
+    --model_a_name qwen2.5-vl-3b --model_a_csv intervene_output_replication/qwen2.5-vl-3b/experiment_a_trials.csv \
+    --model_b_name qwen2.5-vl-7b --model_b_csv intervene_output_replication/qwen2.5-vl-7b/experiment_a_trials.csv \
+    --rel_depth_min 0.60 --rel_depth_max 0.73
+```
 
 **`--analyze_only`** re-derives Experiment A's transfer-to-baseline summary
 from an already-saved `experiment_a_trials.csv` without re-running the
