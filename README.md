@@ -13,9 +13,11 @@ misread analog clocks, especially swapping the hour and minute hands.
   it can't show the model actually *uses* it. This step tests that causally:
   patch one clock's hidden states into another's forward pass and see if the
   stated minute moves, and steer along the probe's own weight direction and
-  see if that moves it. No results yet -- `intervene.py` is written and
-  tested (see "How to run" below); results go here once it's been run on
-  Kaggle.
+  see if that moves it. Found: the stated minute IS causally read out of
+  image-token positions in a mid-depth window (not the final token) -- but a
+  specific cross-model claim about WHERE in that window (Qwen2.5-VL-7B vs.
+  3B) did NOT survive an independent replication on fresh pairs. See
+  "Causal intervention" below for what replicated and what didn't.
 
 ## Results
 
@@ -130,6 +132,72 @@ Plots: `probe_output/probe_results/layers_minute.png`.
 > `r2_wrong` columns, and every number quoted above, are unaffected and were
 > independently re-verified from `per_layer_results.csv` directly.
 
+### Causal intervention (Step 3)
+
+**Replicated: the stated minute is causally read out of image-token
+positions in a mid-relative-depth window, not the final token, and not
+because probing said so -- because activation patching moves the answer.**
+On Qwen2.5-VL-3B's completed n=60 run (see `intervene.py`'s module
+docstring for the full per-layer breakdown), patching clock B's hidden
+states into A's image-token positions makes A's stated minute become B's
+own stated minute up to 100% of the time at some layers; patching the
+final-token position transfers it 0% of the time at every layer. This
+within-model finding held up in the independent replication below, run on
+completely fresh, non-overlapping pairs for BOTH models:
+
+| | Qwen2.5-VL-3B | Qwen2.5-VL-7B | noise controls |
+|---|---|---|---|
+| image-token to_B transfer, relative depth 0.60-0.73 | 76% | 72% | 5-25% |
+
+- The dependence on B's specific content (vs. matched-norm noise) falls off
+  in the *same relative depth region* in both models.
+- The vision-encoder ceiling condition (replacing the whole visual
+  representation) transfers the minute 100% of the time in both models.
+
+**NOT replicated: "7B keeps the minute in image tokens longer than 3B."** A
+first look at the data suggested 7B holds onto it later (higher relative
+depth) than 3B: at relative depth 0.60-0.73, 3B transferred 63% (n=36 pairs)
+vs. 7B's 83% (n=40 pairs), pair-level permutation p=0.0137. That depth
+window, however, was chosen *after* looking at the data it was then tested
+on -- so it was re-run as an actual replication: fresh, non-overlapping
+pairs for both models (`--exclude_pairs_from`, guaranteeing zero pair reuse
+-- a different `--seed` alone does not, since pair selection is a
+deterministic, seed-extending sequence), same window (0.60-0.73) fixed
+*before* looking at the new data, analyzed with `analyze_replication.py`:
+
+| | Qwen2.5-VL-3B | Qwen2.5-VL-7B |
+|---|---|---|
+| image-token to_B transfer, relative depth 0.60-0.73 (fresh pairs) | 75.6% (n=55) | 72.0% (n=93) |
+
+Difference (3B - 7B): **+3.6%**, 95% bootstrap CI **[-7.9%, +15.0%]**,
+two-sided permutation **p = 0.5433**. The CI comfortably straddles zero and
+the sign even flipped from the original look (3B numerically *higher* this
+time, not lower). **This is recorded as a failed replication, not a weak
+trend** -- the most likely explanation is that the original window was
+selected by looking at where 3B and 7B happened to differ in the same data
+later used to test that difference, which is exactly the scenario a fixed,
+pre-registered window is meant to rule out. The underlying WITHIN-model
+finding above (image tokens, mid-depth window, near-zero at the final
+token) is unaffected -- what didn't hold up is specifically the
+*cross-model* claim about relative ordering within that window.
+
+Reproduce the replication:
+```
+python intervene.py --experiment a --model_id Qwen/Qwen2.5-VL-3B-Instruct \
+    --exclude_pairs_from intervene_output/qwen2.5-vl-3b/experiment_a_trials.csv \
+    --n_pairs 100 --seed 1 --out_dir intervene_output_replication
+python intervene.py --experiment a --model_id Qwen/Qwen2.5-VL-7B-Instruct \
+    --exclude_pairs_from intervene_output/qwen2.5-vl-7b/experiment_a_trials.csv \
+    --n_pairs 100 --seed 1 --out_dir intervene_output_replication
+python analyze_replication.py \
+    --model_a_name qwen2.5-vl-3b --model_a_csv intervene_output_replication/qwen2.5-vl-3b/experiment_a_trials.csv \
+    --model_b_name qwen2.5-vl-7b --model_b_csv intervene_output_replication/qwen2.5-vl-7b/experiment_a_trials.csv \
+    --rel_depth_min 0.60 --rel_depth_max 0.73
+```
+See "Multi-model replication" below for `--exclude_pairs_from`/`--seed`
+determinism details, and the `intervene.py`/`compare_models.py` sections
+for the full single-model per-layer results this summarizes.
+
 ### Conclusion
 
 **The visual information about the minute hand's true angle survives to the
@@ -159,6 +227,7 @@ clock positions other than the handful of familiar landmarks (12, 9, 6).
 | `run_model.sh` | Runs the full pipeline (behavior check -> describe check -> text-only check -> probe -> `--verify` -> Experiment A) for ONE model, in order |
 | `compare_models.py` | Builds one cross-model comparison table + a readout-curve-vs-relative-depth figure from multiple models' results |
 | `analyze_replication.py` | Pair-level statistical comparison (permutation test + bootstrap CIs) of Experiment A's readout-window transfer rate between models, for replicating a finding on fresh pairs -- see `intervene.py`'s `--exclude_pairs_from` |
+| `heads.py` | Step 4: head-level causal patching -- which individual attention heads (not just which layer) carry the minute from image tokens to the answer, and how that differs between models |
 | `requirements.txt` | Python dependencies |
 
 Directories produced by the scripts (gitignored where regenerable -- see
@@ -193,6 +262,9 @@ intervene_output/
                           # experiment_a_per_layer_transfer.csv, experiment_b_trials.csv,
                           # experiment_b_summary.csv/.txt, experiment_b_steering.png
 outputs/compare/         # compare_models.py: comparison_table.csv/.txt, readout_curves.png
+heads_output/
+  <model_short_name>/     # heads_trials.csv, heads_summary.csv, heads_heatmap.png,
+                          # heads_verification_report.txt/.csv (from --verify)
 ```
 
 ## Option A: Run on Kaggle (recommended)
@@ -796,6 +868,101 @@ reports FAIL for `get_image_features` against it, and PASS for
 `layer0_embed` against the identical model) before trusting any fix against
 the real one. See the "Caveat" note under Probing above for what this
 means for Step 2's `vision_encoder` R².
+
+### `heads.py` (Step 4)
+
+The replicated finding above says *where* (which relative-depth window, at
+image-token positions) the minute is causally read out, and that 7B reads
+clocks much better than 3B at the same relative depth. It says nothing
+about *which components* do the reading, or whether the 3B/7B gap shows up
+as more heads doing the job, more concentrated heads, or heads at a
+different point within that window. `heads.py` answers this with the same
+paired activation-patching design as Experiment A, but patches one
+attention head's output at a time instead of the whole residual stream.
+
+**Mechanism.** Every attention module in this project's supported model
+families (confirmed directly from the installed transformers source for
+Qwen2.5-VL, shared by the rest via the same `ALL_ATTENTION_FUNCTIONS`
+refactor) concatenates all heads' outputs along the last dimension and
+applies a single `o_proj` linear layer; head `h` occupies columns
+`[h*head_dim:(h+1)*head_dim]` of `o_proj`'s input. `heads.py` registers a
+`forward_pre_hook` on `o_proj` (found by the same reflection pattern
+`adapters.py` uses for decoder layers, not a hardcoded attribute name) and
+replaces just one head's column slice, at the image-token positions, with
+the source clock's cached value at that same slice -- everything else
+(pair-building, exclusion, matched noise, the same-minute control, the
+transfer-to-baseline metric) is reused unmodified from `intervene.py` and
+`analyze_replication.py`.
+
+**Sweep.** For each (A, B) pair, every head at every layer in `--layers` is
+patched under three conditions (real B, same-minute B, matched-norm noise),
+and `to_B` (patched minute == B's own stated minute, restricted to pairs
+whose baselines actually differ) is computed per (layer, head) cell against
+a Bonferroni-corrected permutation test, then plotted as a layer x head
+heatmap of `to_B minus noise`.
+
+**Attention inspection.** For the top cells found above, `heads.py` also
+reports what fraction of that head's attention (from the answer position)
+lands on image vs. text tokens, by forcing `eager` attention for one
+forward pass (SDPA/FlashAttention2 don't return attention weights at all).
+**This is image-vs-text mass only, never a spatial claim** -- there is no
+verified pixel-to-patch-token mapping in this project, so "attends to the
+minute hand" is not a claim `heads.py` makes or supports.
+
+**`--verify` is required before trusting any sweep result**, same standard
+as `intervene.py`: it confirms the patched head's `o_proj` input actually
+changed at the target columns/positions, that this propagates to a
+downstream layer and the final hidden state, and that an extreme test (all
+heads zeroed at one layer) moves the answer at all -- failing loudly
+otherwise. This caught a real bug during development: every call site was
+passing `find_attention_modules`'s return value (the attention module
+itself) directly to the patching hook, instead of that module's `.o_proj`
+child -- so the hook patched the *pre*-attention residual stream, not the
+per-head post-attention tensor. Against a fake model built to reproduce
+this project's own round-3 Qwen bug shape (o_proj fires but its output is
+discarded and recomputed independently), this bug made the patch leak
+through anyway, since it never went through the discarded path in the
+first place -- `--verify` initially reported PASS for a model it should
+have failed. Fixed by patching `attn_module.o_proj` everywhere (matching
+what `capture_head_inputs` already did correctly); re-verified against the
+same fake broken model, which now correctly reports FAIL
+(`diff_final == 0.0` at every head, extreme test doesn't move the answer).
+
+**Cost control.** Heads x layers x pairs explodes fast --
+`--max_pairs`/`--max_heads`/`--layers` (comma-separated absolute indices or
+`rel:f1,f2,...`) support smoke tests, and the sweep prints a measured
+time estimate (not guessed) after its first few trials. As with
+`intervene.py`, **run a tiny smoke test first** to get a real per-trial
+number for the actual model/GPU before committing to a full run:
+
+```
+python heads.py --model_id Qwen/Qwen2.5-VL-3B-Instruct \
+    --layers 20,21,22 --max_pairs 1 --max_heads 2 \
+    --verify --out_dir heads_output_smoke
+```
+
+Then scale `--n_pairs` from the printed estimate to fit your time budget.
+As a starting point for a ~2 hour Kaggle T4 run (this has NOT yet been run
+on real weights -- only tested against fake models offline; treat these as
+starting defaults to adjust once the smoke test reports real timing):
+
+```
+# Qwen2.5-VL-3B: 16 heads/layer, readout window layers 20-28
+python heads.py --model_id Qwen/Qwen2.5-VL-3B-Instruct \
+    --layers 20,21,22,23,24,25,26,27,28 --n_pairs 20 \
+    --verify --out_dir heads_output
+
+# Qwen2.5-VL-7B: 28 heads/layer (fewer layers, more heads -> fewer pairs)
+python heads.py --model_id Qwen/Qwen2.5-VL-7B-Instruct \
+    --layers 15,16,17,18,19,20,21,22 --n_pairs 12 \
+    --verify --out_dir heads_output
+```
+
+Both commands include `--verify`, which runs and prints/saves its
+PASS/FAIL report *before* the sweep starts (same convention as
+`intervene.py`: it does not hard-abort the sweep on FAIL, so check the
+printed verdict yourself) -- do not trust `heads_summary.csv` or
+`heads_heatmap.png` from a run where `--verify` didn't report PASS.
 
 ## Multi-model replication
 
