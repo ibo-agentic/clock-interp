@@ -215,9 +215,21 @@ def angle_deg_to_minute(angle_deg):
 def relative_l2_diff(x, y):
     """||x - y|| / ||x||, as a plain float -- used by --verify to report a
     magnitude, not just a boolean, for "did this intervention actually
-    change anything". NaN if x is ~0 (nothing to take a ratio against)."""
-    x = torch.as_tensor(x).reshape(-1).float()
-    y = torch.as_tensor(y).reshape(-1).float()
+    change anything". NaN if x is ~0 (nothing to take a ratio against).
+
+    Always moves both operands to CPU float32 before comparing, even if
+    they arrive on different devices/dtypes -- a real, not hypothetical,
+    case under `device_map="auto"` across multiple GPUs, where different
+    decoder layers (and hence their cached activations/live hook captures)
+    can legitimately live on different cuda devices. This is a diagnostic
+    comparison, not hot-path compute, so the extra copy is cheap; do NOT
+    apply this normalization to values actually written back into the
+    forward pass (those must stay on their own device/dtype -- see
+    `_apply_replace_patch`/`_apply_add_patch` and heads.py's `head_patched`,
+    which already handle that correctly via `.to(device=hs.device)` at the
+    point of use)."""
+    x = torch.as_tensor(x).reshape(-1).detach().float().cpu()
+    y = torch.as_tensor(y).reshape(-1).detach().float().cpu()
     denom = x.norm().item()
     if denom < 1e-8:
         return float("nan")

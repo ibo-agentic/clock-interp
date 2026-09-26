@@ -582,7 +582,12 @@ def verify_head_patch(adapter, decoder_layers, attn_modules, image_features_owne
 
                 def _spy(module, args, kwargs):
                     inp, _where = _extract_o_proj_input(args, kwargs)
-                    spy["inp"] = inp[0].detach().clone()
+                    # .float().cpu() here, matching capture_head_inputs's own capture hook --
+                    # under device_map="auto" this layer's o_proj can live on a different cuda
+                    # device than image_mask (always CPU, see adapters.py) or head_cache_a/b
+                    # (always CPU, see capture_head_inputs), so comparing this raw would crash
+                    # with a cross-device error the moment relative_l2_diff subtracts them.
+                    spy["inp"] = inp[0].detach().float().cpu().clone()
 
                 with head_patched(o_proj, image_mask, head_cache_b[layer], head_idx, head_dim, mode="replace"):
                     handle = o_proj.register_forward_pre_hook(_spy, with_kwargs=True)
