@@ -95,6 +95,66 @@ CONTIGUOUS GROUPS of heads at once instead of one at a time -- far fewer
 cells (gentler Bonferroni correction, larger per-test effect) for a coarse
 first pass, with --head_range for a narrower, individually-powered
 follow-up on whichever group showed an effect.
+
+A REAL KAGGLE RUN OF run_all_heads_control THEN CAME BACK 0% AT LAYER 22 ON
+3B, vs. intervene.py's ~87% for a full residual-stream patch at the same
+position -- prompting a deeper look that found ONE real, confirmed bug and
+motivated two independent strengthenings, none of which are hypothetical:
+
+  1. A REAL OFF-BY-ONE (find_attention_modules/attn_module_for_layer): this
+     file's "--layers L" was silently patching what intervene.py calls
+     layer L+1 -- attn_modules[i] is decoder_layers[i]'s OWN attention,
+     whose output is hidden_states[i+1], but every call site indexed
+     `attn_modules[layer]` directly using intervene.py's hidden_states-index
+     convention (0=embeddings, 1..num_layers=decoder block outputs).
+     Confirmed empirically (not just by re-reading docstrings): patching
+     "layer 2" via intervene.py's patched() and via this file's (old)
+     attn_modules[2] on an IDENTICAL fake model changed DIFFERENT
+     hidden_states indices (2 vs. 3). Fixed via attn_module_for_layer,
+     which also now raises a clear error for layer=0 (embeddings -- this
+     file has no attention module to patch there) instead of silently
+     wrapping to the last layer. This alone probably does not explain a
+     full 87%->0% collapse (layer 22 shifted to 23 is still well inside
+     the 20-28 readout window) but is a real, independently-worth-fixing
+     bug regardless.
+
+  2. --verify's OWN check was a near-tautology: it compared head_patched's
+     pre-hook's return value to ITSELF (via a second pre-hook chained
+     after it), which only proves the hook fired, not that its effect
+     survived into o_proj's real computation -- a pre-hook that mutates a
+     detached copy without returning it, or gets silently overridden,
+     would look identical to a working one. verify_head_patch now ALSO
+     checks, via _capture_o_proj_forward (a genuine forward_HOOK, a
+     different mechanism entirely, registered independently of
+     head_patched): (a) does o_proj's ACTUALLY-consumed input (guaranteed
+     real by PyTorch's own hook semantics, confirmed directly against
+     accelerate's source for device_map="auto" -- its AlignDevicesHook
+     monkey-patches .forward but only moves tensors' device/dtype in
+     pre_forward, never alters values) match what we intended to write,
+     and (b) does o_proj's ACTUAL output match a from-scratch
+     recomputation using its own weight/bias applied to that intended
+     input. Both were near-zero (correct) for the working AND the broken
+     fake-model verification cases alike -- for the broken case, this
+     correctly shows o_proj computes right but gets discarded downstream
+     (diff_final still catches that), not that the hook itself is inert.
+
+  3. run_all_heads_control now asserts, HARD (raises, does not just print),
+     that the ANSWER STRING changes from baseline on most (>=50%) real_b
+     trials when ALL heads are patched -- a more basic, harder-to-fake
+     signal than to_B, since to_B could in principle read 0% even from a
+     genuinely working mechanism (the answer moves, just not to exactly
+     B's minute). A mechanism where the answer never moves at all fails
+     this immediately, before any to_B number is even computed or could
+     be misread as a measurement.
+
+None of this rules out that patching ONE layer's attention contribution
+alone (even all heads) is just a smaller, different intervention than
+intervene.py's whole-residual-stream patch (which also overwrites the
+incoming residual and this layer's MLP contribution) -- a real, legitimate
+"needs more than attention-at-one-layer" finding remains possible and would
+show up as: --verify passes, the new independent checks above are all
+near-zero, AND the answer-changed assertion passes, but to_B still comes
+back near-0%. That combination is real signal, not evidence of a bug.
 """
 
 import argparse
@@ -141,6 +201,13 @@ POWER_TARGET = 0.80             # standard 80% power convention
 # result) -- this doesn't need anywhere near MIN_USABLE_PAIRS_WARN pairs, since it's a sanity check,
 # not a statistically powered claim.
 ALL_HEADS_CONTROL_PAIRS = 8
+# A more basic, harder-to-fake gate than to_B: with ALL heads patched, the ANSWER STRING should
+# differ from A's own unpatched baseline on MOST real_b trials, regardless of whether it lands on
+# B's specific minute. to_B could in principle read 0% even from a genuinely working mechanism (the
+# answer moves, just not to exactly B's minute); an answer that doesn't even change from baseline on
+# most trials is a much stronger, more basic signal that the patch isn't reaching generation at all
+# -- see run_all_heads_control's hard assertion below.
+MIN_ANSWER_CHANGE_FRAC = 0.5
 # intervene.py's OWN established finding (Experiment A, full residual-stream patch at image-token
 # positions, NOT this file's o_proj-only patch -- see run_all_heads_control's docstring for why
 # these are different-sized interventions) -- printed as context for interpreting the control's
@@ -183,6 +250,40 @@ def find_attention_modules(decoder_layers):
             )
         attn_modules.append(candidates[0])
     return attn_modules
+
+
+def attn_module_for_layer(attn_modules, layer):
+    """Maps a `--layers`-style layer index -- intervene.py's convention:
+    0 = embeddings, 1..num_layers = the OUTPUT of decoder blocks
+    0..num_layers-1, the SAME indexing `output_hidden_states=True` uses --
+    to the attention module whose forward pass PRODUCES that hidden state:
+    attn_modules[layer - 1] (find_attention_modules' OWN indexing has
+    attn_modules[i] = decoder_layers[i]'s attention, whose output is
+    hidden_states[i+1] -- so hidden_states[layer] is attn_modules[layer-1]'s
+    output).
+
+    THIS WAS A REAL, CONFIRMED BUG, not a hypothetical one: every call site
+    in this file used to index `attn_modules[layer]` directly, off by one
+    from every OTHER layer-indexed thing in this project (intervene.py's
+    `register_layer_patch`, `relative_depth`, `resolve_layers_cli`) --
+    confirmed empirically by patching "layer 2" both ways on an identical
+    fake model and comparing which hidden_states index actually changed:
+    intervene.py's patched(layer=2) changed hidden_states[2] first;
+    heads.py's (old) attn_modules[2] changed hidden_states[3] first. A run
+    asking for `--layers 22` was silently patching what intervene.py calls
+    layer 23. Layer 0 (embeddings) has no attention module to patch in this
+    file -- there is nothing upstream of the embedding layer for an
+    o_proj-hook to touch (intervene.py's Experiment A can patch layer 0
+    because it hooks the INPUT to decoder_layers[0], a different
+    mechanism) -- raises a clear error rather than silently wrapping to
+    attn_modules[-1] (the LAST layer)."""
+    if layer < 1 or layer > len(attn_modules):
+        raise ValueError(
+            f"heads.py can only patch layers 1..{len(attn_modules)} (layer 0 -- the embeddings -- has no "
+            "attention module to patch; that's intervene.py's Experiment A territory), got "
+            f"layer={layer}."
+        )
+    return attn_modules[layer - 1]
 
 
 def head_geometry(attn_module):
@@ -540,8 +641,8 @@ def run_all_heads_control(adapter, image_features_owners, vision_method, attn_mo
         print("\n" + text)
         return pd.DataFrame(), text
 
-    attn_by_layer = {L: attn_modules[L] for L in layers}
-    _, head_dim = head_geometry(attn_modules[layers[0]])
+    attn_by_layer = {L: attn_module_for_layer(attn_modules, L) for L in layers}
+    _, head_dim = head_geometry(attn_module_for_layer(attn_modules, layers[0]))
     already_used = {f for pair in pairs for f in (pair[0]["filename"], pair[1]["filename"])}
     rng = np.random.RandomState(seed)
 
@@ -555,7 +656,7 @@ def run_all_heads_control(adapter, image_features_owners, vision_method, attn_mo
         image_mask = base_a["image_mask"]
 
         for layer in layers:
-            o_proj = attn_modules[layer].o_proj
+            o_proj = attn_module_for_layer(attn_modules, layer).o_proj
             a_cache, b_cache = head_cache_a.get(layer), head_cache_b.get(layer)
             same_cache = head_cache_same.get(layer) if base_same is not None else None
             if a_cache is None or b_cache is None:
@@ -570,7 +671,7 @@ def run_all_heads_control(adapter, image_features_owners, vision_method, attn_mo
                     "condition": condition, "layer": layer,
                     **_baseline_fields("a", base_a), **_baseline_fields("b", other_base),
                     "patched_hour": pred_hour if ok else None, "patched_minute": pred_minute if ok else None,
-                    "patched_answer": ans,
+                    "patched_answer": ans, "answer_changed": (ans != base_a["raw_answer"]),
                 })
 
             _trial("real_b", b_cache, b["filename"], base_b)
@@ -585,6 +686,32 @@ def run_all_heads_control(adapter, image_features_owners, vision_method, attn_mo
         text = "\n".join(lines)
         print("\n" + text)
         return control_df, text
+
+    # HARD, loud check -- more basic than to_B and impossible to quietly misread as a real 0%
+    # measurement: does the ANSWER STRING even change from baseline on MOST all-heads-patched
+    # real_b trials, regardless of whether it lands on B's specific minute? to_B could read 0% from
+    # a genuinely working mechanism (the answer moves, just not to exactly B's minute) -- this
+    # can't. If it fails, raise immediately rather than let the (necessarily 0%) to_B rate below be
+    # read as a measurement of anything.
+    real_b_all = control_df[control_df["condition"] == "real_b"]
+    if len(real_b_all) > 0:
+        frac_changed = float(real_b_all["answer_changed"].mean())
+        if frac_changed < MIN_ANSWER_CHANGE_FRAC:
+            raise RuntimeError(
+                f"POSITIVE CONTROL FAILED LOUDLY: with ALL heads patched (image-token positions) using "
+                f"B's own cached activations, the generated answer changed from A's unpatched baseline "
+                f"in only {frac_changed:.0%} of {len(real_b_all)} real_b trial(s) across layers {layers} "
+                f"-- below the {MIN_ANSWER_CHANGE_FRAC:.0%} floor for 'most trials'. This is a MORE BASIC "
+                "signal than the to_B rate: a working mechanism should move the answer on most trials "
+                "even before asking whether it lands on B's SPECIFIC minute, so a to_B rate computed "
+                "from these trials would not be a measurement of anything -- it would just inherit this "
+                "same failure. Do not proceed to interpreting to_B numbers; find why the answer isn't "
+                "moving first (re-run --verify, and see run_all_heads_control's docstring for the "
+                "interpretation guide once this passes)."
+            )
+        lines.append(f"Answer-changed check: {frac_changed:.0%} of {len(real_b_all)} real_b trial(s) "
+                     f"had the answer differ from A's baseline at all (floor: {MIN_ANSWER_CHANGE_FRAC:.0%}) "
+                     "-- passed, so the to_B rates below are at least based on trials where SOMETHING moved.")
 
     with_transfer = compute_transfer_columns(control_df)
     restricted = with_transfer[with_transfer["minute_baselines_differ"] == 1.0]
@@ -673,11 +800,11 @@ def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_o
         raise ValueError("No valid (A, B) pairs found -- check --min_gap against this dataset's spread of hours/minutes.")
 
     num_layers = len(decoder_layers)
-    attn_by_layer = {L: attn_modules[L] for L in layers}
+    attn_by_layer = {L: attn_module_for_layer(attn_modules, L) for L in layers}
 
-    num_heads, head_dim = head_geometry(attn_modules[layers[0]])
+    num_heads, head_dim = head_geometry(attn_module_for_layer(attn_modules, layers[0]))
     for L in layers:
-        nh, hdim = head_geometry(attn_modules[L])
+        nh, hdim = head_geometry(attn_module_for_layer(attn_modules, L))
         if (nh, hdim) != (num_heads, head_dim):
             raise ValueError(f"Layer {L} has head geometry ({nh},{hdim}), different from layer {layers[0]}'s "
                              f"({num_heads},{head_dim}) -- this sweep assumes uniform head geometry across "
@@ -718,7 +845,7 @@ def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_o
         image_mask = base_a["image_mask"]
 
         for layer in layers:
-            o_proj = attn_modules[layer].o_proj
+            o_proj = attn_module_for_layer(attn_modules, layer).o_proj
             a_cache = head_cache_a.get(layer)
             b_cache = head_cache_b.get(layer)
             same_cache = head_cache_same.get(layer) if base_same is not None else None
@@ -1005,18 +1132,63 @@ def compare_heads_across_models(name_a, summary_a, name_b, summary_b, sig_thresh
 # --verify: prove head-level patching actually lands, before trusting a null
 # ---------------------------------------------------------------------------
 
+def _capture_o_proj_forward(o_proj):
+    """Registers a genuine forward_HOOK (module, input, output) on o_proj --
+    NOT a forward_pre_hook, and NOT head_patched's own hook. PyTorch fills
+    `input`/`output` in with the args ACTUALLY used to call o_proj.forward()
+    and what it ACTUALLY returned, regardless of anything else registered
+    on the module (confirmed directly against accelerate's source: even
+    though `device_map="auto"` monkey-patches `.forward` itself rather than
+    using PyTorch's hook registry, `_call_impl` still resolves
+    forward_pre_hooks -- including head_patched's -- into the final args
+    BEFORE calling that (possibly wrapped) `.forward`, and a forward_hook's
+    `output` reflects the true end-to-end return value of that whole call).
+
+    This exists because a prior verification design compared head_patched's
+    OWN pre-hook's return value to itself (via a second pre-hook chained
+    after it) -- which only proves the hook FIRED, not that its effect
+    survived into o_proj's real computation. A pre-hook that mutates a
+    detached/cloned copy without returning it, or that gets silently
+    overridden by something else, would look identical to a working one
+    under that old check. This is a genuinely independent instrument: a
+    different hook mechanism, reading what PyTorch guarantees is real.
+
+    Only fires for prefill-shaped (multi-token) calls, matching
+    capture_head_inputs' own guard against corrupting the capture with a
+    single-token incremental-decode step. Returns (holder, handle) --
+    caller must handle.remove()."""
+    holder = {}
+
+    def hook(module, input, output):
+        inp = input[0] if len(input) > 0 else None
+        if inp is not None and inp.shape[1] > 1:
+            holder["input"] = inp[0].detach().float().cpu().clone()
+            out_t = output if torch.is_tensor(output) else (output[0] if isinstance(output, tuple) else None)
+            if out_t is not None:
+                holder["output"] = out_t[0].detach().float().cpu().clone()
+
+    handle = o_proj.register_forward_hook(hook)
+    return holder, handle
+
+
 def verify_head_patch(adapter, decoder_layers, attn_modules, image_features_owners, vision_method,
                        pairs, images_dir, layers, max_heads_to_verify, max_new_tokens):
     """For a few (A, B) pairs and a few (layer, head) combos: confirm (a)
     the patched head's o_proj-INPUT slice at the image-token positions
-    actually changes to B's cached value, and (b) that change propagates to
-    a downstream layer AND the final layer's hidden states -- same spirit
-    as intervene.py's verify_decoder_patch, at head instead of full-layer
-    granularity."""
+    actually changes to B's cached value -- verified via a genuinely
+    INDEPENDENT forward_hook (_capture_o_proj_forward), not by re-reading
+    head_patched's own pre-hook return value, which would be a tautology;
+    (b) o_proj's ACTUAL returned output matches what it SHOULD be given
+    that patched input (recomputed from scratch via o_proj's own weight/
+    bias, bypassing this file's entire hook chain) -- catches a pre-hook
+    that fires but is silently discarded downstream, even if (a) somehow
+    didn't; and (c) that change propagates to a downstream layer AND the
+    final layer's hidden states -- same spirit as intervene.py's
+    verify_decoder_patch, at head instead of full-layer granularity."""
     records = []
     lines = [f"--- Head-level patch verification (vision method: {vision_method}) ---"]
-    attn_by_layer = {L: attn_modules[L] for L in layers}
-    num_heads, head_dim = head_geometry(attn_modules[layers[0]])
+    attn_by_layer = {L: attn_module_for_layer(attn_modules, L) for L in layers}
+    num_heads, head_dim = head_geometry(attn_module_for_layer(attn_modules, layers[0]))
     heads_to_check = list(range(min(num_heads, max_heads_to_verify)))
     lines.append(f"Checking {len(pairs)} pair(s) x layers {layers} x heads {heads_to_check} "
                  f"(of {num_heads} total heads/layer).")
@@ -1036,33 +1208,67 @@ def verify_head_patch(adapter, decoder_layers, attn_modules, image_features_owne
         final_idx = len(hs_unpatched) - 1
 
         for layer in layers:
-            o_proj = attn_modules[layer].o_proj
+            o_proj = attn_module_for_layer(attn_modules, layer).o_proj
             for head_idx in heads_to_check:
                 col = slice(head_idx * head_dim, (head_idx + 1) * head_dim)
 
-                spy = {}
+                holder, handle = _capture_o_proj_forward(o_proj)
+                try:
+                    with head_patched(o_proj, image_mask, head_cache_b[layer], head_idx, head_dim, mode="replace"):
+                        hs_patched = forward_hidden_states(adapter.model, base_a["inputs"])
+                finally:
+                    handle.remove()
 
-                def _spy(module, args, kwargs):
-                    inp, _where = _extract_o_proj_input(args, kwargs)
-                    # .float().cpu() here, matching capture_head_inputs's own capture hook --
-                    # under device_map="auto" this layer's o_proj can live on a different cuda
-                    # device than image_mask (always CPU, see adapters.py) or head_cache_a/b
-                    # (always CPU, see capture_head_inputs), so comparing this raw would crash
-                    # with a cross-device error the moment relative_l2_diff subtracts them.
-                    spy["inp"] = inp[0].detach().float().cpu().clone()
+                actual_input = holder.get("input")
+                actual_output = holder.get("output")
+                if actual_input is None:
+                    raise RuntimeError(
+                        f"o_proj's forward() never fired for a prefill-shaped call at layer {layer} head "
+                        f"{head_idx} -- the patch context manager isn't even reaching o_proj's forward at "
+                        "all (a more basic failure than a patch being silently discarded downstream). "
+                        "Check that attn_module_for_layer/find_attention_modules resolved the RIGHT module "
+                        "and that it's actually invoked during generation."
+                    )
 
-                with head_patched(o_proj, image_mask, head_cache_b[layer], head_idx, head_dim, mode="replace"):
-                    handle = o_proj.register_forward_pre_hook(_spy, with_kwargs=True)
-                    try:
-                        forward_hidden_states(adapter.model, base_a["inputs"])
-                    finally:
-                        handle.remove()
-                actual_input = spy["inp"]
-                diff_at_head = relative_l2_diff(head_cache_a[layer][image_mask][:, col],
-                                                 actual_input[image_mask][:, col])
+                # Old check (kept): did the ACTUALLY-consumed input change AT ALL from A's own
+                # baseline? Large = the hook fired. This alone is NOT sufficient -- it would also
+                # pass if the hook wrote garbage instead of B's value, or even if it wrote the
+                # RIGHT columns but the wrong VALUES.
+                diff_vs_a_baseline = relative_l2_diff(head_cache_a[layer][image_mask][:, col],
+                                                       actual_input[image_mask][:, col])
 
-                with head_patched(o_proj, image_mask, head_cache_b[layer], head_idx, head_dim, mode="replace"):
-                    hs_patched = forward_hidden_states(adapter.model, base_a["inputs"])
+                # NEW, genuinely independent check #1: does the input o_proj ACTUALLY consumed
+                # (captured via a real forward_hook, not head_patched's own pre-hook chain -- see
+                # _capture_o_proj_forward's docstring for why that distinction matters) match what
+                # we INTENDED to write (B's cached value)? Near-zero = correct. This is the check
+                # that catches "the hook fired on SOMETHING but not the right value" -- comparing
+                # our own pre-hook's return value to itself, as the old verification effectively
+                # did, can never catch that class of bug.
+                diff_vs_intended = relative_l2_diff(head_cache_b[layer][image_mask][:, col],
+                                                     actual_input[image_mask][:, col])
+
+                # NEW, genuinely independent check #2 (stronger still): recompute what o_proj's
+                # OUTPUT should be from scratch -- using its OWN weight/bias, applied to the
+                # INTENDED patched input -- bypassing head_patched, capture_head_inputs, and this
+                # file's entire hook chain. Compare against what o_proj's forward call ACTUALLY
+                # returned (also from the independent forward_hook). If a pre-hook silently failed
+                # to take effect (mutated a detached copy without returning it, returned None, or
+                # was overridden by something registered after it), or if o_proj's real output is
+                # for any OTHER reason ignored/recomputed downstream (this project's own round-3
+                # bug shape), this is the check that catches it even if diff_vs_intended somehow
+                # didn't. Skipped (NaN) for a non-floating-point o_proj.weight (e.g. a quantized
+                # linear where a from-scratch F.linear recomputation wouldn't be valid) -- printed
+                # as "n/a", not silently treated as passing.
+                diff_output_vs_expected = float("nan")
+                if (actual_output is not None and hasattr(o_proj, "weight")
+                        and o_proj.weight.dtype.is_floating_point):
+                    expected_full_input = head_cache_a[layer].clone()
+                    expected_full_input[image_mask, col] = head_cache_b[layer][image_mask, col]
+                    weight = o_proj.weight.detach().float().cpu()
+                    bias = o_proj.bias.detach().float().cpu() if o_proj.bias is not None else None
+                    expected_output = torch.nn.functional.linear(expected_full_input, weight, bias)
+                    diff_output_vs_expected = relative_l2_diff(expected_output[image_mask], actual_output[image_mask])
+
                 downstream_idx = min(layer + 1, final_idx)
                 diff_downstream = relative_l2_diff(hs_unpatched[downstream_idx][image_mask],
                                                     hs_patched[downstream_idx][image_mask])
@@ -1070,12 +1276,17 @@ def verify_head_patch(adapter, decoder_layers, attn_modules, image_features_owne
 
                 records.append({
                     "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"],
-                    "layer": layer, "head": head_idx, "diff_at_head": diff_at_head,
+                    "layer": layer, "head": head_idx,
+                    "diff_at_head": diff_vs_a_baseline, "diff_vs_intended": diff_vs_intended,
+                    "diff_output_vs_expected": diff_output_vs_expected,
                     "downstream_layer": downstream_idx, "diff_downstream": diff_downstream,
                     "diff_final": diff_final,
                 })
+                out_text = f"{diff_output_vs_expected:.4f}" if not np.isnan(diff_output_vs_expected) else "n/a"
                 lines.append(
-                    f"pair {pair_idx} layer {layer} head {head_idx}: diff-at-head={diff_at_head:.4f}, "
+                    f"pair {pair_idx} layer {layer} head {head_idx}: diff-vs-A-baseline={diff_vs_a_baseline:.4f}, "
+                    f"diff-vs-intended={diff_vs_intended:.4f} (independent, want ~0), "
+                    f"diff-output-vs-expected={out_text} (independent, want ~0), "
                     f"diff-at-layer-{downstream_idx}={diff_downstream:.4f}, diff-at-final-layer={diff_final:.4f}"
                 )
 
@@ -1085,11 +1296,11 @@ def verify_head_patch(adapter, decoder_layers, attn_modules, image_features_owne
         a_path = os.path.join(images_dir, a0["filename"])
         head_cache_a0 = {}
         layer0 = layers[0]
-        with capture_head_inputs({layer0: attn_modules[layer0]}, head_cache_a0):
+        with capture_head_inputs({layer0: attn_module_for_layer(attn_modules, layer0)}, head_cache_a0):
             base_a0 = run_baseline(adapter, image_features_owners, vision_method, a_path,
                                     max_new_tokens=max_new_tokens)
         zero_vals = torch.zeros_like(head_cache_a0[layer0])
-        with head_patched(attn_modules[layer0].o_proj, base_a0["image_mask"], zero_vals, None, head_dim, mode="replace"):
+        with head_patched(attn_module_for_layer(attn_modules, layer0).o_proj, base_a0["image_mask"], zero_vals, None, head_dim, mode="replace"):
             ans_zero = adapter.generate_answer(base_a0["inputs"], max_new_tokens)
         changed = (ans_zero != base_a0["raw_answer"])
         extreme_records.append({"layer": layer0, "baseline_answer": base_a0["raw_answer"],
@@ -1110,6 +1321,27 @@ def build_head_verification_verdict(records, extreme_records):
         if (df["diff_at_head"] < 1e-6).all():
             problems.append("Every tested head patch produced a BIT-IDENTICAL o_proj input at the "
                             "target head's own columns -- the patch hook is not writing anything.")
+        if "diff_vs_intended" in df.columns and (df["diff_vs_intended"] > 0.05).all():
+            problems.append(
+                "Every tested head patch's ACTUALLY-consumed o_proj input (captured via an "
+                "INDEPENDENT forward_hook, not head_patched's own pre-hook -- see "
+                "_capture_o_proj_forward) does NOT match what we intended to write. The hook is "
+                "firing on something, but not writing the intended value -- comparing our own "
+                "pre-hook's return value to itself, as an earlier version of this check "
+                "effectively did, cannot catch this class of bug."
+            )
+        valid_output_checks = (df["diff_output_vs_expected"].dropna()
+                               if "diff_output_vs_expected" in df.columns else pd.Series(dtype=float))
+        if len(valid_output_checks) > 0 and (valid_output_checks > 0.05).all():
+            problems.append(
+                "Every tested head patch's o_proj OUTPUT does not match a from-scratch "
+                "recomputation using o_proj's OWN weight applied to the intended patched input -- "
+                "o_proj's real computed output is being ignored or overridden somewhere "
+                "downstream, even though its INPUT may look correct (this project's own round-3 "
+                "bug shape: a pre-hook can fire and even write the right value, but if the "
+                "downstream code recomputes from an unpatched reference instead of using o_proj's "
+                "actual return value, none of it reaches the answer)."
+            )
         if (df["diff_final"] < 1e-6).all():
             problems.append("Every tested head patch produced a BIT-IDENTICAL final-layer hidden state -- "
                             "patches are not propagating to the output at all, regardless of layer or head.")
@@ -1238,7 +1470,7 @@ def inspect_top_heads(adapter, attn_modules, summary_df, df, images_dir, top_n=5
         fracs_image, fracs_text = [], []
         for _, row in sample.iterrows():
             path = os.path.join(images_dir, row["filename"])
-            result = inspect_attention_pattern(adapter, attn_modules[layer], layer, head, path)
+            result = inspect_attention_pattern(adapter, attn_module_for_layer(attn_modules, layer), layer, head, path)
             if result is None:
                 n_unavailable += 1
                 continue

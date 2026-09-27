@@ -1059,6 +1059,61 @@ guard against reading an underpowered cell as a measurement:
   sharply (1 cell needs only ~99 pairs at the same alpha/power/delta) --
   screen broad and cheap, then confirm narrow and adequately powered.
 
+**A real Kaggle run of the positive control then came back 0% at layer 22
+on 3B**, vs. intervene.py's ~87% for a full residual-stream patch at the
+same position. That prompted a closer look, which found one real, confirmed
+bug and motivated two independent strengthenings:
+
+- **A real off-by-one, confirmed empirically, not just by re-reading
+  docstrings**: `--layers L` was silently patching what intervene.py calls
+  layer `L+1` (`find_attention_modules`'s own indexing has `attn_modules[i]`
+  = decoder block `i`'s attention, whose *output* is `hidden_states[i+1]`,
+  but every call site indexed it directly against intervene.py's
+  `hidden_states`-index convention). Confirmed by patching "layer 2" both
+  ways on an identical fake model and checking which `hidden_states` index
+  actually changed first: intervene.py's `patched(layer=2)` changed index
+  2; this file's (old) code changed index 3. Fixed via a new
+  `attn_module_for_layer` helper, which also now raises a clear error for
+  layer 0 (embeddings -- this file has no attention module to patch there)
+  instead of silently wrapping to the last layer. This alone probably
+  doesn't explain a full 87%->0% collapse (layer 22 shifting to 23 is still
+  well inside the 20-28 readout window), but it's a real bug, now fixed --
+  **the README's own recommended `--layers` numbers were always intended to
+  match intervene.py's, so they're unchanged, but now actually correct.**
+- **`--verify` was comparing its own pre-hook's return value to itself**
+  (a second pre-hook chained after `head_patched`'s), which only proves the
+  hook *fired*, not that its effect survived into `o_proj`'s real
+  computation -- a pre-hook that mutates a detached copy without returning
+  it, or gets silently overridden, would look identical to a working one.
+  `verify_head_patch` now ALSO checks, via a genuine `forward_hook` (a
+  different PyTorch mechanism entirely, confirmed directly against
+  `accelerate`'s source to still see the true consumed input even under
+  `device_map="auto"`'s `.forward`-monkey-patching): does `o_proj`'s
+  actually-consumed input match what was intended, and does its actual
+  output match a from-scratch recomputation with its own weight? Both
+  checks passed for the fake working AND broken cases alike -- for the
+  broken case, they correctly show `o_proj` computes right but gets
+  discarded downstream, which is a different (and already-caught) failure
+  mode than the hook being inert.
+- **`run_all_heads_control` now asserts, hard** (raises, not just prints),
+  that the answer *changes at all* from baseline on most (>=50%) real_b
+  trials -- more basic than `to_B`, which could in principle read 0% even
+  from a working mechanism (the answer moves, just not to exactly B's
+  minute). A mechanism where the answer never moves fails this immediately.
+
+**This does not rule out a real finding**: patching one layer's attention
+contribution alone (even all heads) is a smaller intervention than
+intervene.py's whole-residual-stream patch (which also overwrites the
+incoming residual and that layer's MLP contribution) -- if `--verify`
+passes, the two new independent checks are near-zero, and the
+answer-changed assertion passes, but `to_B` still comes back near 0%, that
+combination is real signal (the minute needs more than attention-at-one-
+layer alone), not evidence of a bug. **What to run next**: re-run
+`--verify` (now strengthened) and `--all_heads` on the corrected layer
+numbers; if both pass cleanly, the head-patching mechanism itself is
+confirmed sound and a persistent near-0% `to_B` is the real finding to
+report, not a bug to keep chasing.
+
 ## Multi-model replication
 
 Every finding above was established on Qwen2.5-VL-3B-Instruct alone. To
