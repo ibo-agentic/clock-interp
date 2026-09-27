@@ -65,12 +65,28 @@ docstring for the same caveat in a different context). This script reports
 ONLY the fraction of a head's attention mass on image-token positions vs.
 text positions -- never a claim about attending "to the minute hand" or any
 other specific image region.
+
+UNDERPOWERED-CELL CAVEAT (found on a real Kaggle run, not hypothetical):
+every summary cell is restricted to pairs where A's and the target's
+STATED minutes differ (compute_transfer_columns' minute_baselines_differ),
+and a `--max_pairs 10` run once had only 2 of those 10 pairs actually
+qualify -- every cell printed a clean-looking 0.0%/p=1.0000, which reads
+like "no effect" but was really "next to no data". `estimate_usable_pairs`
+now predicts and warns about this BEFORE the sweep runs, `summarize_heads`
+flags any cell below MIN_N_FOR_RELIABLE_CELL as `underpowered` (excluded
+from ranking/concentration/cross-model comparison/attention-inspection
+selection, though its raw numbers stay in the CSV), and `power_note_text`
+states the actual pairs-per-cell a run's (layer, head) count needs at
+Bonferroni-corrected significance -- read it before sizing --n_pairs, not
+after a wasted sweep.
 """
 
 import argparse
 import contextlib
+import math
 import os
 import time
+from statistics import NormalDist
 
 import numpy as np
 import pandas as pd
@@ -85,12 +101,23 @@ from adapters import get_adapter, output_dir_for, relative_depth
 from eval_behavior import PROMPT, SEED, parse_time_answer
 from intervene import (MAX_NEW_TOKENS, MIN_GAP_MINUTES, _baseline_fields, build_pairs,
                         compute_transfer_columns, find_same_minute_partner, forward_hidden_states,
-                        load_excluded_pairs, make_matched_noise, relative_l2_diff, resolve_layers_cli,
-                        run_baseline, setup_model_and_vision)
+                        load_excluded_pairs, make_matched_noise, recompute_baselines_for_files,
+                        relative_l2_diff, resolve_layers_cli, run_baseline, setup_model_and_vision)
 from analyze_replication import bootstrap_ci, bootstrap_diff_ci, permutation_test
 
 OUT_DIR = "heads_output"
 N_PAIRS = 20   # small default -- heads x layers x pairs explodes fast, see module docstring's cost section
+
+# Statistical-power constants (see estimate_usable_pairs / power_note_text below): a coarse
+# sweep with too few USABLE pairs (A's and B's STATED minutes differ -- see
+# compute_transfer_columns) reads as a false "null" (0% everywhere, p=1.0) rather than what it
+# actually is -- an underpowered/empty measurement. This bit a real run: --max_pairs 10 produced
+# only 2 usable pairs, and every cell printed 0%/p=1.0 as if it were a real result.
+MIN_USABLE_PAIRS_WARN = 30      # req #1: warn loudly before the sweep if fewer than this many pairs are predicted usable
+MIN_N_FOR_RELIABLE_CELL = 20    # req #2: below this per-cell n, mark UNDERPOWERED instead of printing raw rates/p-values
+POWER_DETECT_DELTA = 0.20       # req #3: the effect size ("a 20-point difference") the power note sizes for
+POWER_ALPHA = 0.05              # two-sided, before Bonferroni correction across cells
+POWER_TARGET = 0.80             # standard 80% power convention
 
 
 # ---------------------------------------------------------------------------
@@ -252,6 +279,100 @@ def capture_head_inputs(attn_modules_by_layer, capture_holder):
 
 
 # ---------------------------------------------------------------------------
+# Power/usable-pairs diagnostics -- see the module constants above. Every
+# summary cell is restricted to pairs where A's and the target's STATED
+# (model-predicted, not ground-truth) minutes differ (compute_transfer_
+# columns' minute_baselines_differ), so a run where most pairs don't meet
+# that bar silently reads as a null result (0%, p=1.0) instead of what it
+# actually is: too little data to say anything.
+# ---------------------------------------------------------------------------
+
+def estimate_usable_pairs(adapter, image_features_owners, vision_method, images_dir, pairs,
+                           max_new_tokens=MAX_NEW_TOKENS):
+    """Cheaply PREDICTS how many of `pairs` will end up usable for the to_B
+    metric, BEFORE spending the full sweep's GPU time: reuses intervene.py's
+    recompute_baselines_for_files (one plain generate() call per UNIQUE
+    image, no patching -- much cheaper than the sweep) to get each image's
+    own STATED minute, then counts pairs where A's and B's stated minutes
+    differ -- the exact restriction summarize_heads applies afterward.
+    Since nothing upstream of this baseline call differs between this
+    pre-check and the sweep's own per-pair run_baseline call (same model,
+    same prompt, greedy decoding), this is an exact predictor, not a rough
+    guess. Prints the estimate and a loud warning if it falls below
+    MIN_USABLE_PAIRS_WARN, since that's exactly the failure mode that
+    motivated this function: a run that came back all-0%/p=1.0 not because
+    nothing transfers, but because only 2 of 10 pairs were even eligible.
+    Returns the predicted usable count."""
+    unique_files = sorted({f for pair in pairs for f in (pair[0]["filename"], pair[1]["filename"])})
+    baselines_df = recompute_baselines_for_files(adapter, image_features_owners, vision_method,
+                                                  images_dir, unique_files, max_new_tokens=max_new_tokens)
+    minute_by_file = baselines_df.set_index("filename")["baseline_minute"]
+
+    n_usable = 0
+    for a, b in pairs:
+        am, bm = minute_by_file.get(a["filename"]), minute_by_file.get(b["filename"])
+        if am is not None and bm is not None and not pd.isna(am) and not pd.isna(bm) and am != bm:
+            n_usable += 1
+
+    frac = n_usable / len(pairs) if pairs else 0.0
+    print(f"\nPre-sweep check: {n_usable}/{len(pairs)} pair(s) ({frac:.0%}) predicted usable for the to_B "
+          f"metric (A's and B's STATED baseline minutes differ -- {len(unique_files)} unique image(s), "
+          "one cheap unpatched generate() call each).")
+    if n_usable < MIN_USABLE_PAIRS_WARN:
+        print(
+            "\n" + "!" * 70 +
+            f"\nWARNING: only {n_usable} pair(s) are predicted usable -- well below the "
+            f"~{MIN_USABLE_PAIRS_WARN} this project treats as a floor for a permutation-test/Bonferroni "
+            "summary to mean anything (see the power note below/in the summary for exactly how many "
+            "are actually needed to detect a real effect). Every cell built from this few pairs will "
+            "print as UNDERPOWERED rather than a trustworthy 0.0%/p=1.0000 -- but you are about to "
+            "spend the FULL sweep's GPU time computing it regardless. Raise --n_pairs (the pair-building "
+            "pool, not just --max_pairs, which only TRUNCATES that pool) before committing to a real "
+            "run, or proceed knowingly if this is just a smoke test.\n" + "!" * 70 + "\n"
+        )
+    return n_usable
+
+
+def min_n_per_cell_for_power(n_cells, delta=POWER_DETECT_DELTA, alpha=POWER_ALPHA, power=POWER_TARGET):
+    """Minimum n (usable pairs) PER (layer, head) CELL needed to detect a
+    `delta` difference between the real_b and noise to_B rates, at
+    Bonferroni-corrected alpha across `n_cells` simultaneous cells, with
+    `power` probability of detecting it if it's real -- the standard
+    two-proportion z-test sample-size formula:
+        n = (z_(alpha/2) + z_power)^2 * (p1(1-p1) + p2(1-p2)) / delta^2
+    using the CONSERVATIVE p=0.5 for both rates (the maximum-variance case),
+    since the true rates aren't known before running -- this project's
+    replicated finding puts noise around 5-25% and real_b around 60-80%,
+    which needs somewhat FEWER pairs than this; treat this as a safe upper
+    bound for sizing --n_pairs, not the exact number required."""
+    alpha_corrected = alpha / max(n_cells, 1)
+    z_alpha2 = NormalDist().inv_cdf(1 - alpha_corrected / 2)
+    z_power = NormalDist().inv_cdf(power)
+    variance_term = 2 * 0.5 * (1 - 0.5)   # p(1-p) + p(1-p) at the conservative p=0.5
+    n = ((z_alpha2 + z_power) ** 2) * variance_term / (delta ** 2)
+    return alpha_corrected, math.ceil(n)
+
+
+def power_note_text(n_cells, delta=POWER_DETECT_DELTA, alpha=POWER_ALPHA, power=POWER_TARGET):
+    """Formats the power note requested alongside the summary: how many
+    usable pairs PER CELL this sweep's (layer, head) cell count actually
+    needs to reliably detect a real effect, given Bonferroni correction --
+    printed both BEFORE the sweep (so --n_pairs can be sized against it
+    without spending GPU hours first) and again in the final summary."""
+    alpha_corrected, n_needed = min_n_per_cell_for_power(n_cells, delta=delta, alpha=alpha, power=power)
+    return (
+        f"Power note: {n_cells} (layer, head) cell(s) tested at once -> Bonferroni-corrected "
+        f"alpha={alpha_corrected:.2e}. Detecting a {delta:.0%}-point real_b-vs-noise difference at "
+        f"{power:.0%} power needs at least ~{n_needed} usable pairs PER CELL (conservative worst-case "
+        "estimate assuming a 50/50 rate; this project's actual replicated rates -- noise ~5-25%, "
+        "real_b ~60-80% -- would need somewhat fewer). Narrowing --layers/--max_heads for a targeted "
+        "confirmation pass on a specific head (n_cells=1) drops this requirement sharply (e.g. ~99 "
+        "pairs at the same alpha/power/delta) -- a coarse full-grid sweep and a narrow confirmation "
+        "pass have very different pair budgets."
+    )
+
+
+# ---------------------------------------------------------------------------
 # The sweep: head-level patching, reusing intervene.py's pair-building,
 # baseline caching, controls, and transfer metric UNCHANGED (see module
 # docstring -- everything below is orchestration, not new mechanics).
@@ -287,12 +408,16 @@ def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_o
                              "swept layers (true for every architecture this project supports; a mismatch "
                              "means something unexpected about this model, not a case to silently paper over).")
     heads_to_sweep = list(range(num_heads)) if max_heads is None else list(range(min(num_heads, max_heads)))
+    n_cells = len(layers) * len(heads_to_sweep)
 
     already_used = {f for pair in pairs for f in (pair[0]["filename"], pair[1]["filename"])}
     n_total_trials = len(pairs) * len(layers) * len(heads_to_sweep) * 3   # real_b, same_minute, noise
     print(f"heads.py: {len(pairs)} pair(s) x {len(layers)} layer(s) x {len(heads_to_sweep)} head(s) "
           f"x 3 conditions = {n_total_trials} generate() calls total (num_heads={num_heads}, "
           f"head_dim={head_dim}).")
+    print(power_note_text(n_cells))
+    estimate_usable_pairs(adapter, image_features_owners, vision_method, images_dir, pairs,
+                          max_new_tokens=max_new_tokens)
 
     rows = []
     t_start = time.perf_counter()
@@ -416,7 +541,13 @@ def summarize_heads(trials_df, out_dir, n_permutations=2000):
     reused not reimplemented) with a Bonferroni correction across however
     many (layer, head) cells were actually tested -- sweeping this many
     cells at once and reading each at the raw alpha=0.05 level would produce
-    false positives by construction."""
+    false positives by construction. Every cell also gets an `underpowered`
+    flag (n_pairs_usable < MIN_N_FOR_RELIABLE_CELL): the raw rate/p-value
+    columns are still computed and saved (nothing is hidden from the CSV),
+    but print_heads_summary/compare_heads_across_models must NOT treat an
+    underpowered cell's numbers as a measurement -- a cell with n=2 showing
+    0%/p=1.0 is not evidence of no effect, it's too little data to say
+    anything (see the module constants and estimate_usable_pairs above)."""
     df = compute_transfer_columns(trials_df)
     restricted = df[df["minute_baselines_differ"] == 1.0]
 
@@ -436,9 +567,11 @@ def summarize_heads(trials_df, out_dir, n_permutations=2000):
                                            n_permutations=n_permutations, seed=0)
         p_bonf = min(1.0, p_value * n_cells) if not np.isnan(p_value) else float("nan")
 
+        n_usable = int(len(real_b))
         rows.append({
             "layer": layer, "head": head, "relative_depth": float(sub["relative_depth"].iloc[0]),
-            "n_pairs_usable": int(len(real_b)),
+            "n_pairs_usable": n_usable,
+            "underpowered": n_usable < MIN_N_FOR_RELIABLE_CELL,
             "to_b_real_b": float(real_b.mean()) if len(real_b) else float("nan"),
             "to_b_same_minute": float(same_minute.mean()) if len(same_minute) else float("nan"),
             "to_b_noise": float(noise.mean()) if len(noise) else float("nan"),
@@ -479,14 +612,41 @@ def plot_heads_heatmap(summary_df, out_dir, title_suffix=""):
 
 
 def print_heads_summary(summary_df, top_n=10):
+    """Prints the ranked head table, restricted to RELIABLE cells
+    (n_pairs_usable >= MIN_N_FOR_RELIABLE_CELL) -- an underpowered cell's
+    0.0%/p=1.0000 is not a measurement, it's too little data, and including
+    it in a "top heads" ranking or a concentration calculation would treat
+    noise as if it were a finding. Underpowered cells are still saved (with
+    their raw, unreliable values) to heads_summary.csv by summarize_heads --
+    only the printed report and its derived stats exclude them."""
     lines = ["=== HEAD-LEVEL SUMMARY ===", ""]
     n_cells = len(summary_df)
-    n_sig = int((summary_df["p_value_bonferroni"] < 0.05).sum())
+    reliable = summary_df[~summary_df["underpowered"]]
+    n_underpowered = int(summary_df["underpowered"].sum())
+    n_sig = int((reliable["p_value_bonferroni"] < 0.05).sum())
     lines.append(f"{n_cells} (layer, head) cell(s) tested; {n_sig} significant after Bonferroni "
                  "correction (alpha=0.05) -- read the RAW p_value column with that correction in mind, "
                  "not at face value, given how many cells were tested at once.")
+    if n_underpowered > 0:
+        lines.append(f"{n_underpowered}/{n_cells} cell(s) are UNDERPOWERED (n_pairs_usable < "
+                     f"{MIN_N_FOR_RELIABLE_CELL}) and are EXCLUDED from the ranked table and concentration "
+                     "block below -- their raw (unreliable) values are still in heads_summary.csv, but a "
+                     "0.0%/p=1.0000 from a couple of pairs is not evidence of 'no effect', it's too little "
+                     "data to say anything.")
     lines.append("")
-    top = summary_df.sort_values("diff_vs_noise", ascending=False).head(top_n)
+    lines.append(power_note_text(n_cells))
+    lines.append("")
+
+    if len(reliable) == 0:
+        lines.append(f"ALL {n_cells} cell(s) are UNDERPOWERED (n_pairs_usable < {MIN_N_FOR_RELIABLE_CELL} "
+                     "everywhere) -- this run cannot report reliable head-level results, full stop. Re-run "
+                     "with a larger --n_pairs (see the power note above, and estimate_usable_pairs' "
+                     "pre-sweep check) before drawing any conclusion from this data.")
+        text = "\n".join(lines)
+        print("\n" + text)
+        return text
+
+    top = reliable.sort_values("diff_vs_noise", ascending=False).head(top_n)
     header = (f"{'layer':>6}{'head':>6}{'rel_depth':>11}{'to_B(real_b)':>14}{'to_B(same_min)':>16}"
               f"{'to_B(noise)':>13}{'diff':>9}{'n':>5}{'p':>9}{'p_bonf':>9}{'sig':>5}")
     lines.append(header)
@@ -499,14 +659,19 @@ def print_heads_summary(summary_df, top_n=10):
             f"{r['p_value_bonferroni']:>9.4f}{sig:>5}"
         )
     lines.append("")
-    positive = summary_df[summary_df["diff_vs_noise"] > 0]["diff_vs_noise"].sort_values(ascending=False)
+    positive = reliable[reliable["diff_vs_noise"] > 0]["diff_vs_noise"].sort_values(ascending=False)
     total = positive.sum()
     lines.append("Concentration -- fraction of the total positive (diff_vs_noise) effect mass carried by "
-                 "the top-K heads (one head dominating vs. spread across many looks very different here):")
+                 "the top-K heads, among RELIABLE cells only (one head dominating vs. spread across many "
+                 "looks very different here):")
     for k in (1, 3, 5, 10):
-        frac = positive.head(k).sum() / total if total > 0 else float("nan")
-        lines.append(f"  top {k:>2} head(s): {frac:.1%} of total positive effect (n={min(k, len(positive))} "
-                     f"of {len(positive)} heads with a positive effect)")
+        if total > 0:
+            frac = positive.head(k).sum() / total
+            lines.append(f"  top {k:>2} head(s): {frac:.1%} of total positive effect (n={min(k, len(positive))} "
+                         f"of {len(positive)} heads with a positive effect)")
+        else:
+            lines.append(f"  top {k:>2} head(s): insufficient data (no reliable cell showed a positive "
+                         "effect vs. noise)")
     text = "\n".join(lines)
     print("\n" + text)
     return text
@@ -515,24 +680,37 @@ def print_heads_summary(summary_df, top_n=10):
 def compare_heads_across_models(name_a, summary_a, name_b, summary_b, sig_threshold=0.05):
     """The key cross-model report requested: how many heads carry the
     minute in each model, how concentrated the effect is, and at what
-    relative depth the top heads sit -- side by side."""
+    relative depth the top heads sit -- side by side. Restricted to
+    RELIABLE cells (n_pairs_usable >= MIN_N_FOR_RELIABLE_CELL) for the same
+    reason print_heads_summary is -- an underpowered cell's numbers aren't
+    a measurement, and letting them into a cross-model "top head" or
+    concentration comparison would compare noise, not heads."""
     lines = ["=== CROSS-MODEL HEAD COMPARISON ===", ""]
     for name, summary in ((name_a, summary_a), (name_b, summary_b)):
-        n_sig = int((summary["p_value_bonferroni"] < sig_threshold).sum())
-        positive = summary[summary["diff_vs_noise"] > 0]["diff_vs_noise"].sort_values(ascending=False)
-        total = positive.sum()
-        top1_frac = (positive.head(1).sum() / total) if total > 0 else float("nan")
-        top3_frac = (positive.head(3).sum() / total) if total > 0 else float("nan")
-        top_row = summary.sort_values("diff_vs_noise", ascending=False).iloc[0] if len(summary) else None
+        reliable = summary[~summary["underpowered"]]
+        n_underpowered = int(summary["underpowered"].sum())
         lines.append(f"{name}:")
-        lines.append(f"  {n_sig}/{len(summary)} (layer, head) cells significant (Bonferroni, "
+        if n_underpowered > 0:
+            lines.append(f"  {n_underpowered}/{len(summary)} cell(s) UNDERPOWERED (n_pairs_usable < "
+                         f"{MIN_N_FOR_RELIABLE_CELL}) -- excluded below.")
+        if len(reliable) == 0:
+            lines.append("  ALL cells UNDERPOWERED -- insufficient data for this model; re-run with a "
+                         "larger --n_pairs before comparing.")
+            lines.append("")
+            continue
+        n_sig = int((reliable["p_value_bonferroni"] < sig_threshold).sum())
+        positive = reliable[reliable["diff_vs_noise"] > 0]["diff_vs_noise"].sort_values(ascending=False)
+        total = positive.sum()
+        top1_text = f"{(positive.head(1).sum() / total):.1%}" if total > 0 else "insufficient data"
+        top3_text = f"{(positive.head(3).sum() / total):.1%}" if total > 0 else "insufficient data"
+        top_row = reliable.sort_values("diff_vs_noise", ascending=False).iloc[0]
+        lines.append(f"  {n_sig}/{len(reliable)} reliable (layer, head) cell(s) significant (Bonferroni, "
                      f"alpha={sig_threshold})")
-        lines.append(f"  concentration: top 1 head = {top1_frac:.1%} of positive effect, "
-                     f"top 3 heads = {top3_frac:.1%}")
-        if top_row is not None:
-            lines.append(f"  top head: layer {int(top_row['layer'])} head {int(top_row['head'])} "
-                         f"(relative_depth={top_row['relative_depth']:.2f}), "
-                         f"diff_vs_noise={top_row['diff_vs_noise']:+.1%}")
+        lines.append(f"  concentration: top 1 head = {top1_text} of positive effect, "
+                     f"top 3 heads = {top3_text}")
+        lines.append(f"  top head: layer {int(top_row['layer'])} head {int(top_row['head'])} "
+                     f"(relative_depth={top_row['relative_depth']:.2f}), "
+                     f"diff_vs_noise={top_row['diff_vs_noise']:+.1%}")
         lines.append("")
     text = "\n".join(lines)
     print("\n" + text)
@@ -743,14 +921,23 @@ def inspect_attention_pattern(adapter, attn_module, layer, head_idx, image_path,
 
 def inspect_top_heads(adapter, attn_modules, summary_df, df, images_dir, top_n=5, n_images=5, seed=SEED):
     """Runs inspect_attention_pattern for the top `top_n` heads (by
-    diff_vs_noise) over `n_images` sample images, averaging the image/text
-    attention fraction. Returns a DataFrame, one row per (layer, head) with
-    the averaged fractions -- or an empty DataFrame with a printed note if
-    attention weights aren't available at all for this model (see
-    inspect_attention_pattern)."""
+    diff_vs_noise, RELIABLE cells only -- an underpowered cell's diff isn't
+    a measurement, and picking it as a "top head" to spend attention-
+    inspection effort on would chase noise) over `n_images` sample images,
+    averaging the image/text attention fraction. Returns a DataFrame, one
+    row per (layer, head) with the averaged fractions -- or an empty
+    DataFrame with a printed note if attention weights aren't available at
+    all for this model (see inspect_attention_pattern)."""
     rng = np.random.RandomState(seed)
     sample = df.sample(n=min(n_images, len(df)), random_state=seed)
-    top = summary_df.sort_values("diff_vs_noise", ascending=False).head(top_n)
+    reliable = summary_df[~summary_df["underpowered"]] if "underpowered" in summary_df.columns else summary_df
+    if len(reliable) == 0:
+        print(f"NOTE: all {len(summary_df)} cell(s) are underpowered -- skipping attention inspection "
+              "(picking a 'top head' from unreliable diffs would chase noise). Re-run with a larger "
+              "--n_pairs first.")
+        return pd.DataFrame(columns=["layer", "head", "diff_vs_noise", "n_images_usable",
+                                     "mean_frac_image", "mean_frac_text"])
+    top = reliable.sort_values("diff_vs_noise", ascending=False).head(top_n)
 
     rows = []
     n_unavailable = 0

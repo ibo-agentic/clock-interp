@@ -964,6 +964,43 @@ PASS/FAIL report *before* the sweep starts (same convention as
 printed verdict yourself) -- do not trust `heads_summary.csv` or
 `heads_heatmap.png` from a run where `--verify` didn't report PASS.
 
+**Statistical power -- read this before trusting a coarse pass's numbers.**
+A real Kaggle run at `--max_pairs 10` came back with every cell showing
+0%/p=1.0000, which read like a clean null result but was actually an empty
+one: only 2 of the 10 pairs had A's and the target's *stated* (model-
+predicted, not ground-truth) minutes differ -- the restriction every
+summary cell applies (`compute_transfer_columns`' `minute_baselines_differ`)
+-- so there was essentially no data behind those numbers. Three things now
+guard against reading an underpowered cell as a measurement:
+
+- **Before the sweep starts**, `run_experiment_heads` cheaply predicts how
+  many pairs will actually be usable (one unpatched baseline `generate()`
+  call per unique image -- reusing `intervene.py`'s
+  `recompute_baselines_for_files`, far cheaper than the sweep itself) and
+  prints a loud warning if fewer than ~30 are predicted usable, with the
+  fix (raise `--n_pairs`, not just `--max_pairs`, which only truncates the
+  pool `--n_pairs` builds).
+- **In `heads_summary.csv`/the printed report**, any (layer, head) cell
+  with fewer than 20 usable pairs is marked `underpowered` and excluded
+  from the ranked table, the concentration block, `compare_heads_across_models`,
+  and `inspect_top_heads`'s head selection -- its raw (unreliable) numbers
+  stay in the CSV, but nothing downstream treats them as a finding. An
+  all-underpowered run reports that plainly instead of a misleading ranked
+  table.
+- **A printed power note** (both before the sweep and in the final summary)
+  states, for THIS run's actual (layer, head) cell count and Bonferroni
+  correction, the minimum usable pairs per cell needed to reliably detect a
+  20-point real_b-vs-noise difference (conservative worst-case estimate,
+  two-proportion z-test, 80% power). For the 3B command above (9 layers x
+  16 heads = 144 cells), that number is **~245 pairs per cell** -- meaning
+  `--n_pairs 20` (chosen for a ~2 hour Kaggle T4 budget, not for Bonferroni
+  significance) is a **coarse screening pass for spotting candidate heads
+  from the heatmap, not a statistically powered claim about any single
+  cell**. Narrowing `--layers`/`--max_heads` to a handful of candidates
+  found this way for a follow-up confirmation run drops the requirement
+  sharply (1 cell needs only ~99 pairs at the same alpha/power/delta) --
+  screen broad and cheap, then confirm narrow and adequately powered.
+
 ## Multi-model replication
 
 Every finding above was established on Qwen2.5-VL-3B-Instruct alone. To
