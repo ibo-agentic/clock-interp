@@ -598,7 +598,8 @@ def _compute_pair_baselines(adapter, image_features_owners, vision_method, image
 
 def run_all_heads_control(adapter, image_features_owners, vision_method, attn_modules, df, images_dir,
                            layers, out_dir=None, n_pairs=ALL_HEADS_CONTROL_PAIRS, min_gap=MIN_GAP_MINUTES,
-                           max_new_tokens=MAX_NEW_TOKENS, seed=SEED, exclude_pairs=None, pairs=None):
+                           max_new_tokens=MAX_NEW_TOKENS, seed=SEED, exclude_pairs=None, pairs=None,
+                           use_cache=True):
     """POSITIVE CONTROL: patch ALL heads at once (head_idx=None -- the WHOLE
     per-head-concatenated o_proj-input tensor, not one head's slice) at
     image-token positions, at each of `layers`, on a small number of pairs
@@ -630,11 +631,37 @@ def run_all_heads_control(adapter, image_features_owners, vision_method, attn_mo
     reaches generation and case (a) is live. If it ALSO comes back near
     0%, that's case (b): the mechanism itself isn't reaching generation,
     and that must be found and fixed before any single-head or grouped
-    result can be trusted."""
+    result can be trusted.
+
+    `use_cache`: a real run hit exactly case (b) -- --verify's independent
+    checks (_capture_o_proj_forward) confirmed o_proj consumes the patched
+    input and computes correctly from it, and the final hidden state DOES
+    change (diff_final ~0.05-0.07), yet the ANSWER was unaffected. Traced
+    against the installed transformers' Qwen2_5_VLAttention.forward:
+    q/k/v_proj all read from THIS layer's INPUT hidden_states, and
+    `past_key_values.update(...)` (the KV cache write) happens BEFORE
+    o_proj is even called -- so patching o_proj's input can never change
+    what gets cached for the PATCHED layer itself, only what LATER layers
+    compute (correctly, within the SAME prefill pass, hence diff_final
+    moving) and what THEIR K/V cache ends up holding. `head_patched`'s
+    shape guard intentionally only fires on the prefill call (see its
+    docstring: "the prefill pass already baked in whatever effect this
+    patch has via the KV cache"), so caching mode should not, in theory,
+    change whether the FIRST generated token's logits reflect the patch --
+    but the prime suspect deserves a direct empirical test, not just a
+    source-reading argument. `use_cache=False` (--no_cache) forces every
+    decode step to recompute from scratch with no cache at all; if the
+    answer moves under `--no_cache` but not otherwise, the cache IS
+    implicated after all despite the reasoning above. If it still doesn't
+    move, the leading explanation becomes: a single layer's attention
+    contribution alone (even summed over all its heads) is simply a
+    smaller perturbation than intervene.py's whole-residual-stream patch,
+    too small to flip this model's greedy-decoding argmax on this prompt."""
     if pairs is None:
         pairs = build_pairs(df, n_pairs=n_pairs, min_gap=min_gap, seed=seed, exclude_pairs=exclude_pairs)
     pairs = pairs[:n_pairs]
-    lines = ["=== POSITIVE CONTROL: ALL heads patched at once (image-token positions) ==="]
+    cache_note = "use_cache=True (default)" if use_cache else "use_cache=False (--no_cache: full recompute every generated token, no KV cache)"
+    lines = [f"=== POSITIVE CONTROL: ALL heads patched at once (image-token positions), {cache_note} ==="]
     if len(pairs) == 0:
         lines.append("No pairs available -- skipped.")
         text = "\n".join(lines)
@@ -664,7 +691,7 @@ def run_all_heads_control(adapter, image_features_owners, vision_method, attn_mo
 
             def _trial(condition, values, other_file, other_base):
                 with head_patched(o_proj, image_mask, values, None, head_dim, mode="replace"):
-                    ans = adapter.generate_answer(base_a["inputs"], max_new_tokens)
+                    ans = adapter.generate_answer(base_a["inputs"], max_new_tokens, use_cache=use_cache)
                 pred_hour, pred_minute, ok = parse_time_answer(ans)
                 rows.append({
                     "pair": pair_idx, "a_file": a["filename"], "b_file": other_file,
@@ -779,7 +806,7 @@ def run_all_heads_control(adapter, image_features_owners, vision_method, attn_mo
 def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_owners, vision_method,
                           df, images_dir, out_dir, layers, n_pairs=N_PAIRS, max_pairs=None,
                           min_gap=MIN_GAP_MINUTES, max_heads=None, max_new_tokens=MAX_NEW_TOKENS,
-                          seed=SEED, exclude_pairs=None, head_groups=None, head_range=None):
+                          seed=SEED, exclude_pairs=None, head_groups=None, head_range=None, use_cache=True):
     """Same paired design as Experiment A (build_pairs, same-minute partner,
     matched-norm noise) -- but patches one HEAD SELECTOR (a single head by
     default, or a contiguous GROUP of heads if `head_groups` is given -- see
@@ -829,7 +856,7 @@ def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_o
     print("=" * 70)
     run_all_heads_control(adapter, image_features_owners, vision_method, attn_modules, df, images_dir,
                           layers, out_dir=out_dir, n_pairs=ALL_HEADS_CONTROL_PAIRS, min_gap=min_gap,
-                          max_new_tokens=max_new_tokens, seed=seed, pairs=pairs)
+                          max_new_tokens=max_new_tokens, seed=seed, pairs=pairs, use_cache=use_cache)
 
     rows = []
     t_start = time.perf_counter()
@@ -861,7 +888,7 @@ def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_o
                             "n_heads_patched": n_heads_patched}
 
                 with head_patched(o_proj, image_mask, b_cache, selector, head_dim, mode="replace"):
-                    ans = adapter.generate_answer(base_a["inputs"], max_new_tokens)
+                    ans = adapter.generate_answer(base_a["inputs"], max_new_tokens, use_cache=use_cache)
                 pred_hour, pred_minute, ok = parse_time_answer(ans)
                 rows.append({
                     "seed": seed, "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"],
@@ -875,7 +902,7 @@ def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_o
 
                 if base_same is not None and same_cache is not None:
                     with head_patched(o_proj, image_mask, same_cache, selector, head_dim, mode="replace"):
-                        ans_s = adapter.generate_answer(base_a["inputs"], max_new_tokens)
+                        ans_s = adapter.generate_answer(base_a["inputs"], max_new_tokens, use_cache=use_cache)
                     pred_hour_s, pred_minute_s, ok_s = parse_time_answer(ans_s)
                     rows.append({
                         "seed": seed, "pair": pair_idx, "a_file": a["filename"], "b_file": same_row["filename"],
@@ -896,7 +923,7 @@ def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_o
                 noise_full = a_cache.clone()
                 noise_full[:, col] = make_matched_noise(a_cache[:, col], rng)
                 with head_patched(o_proj, image_mask, noise_full, selector, head_dim, mode="replace"):
-                    ans_n = adapter.generate_answer(base_a["inputs"], max_new_tokens)
+                    ans_n = adapter.generate_answer(base_a["inputs"], max_new_tokens, use_cache=use_cache)
                 pred_hour_n, pred_minute_n, ok_n = parse_time_answer(ans_n)
                 rows.append({
                     "seed": seed, "pair": pair_idx, "a_file": a["filename"], "b_file": None,
@@ -1172,7 +1199,7 @@ def _capture_o_proj_forward(o_proj):
 
 
 def verify_head_patch(adapter, decoder_layers, attn_modules, image_features_owners, vision_method,
-                       pairs, images_dir, layers, max_heads_to_verify, max_new_tokens):
+                       pairs, images_dir, layers, max_heads_to_verify, max_new_tokens, use_cache=True):
     """For a few (A, B) pairs and a few (layer, head) combos: confirm (a)
     the patched head's o_proj-INPUT slice at the image-token positions
     actually changes to B's cached value -- verified via a genuinely
@@ -1301,7 +1328,7 @@ def verify_head_patch(adapter, decoder_layers, attn_modules, image_features_owne
                                     max_new_tokens=max_new_tokens)
         zero_vals = torch.zeros_like(head_cache_a0[layer0])
         with head_patched(attn_module_for_layer(attn_modules, layer0).o_proj, base_a0["image_mask"], zero_vals, None, head_dim, mode="replace"):
-            ans_zero = adapter.generate_answer(base_a0["inputs"], max_new_tokens)
+            ans_zero = adapter.generate_answer(base_a0["inputs"], max_new_tokens, use_cache=use_cache)
         changed = (ans_zero != base_a0["raw_answer"])
         extreme_records.append({"layer": layer0, "baseline_answer": base_a0["raw_answer"],
                                 "extreme_answer": ans_zero, "extreme_answer_changed": changed})
@@ -1364,7 +1391,7 @@ def build_head_verification_verdict(records, extreme_records):
 
 def run_verification(adapter, decoder_layers, attn_modules, image_features_owners, vision_method,
                       df, images_dir, out_dir, n_verify_pairs=2, verify_layers=None, max_heads_to_verify=2,
-                      min_gap=MIN_GAP_MINUTES, max_new_tokens=MAX_NEW_TOKENS, seed=SEED):
+                      min_gap=MIN_GAP_MINUTES, max_new_tokens=MAX_NEW_TOKENS, seed=SEED, use_cache=True):
     if verify_layers is None:
         num_layers = len(decoder_layers)
         verify_layers = sorted(set([num_layers // 3, 2 * num_layers // 3]))
@@ -1380,7 +1407,7 @@ def run_verification(adapter, decoder_layers, attn_modules, image_features_owner
 
     lines, records, extreme_records = verify_head_patch(
         adapter, decoder_layers, attn_modules, image_features_owners, vision_method,
-        pairs, images_dir, verify_layers, max_heads_to_verify, max_new_tokens)
+        pairs, images_dir, verify_layers, max_heads_to_verify, max_new_tokens, use_cache=use_cache)
     verdict_lines = build_head_verification_verdict(records, extreme_records)
 
     all_lines = ["=== HEADS.PY VERIFICATION REPORT ===", ""] + lines + [""] + verdict_lines
@@ -1559,6 +1586,14 @@ def main():
                         help=f"pairs used by the positive control, standalone or embedded (default "
                              f"{ALL_HEADS_CONTROL_PAIRS} -- a handful is enough to tell 'broken plumbing' "
                              "(~0%%) from 'works' (near intervene.py's own whole-layer ballpark))")
+    parser.add_argument("--no_cache", action="store_true",
+                        help="disable the KV cache during generate() (use_cache=False) -- a diagnostic for "
+                             "when the patch demonstrably changes the final hidden state (--verify's "
+                             "diff_final > 0) but the ANSWER doesn't move: forces every decode step to "
+                             "recompute from scratch instead of reusing cached keys/values from the "
+                             "(prefill-only) patched forward pass. Applies to --verify, --all_heads, and "
+                             "the main sweep alike. See run_all_heads_control's docstring for why the "
+                             "cache was suspected and what the mechanics actually say.")
     parser.add_argument("--min_gap", type=int, default=MIN_GAP_MINUTES)
     parser.add_argument("--exclude_pairs_from", type=str, default=None,
                         help="path to a prior run's *_trials.csv -- see intervene.py's --exclude_pairs_from "
@@ -1605,17 +1640,20 @@ def main():
 
     exclude_pairs = load_excluded_pairs(args.exclude_pairs_from) if args.exclude_pairs_from else None
 
+    use_cache = not args.no_cache
+
     if args.verify:
         run_verification(adapter, decoder_layers, attn_modules, image_features_owners, vision_method,
                          df, args.images_dir, out_dir, n_verify_pairs=args.verify_pairs,
                          verify_layers=verify_layers, max_heads_to_verify=args.max_heads_verify,
-                         min_gap=args.min_gap, max_new_tokens=args.max_new_tokens, seed=args.seed)
+                         min_gap=args.min_gap, max_new_tokens=args.max_new_tokens, seed=args.seed,
+                         use_cache=use_cache)
 
     if args.all_heads:
         run_all_heads_control(adapter, image_features_owners, vision_method, attn_modules, df,
                               args.images_dir, layers, out_dir=out_dir, n_pairs=args.all_heads_pairs,
                               min_gap=args.min_gap, max_new_tokens=args.max_new_tokens, seed=args.seed,
-                              exclude_pairs=exclude_pairs)
+                              exclude_pairs=exclude_pairs, use_cache=use_cache)
         print("\n--all_heads: positive-control-only run, skipping the full sweep.")
         return
 
@@ -1627,7 +1665,8 @@ def main():
         adapter, decoder_layers, attn_modules, image_features_owners, vision_method,
         df, args.images_dir, out_dir, layers, n_pairs=args.n_pairs, max_pairs=args.max_pairs,
         min_gap=args.min_gap, max_heads=args.max_heads, max_new_tokens=args.max_new_tokens,
-        seed=args.seed, exclude_pairs=exclude_pairs, head_groups=args.head_groups, head_range=head_range)
+        seed=args.seed, exclude_pairs=exclude_pairs, head_groups=args.head_groups, head_range=head_range,
+        use_cache=use_cache)
 
     summary = summarize_heads(trials, out_dir)
     plot_heads_heatmap(summary, out_dir, title_suffix=f" ({adapter.short_name})")

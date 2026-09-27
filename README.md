@@ -1108,11 +1108,60 @@ incoming residual and that layer's MLP contribution) -- if `--verify`
 passes, the two new independent checks are near-zero, and the
 answer-changed assertion passes, but `to_B` still comes back near 0%, that
 combination is real signal (the minute needs more than attention-at-one-
-layer alone), not evidence of a bug. **What to run next**: re-run
-`--verify` (now strengthened) and `--all_heads` on the corrected layer
-numbers; if both pass cleanly, the head-patching mechanism itself is
-confirmed sound and a persistent near-0% `to_B` is the real finding to
-report, not a bug to keep chasing.
+layer alone), not evidence of a bug.
+
+**That is exactly what the corrected `--verify` then showed on the real
+model**: `diff-vs-intended` = 0.0000 and `diff-output-vs-expected` = 0.0002
+-- `o_proj` genuinely consumes the patched input and computes correctly
+from it -- and `diff-at-final-layer` = 0.05-0.07, so the change DOES
+propagate to the prefill pass's last hidden state. The hook mechanism
+itself is cleared. Yet zeroing all 16 heads at layer 12 left the answer
+identical, and the positive control moved the answer on only 6% of 72
+trials across 9 layers -- so the patch lands and propagates, but generation
+is unaffected. Two hypotheses followed:
+
+- **The KV cache.** Traced directly against the installed transformers'
+  `Qwen2_5_VLAttention.forward`: `q/k/v_proj` all read this layer's *input*
+  hidden_states, and `past_key_values.update(...)` (the cache write)
+  happens *before* `o_proj` is even called -- so patching `o_proj`'s input
+  can never retroactively change what got cached for the patched layer
+  itself, only what LATER layers compute (which the nonzero `diff_final`
+  confirms happens correctly, within the same prefill pass). `head_patched`
+  only ever patches the prefill call by design (the guard intentionally
+  skips single-token decode steps -- "the prefill pass already baked in
+  whatever effect this patch has via the KV cache"), so caching mode should
+  not, by this reasoning, change whether the first generated token's logits
+  reflect the patch. That's an argument from reading the source, not proof
+  -- so `generate_answer`/`run_all_heads_control`/`run_experiment_heads`/
+  `--verify` all now accept `use_cache`, exposed as **`--no_cache`**
+  (`use_cache=False`: every decode step recomputes from scratch, no cache
+  at all) for a direct empirical test: **run `--all_heads --no_cache` at
+  the same layers and compare to the cached run.** If the answer moves
+  under `--no_cache` but not otherwise, the cache is implicated despite the
+  mechanics above. This hasn't been run yet -- it needs your Kaggle GPU.
+- **Too small a perturbation.** If `--no_cache` changes nothing, the
+  leading explanation becomes: one layer's attention contribution, even
+  summed over all its heads, is simply a smaller perturbation (0.05-0.07
+  relative L2 at the final hidden state) than intervene.py's
+  whole-residual-stream patch, too small to flip this model's
+  greedy-decoding argmax on this prompt -- a real, legitimate finding about
+  *how* the minute is read out (spread thin across layers/positions, not
+  concentrated in one layer's attention alone), not a bug.
+
+**What to run next**:
+```
+python heads.py --model_id Qwen/Qwen2.5-VL-3B-Instruct \
+    --layers 20,21,22,23,24,25,26,27,28 --all_heads --no_cache --out_dir heads_output
+```
+Compare its per-layer `to_B(real_b)` and the answer-changed fraction
+against the cached run you already have. If `--no_cache` moves the answer,
+the cache is confirmed as the cause and patching needs to apply at every
+decoding step (or disable caching) rather than prefill-only. If not, this
+project should record "attention-at-one-layer is too small a lever" as the
+finding and move to a full-residual-stream analogue of this sweep (patch
+the WHOLE hidden state at one layer, per intervene.py's own mechanism,
+restricted to a single layer at a time) as the next experiment, rather than
+continuing to chase this as a bug.
 
 ## Multi-model replication
 

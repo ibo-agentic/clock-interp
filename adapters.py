@@ -220,7 +220,7 @@ class ModelAdapter:
         can stay model-agnostic."""
         raise NotImplementedError
 
-    def generate_answer(self, inputs, max_new_tokens=16):
+    def generate_answer(self, inputs, max_new_tokens=16, use_cache=True):
         raise NotImplementedError
 
     def image_token_positions(self, inputs):
@@ -294,8 +294,9 @@ class QwenVLAdapter(ModelAdapter):
         return dict(inputs.to(self.model.device))
 
     @torch.no_grad()
-    def generate_answer(self, inputs, max_new_tokens=16):
-        generated_ids = self.model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
+    def generate_answer(self, inputs, max_new_tokens=16, use_cache=True):
+        generated_ids = self.model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False,
+                                             use_cache=use_cache)
         trimmed = generated_ids[0][inputs["input_ids"].shape[1]:]
         return self.processor.decode(trimmed, skip_special_tokens=True).strip()
 
@@ -377,13 +378,14 @@ class Gemma3Adapter(ModelAdapter):
         return dict(inputs.to(self.model.device))
 
     @torch.no_grad()
-    def generate_answer(self, inputs, max_new_tokens=16):
+    def generate_answer(self, inputs, max_new_tokens=16, use_cache=True):
         # Same trimming convention as Qwen: Gemma3's processor/generate also
         # returns the full (prompt + new tokens) sequence -- confirmed from
         # the installed transformers source (GenerationMixin.generate's
         # standard contract, which Gemma3ForConditionalGeneration doesn't
         # override), unlike InternVL below.
-        generated_ids = self.model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
+        generated_ids = self.model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False,
+                                             use_cache=use_cache)
         trimmed = generated_ids[0][inputs["input_ids"].shape[1]:]
         return self.processor.decode(trimmed, skip_special_tokens=True).strip()
 
@@ -506,7 +508,7 @@ class InternVLAdapter(ModelAdapter):
         return inputs
 
     @torch.no_grad()
-    def generate_answer(self, inputs, max_new_tokens=16):
+    def generate_answer(self, inputs, max_new_tokens=16, use_cache=True):
         # UNLIKE Qwen/Gemma3: InternVLChatModel.generate() calls
         # self.language_model.generate(inputs_embeds=..., ...) internally
         # (confirmed from modeling_internvl_chat.py) -- when generation
@@ -518,7 +520,8 @@ class InternVLAdapter(ModelAdapter):
         # chat() method, which decodes the raw generate() output with NO
         # slicing at all.
         gen_kwargs = {k: v for k, v in inputs.items() if k != "image_flags"}
-        generated_ids = self.model.generate(**gen_kwargs, max_new_tokens=max_new_tokens, do_sample=False)
+        generated_ids = self.model.generate(**gen_kwargs, max_new_tokens=max_new_tokens, do_sample=False,
+                                             use_cache=use_cache)
         return self.tokenizer.decode(generated_ids[0], skip_special_tokens=True).strip()
 
     def image_token_positions(self, inputs):
