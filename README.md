@@ -942,27 +942,85 @@ python heads.py --model_id Qwen/Qwen2.5-VL-3B-Instruct \
 ```
 
 Then scale `--n_pairs` from the printed estimate to fit your time budget.
-As a starting point for a ~2 hour Kaggle T4 run (this has NOT yet been run
-on real weights -- only tested against fake models offline; treat these as
-starting defaults to adjust once the smoke test reports real timing):
+Recommended order for a real run (this has NOT yet been run on real
+weights -- only tested against fake models offline; treat these as
+starting points to adjust once the smoke test reports real timing):
 
 ```
-# Qwen2.5-VL-3B: 16 heads/layer, readout window layers 20-28
+# 1. POSITIVE CONTROL first, standalone -- confirms the o_proj-hook path
+#    reaches generation at all, before spending time on anything finer.
+#    Cheap (--all_heads_pairs, default 8) and prints PASS/FAIL-style
+#    interpretation, not just a number.
 python heads.py --model_id Qwen/Qwen2.5-VL-3B-Instruct \
-    --layers 20,21,22,23,24,25,26,27,28 --n_pairs 20 \
+    --layers 20,21,22,23,24,25,26,27,28 --all_heads --verify --out_dir heads_output
+
+# 2. COARSE pass with --head_groups: 16 heads/layer -> 4 groups of 4 --
+#    4x fewer cells than per-head (gentler Bonferroni correction, a much
+#    larger per-test effect since each "head" is really 4 heads together).
+python heads.py --model_id Qwen/Qwen2.5-VL-3B-Instruct \
+    --layers 20,21,22,23,24,25,26,27,28 --head_groups 4 --n_pairs 20 \
     --verify --out_dir heads_output
 
-# Qwen2.5-VL-7B: 28 heads/layer (fewer layers, more heads -> fewer pairs)
+# 3. CONFIRM narrow: --head_range zooms into whichever group's cell(s)
+#    showed an effect in step 2, sweeping those heads individually (no
+#    --head_groups) -- far fewer cells than the full grid, so a MUCH
+#    smaller --n_pairs is enough for a properly powered result there
+#    (the power note tells you exactly how many).
+python heads.py --model_id Qwen/Qwen2.5-VL-3B-Instruct \
+    --layers 20,21,22,23,24,25,26,27,28 --head_range 8,12 --n_pairs 100 \
+    --verify --out_dir heads_output
+
+# Qwen2.5-VL-7B: same flow, 28 heads/layer (fewer layers, more heads)
 python heads.py --model_id Qwen/Qwen2.5-VL-7B-Instruct \
-    --layers 15,16,17,18,19,20,21,22 --n_pairs 12 \
+    --layers 15,16,17,18,19,20,21,22 --all_heads --verify --out_dir heads_output
+python heads.py --model_id Qwen/Qwen2.5-VL-7B-Instruct \
+    --layers 15,16,17,18,19,20,21,22 --head_groups 4 --n_pairs 12 \
     --verify --out_dir heads_output
 ```
 
-Both commands include `--verify`, which runs and prints/saves its
+Every command includes `--verify`, which runs and prints/saves its
 PASS/FAIL report *before* the sweep starts (same convention as
 `intervene.py`: it does not hard-abort the sweep on FAIL, so check the
 printed verdict yourself) -- do not trust `heads_summary.csv` or
 `heads_heatmap.png` from a run where `--verify` didn't report PASS.
+
+**Positive control (`--all_heads` / automatic on every sweep).** A real run
+found every INDIVIDUAL head giving EXACTLY 0.0% to_B for real_b,
+same_minute, AND noise alike. A perfect zero across all three conditions
+is ambiguous: it could mean the minute genuinely needs many heads acting
+together (no single head's patch moves the answer -- a real finding), or
+it could mean the head-patching path is broken somewhere between the
+`o_proj` hook and generation, so nothing patched through it ever reaches
+the answer (a bug, not a finding) -- and `--verify` can't tell these apart,
+since it only confirms tensors differ and propagate to hidden *states*, not
+that a maximal patch can move the *answer*. `run_all_heads_control` patches
+ALL heads at once (image-token positions) on a handful of pairs and reports
+the resulting to_B rate: near-0% everywhere means investigate the mechanism
+before trusting anything finer; a nonzero rate (context: intervene.py's own
+whole-residual-stream patch -- a larger intervention than this one -- found
+~87% at 3B's layer 22) means the path works and an individual-head null is
+real. This runs automatically at the top of every sweep; `--all_heads` runs
+it standalone (skipping the full sweep) for a quick check before committing
+to `--layers`/`--head_groups` choices.
+
+**`--head_groups N` / `--head_range START,END` (the two-stage flow).** The
+power note above makes single-head sweeps of a full layer range
+unaffordable on a Kaggle T4 (~245 pairs/cell at 144 cells). `--head_groups
+N` splits each swept layer's heads into N contiguous groups and patches a
+whole group at once -- e.g. `--head_groups 4` on 16 heads/layer means 4
+groups of 4, cutting cells (and the Bonferroni penalty) 4x and giving each
+test a much larger intervention to detect. `heads_summary.csv` then reports
+`head_start`/`head_end`/`n_heads_patched` alongside `head` (a group's own
+start index), and the heatmap/ranked table label ranges like `8-11` instead
+of a single number. Once a group shows an effect, `--head_range 8,12` (no
+`--head_groups`) restricts the NEXT run to just that region, swept
+head-by-head -- far fewer cells than the full grid, so a properly powered
+confirmation pass is affordable (`--head_range`+`--head_groups` together
+also works, for an intermediate zoom level). Note `--inspect_attention` is
+skipped automatically when `--head_groups` is active -- a group's attention
+pattern doesn't reduce to a single head's without a design decision this
+project hasn't made; re-run with `--head_range` on individual heads to
+inspect attention.
 
 **Statistical power -- read this before trusting a coarse pass's numbers.**
 A real Kaggle run at `--max_pairs 10` came back with every cell showing

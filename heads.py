@@ -79,6 +79,22 @@ selection, though its raw numbers stay in the CSV), and `power_note_text`
 states the actual pairs-per-cell a run's (layer, head) count needs at
 Bonferroni-corrected significance -- read it before sizing --n_pairs, not
 after a wasted sweep.
+
+THE SAME RUN ALSO SURFACED A DEEPER AMBIGUITY: every INDIVIDUAL head gave
+EXACTLY 0.0% for real_b, same_minute, AND noise alike -- a perfect zero
+across all three conditions that --verify (checks tensors propagate to
+hidden states, not that a patch can move the ANSWER) cannot resolve
+between "needs many heads together" (real finding) and "the head-patching
+path is broken" (a bug). `run_all_heads_control` (--all_heads, and run
+automatically at the top of every sweep) patches ALL heads at once as the
+strongest test this mechanism can run, distinguishing the two cases by
+whether that maximal patch can move the decoded answer at all. And since
+the power note above makes a full per-head grid unaffordable on a Kaggle
+T4, `make_head_selectors` (--head_groups / --head_range) supports patching
+CONTIGUOUS GROUPS of heads at once instead of one at a time -- far fewer
+cells (gentler Bonferroni correction, larger per-test effect) for a coarse
+first pass, with --head_range for a narrower, individually-powered
+follow-up on whichever group showed an effect.
 """
 
 import argparse
@@ -118,6 +134,18 @@ MIN_N_FOR_RELIABLE_CELL = 20    # req #2: below this per-cell n, mark UNDERPOWER
 POWER_DETECT_DELTA = 0.20       # req #3: the effect size ("a 20-point difference") the power note sizes for
 POWER_ALPHA = 0.05              # two-sided, before Bonferroni correction across cells
 POWER_TARGET = 0.80             # standard 80% power convention
+
+# POSITIVE CONTROL (see run_all_heads_control): a handful of pairs is enough to tell "the
+# head-patching path is broken" (~0% even with ALL heads patched) from "it works, the effect just
+# needs many heads together" (a rate roughly in the ballpark of intervene.py's own whole-layer
+# result) -- this doesn't need anywhere near MIN_USABLE_PAIRS_WARN pairs, since it's a sanity check,
+# not a statistically powered claim.
+ALL_HEADS_CONTROL_PAIRS = 8
+# intervene.py's OWN established finding (Experiment A, full residual-stream patch at image-token
+# positions, NOT this file's o_proj-only patch -- see run_all_heads_control's docstring for why
+# these are different-sized interventions) -- printed as context for interpreting the control's
+# number, never as a hardcoded pass/fail threshold (it's specific to 3B's layer 22).
+INTERVENE_3B_LAYER22_TO_B_REFERENCE = 0.87
 
 
 # ---------------------------------------------------------------------------
@@ -180,12 +208,72 @@ def head_geometry(attn_module):
 
 
 def _head_col_slice(head_idx, head_dim):
-    """head_idx=None means ALL heads (the --verify extreme test); otherwise
-    the column range for that one head's contribution to the concatenated
-    pre-o_proj tensor."""
+    """head_idx may be:
+      - None: ALL heads (--verify's extreme test, and the --all_heads
+        positive control).
+      - an int: that one head's column range.
+      - a (start, end) tuple: a CONTIGUOUS group of heads [start, end) --
+        see --head_groups / make_head_selectors.
+    Returns the column range of the concatenated pre-o_proj tensor."""
     if head_idx is None:
         return slice(None)
+    if isinstance(head_idx, tuple):
+        start, end = head_idx
+        return slice(start * head_dim, end * head_dim)
     return slice(head_idx * head_dim, (head_idx + 1) * head_dim)
+
+
+def make_head_selectors(num_heads, head_groups=None, head_range=None, max_heads=None):
+    """The list of "head selectors" to sweep -- normally individual head
+    indices (int), or `head_groups` CONTIGUOUS (start, end) ranges when
+    --head_groups is given. Motivation (see module docstring): the power
+    note showed a full per-head grid (e.g. 16 heads x 9 layers = 144 cells)
+    needs ~245 usable pairs PER CELL for Bonferroni-corrected significance
+    at 80% power -- unaffordable on a Kaggle T4. Splitting each layer's
+    heads into N contiguous groups cuts the cell count (and hence the
+    Bonferroni penalty) by roughly num_heads/N, and each group's patch is a
+    much LARGER intervention (more likely to show a detectable effect if
+    the minute needs several heads together).
+
+    Two-stage flow: run coarse with --head_groups to find a promising
+    region cheaply, then re-run with --head_range restricted to that
+    region (optionally with --head_groups again for an intermediate zoom,
+    or without it to sweep that region's heads individually).
+
+    `head_range=(lo, hi)` restricts the universe of heads considered BEFORE
+    grouping/max_heads -- e.g. --head_range 8,12 (no --head_groups) sweeps
+    heads 8,9,10,11 individually; --head_range 8,12 --head_groups 2 splits
+    just that 4-head range into 2 groups of 2."""
+    lo, hi = head_range if head_range is not None else (0, num_heads)
+    if not (0 <= lo < hi <= num_heads):
+        raise ValueError(f"--head_range ({lo},{hi}) is out of bounds for {num_heads} heads/layer.")
+    universe = list(range(lo, hi))
+
+    if head_groups is not None:
+        if head_groups < 1:
+            raise ValueError(f"--head_groups must be >= 1, got {head_groups}.")
+        n = len(universe)
+        bounds = [lo + int(round(b)) for b in np.linspace(0, n, head_groups + 1)]
+        selectors = [(bounds[i], bounds[i + 1]) for i in range(head_groups) if bounds[i] < bounds[i + 1]]
+    else:
+        selectors = universe
+
+    if max_heads is not None:
+        selectors = selectors[:max_heads]
+    return selectors
+
+
+def _head_label(selector):
+    """Normalizes a head selector (int for a single head, (start, end)
+    tuple for a --head_groups range) into (head, head_start, head_end,
+    n_heads_patched) for the trials/summary schema. `head` is always a
+    plain int (the selection's own start index) so it stays sortable and
+    groupable exactly like the single-head case did before --head_groups
+    existed."""
+    if isinstance(selector, tuple):
+        start, end = selector
+        return start, start, end, end - start
+    return selector, selector, selector + 1, 1
 
 
 def _extract_o_proj_input(args, kwargs):
@@ -372,6 +460,189 @@ def power_note_text(n_cells, delta=POWER_DETECT_DELTA, alpha=POWER_ALPHA, power=
     )
 
 
+def _compute_pair_baselines(adapter, image_features_owners, vision_method, images_dir, attn_by_layer,
+                             df, a, b, already_used, rng, max_new_tokens):
+    """Shared by run_experiment_heads and run_all_heads_control: cache each
+    image's pre-o_proj activations at every layer in `attn_by_layer` while
+    computing its (otherwise unmodified) run_baseline -- one plain forward
+    pass plus one generate() call per image, exactly as intervene.py's own
+    Experiment A does it, just also captured via capture_head_inputs.
+    Returns None if the pair's sequence lengths don't match (caller should
+    skip this pair), else (base_a, base_b, base_same, same_row,
+    head_cache_a, head_cache_b, head_cache_same) -- base_same/same_row/
+    head_cache_same are None if no same-minute partner is available for
+    `a`."""
+    a_path = os.path.join(images_dir, a["filename"])
+    b_path = os.path.join(images_dir, b["filename"])
+    head_cache_a, head_cache_b, head_cache_same = {}, {}, {}
+    with capture_head_inputs(attn_by_layer, head_cache_a):
+        base_a = run_baseline(adapter, image_features_owners, vision_method, a_path,
+                               max_new_tokens=max_new_tokens)
+    with capture_head_inputs(attn_by_layer, head_cache_b):
+        base_b = run_baseline(adapter, image_features_owners, vision_method, b_path,
+                               max_new_tokens=max_new_tokens)
+
+    same_row = find_same_minute_partner(df, a, exclude=already_used, rng=rng)
+    base_same = None
+    if same_row is not None:
+        same_path = os.path.join(images_dir, same_row["filename"])
+        with capture_head_inputs(attn_by_layer, head_cache_same):
+            base_same = run_baseline(adapter, image_features_owners, vision_method, same_path,
+                                      max_new_tokens=max_new_tokens)
+
+    if base_a["seq_len"] != base_b["seq_len"] or (base_same is not None and base_a["seq_len"] != base_same["seq_len"]):
+        return None
+    return base_a, base_b, base_same, same_row, head_cache_a, head_cache_b, head_cache_same
+
+
+def run_all_heads_control(adapter, image_features_owners, vision_method, attn_modules, df, images_dir,
+                           layers, out_dir=None, n_pairs=ALL_HEADS_CONTROL_PAIRS, min_gap=MIN_GAP_MINUTES,
+                           max_new_tokens=MAX_NEW_TOKENS, seed=SEED, exclude_pairs=None, pairs=None):
+    """POSITIVE CONTROL: patch ALL heads at once (head_idx=None -- the WHOLE
+    per-head-concatenated o_proj-input tensor, not one head's slice) at
+    image-token positions, at each of `layers`, on a small number of pairs
+    -- cheap enough to run before every real sweep (see run_experiment_heads,
+    which does exactly that automatically), and standalone via --all_heads.
+
+    WHY THIS EXISTS (found on a real run, not hypothetical): every
+    INDIVIDUAL head gave EXACTLY 0.0% to_B for real_b, same_minute, AND
+    noise alike. A perfect zero across all three conditions is ambiguous
+    between two very different explanations:
+      (a) the minute genuinely needs many heads acting together, so no
+          SINGLE head's patch moves the answer -- a real finding.
+      (b) the head-patching path is broken somewhere between the o_proj
+          hook and generation, so NOTHING patched through it ever reaches
+          the answer -- a bug, not a finding.
+    --verify can't distinguish these: it only confirms tensors differ and
+    propagate to hidden STATES, not that a maximal patch can move the
+    ANSWER in the expected direction. Patching ALL heads at once is the
+    strongest test this mechanism can run.
+
+    Context for interpreting the number (NOT a hardcoded pass/fail
+    threshold -- see INTERVENE_3B_LAYER22_TO_B_REFERENCE): intervene.py's
+    own Experiment A patches the WHOLE residual stream at image-token
+    positions -- a materially LARGER intervention than even all-heads-at-
+    once here, which only replaces this ONE layer's attention contribution,
+    not the incoming residual from earlier layers -- and found ~87% to_B
+    transfer at 3B's layer 22. If all-heads-at-once here comes back
+    reasonably close to that ballpark, the o_proj-hook path demonstrably
+    reaches generation and case (a) is live. If it ALSO comes back near
+    0%, that's case (b): the mechanism itself isn't reaching generation,
+    and that must be found and fixed before any single-head or grouped
+    result can be trusted."""
+    if pairs is None:
+        pairs = build_pairs(df, n_pairs=n_pairs, min_gap=min_gap, seed=seed, exclude_pairs=exclude_pairs)
+    pairs = pairs[:n_pairs]
+    lines = ["=== POSITIVE CONTROL: ALL heads patched at once (image-token positions) ==="]
+    if len(pairs) == 0:
+        lines.append("No pairs available -- skipped.")
+        text = "\n".join(lines)
+        print("\n" + text)
+        return pd.DataFrame(), text
+
+    attn_by_layer = {L: attn_modules[L] for L in layers}
+    _, head_dim = head_geometry(attn_modules[layers[0]])
+    already_used = {f for pair in pairs for f in (pair[0]["filename"], pair[1]["filename"])}
+    rng = np.random.RandomState(seed)
+
+    rows = []
+    for pair_idx, (a, b) in enumerate(pairs):
+        result = _compute_pair_baselines(adapter, image_features_owners, vision_method, images_dir,
+                                         attn_by_layer, df, a, b, already_used, rng, max_new_tokens)
+        if result is None:
+            continue
+        base_a, base_b, base_same, same_row, head_cache_a, head_cache_b, head_cache_same = result
+        image_mask = base_a["image_mask"]
+
+        for layer in layers:
+            o_proj = attn_modules[layer].o_proj
+            a_cache, b_cache = head_cache_a.get(layer), head_cache_b.get(layer)
+            same_cache = head_cache_same.get(layer) if base_same is not None else None
+            if a_cache is None or b_cache is None:
+                continue
+
+            def _trial(condition, values, other_file, other_base):
+                with head_patched(o_proj, image_mask, values, None, head_dim, mode="replace"):
+                    ans = adapter.generate_answer(base_a["inputs"], max_new_tokens)
+                pred_hour, pred_minute, ok = parse_time_answer(ans)
+                rows.append({
+                    "pair": pair_idx, "a_file": a["filename"], "b_file": other_file,
+                    "condition": condition, "layer": layer,
+                    **_baseline_fields("a", base_a), **_baseline_fields("b", other_base),
+                    "patched_hour": pred_hour if ok else None, "patched_minute": pred_minute if ok else None,
+                    "patched_answer": ans,
+                })
+
+            _trial("real_b", b_cache, b["filename"], base_b)
+            if same_cache is not None:
+                _trial("same_minute", same_cache, same_row["filename"], base_same)
+            noise_full = make_matched_noise(a_cache, rng)
+            _trial("noise", noise_full, b["filename"], base_b)
+
+    control_df = pd.DataFrame(rows)
+    if len(control_df) == 0:
+        lines.append("No usable trials (every pair had a sequence-length mismatch) -- skipped.")
+        text = "\n".join(lines)
+        print("\n" + text)
+        return control_df, text
+
+    with_transfer = compute_transfer_columns(control_df)
+    restricted = with_transfer[with_transfer["minute_baselines_differ"] == 1.0]
+    any_signal = False
+    any_real_data = False   # at least one layer had a nonzero-n real_b rate -- distinguishes
+                             # "0% from actual trials" (investigate) from "0% because there was no
+                             # data at all" (the SAME ambiguity this whole feature targets -- a
+                             # perfect 0% from n=0 is not evidence of anything, broken or working)
+    for layer in layers:
+        sub = restricted[restricted["layer"] == layer]
+        rates = {}
+        for cond in ("real_b", "same_minute", "noise"):
+            vals = sub[sub["condition"] == cond]["minute_transfer"].dropna()
+            rates[cond] = (float(vals.mean()) if len(vals) else float("nan"), len(vals))
+        (r_rate, r_n), (s_rate, s_n), (n_rate, n_n) = rates["real_b"], rates["same_minute"], rates["noise"]
+        if r_n > 0:
+            any_real_data = True
+            if not np.isnan(r_rate) and r_rate > 0:
+                any_signal = True
+        r_text = f"{r_rate:.1%}" if r_n else "n/a"
+        s_text = f"{s_rate:.1%}" if s_n else "n/a"
+        n_text = f"{n_rate:.1%}" if n_n else "n/a"
+        lines.append(f"  layer {layer}: to_B(real_b)={r_text} (n={r_n})  to_B(same_minute)={s_text} (n={s_n})  "
+                     f"to_B(noise)={n_text} (n={n_n})")
+
+    lines.append("")
+    if not any_real_data:
+        lines.append(f"-> NO layer had any pair where A's and B's stated minutes differed (n=0 "
+                     f"everywhere, out of {len(pairs)} pair(s) tried) -- this control is INCONCLUSIVE, "
+                     "not evidence of anything, broken or working. Raise n_pairs for the control (see "
+                     "--all_heads_pairs) or try different pairs; a 0% built from zero trials is exactly "
+                     "the same trap this feature exists to catch, just one level up.")
+    elif any_signal:
+        lines.append(f"-> at least one layer shows a nonzero real_b rate (from actual trials, not an "
+                     f"empty measurement): the o_proj-hook path DOES reach generation. Compare against "
+                     f"intervene.py's own whole-residual-stream reference "
+                     f"({INTERVENE_3B_LAYER22_TO_B_REFERENCE:.0%} at 3B's layer 22, a LARGER intervention "
+                     "than this one -- see this function's docstring) to judge whether the head path is "
+                     "roughly as effective or clearly weaker; either way, a nonzero rate here means an "
+                     "individual-head null result is a real 'needs many heads together' finding, not "
+                     "broken plumbing.")
+    else:
+        lines.append("-> every layer with actual data shows a 0% real_b rate even with ALL heads patched "
+                     "at once -- this is the OTHER case: the head-patching path itself is likely not "
+                     "reaching generation. Do NOT trust any single-head or --head_groups result until "
+                     "this is found and fixed (start by re-running --verify, then checking whether "
+                     "o_proj's OWN output -- not just its input -- actually feeds the rest of the "
+                     "layer, the same round-3 bug shape this project has hit before).")
+    text = "\n".join(lines)
+    print("\n" + text)
+    if out_dir is not None:
+        os.makedirs(out_dir, exist_ok=True)
+        control_df.to_csv(os.path.join(out_dir, "heads_positive_control_trials.csv"), index=False)
+        with open(os.path.join(out_dir, "heads_positive_control.txt"), "w") as f:
+            f.write(text + "\n")
+    return control_df, text
+
+
 # ---------------------------------------------------------------------------
 # The sweep: head-level patching, reusing intervene.py's pair-building,
 # baseline caching, controls, and transfer metric UNCHANGED (see module
@@ -381,14 +652,19 @@ def power_note_text(n_cells, delta=POWER_DETECT_DELTA, alpha=POWER_ALPHA, power=
 def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_owners, vision_method,
                           df, images_dir, out_dir, layers, n_pairs=N_PAIRS, max_pairs=None,
                           min_gap=MIN_GAP_MINUTES, max_heads=None, max_new_tokens=MAX_NEW_TOKENS,
-                          seed=SEED, exclude_pairs=None):
+                          seed=SEED, exclude_pairs=None, head_groups=None, head_range=None):
     """Same paired design as Experiment A (build_pairs, same-minute partner,
-    matched-norm noise) -- but patches ONE attention head's o_proj-input
-    slice at the image-token positions, instead of the whole residual
-    stream, swept over `layers` x every head (or the first `max_heads` of
-    them). Output schema matches Experiment A's (`_baseline_fields`, so
-    `compute_transfer_columns` works unmodified) plus `head` alongside
-    `layer`."""
+    matched-norm noise) -- but patches one HEAD SELECTOR (a single head by
+    default, or a contiguous GROUP of heads if `head_groups` is given -- see
+    make_head_selectors) at a time, at the image-token positions, instead of
+    the whole residual stream, swept over `layers` x every selector (or the
+    first `max_heads` of them). Output schema matches Experiment A's
+    (`_baseline_fields`, so `compute_transfer_columns` works unmodified)
+    plus `layer`/`head`/`head_start`/`head_end`/`n_heads_patched`.
+
+    Runs the POSITIVE CONTROL (run_all_heads_control) automatically first,
+    on a handful of pairs -- see that function's docstring for why a sweep
+    showing 0% everywhere is ambiguous without it."""
     rng = np.random.RandomState(seed)
     pairs = build_pairs(df, n_pairs=n_pairs, min_gap=min_gap, seed=seed, exclude_pairs=exclude_pairs)
     if max_pairs is not None:
@@ -407,46 +683,38 @@ def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_o
                              f"({num_heads},{head_dim}) -- this sweep assumes uniform head geometry across "
                              "swept layers (true for every architecture this project supports; a mismatch "
                              "means something unexpected about this model, not a case to silently paper over).")
-    heads_to_sweep = list(range(num_heads)) if max_heads is None else list(range(min(num_heads, max_heads)))
+    heads_to_sweep = make_head_selectors(num_heads, head_groups=head_groups, head_range=head_range,
+                                         max_heads=max_heads)
     n_cells = len(layers) * len(heads_to_sweep)
 
     already_used = {f for pair in pairs for f in (pair[0]["filename"], pair[1]["filename"])}
     n_total_trials = len(pairs) * len(layers) * len(heads_to_sweep) * 3   # real_b, same_minute, noise
-    print(f"heads.py: {len(pairs)} pair(s) x {len(layers)} layer(s) x {len(heads_to_sweep)} head(s) "
+    unit = "group(s)" if head_groups is not None else "head(s)"
+    print(f"heads.py: {len(pairs)} pair(s) x {len(layers)} layer(s) x {len(heads_to_sweep)} {unit} "
           f"x 3 conditions = {n_total_trials} generate() calls total (num_heads={num_heads}, "
           f"head_dim={head_dim}).")
     print(power_note_text(n_cells))
     estimate_usable_pairs(adapter, image_features_owners, vision_method, images_dir, pairs,
                           max_new_tokens=max_new_tokens)
 
+    print("\n" + "=" * 70)
+    print("POSITIVE CONTROL (automatic, before the full sweep -- see run_all_heads_control's docstring)")
+    print("=" * 70)
+    run_all_heads_control(adapter, image_features_owners, vision_method, attn_modules, df, images_dir,
+                          layers, out_dir=out_dir, n_pairs=ALL_HEADS_CONTROL_PAIRS, min_gap=min_gap,
+                          max_new_tokens=max_new_tokens, seed=seed, pairs=pairs)
+
     rows = []
     t_start = time.perf_counter()
     n_timed = 0
 
     for pair_idx, (a, b) in enumerate(tqdm(pairs, desc="heads.py pairs")):
-        a_path = os.path.join(images_dir, a["filename"])
-        b_path = os.path.join(images_dir, b["filename"])
-
-        head_cache_a, head_cache_b, head_cache_same = {}, {}, {}
-        with capture_head_inputs(attn_by_layer, head_cache_a):
-            base_a = run_baseline(adapter, image_features_owners, vision_method, a_path,
-                                   max_new_tokens=max_new_tokens)
-        with capture_head_inputs(attn_by_layer, head_cache_b):
-            base_b = run_baseline(adapter, image_features_owners, vision_method, b_path,
-                                   max_new_tokens=max_new_tokens)
-
-        same_row = find_same_minute_partner(df, a, exclude=already_used, rng=rng)
-        base_same = None
-        if same_row is not None:
-            same_path = os.path.join(images_dir, same_row["filename"])
-            with capture_head_inputs(attn_by_layer, head_cache_same):
-                base_same = run_baseline(adapter, image_features_owners, vision_method, same_path,
-                                          max_new_tokens=max_new_tokens)
-
-        if base_a["seq_len"] != base_b["seq_len"] or (base_same is not None and base_a["seq_len"] != base_same["seq_len"]):
+        result = _compute_pair_baselines(adapter, image_features_owners, vision_method, images_dir,
+                                         attn_by_layer, df, a, b, already_used, rng, max_new_tokens)
+        if result is None:
             print(f"WARNING: sequence-length mismatch for pair ({a['filename']}, {b['filename']}) -- skipping.")
             continue
-
+        base_a, base_b, base_same, same_row, head_cache_a, head_cache_b, head_cache_same = result
         image_mask = base_a["image_mask"]
 
         for layer in layers:
@@ -459,15 +727,18 @@ def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_o
                       "mismatch or o_proj never called?) -- skipping this layer for this pair.")
                 continue
 
-            for head_idx in heads_to_sweep:
-                col = slice(head_idx * head_dim, (head_idx + 1) * head_dim)
+            for selector in heads_to_sweep:
+                head, head_start, head_end, n_heads_patched = _head_label(selector)
+                col = _head_col_slice(selector, head_dim)
+                head_cols = {"head": head, "head_start": head_start, "head_end": head_end,
+                            "n_heads_patched": n_heads_patched}
 
-                with head_patched(o_proj, image_mask, b_cache, head_idx, head_dim, mode="replace"):
+                with head_patched(o_proj, image_mask, b_cache, selector, head_dim, mode="replace"):
                     ans = adapter.generate_answer(base_a["inputs"], max_new_tokens)
                 pred_hour, pred_minute, ok = parse_time_answer(ans)
                 rows.append({
                     "seed": seed, "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"],
-                    "condition": "real_b", "layer": layer, "head": head_idx, "num_layers": num_layers,
+                    "condition": "real_b", "layer": layer, **head_cols, "num_layers": num_layers,
                     "relative_depth": relative_depth(layer, num_layers),
                     "a_true_minute": int(a["minute"]), "b_true_minute": int(b["minute"]),
                     **_baseline_fields("a", base_a), **_baseline_fields("b", base_b),
@@ -476,12 +747,12 @@ def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_o
                 })
 
                 if base_same is not None and same_cache is not None:
-                    with head_patched(o_proj, image_mask, same_cache, head_idx, head_dim, mode="replace"):
+                    with head_patched(o_proj, image_mask, same_cache, selector, head_dim, mode="replace"):
                         ans_s = adapter.generate_answer(base_a["inputs"], max_new_tokens)
                     pred_hour_s, pred_minute_s, ok_s = parse_time_answer(ans_s)
                     rows.append({
                         "seed": seed, "pair": pair_idx, "a_file": a["filename"], "b_file": same_row["filename"],
-                        "condition": "same_minute", "layer": layer, "head": head_idx, "num_layers": num_layers,
+                        "condition": "same_minute", "layer": layer, **head_cols, "num_layers": num_layers,
                         "relative_depth": relative_depth(layer, num_layers),
                         "a_true_minute": int(a["minute"]), "b_true_minute": int(same_row["minute"]),
                         **_baseline_fields("a", base_a), **_baseline_fields("b", base_same),
@@ -490,19 +761,19 @@ def run_experiment_heads(adapter, decoder_layers, attn_modules, image_features_o
                         "patched_answer": ans_s, "answer_changed": (ans_s != base_a["raw_answer"]),
                     })
 
-                # matched-norm noise, on JUST this head's slice of A's OWN cached
+                # matched-norm noise, on JUST this selection's slice of A's OWN cached
                 # activations (same convention as Experiment A's full-layer noise
                 # control -- see intervene.py's make_matched_noise) -- reuses B's
                 # baseline as the "transfer target" for apples-to-apples comparison
                 # with real_b, same as Experiment A's noise condition does.
                 noise_full = a_cache.clone()
                 noise_full[:, col] = make_matched_noise(a_cache[:, col], rng)
-                with head_patched(o_proj, image_mask, noise_full, head_idx, head_dim, mode="replace"):
+                with head_patched(o_proj, image_mask, noise_full, selector, head_dim, mode="replace"):
                     ans_n = adapter.generate_answer(base_a["inputs"], max_new_tokens)
                 pred_hour_n, pred_minute_n, ok_n = parse_time_answer(ans_n)
                 rows.append({
                     "seed": seed, "pair": pair_idx, "a_file": a["filename"], "b_file": None,
-                    "condition": "noise", "layer": layer, "head": head_idx, "num_layers": num_layers,
+                    "condition": "noise", "layer": layer, **head_cols, "num_layers": num_layers,
                     "relative_depth": relative_depth(layer, num_layers),
                     "a_true_minute": int(a["minute"]), "b_true_minute": int(b["minute"]),
                     **_baseline_fields("a", base_a), **_baseline_fields("b", base_b),
@@ -569,7 +840,10 @@ def summarize_heads(trials_df, out_dir, n_permutations=2000):
 
         n_usable = int(len(real_b))
         rows.append({
-            "layer": layer, "head": head, "relative_depth": float(sub["relative_depth"].iloc[0]),
+            "layer": layer, "head": head,
+            "head_start": int(sub["head_start"].iloc[0]), "head_end": int(sub["head_end"].iloc[0]),
+            "n_heads_patched": int(sub["n_heads_patched"].iloc[0]),
+            "relative_depth": float(sub["relative_depth"].iloc[0]),
             "n_pairs_usable": n_usable,
             "underpowered": n_usable < MIN_N_FOR_RELIABLE_CELL,
             "to_b_real_b": float(real_b.mean()) if len(real_b) else float("nan"),
@@ -585,11 +859,21 @@ def summarize_heads(trials_df, out_dir, n_permutations=2000):
     return summary
 
 
+def _head_tick_label(row):
+    """'8' for a single head, '8-11' for a --head_groups range [8, 12)."""
+    if int(row["n_heads_patched"]) == 1:
+        return str(int(row["head_start"]))
+    return f"{int(row['head_start'])}-{int(row['head_end']) - 1}"
+
+
 def plot_heads_heatmap(summary_df, out_dir, title_suffix=""):
-    """Layer x head heatmap of to_B(real_b) - to_B(noise) -- the primary
-    output requested: which heads carry the minute, at a glance."""
+    """Layer x head (or layer x head-group) heatmap of to_B(real_b) -
+    to_B(noise) -- the primary output requested: which heads carry the
+    minute, at a glance. X-axis ticks show a range ("8-11") instead of a
+    single number when this summary came from a --head_groups sweep."""
     layers = sorted(summary_df["layer"].unique())
     heads = sorted(summary_df["head"].unique())
+    head_labels = {h: _head_tick_label(summary_df[summary_df["head"] == h].iloc[0]) for h in heads}
     grid = np.full((len(layers), len(heads)), np.nan)
     layer_pos = {l: i for i, l in enumerate(layers)}
     head_pos = {h: i for i, h in enumerate(heads)}
@@ -599,7 +883,7 @@ def plot_heads_heatmap(summary_df, out_dir, title_suffix=""):
     fig, ax = plt.subplots(figsize=(max(6, len(heads) * 0.5), max(4, len(layers) * 0.4)))
     im = ax.imshow(grid, aspect="auto", cmap="RdBu_r", vmin=-1, vmax=1)
     ax.set_xticks(range(len(heads)))
-    ax.set_xticklabels(heads)
+    ax.set_xticklabels([head_labels[h] for h in heads])
     ax.set_yticks(range(len(layers)))
     ax.set_yticklabels(layers)
     ax.set_xlabel("head")
@@ -647,13 +931,13 @@ def print_heads_summary(summary_df, top_n=10):
         return text
 
     top = reliable.sort_values("diff_vs_noise", ascending=False).head(top_n)
-    header = (f"{'layer':>6}{'head':>6}{'rel_depth':>11}{'to_B(real_b)':>14}{'to_B(same_min)':>16}"
+    header = (f"{'layer':>6}{'head':>10}{'rel_depth':>11}{'to_B(real_b)':>14}{'to_B(same_min)':>16}"
               f"{'to_B(noise)':>13}{'diff':>9}{'n':>5}{'p':>9}{'p_bonf':>9}{'sig':>5}")
     lines.append(header)
     for _, r in top.iterrows():
         sig = "*" if (not np.isnan(r["p_value_bonferroni"]) and r["p_value_bonferroni"] < 0.05) else ""
         lines.append(
-            f"{int(r['layer']):>6}{int(r['head']):>6}{r['relative_depth']:>11.2f}"
+            f"{int(r['layer']):>6}{_head_tick_label(r):>10}{r['relative_depth']:>11.2f}"
             f"{r['to_b_real_b']:>14.1%}{r['to_b_same_minute']:>16.1%}{r['to_b_noise']:>13.1%}"
             f"{r['diff_vs_noise']:>+9.1%}{int(r['n_pairs_usable']):>5}{r['p_value']:>9.4f}"
             f"{r['p_value_bonferroni']:>9.4f}{sig:>5}"
@@ -708,7 +992,7 @@ def compare_heads_across_models(name_a, summary_a, name_b, summary_b, sig_thresh
                      f"alpha={sig_threshold})")
         lines.append(f"  concentration: top 1 head = {top1_text} of positive effect, "
                      f"top 3 heads = {top3_text}")
-        lines.append(f"  top head: layer {int(top_row['layer'])} head {int(top_row['head'])} "
+        lines.append(f"  top head: layer {int(top_row['layer'])} head {_head_tick_label(top_row)} "
                      f"(relative_depth={top_row['relative_depth']:.2f}), "
                      f"diff_vs_noise={top_row['diff_vs_noise']:+.1%}")
         lines.append("")
@@ -931,10 +1215,18 @@ def inspect_top_heads(adapter, attn_modules, summary_df, df, images_dir, top_n=5
     rng = np.random.RandomState(seed)
     sample = df.sample(n=min(n_images, len(df)), random_state=seed)
     reliable = summary_df[~summary_df["underpowered"]] if "underpowered" in summary_df.columns else summary_df
+    if "n_heads_patched" in reliable.columns:
+        n_group_cells = int((reliable["n_heads_patched"] > 1).sum())
+        reliable = reliable[reliable["n_heads_patched"] == 1]
+        if n_group_cells > 0:
+            print(f"NOTE: {n_group_cells} reliable cell(s) came from a --head_groups sweep (a group's "
+                  "attention pattern doesn't reduce to a single head's without a design decision this "
+                  "project hasn't made) -- excluded from attention inspection. Re-run with --head_range "
+                  "on a promising group (no --head_groups) to inspect its individual heads.")
     if len(reliable) == 0:
-        print(f"NOTE: all {len(summary_df)} cell(s) are underpowered -- skipping attention inspection "
-              "(picking a 'top head' from unreliable diffs would chase noise). Re-run with a larger "
-              "--n_pairs first.")
+        print(f"NOTE: all {len(summary_df)} cell(s) are underpowered or group cells -- skipping "
+              "attention inspection (picking a 'top head' from unreliable diffs would chase noise). "
+              "Re-run with a larger --n_pairs and/or --head_range on individual heads first.")
         return pd.DataFrame(columns=["layer", "head", "diff_vs_noise", "n_images_usable",
                                      "mean_frac_image", "mean_frac_text"])
     top = reliable.sort_values("diff_vs_noise", ascending=False).head(top_n)
@@ -1012,7 +1304,29 @@ def main():
                         help=f"number of (A, B) pairs (default {N_PAIRS} -- kept small, see cost section)")
     parser.add_argument("--max_pairs", type=int, default=None, help="cap on pairs, for a quick smoke test")
     parser.add_argument("--max_heads", type=int, default=None,
-                        help="cap on heads swept PER LAYER (first --max_heads of them), for a quick smoke test")
+                        help="cap on heads/groups swept PER LAYER (first --max_heads of them), for a quick "
+                             "smoke test")
+    parser.add_argument("--head_groups", type=int, default=None,
+                        help="split each swept layer's heads into N contiguous groups and patch a whole "
+                             "group at once, instead of one head at a time -- far fewer cells (gentler "
+                             "Bonferroni correction, much larger per-test effect); see the power note and "
+                             "module docstring. Two-stage flow: run coarse with --head_groups, then re-run "
+                             "narrower with --head_range on whichever group showed an effect (optionally "
+                             "with --head_groups again for an intermediate zoom).")
+    parser.add_argument("--head_range", type=str, default=None,
+                        help="'START,END' (half-open, e.g. '8,12' = heads 8,9,10,11) -- restricts the heads "
+                             "considered BEFORE --head_groups/--max_heads, for drilling into a region found "
+                             "interesting by a coarser --head_groups pass. Default: all heads.")
+    parser.add_argument("--all_heads", action="store_true",
+                        help="POSITIVE CONTROL ONLY: patch ALL heads at once (image-token positions) at "
+                             "each of --layers, on a handful of pairs, then exit WITHOUT running the full "
+                             "sweep -- see run_all_heads_control's docstring. This ALSO runs automatically "
+                             "(cheaply) at the top of every normal sweep, so this flag is only needed for a "
+                             "quick standalone check before committing to --layers/--head_groups choices.")
+    parser.add_argument("--all_heads_pairs", type=int, default=ALL_HEADS_CONTROL_PAIRS,
+                        help=f"pairs used by the positive control, standalone or embedded (default "
+                             f"{ALL_HEADS_CONTROL_PAIRS} -- a handful is enough to tell 'broken plumbing' "
+                             "(~0%%) from 'works' (near intervene.py's own whole-layer ballpark))")
     parser.add_argument("--min_gap", type=int, default=MIN_GAP_MINUTES)
     parser.add_argument("--exclude_pairs_from", type=str, default=None,
                         help="path to a prior run's *_trials.csv -- see intervene.py's --exclude_pairs_from "
@@ -1052,6 +1366,10 @@ def main():
 
     layers = resolve_layers_cli(args.layers, num_layers)
     verify_layers = resolve_layers_cli(args.verify_layers, num_layers) if args.verify_layers else None
+    head_range = None
+    if args.head_range:
+        lo_s, hi_s = args.head_range.split(",")
+        head_range = (int(lo_s), int(hi_s))
 
     exclude_pairs = load_excluded_pairs(args.exclude_pairs_from) if args.exclude_pairs_from else None
 
@@ -1061,6 +1379,14 @@ def main():
                          verify_layers=verify_layers, max_heads_to_verify=args.max_heads_verify,
                          min_gap=args.min_gap, max_new_tokens=args.max_new_tokens, seed=args.seed)
 
+    if args.all_heads:
+        run_all_heads_control(adapter, image_features_owners, vision_method, attn_modules, df,
+                              args.images_dir, layers, out_dir=out_dir, n_pairs=args.all_heads_pairs,
+                              min_gap=args.min_gap, max_new_tokens=args.max_new_tokens, seed=args.seed,
+                              exclude_pairs=exclude_pairs)
+        print("\n--all_heads: positive-control-only run, skipping the full sweep.")
+        return
+
     if args.no_sweep:
         print("\n--no_sweep: skipping the full sweep.")
         return
@@ -1069,7 +1395,7 @@ def main():
         adapter, decoder_layers, attn_modules, image_features_owners, vision_method,
         df, args.images_dir, out_dir, layers, n_pairs=args.n_pairs, max_pairs=args.max_pairs,
         min_gap=args.min_gap, max_heads=args.max_heads, max_new_tokens=args.max_new_tokens,
-        seed=args.seed, exclude_pairs=exclude_pairs)
+        seed=args.seed, exclude_pairs=exclude_pairs, head_groups=args.head_groups, head_range=head_range)
 
     summary = summarize_heads(trials, out_dir)
     plot_heads_heatmap(summary, out_dir, title_suffix=f" ({adapter.short_name})")
@@ -1078,12 +1404,18 @@ def main():
         f.write(text + "\n")
 
     if args.inspect_attention:
-        inspect_df = inspect_top_heads(adapter, attn_modules, summary, df, args.images_dir,
-                                       top_n=args.top_n_inspect, n_images=args.n_images_inspect, seed=args.seed)
-        inspect_df.to_csv(os.path.join(out_dir, "heads_attention_inspection.csv"), index=False)
-        text_inspect = print_attention_inspection(inspect_df)
-        with open(os.path.join(out_dir, "heads_attention_inspection.txt"), "w") as f:
-            f.write(text_inspect + "\n")
+        if args.head_groups is not None:
+            print("\nNOTE: --inspect_attention is skipped with --head_groups -- a group's attention "
+                  "pattern doesn't reduce to a single head's without a design decision this project "
+                  "hasn't made. Re-run with --head_range on a promising group (no --head_groups) to "
+                  "inspect its individual heads' attention.")
+        else:
+            inspect_df = inspect_top_heads(adapter, attn_modules, summary, df, args.images_dir,
+                                           top_n=args.top_n_inspect, n_images=args.n_images_inspect, seed=args.seed)
+            inspect_df.to_csv(os.path.join(out_dir, "heads_attention_inspection.csv"), index=False)
+            text_inspect = print_attention_inspection(inspect_df)
+            with open(os.path.join(out_dir, "heads_attention_inspection.txt"), "w") as f:
+                f.write(text_inspect + "\n")
 
     print(f"\nAll outputs written to '{out_dir}/'.")
 
