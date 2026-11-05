@@ -32,3 +32,5 @@ env/
 
 # Claude Code session metadata (local, not project content)
 .claude/
+
+conversion_images/
