@@ -172,7 +172,10 @@ def process_one_image(adapter, image_path, vision_holder, prompt=PROMPT, max_new
     if vision_out is None:
         vision_vec = None
     else:
-        pooled = vision_out if vision_out.dim() == 1 else vision_out.mean(dim=0)
+        # Mean over every axis except the feature axis. Qwen's vision tower returns (n_patches, dim)
+        # (identical to the old mean(dim=0)); InternVL's returns (batch=1, tokens, dim), where the old
+        # mean(dim=0) left a 2-D (tokens, dim) array per image and broke the probe stage.
+        pooled = vision_out if vision_out.dim() == 1 else vision_out.reshape(-1, vision_out.shape[-1]).mean(dim=0)
         vision_vec = pooled.float().cpu().numpy()
 
     del outputs  # free the hidden_states tuple before generate() runs

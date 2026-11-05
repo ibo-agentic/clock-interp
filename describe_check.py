@@ -20,6 +20,29 @@ PROMPT = ("Look at the clock. Which number is the long minute hand pointing at? 
 MIN_RE  = re.compile(r"minute hand is pointing at (?:the )?(?:number )?(\d{1,2})", re.I)
 HOUR_RE = re.compile(r"hour hand is pointing at (?:the )?(?:number )?(\d{1,2})", re.I)
 TIME_RE = re.compile(r"(\d{1,2}):(\d{2})")
+# TOLERANT hour-hand parse (robustness check only; the original HOUR_RE columns stay the primary result).
+# Also matches wordings like "The short hour hand is pointing just past 12" / "... at the number 5" /
+# "hour hand points to 3": the first number after "hour hand", skipping up to 40 non-digit characters that
+# contain no sentence break, anchored on a preposition.  Original-regex matches are always reproduced.
+HOUR_RE_TOL = re.compile(
+    r"hour hand[^.\d]{0,40}?(?:at|to|on|near|around|toward|towards|past|after|before|between)\s+"
+    r"(?:the\s+)?(?:number\s+)?(\d{1,2})", re.I)
+
+def parse_hour_tolerant(text):
+    """Hour-hand number: original HOUR_RE first (identical behaviour), else the tolerant pattern, else None."""
+    text = text if isinstance(text, str) else ""
+    m = HOUR_RE.search(text) or HOUR_RE_TOL.search(text)
+    return int(m.group(1)) if m else None
+
+def add_tolerant_columns(df):
+    """Add said_hour_number_tolerant and hour_desc_ok_tolerant from the saved raw_answer text. The original
+    columns are not modified. (Used by main(), by --recompute_tolerant and by compare_families.py.)"""
+    df = df.copy()
+    df["said_hour_number_tolerant"] = df["raw_answer"].map(parse_hour_tolerant)
+    df["hour_desc_ok_tolerant"] = [bool(pd.notna(s) and int(s) == int(t))
+                                   for s, t in zip(df["said_hour_number_tolerant"], df["true_hour_number"])]
+    df["said_hour_number_tolerant"] = df["said_hour_number_tolerant"].astype("Int64")
+    return df
 
 def true_minute_number(minute):
     """Which clock number the minute hand is nearest (0-59 min -> 1-12)."""
@@ -74,7 +97,7 @@ def main(data_csv="data/data.csv", images_dir="data",
                           and said_time[0] % 12 == r["hour"] % 12 and said_time[1] == r["minute"]),
         })
 
-    res = pd.DataFrame(rows)
+    res = add_tolerant_columns(pd.DataFrame(rows))
     os.makedirs(os.path.dirname(out_csv) or ".", exist_ok=True)
     res.to_csv(out_csv, index=False)
 
@@ -103,6 +126,20 @@ if __name__ == "__main__":
     p.add_argument("--images_dir", type=str, default="data")
     p.add_argument("--model_id", type=str, default=None)
     p.add_argument("--adapter", type=str, default=None)
+    p.add_argument("--recompute_tolerant", nargs="+", default=None, metavar="DESCRIBE_CSV",
+                   help="CPU only: add said_hour_number_tolerant / hour_desc_ok_tolerant to existing describe CSVs "
+                        "in place, from their saved raw_answer (no model run); original columns are verified unchanged")
     a = p.parse_args()
+    if a.recompute_tolerant:
+        for path in a.recompute_tolerant:
+            old = pd.read_csv(path)
+            old = old[[c for c in old.columns if c not in ("said_hour_number_tolerant", "hour_desc_ok_tolerant")]]
+            new = add_tolerant_columns(old)
+            assert new[list(old.columns)].equals(old), "original columns changed -- refusing to write"
+            new.to_csv(path, index=False)
+            ch = new["said_hour_number"].isna() & new["said_hour_number_tolerant"].notna()
+            print(f"{path}: original hour parse missed {int(new['said_hour_number'].isna().sum())}, tolerant parse recovers {int(ch.sum())}; "
+                  f"hour_desc_ok {old['hour_desc_ok'].mean():.1%} -> tolerant {new['hour_desc_ok_tolerant'].mean():.1%}")
+        raise SystemExit(0)
     main(data_csv=a.data_csv, images_dir=a.images_dir, model_id=a.model_id, adapter_name=a.adapter,
          max_images=a.max_images, out_csv=a.out_csv)
