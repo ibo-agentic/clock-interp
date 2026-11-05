@@ -263,6 +263,9 @@ def run(model_id=None, adapter_name=None, seed=SEED, smoke=False, max_new_tokens
                      "identical call to eval_behavior.py (image first, then text)",
         "text_only_reproduction_vs_text_only_v2": repro,
     }
+    notes = getattr(adapter, "run_config_notes", None)    # only families that define it (InternVL); Qwen configs unchanged
+    if callable(notes):
+        config["adapter_notes"] = notes()
     with open(cfg_path, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2)
 
@@ -283,7 +286,7 @@ def run(model_id=None, adapter_name=None, seed=SEED, smoke=False, max_new_tokens
             picks.append(df[df.condition == cond].head(k))
         for _, r in pd.concat(picks).iterrows():
             print(f"[{r.condition} N={r.position} H={r.hour}] text truth minute={r.truth_minute}"
-                  + (f" | image shows {r.image_hour}:{int(r.image_minute):02d}" if pd.notna(r.image_minute) else ""))
+                  + (f" | image shows {int(r.image_hour)}:{int(r.image_minute):02d}" if pd.notna(r.image_minute) else ""))
             print(f"   image  : {r.image_path}")
             print(f"   prompt : {r.prompt!r}")
             print(f"   raw    : {r.raw_output!r}")
@@ -407,12 +410,15 @@ def aggregate(models, results_dir="results", out_dir=None):
 
     # ---- plot ----
     models_present = list(df.model.unique())
-    fig, axes = plt.subplots(1, len(models_present), figsize=(7.5 * len(models_present), 5), sharey=True,
-                             squeeze=False)
+    ncols = 2 if len(models_present) > 1 else 1
+    nrows = math.ceil(len(models_present) / ncols)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(7.5 * ncols, 5 * nrows), sharey=True, squeeze=False)
+    for extra_ax in [a for row in axes for a in row][len(models_present):]:
+        extra_ax.axis("off")
     colors = {"text_only": "tab:gray", "matching_clock": "tab:green", "blank": "tab:blue",
               "mismatched_clock": "tab:red"}
     offsets = {c: (i - 1.5) * 0.06 for i, c in enumerate(CONDITIONS)}
-    for ax, model in zip(axes[0], models_present):
+    for ax, model in zip([a for row in axes for a in row], models_present):
         for cond in CONDITIONS:
             g = summary[(summary.model == model) & (summary.condition == cond) &
                         (summary.metric == "minute_correct") & (summary.position != "all")].copy()
@@ -437,7 +443,8 @@ def aggregate(models, results_dir="results", out_dir=None):
         ax.set_ylim(-0.03, 1.03)
         ax.grid(alpha=0.3)
         ax.legend(fontsize=7, loc="upper left")
-    axes[0][0].set_ylabel("minute accuracy vs TEXT (95% Wilson CI)")
+    for row in axes:
+        row[0].set_ylabel("minute accuracy vs TEXT (95% Wilson CI)")
     fig.suptitle("Conversion test: same text prompt, different images (n=36 per point)", fontsize=12)
     fig.text(0.5, 0.005, "Caveat: CIs treat the 36 prompts per position (12 hours x 3 lead-ins) as independent; "
              "they are crossed, so CIs are somewhat optimistic. Paired McNemar tests: paired_tests.csv.",
@@ -466,7 +473,7 @@ if __name__ == "__main__":
     ap.add_argument("--max_new_tokens", type=int, default=MAX_NEW_TOKENS)
     ap.add_argument("--smoke", action="store_true", help="5 prompts x 4 conditions, print 10 raw outputs")
     ap.add_argument("--aggregate", action="store_true", help="CPU only: summary, paired tests, plot")
-    ap.add_argument("--models", type=str, default="qwen2.5-vl-3b,qwen2.5-vl-7b")
+    ap.add_argument("--models", type=str, default="qwen2.5-vl-3b,qwen2.5-vl-7b,internvl3-2b,internvl3-8b")
     ap.add_argument("--results_dir", type=str, default="results")
     ap.add_argument("--images_dir", type=str, default=None)
     ap.add_argument("--text_only_dir", type=str, default=None,

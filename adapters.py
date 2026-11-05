@@ -58,20 +58,14 @@ matters):
     the merged embedding (matches `_extract_image_features_tensor`'s
     existing priority order unchanged). NOT run against real weights --
     google/gemma-3-4b-it is a GATED repo this environment has no access to.
-  - InternVLAdapter: built by downloading and reading the ACTUAL custom
-    modeling code from OpenGVLab/InternVL3-2B's real HF repo (trust_remote_code
-    -- see modeling_internvl_chat.py's `forward`/`generate`/`chat` methods).
-    Confirmed from that source: no standard `get_image_features` (the
-    analogous method is `extract_feature`, and this adapter doesn't attempt
-    to intercept it -- see "why get_image_features support is optional"
-    below); `forward()` requires an extra `image_flags` tensor `generate()`
-    does not; the generated sequence from `.generate()` is NOT prefixed with
-    the prompt (no trimming needed, unlike Qwen/Gemma3). Simplified to a
-    SINGLE image tile (no dynamic multi-tile splitting) since our clock
-    renders are simple synthetic images that don't need multi-crop detail --
-    this keeps `num_image_token` fixed and avoids a large chunk of
-    InternVL's usual preprocessing complexity. NOT run against real weights
-    (no local GPU).
+  - InternVLAdapter: REWRITTEN for the transformers-native "-hf" checkpoints
+    (OpenGVLab/InternVL3-2B-hf / -8B-hf; AutoModelForImageTextToText +
+    AutoProcessor + the model's own chat template). The earlier version targeted
+    the custom-code checkpoints and bypassed the chat template entirely, so it
+    was replaced rather than fixed. Facts (template, 256 tokens per 448 tile,
+    no default system prompt, crop_to_patches handling, bf16 cards vs this
+    project's fp16) are documented at the class. NOT run against real weights
+    yet -- use `python adapters.py --smoke --model_id <id>` first.
 
 RUN --verify FOR EVERY MODEL BEFORE TRUSTING ANY INTERVENTION RESULT FROM
 IT. This is not boilerplate caution: this project's own history is that
@@ -407,154 +401,129 @@ class Gemma3Adapter(ModelAdapter):
 
 
 # ---------------------------------------------------------------------------
-# InternVL3 -- different vision encoder (InternViT) AND a fundamentally
-# different input-construction convention (custom `trust_remote_code`
-# modeling, no standard HF processor -- see module docstring for how this
-# was reverse-engineered from the real modeling_internvl_chat.py).
+# InternVL3 -- TRANSFORMERS-NATIVE "-hf" checkpoints (OpenGVLab/InternVL3-2B-hf,
+# OpenGVLab/InternVL3-8B-hf), loaded with AutoModelForImageTextToText +
+# AutoProcessor, i.e. the same standard path as Qwen. This REPLACES an earlier
+# adapter for the custom-code checkpoints (trust_remote_code), which fed the raw
+# string "<image>\n{prompt}" to the model with NO chat template at all and
+# preprocessed the image by hand -- so a "same prompt" comparison against Qwen
+# would have been invalid before any weights loaded.
+#
+# Facts used here, from the -hf model cards / raw repo files (not guessed):
+#   * chat template: "<|im_start|>{role}\n{content}<|im_end|>\n" per turn,
+#     generation prompt "<|im_start|>assistant\n"; an image renders as
+#     "<IMG_CONTEXT>\n" BEFORE the text; NO default system prompt is injected
+#     (Qwen2.5-VL's template injects one -- a known template difference between
+#     the two model families, recorded in run_config.json via run_config_notes()).
+#   * image_seq_length 256 per 448x448 tile; the processor expands each
+#     <IMG_CONTEXT> into <img> + 256 x <IMG_CONTEXT> + </img> per tile.
+#   * the hub preprocessor_config.json says crop_to_patches=false, but
+#     InternVLProcessor's own _defaults (transformers 5.17 checked) set
+#     crop_to_patches=True and that can override the hub value. So this adapter
+#     passes crop_to_patches=False EXPLICITLY on every image call: every clock is
+#     exactly ONE 448x448 tile = 256 image tokens, independent of transformers
+#     version. (Method-section fact; recorded in run_config.json.)
+#   * the cards use bfloat16; this project runs float16 (T4 has no native bf16).
+#     float16 is the default; set env CLOCK_DTYPE=bfloat16 to switch ONLY this
+#     adapter if the --smoke check shows NaN/inf or gibberish in fp16.
+#
+# NOT verified against real weights from this environment (no GPU): run
+# `python adapters.py --smoke --model_id OpenGVLab/InternVL3-2B-hf` first.
 # ---------------------------------------------------------------------------
 
-# ImageNet mean/std -- InternVL's own preprocessing (from its model card /
-# modeling_intern_vit.py's expected input normalization) uses these, not the
-# CLIP-style stats Qwen/Gemma3's processors apply internally.
-INTERNVL_IMAGE_MEAN = (0.485, 0.456, 0.406)
-INTERNVL_IMAGE_STD = (0.229, 0.224, 0.225)
-INTERNVL_IMAGE_SIZE = 448   # InternVL3's standard single-tile input resolution
-INTERNVL_IMG_CONTEXT_TOKEN = "<IMG_CONTEXT>"
-INTERNVL_IMG_START_TOKEN = "<img>"
-INTERNVL_IMG_END_TOKEN = "</img>"
+INTERNVL_IMAGE_SIZE = 448          # one tile
+INTERNVL_TOKENS_PER_TILE = 256     # image_seq_length in the -hf processor_config.json
+
+
+def _internvl_dtype():
+    name = os.environ.get("CLOCK_DTYPE", "float16").lower()
+    if name in ("float16", "fp16", "half"):
+        return torch.float16, "float16"
+    if name in ("bfloat16", "bf16"):
+        return torch.bfloat16, "bfloat16"
+    raise ValueError(f"CLOCK_DTYPE must be float16 or bfloat16 (got '{name}')")
 
 
 class InternVLAdapter(ModelAdapter):
     short_name = "internvl3-2b"
-    default_model_id = "OpenGVLab/InternVL3-2B"
-    supports_get_image_features = False   # see module docstring: extract_feature() isn't intercepted
+    default_model_id = "OpenGVLab/InternVL3-2B-hf"
+    supports_get_image_features = False   # only layer0_embed interception is offered for this family
+    expected_image_tokens = INTERNVL_TOKENS_PER_TILE   # single tile; checked by --smoke
 
     def __init__(self):
         self.model = None
-        self.tokenizer = None
-        self.num_image_token = None
+        self.processor = None
+        self.dtype, self.dtype_name = _internvl_dtype()
 
     def load(self, model_id=None):
-        from transformers import AutoModel, AutoTokenizer
+        from transformers import AutoModelForImageTextToText, AutoProcessor
         model_id = model_id or self.default_model_id
-        print(f"Loading {model_id} in float16 (trust_remote_code=True -- this repo ships its own "
-              "modeling code rather than transformers' native InternVL class; see adapters.py's "
-              "module docstring) ...")
-        self.model = AutoModel.from_pretrained(
-            model_id, torch_dtype=torch.float16, device_map="auto", trust_remote_code=True)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True, use_fast=False)
+        self.loaded_model_id = model_id
+        print(f"Loading {model_id} in {self.dtype_name} (transformers-native InternVL, device_map='auto') ...")
+        self.model = AutoModelForImageTextToText.from_pretrained(
+            model_id, torch_dtype=self.dtype, device_map="auto")
+        self.processor = AutoProcessor.from_pretrained(model_id)
         self.model.eval()
-
-        # img_context_token_id is NOT read from config -- InternVLChatModel's
-        # own forward()/generate() require it be set as a plain attribute
-        # before any call (confirmed from modeling_internvl_chat.py's chat()
-        # method, which does exactly this every time).
-        img_context_token_id = self.tokenizer.convert_tokens_to_ids(INTERNVL_IMG_CONTEXT_TOKEN)
-        self.model.img_context_token_id = img_context_token_id
-
-        # num_image_token is computed once in the model's __init__ from its
-        # vision config (image_size, patch_size, downsample_ratio) -- already
-        # an attribute on the loaded model, no need to recompute it here.
-        self.num_image_token = self.model.num_image_token
-
-        # This project's `.processor` naming convention (used by build_inputs
-        # callers elsewhere, e.g. probe.py's find_image_token_id signature)
-        # doesn't apply here -- InternVL has no combined processor, only a
-        # tokenizer plus manual image preprocessing (see build_inputs below).
-        self.processor = self.tokenizer
-        return self.model, self.tokenizer
-
-    def _preprocess_image(self, image):
-        """A SINGLE 448x448 tile (no dynamic multi-tile splitting -- see
-        module docstring for why: our clock renders are simple synthetic
-        images that don't need multi-crop detail, and this keeps
-        num_image_token fixed at exactly self.num_image_token, avoiding a
-        large chunk of InternVL's usual dynamic-preprocessing complexity in
-        a code path that can't be tested against real weights here)."""
-        image = image.resize((INTERNVL_IMAGE_SIZE, INTERNVL_IMAGE_SIZE), Image.BICUBIC)
-        arr = np.asarray(image).astype(np.float32) / 255.0
-        mean = np.array(INTERNVL_IMAGE_MEAN, dtype=np.float32)
-        std = np.array(INTERNVL_IMAGE_STD, dtype=np.float32)
-        arr = (arr - mean) / std
-        tensor = torch.from_numpy(arr).permute(2, 0, 1).unsqueeze(0)  # (1, 3, H, W)
-        return tensor.to(torch.float16)
+        return self.model, self.processor
 
     def build_inputs(self, image, prompt):
         image = _open_image(image)
         if image is not None:
-            pixel_values = self._preprocess_image(image).to(self.model.device)
-            # num_patches=1 (single tile, see _preprocess_image) -> exactly
-            # self.num_image_token placeholder tokens, matching pixel_values'
-            # single row -- see modeling_internvl_chat.py's chat()/generate(),
-            # which require len(pixel_values) == sum(num_patches_list) and
-            # selected.sum() == vit_embeds.numel()/C.
-            image_tokens = (INTERNVL_IMG_START_TOKEN + INTERNVL_IMG_CONTEXT_TOKEN * self.num_image_token +
-                             INTERNVL_IMG_END_TOKEN)
-            query = f"<image>\n{prompt}".replace("<image>", image_tokens, 1)
-            image_flags = torch.ones((1, 1), dtype=torch.long, device=self.model.device)
+            content = [{"type": "image"}, {"type": "text", "text": prompt}]   # image first, then text
         else:
-            pixel_values = None
-            query = prompt
-            image_flags = None
-
-        encoded = self.tokenizer(query, return_tensors="pt")
-        inputs = {
-            "input_ids": encoded["input_ids"].to(self.model.device),
-            "attention_mask": encoded["attention_mask"].to(self.model.device),
-        }
-        if pixel_values is not None:
-            inputs["pixel_values"] = pixel_values
-            inputs["image_flags"] = image_flags   # forward() needs this; generate() ignores extra kwargs it doesn't use
-        return inputs
+            content = [{"type": "text", "text": prompt}]
+        messages = [{"role": "user", "content": content}]
+        chat_text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        if image is not None:
+            # crop_to_patches=False: ONE 448x448 tile / 256 image tokens, whatever the
+            # processor's own default is on this transformers version (see banner above).
+            inputs = self.processor(text=[chat_text], images=[image], return_tensors="pt",
+                                    crop_to_patches=False)
+        else:
+            inputs = self.processor(text=[chat_text], return_tensors="pt")
+        return dict(inputs.to(self.model.device, dtype=self.dtype))   # casts floating tensors only
 
     @torch.no_grad()
     def generate_answer(self, inputs, max_new_tokens=16, use_cache=True):
-        # UNLIKE Qwen/Gemma3: InternVLChatModel.generate() calls
-        # self.language_model.generate(inputs_embeds=..., ...) internally
-        # (confirmed from modeling_internvl_chat.py) -- when generation
-        # starts from embeddings rather than input_ids, HF's generate()
-        # returns ONLY the newly generated token ids, not prompt+continuation.
-        # Trimming by prompt length (Qwen/Gemma3's convention) would be
-        # WRONG here and would silently eat the first several real answer
-        # tokens -- confirmed by reading modeling_internvl_chat.py's own
-        # chat() method, which decodes the raw generate() output with NO
-        # slicing at all.
-        gen_kwargs = {k: v for k, v in inputs.items() if k != "image_flags"}
-        generated_ids = self.model.generate(**gen_kwargs, max_new_tokens=max_new_tokens, do_sample=False,
+        generated_ids = self.model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False,
                                              use_cache=use_cache)
-        return self.tokenizer.decode(generated_ids[0], skip_special_tokens=True).strip()
+        trimmed = generated_ids[0][inputs["input_ids"].shape[1]:]
+        return self.processor.decode(trimmed, skip_special_tokens=True).strip()
 
     def image_token_positions(self, inputs):
-        return (inputs["input_ids"][0] == self.model.img_context_token_id).cpu()
+        return (inputs["input_ids"][0] == self.model.config.image_token_id).cpu()
 
     def decoder_layers(self):
-        # Scans the FULL model tree, so this finds language_model.model.layers
-        # (a Qwen2DecoderLayer or LlamaDecoderLayer stack, depending on which
-        # backbone this checkpoint uses -- see module docstring) without
-        # needing to know that attribute path explicitly.
         return find_decoder_layers_generic(self.model)
 
     def vision_module(self):
-        # InternVisionModel -- matches find_vision_module_generic's
-        # "Vision" + endswith("Model") pattern (confirmed from
-        # modeling_intern_vit.py's class name).
         return find_vision_module_generic(self.model)
 
     def image_features_owners(self):
-        # InternVL's analogous method is `extract_feature`, not
-        # `get_image_features` -- not intercepted by this adapter (see
-        # module docstring on why that's fine: layer0_embed is the trusted
-        # default anyway, for every model including Qwen).
-        return [], None
+        return [], None   # layer0_embed only (this project's trusted default for every model)
+
+    def run_config_notes(self):
+        """Merged into run_config.json by text_only_v2.py / conversion_test.py (Qwen adapters have no such
+        method, so their configs are unchanged)."""
+        return {
+            "family": "InternVL3 (transformers-native -hf checkpoint)",
+            "model_class": type(self.model).__name__ if self.model is not None else None,
+            "dtype": self.dtype_name,
+            "image_preprocessing": ("single 448x448 tile: processor called with crop_to_patches=False on every image, "
+                                    f"so {INTERNVL_TOKENS_PER_TILE} image tokens (<img> + 256 x <IMG_CONTEXT> + </img>) "
+                                    "per image regardless of the processor's own default"),
+            "system_prompt": ("NONE: the InternVL3-hf chat template injects no default system prompt. Qwen2.5-VL's "
+                              "template injects one by default -- a known template difference between the two "
+                              "families; within each family text-only and image runs use the same template."),
+            "image_position": "image first, then text (template renders '<IMG_CONTEXT>' + newline before the text)",
+            "chat_template": "<|im_start|>{role} newline {content}<|im_end|> newline ... <|im_start|>assistant newline",
+        }
 
 
 class InternVL3_8BAdapter(InternVLAdapter):
-    """Same architecture family as InternVL3-2B; only the checkpoint (and
-    therefore its LLM backbone size) differs -- num_image_token is
-    recomputed from THIS checkpoint's own vision config at load() time, not
-    hardcoded, so this subclass needs nothing beyond the id override."""
+    """Same family, bigger checkpoint (Qwen2-7B-class backbone, 28 layers, hidden 3584); only the ids differ."""
     short_name = "internvl3-8b"
-    default_model_id = "OpenGVLab/InternVL3-8B"
+    default_model_id = "OpenGVLab/InternVL3-8B-hf"
 
 
 # ---------------------------------------------------------------------------
@@ -614,3 +583,167 @@ def output_dir_for(base_out_dir, adapter):
     this instead of using --out_dir directly, so results from different
     models never collide in the same folder."""
     return os.path.join(base_out_dir, adapter.short_name)
+
+
+# ---------------------------------------------------------------------------
+# CLI checks (python adapters.py --smoke / --qwen_regression)
+# ---------------------------------------------------------------------------
+
+def run_smoke(model_id=None, adapter_name=None, max_new_tokens=32, tmp_dir="adapter_smoke_images"):
+    """Sanity-check an adapter on real weights BEFORE any long run:
+      * 3 prompts WITH an image + 3 prompts WITHOUT, raw outputs printed;
+      * 5 describe_check.py prompts on clocks, raw outputs printed, with the
+        project's regexes applied so you can see early whether they fit this
+        model's wording;
+      * hard checks: logits finite (fp16 overflow shows up here), no empty
+        outputs, and (adapters that declare expected_image_tokens) the image-token
+        count and pixel_values shape.
+    Returns True on PASS."""
+    from transformers import set_seed
+    from clocks import generate_clock_image
+    from describe_check import PROMPT as DESCRIBE_PROMPT, parse_reply
+    from eval_behavior import PROMPT as READ_PROMPT
+    set_seed(0)
+
+    adapter = get_adapter(model_id=model_id, adapter_name=adapter_name)
+    adapter.load(model_id)
+    problems = []
+    print(f"\n=== SMOKE: {adapter.short_name}  ({type(adapter).__name__}) ===")
+    print(f"dtype: {getattr(adapter, 'dtype_name', 'float16 (Qwen/Gemma adapters hardcode it)')}   "
+          f"torch {torch.__version__}")
+    try:
+        import transformers
+        print(f"transformers {transformers.__version__}")
+    except Exception:
+        pass
+    dmap = getattr(adapter.model, "hf_device_map", None)
+    if dmap:
+        print("device map (module groups per device):",
+              {str(d): sum(1 for v in dmap.values() if v == d) for d in set(dmap.values())})
+    if hasattr(adapter, "run_config_notes"):
+        for k, v in adapter.run_config_notes().items():
+            print(f"  [{k}] {v}")
+
+    os.makedirs(tmp_dir, exist_ok=True)
+    times = [(10, 10), (3, 45), (7, 20), (12, 0), (5, 35)]
+    paths = []
+    for i, (h, m) in enumerate(times):
+        p = os.path.join(tmp_dir, f"smoke_{i}_{h:02d}{m:02d}.png")
+        generate_clock_image(h, m, p)
+        paths.append(p)
+
+    def forward_is_finite(inputs):
+        with torch.no_grad():
+            logits = adapter.model(**inputs).logits
+        return bool(torch.isfinite(logits).all().item())
+
+    print("\n--- 3 prompts WITH an image (eval_behavior.py prompt) ---")
+    for p, (h, m) in list(zip(paths, times))[:3]:
+        inputs = adapter.build_inputs(p, READ_PROMPT)
+        n_img = int(adapter.image_token_positions(inputs).sum())
+        fin = forward_is_finite(inputs)
+        raw = adapter.generate_answer(inputs, max_new_tokens=max_new_tokens)
+        shape = tuple(inputs["pixel_values"].shape) if "pixel_values" in inputs else None
+        print(f"[{h}:{m:02d}] image_tokens={n_img} pixel_values={shape} logits_finite={fin}\n    raw: {raw!r}")
+        exp = getattr(adapter, "expected_image_tokens", None)
+        if exp is not None and n_img != exp:
+            problems.append(f"image token count {n_img} != expected {exp}")
+        if not fin:
+            problems.append("non-finite logits with image")
+        if not raw.strip():
+            problems.append("empty output with image")
+
+    print("\n--- 3 prompts WITHOUT an image ---")
+    text_prompts = [
+        "The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. "
+        "What time does the clock show? Answer only in HH:MM format.",
+        "The long minute hand is pointing at the number 7. How many minutes past the hour does this represent? "
+        "Answer with a number only.",
+        "What is 7 times 5? Answer with a number only.",
+    ]
+    for tp in text_prompts:
+        inputs = adapter.build_inputs(None, tp)
+        n_img = int(adapter.image_token_positions(inputs).sum())
+        fin = forward_is_finite(inputs)
+        raw = adapter.generate_answer(inputs, max_new_tokens=max_new_tokens)
+        print(f"image_tokens={n_img} logits_finite={fin}\n    prompt: {tp!r}\n    raw: {raw!r}")
+        if n_img != 0:
+            problems.append("text-only input contains image tokens")
+        if not fin:
+            problems.append("non-finite logits text-only")
+        if not raw.strip():
+            problems.append("empty output text-only")
+
+    print("\n--- 5 describe_check.py prompts (does the project's regex parsing fit this model's wording?) ---")
+    fit = 0
+    for p, (h, m) in zip(paths, times):
+        inputs = adapter.build_inputs(p, DESCRIBE_PROMPT)
+        raw = adapter.generate_answer(inputs, max_new_tokens=120)
+        mn, hn, tm = parse_reply(raw)
+        ok = mn is not None and hn is not None and tm is not None
+        fit += int(ok)
+        print(f"[{h}:{m:02d}] parsed minute_number={mn} hour_number={hn} time={tm} (all three parsed: {ok})\n    raw: {raw!r}")
+        if not raw.strip():
+            problems.append("empty output on describe prompt")
+    print(f"\nregex fit: {fit}/5 describe replies fully parsed by describe_check.py's regexes.")
+    if fit < 4:
+        print("  -> LOW FIT: describe_check's regexes were tuned on Qwen's wording. Do NOT trust "
+              "minute_desc_ok/hour_desc_ok for this model yet; propose tolerant-parse columns "
+              "(additive, original columns untouched) and get approval before changing describe_check.py.")
+
+    if torch.cuda.is_available():
+        for d in range(torch.cuda.device_count()):
+            print(f"cuda:{d} peak memory {torch.cuda.max_memory_allocated(d) / 2**30:.1f} GiB")
+    print("\nVERDICT:", "PASS" if not problems else "FAIL")
+    for pr in sorted(set(problems)):
+        print("  -", pr)
+    if problems and getattr(adapter, "dtype_name", "") == "float16":
+        print("  If non-finite logits or gibberish: retry with env CLOCK_DTYPE=bfloat16 (slow on T4) and record it.")
+    return not problems
+
+
+def run_qwen_regression(data_csv="data/data.csv", images_dir="data",
+                        ref_csv="results/qwen2.5-vl-3b/results.csv", n=5, model_id="Qwen/Qwen2.5-VL-3B-Instruct"):
+    """Proof that Qwen behavior did not change: re-generate the first `n` rows of an EXISTING Qwen results
+    CSV through the adapter path (eval_behavior.py's prompt, max_new_tokens=16, set_seed(0)) and compare
+    raw outputs to the stored ones."""
+    import pandas as pd
+    from transformers import set_seed
+    from eval_behavior import PROMPT as READ_PROMPT
+    set_seed(0)
+    ref = pd.read_csv(ref_csv).head(n)
+    adapter = get_adapter(model_id=model_id)
+    adapter.load(model_id)
+    same = 0
+    for _, r in ref.iterrows():
+        inputs = adapter.build_inputs(os.path.join(images_dir, r["filename"]), READ_PROMPT)
+        raw = adapter.generate_answer(inputs, max_new_tokens=16)
+        ok = raw == str(r["raw_answer"]).strip()
+        same += int(ok)
+        print(f"{r['filename']}: {'IDENTICAL' if ok else 'DIFFERENT'}  now={raw!r}  stored={r['raw_answer']!r}")
+    print(f"\nQWEN REGRESSION: {same}/{len(ref)} identical to {ref_csv}")
+    return same == len(ref)
+
+
+if __name__ == "__main__":
+    import argparse
+    import sys
+    ap = argparse.ArgumentParser(description="Adapter checks on real weights (run before any long job).")
+    ap.add_argument("--smoke", action="store_true", help="3 image + 3 text-only + 5 describe prompts; prints raw outputs")
+    ap.add_argument("--qwen_regression", action="store_true",
+                    help="re-generate the first 5 rows of an existing Qwen results CSV and compare")
+    ap.add_argument("--model_id", type=str, default=None)
+    ap.add_argument("--adapter", type=str, default=None)
+    ap.add_argument("--max_new_tokens", type=int, default=32)
+    ap.add_argument("--data_csv", type=str, default="data/data.csv")
+    ap.add_argument("--images_dir", type=str, default="data")
+    ap.add_argument("--ref_csv", type=str, default="results/qwen2.5-vl-3b/results.csv")
+    ap.add_argument("--n", type=int, default=5)
+    args = ap.parse_args()
+    if args.smoke:
+        sys.exit(0 if run_smoke(args.model_id, args.adapter, args.max_new_tokens) else 1)
+    elif args.qwen_regression:
+        sys.exit(0 if run_qwen_regression(args.data_csv, args.images_dir, args.ref_csv, args.n,
+                                          args.model_id or "Qwen/Qwen2.5-VL-3B-Instruct") else 1)
+    else:
+        ap.print_help()

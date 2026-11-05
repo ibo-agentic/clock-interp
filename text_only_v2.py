@@ -229,6 +229,9 @@ def run(model_id=None, adapter_name=None, out_csv=None, seed=SEED, smoke=False, 
         "chat_template_check": template_check(adapter, "<PROMPT>"),
         "chat_path": "adapter.build_inputs(image_or_None, prompt) -> adapter.generate_answer(); identical to eval_behavior.py",
     }
+    notes = getattr(adapter, "run_config_notes", None)    # only families that define it (InternVL); Qwen configs unchanged
+    if callable(notes):
+        config["adapter_notes"] = notes()
     with open(cfg_path, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2)
 
@@ -369,7 +372,7 @@ if __name__ == "__main__":
                     help="how many of the 10 lead-ins task (b) is crossed with (default 3 -> b2 has 36 trials/position)")
     ap.add_argument("--smoke", action="store_true", help="run ~20 prompts, print 10 raw outputs, write *_smoke files")
     ap.add_argument("--aggregate", action="store_true", help="CPU only: merge per-model CSVs -> summary + plot")
-    ap.add_argument("--models", type=str, default="qwen2.5-vl-3b,qwen2.5-vl-7b")
+    ap.add_argument("--models", type=str, default="qwen2.5-vl-3b,qwen2.5-vl-7b,internvl3-2b,internvl3-8b")
     ap.add_argument("--results_dir", type=str, default="results")
     args = ap.parse_args()
     if args.aggregate:
