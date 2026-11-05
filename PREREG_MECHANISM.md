@@ -200,4 +200,31 @@ guesses; real times will be reported afterwards.
 
 ## Deviations log (append only; date, what, why)
 
-(none yet)
+**2026-11-05 (PRE-RUN: logged before any notebook D run; no real-weight result of any kind has been seen).** Implementation choices the
+prereg left open, for `mech_e3.py` / notebook D. None alters a hypothesis, threshold or decision rule except item 5, which fixes which E3e variant the
+existing thresholds apply to.
+
+1. **Hour prefix (E3a/b/c).** Teacher-forced scoring forces a zero-padded gold hour prefix ("01:") before the minute digits, because InternVL3-2B often
+   writes unpadded hours in free generation.
+2. **Layer subset.** Patching in E3b and E3c uses every 3rd layer (`range(0, L-1, 3)`), not all layers. E3a (logit lens) uses all layers.
+3. **E3c restoration.** Scored as the argmax over all 12 minute candidates with the target's gold hour forced. "Right" and "wrong" runs come from the
+   prior free-generation outputs (`conversion_test.csv`); up to 100 right->wrong pairs, plus wrong->wrong, right->right (cap/2), random-position and
+   identity controls.
+4. **E3b same-answer control.** Source = P(N,H') with the same minute answer, patched at the H-span, in-between tokens and last token. Control metric =
+   absolute change in the target minute's log-prob (the swap metric is zero by construction there). Other controls: identity, random-position.
+5. **E3e primary variant (changed per user instruction, pre-run).** PRIMARY = the VERBATIM description: the model's own words from `describe.csv`,
+   cut before its answer sentence (first of "therefore/finally/thus/so the time/the time is/shown"), followed by the standard conversion question, no
+   image. This follows the prereg wording "feed the model's own correct description". SECONDARY = template sentence ("The long minute hand is
+   pointing at the number N, and the short hour hand is pointing at the number H.") + conversion question. EXPLORATORY = template + describe-style
+   closing question. The decision thresholds in Section 4 E3e are unchanged (>=40% wrong with paired-difference CI within +/-15 points =
+   language-side; <=25% with CI excluding 0 = image interference; between = mixed) and are applied to the verbatim variant. Clocks whose reply has
+   no extractable description before the answer (or <=20 characters) are absent from the primary variant; the number of clocks per variant is
+   reported (`e3e_summary.csv: n_clocks`) and the paired comparison uses only those clocks. The thresholds are also printed for the other variants
+   but those verdicts are descriptive.
+6. **E3f forms.** "the number 12", "the number twelve", "the 12 o'clock position", over the cells where N>=10 or H>=10; conditions
+   num/num, num/word, num/oclock, word/num, oclock/num.
+7. **E3d baseline.** The intact baseline is the same eager no-KV-cache greedy loop with no block, so "empty block = intact" holds exactly; G8b
+   separately reports agreement of that loop with `adapter.generate` (fp16 numerics, >=95% required).
+
+Also logged: per-model verify gate runs inside each model's first step (not one global gate step); HF-cache purge steps between model groups; the
+InternVL3-8B E3e/pilot step runs with `--no_gate` (no hooks used); Qwen-7B E3d runs in `min` mode (intact / H-span all layers / random span).
