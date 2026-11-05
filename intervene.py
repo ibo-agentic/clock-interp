@@ -129,6 +129,7 @@ why that bit us before).
 import argparse
 import contextlib
 import os
+import sys
 import time
 import types
 
@@ -353,6 +354,279 @@ def patched(decoder_layers, layer, mask, values, mode="replace"):
         yield
     finally:
         handle.remove()
+
+
+# ---------------------------------------------------------------------------
+# --component mlp: patch a decoder layer's OWN MLP output (not the whole
+# residual stream) -- reflection-based module discovery + a forward_hook on
+# the MLP's OUTPUT (we're replacing what it PRODUCES, not what it consumes,
+# unlike heads.py's o_proj-input pre-hook), same convention as
+# register_layer_patch/_apply_replace_patch (reused unmodified). Uses the
+# SAME layer-indexing lesson learned from heads.py's real off-by-one bug:
+# find_mlp_modules(decoder_layers)[i] is decoder_layers[i]'s OWN mlp, whose
+# OUTPUT is a component of hidden_states[i+1] (that layer's output), so
+# every caller goes through mlp_module_for_layer -- never indexes
+# find_mlp_modules's return value directly with a --layers-style value.
+# ---------------------------------------------------------------------------
+
+def find_mlp_modules(decoder_layers):
+    """Each decoder layer's own MLP submodule, found by the attribute name
+    'mlp' -- confirmed directly against the installed transformers source
+    for Qwen2_5_VLDecoderLayer (self.mlp = Qwen2MLP(config)); the same
+    attribute name is used by every Llama-family decoder layer in
+    transformers (Gemma3, Qwen2, Llama), so this generalizes the same way
+    heads.py's find_attention_modules does -- but per this project's
+    Qwen-only-for-now scope, only Qwen2_5_VLDecoderLayer has actually been
+    checked. Returns a list, index i = decoder_layers[i]'s own mlp (so
+    index i's OUTPUT is a component of hidden_states[i+1] -- see
+    mlp_module_for_layer, which is what every caller should actually use)."""
+    mlp_modules = []
+    for i, layer in enumerate(decoder_layers):
+        mlp = getattr(layer, "mlp", None)
+        if mlp is None or not callable(mlp):
+            raise AttributeError(
+                f"Decoder layer {i} has no callable 'mlp' attribute -- this model's decoder layer doesn't "
+                "match the convention find_mlp_modules assumes. Do not proceed without checking why."
+            )
+        mlp_modules.append(mlp)
+    return mlp_modules
+
+
+def mlp_module_for_layer(mlp_modules, layer):
+    """Maps a `--layers`-style layer index (0 = embeddings, 1..num_layers =
+    the OUTPUT of decoder blocks 0..num_layers-1 -- the SAME indexing
+    output_hidden_states=True uses) to the MLP submodule that CONTRIBUTES
+    to that hidden state: mlp_modules[layer - 1] (find_mlp_modules' own
+    indexing has mlp_modules[i] = decoder_layers[i]'s mlp, which
+    contributes to hidden_states[i+1]). Mirrors heads.py's
+    attn_module_for_layer exactly, after that file's real, confirmed
+    off-by-one bug (--layers L was silently patching what intervene.py
+    calls layer L+1) -- the same convention is enforced here from the
+    start rather than risking the same mistake twice. Layer 0 (embeddings)
+    has no MLP to patch (nothing has run yet); layer num_layers (the FINAL
+    decoder block) is also refused here -- per this project's own
+    established finding (see print_per_layer_transfer_table_a's "final
+    decoder layer" note), patching anything but the final-token position at
+    the last layer never reaches any generated token's logits at all (no
+    downstream block re-attends to it), so a null result there is a
+    KV-cache mechanics artifact, not a measurement -- never patch or
+    interpret it."""
+    num_layers = len(mlp_modules)
+    if layer < 1 or layer >= num_layers:
+        raise ValueError(
+            f"--component mlp can only patch layers 1..{num_layers - 1} (layer 0 -- the embeddings -- has "
+            f"no MLP to patch; layer {num_layers} -- the final decoder block -- is refused because "
+            "patching anything but the final-token position there never reaches any generated token's "
+            f"logits, a KV-cache mechanics artifact, not a measurement), got layer={layer}."
+        )
+    return mlp_modules[layer - 1]
+
+
+def _extract_mlp_output(output):
+    if torch.is_tensor(output):
+        return output, "tensor"
+    if isinstance(output, (tuple, list)) and len(output) > 0 and torch.is_tensor(output[0]):
+        return output[0], "tuple"
+    raise RuntimeError("Could not locate the MLP's output tensor (checked a bare tensor and tuple[0]).")
+
+
+def _replace_mlp_output(output, where, new_output):
+    if where == "tensor":
+        return new_output
+    return (new_output,) + tuple(output[1:])
+
+
+@contextlib.contextmanager
+def mlp_patched(mlp_module, mask, values, mode="replace"):
+    """Context manager: register a patch hook on `mlp_module`'s OUTPUT (a
+    forward_hook, not a pre_hook -- we're replacing what the MLP PRODUCES,
+    not what it consumes) for the duration of a `with` block, always
+    removed afterward. Same shape-mismatch guard (prefill-shaped calls
+    only -- a single-token incremental-decode call has no "image token"
+    structure, and the prefill pass already baked in whatever effect this
+    patch has via the KV cache) and mode='replace'/'add' semantics as
+    register_layer_patch, reusing _apply_replace_patch/_apply_add_patch
+    UNMODIFIED."""
+    apply_fn = _apply_replace_patch if mode == "replace" else _apply_add_patch
+
+    def hook(module, args, kwargs, output):
+        out_tensor, where = _extract_mlp_output(output)
+        if out_tensor.shape[1] != mask.shape[0]:
+            return output
+        return _replace_mlp_output(output, where, apply_fn(out_tensor, mask, values))
+
+    handle = mlp_module.register_forward_hook(hook, with_kwargs=True)
+    try:
+        yield
+    finally:
+        handle.remove()
+
+
+@contextlib.contextmanager
+def capture_mlp_outputs(mlp_modules_by_layer, capture_holder):
+    """Captures each layer's MLP OUTPUT tensor (post-MLP, pre-residual-add,
+    (seq, H) CPU float32, batch dim dropped) into `capture_holder[layer]`,
+    during whatever forward/generate() call(s) happen inside this `with`
+    block -- mirrors heads.py's capture_head_inputs (a forward_hook on the
+    OUTPUT here, vs. a pre-hook on o_proj's INPUT there), designed to WRAP
+    an existing call (e.g. `run_baseline`, unmodified) rather than
+    duplicate its logic. Only captures multi-token (prefill) calls, same
+    guard as capture_head_inputs, for the same reason (a single-token
+    decode-step call would otherwise corrupt the cache with a 1-token
+    slice)."""
+    handles = []
+
+    def make_hook(layer):
+        def hook(module, args, kwargs, output):
+            out_tensor, _where = _extract_mlp_output(output)
+            if out_tensor.shape[1] > 1:
+                capture_holder[layer] = out_tensor[0].detach().float().cpu().clone()
+        return hook
+
+    for layer, mlp_module in mlp_modules_by_layer.items():
+        handles.append(mlp_module.register_forward_hook(make_hook(layer), with_kwargs=True))
+    try:
+        yield capture_holder
+    finally:
+        for h in handles:
+            h.remove()
+
+
+# ---------------------------------------------------------------------------
+# LOGIT METRIC: teacher-forced log-prob of a candidate "HH:MM" continuation,
+# via ONE forward pass (not generate()) -- a continuous complement to to_B's
+# discrete "did the greedy argmax flip" measurement. Motivated directly by
+# heads.py's own investigation: a patch can genuinely move the final hidden
+# state (confirmed via --verify) without flipping the argmax, if the shift
+# is real but too small -- logit_diff = logp(B_minute) - logp(A_minute)
+# shows that continuous movement even when to_B stays at 0%.
+# ---------------------------------------------------------------------------
+
+def _extend_mask_values_for_suffix(mask, values, n_suffix):
+    """Pads a (seq_len,) bool position mask with `n_suffix` False entries
+    and a (seq_len, H) patch-source tensor with `n_suffix` zero rows
+    (never read -- the mask's padded region is always False) -- shared by
+    every patch mechanism (decoder-layer residual stream, MLP output, ...)
+    that needs to stay active during teacher_forced_token_logprobs'
+    extended [prompt, suffix] sequence."""
+    ext_mask = torch.cat([mask, torch.zeros(n_suffix, dtype=torch.bool, device=mask.device)])
+    ext_values = torch.cat(
+        [values, torch.zeros(n_suffix, values.shape[1], dtype=values.dtype, device=values.device)], dim=0)
+    return ext_mask, ext_values
+
+
+def teacher_forced_token_logprobs(adapter, model, inputs, suffix_ids, decoder_layers=None, patch=None,
+                                   mlp_patch=None):
+    """Runs ONE forward pass over [inputs['input_ids'], suffix_ids] (NOT
+    generate()) and returns a list of per-token log-probabilities (natural
+    log, one per token in `suffix_ids`), each computed via TEACHER FORCING:
+    conditioned on the TRUE preceding tokens (prompt + however much of
+    `suffix_ids` precedes it), never the model's own prediction. This is
+    exactly what generate(..., output_scores=True)'s per-step scores give
+    you for a GREEDILY generated continuation, but computed via a single
+    combined forward pass instead of an autoregressive loop -- see
+    verify_logit_metric, which checks the two computation paths agree
+    (within 1e-3) to confirm this machinery is correct, not merely
+    self-consistent with itself.
+
+    `patch`: optional (layer, mask, values, mode) tuple, in the SAME shape
+    accepted by `patched()` for the ORIGINAL (un-extended) sequence.
+    `mlp_patch`: optional (mlp_module, mask, values, mode) tuple instead,
+    for --component mlp's mlp_patched mechanism. Either way, `mask`/
+    `values` get extended (via _extend_mask_values_for_suffix) with False/
+    zero rows covering the appended suffix positions (never patched --
+    teacher-forcing tokens aren't image or text-prompt positions) -- the
+    extend-and-compute logic here is shared by both patch mechanisms
+    rather than duplicated per mechanism. Qwen-only for now: uses
+    `adapter.processor.tokenizer` directly (confirmed present on
+    QwenVLAdapter)."""
+    device = inputs["input_ids"].device
+    suffix_tensor = torch.tensor([suffix_ids], device=device, dtype=inputs["input_ids"].dtype)
+    extended_inputs = dict(inputs)
+    extended_inputs["input_ids"] = torch.cat([inputs["input_ids"], suffix_tensor], dim=1)
+    if inputs.get("attention_mask") is not None:
+        extended_inputs["attention_mask"] = torch.cat(
+            [inputs["attention_mask"], torch.ones_like(suffix_tensor)], dim=1)
+
+    if patch is not None:
+        layer, mask, values, mode = patch
+        ext_mask, ext_values = _extend_mask_values_for_suffix(mask, values, len(suffix_ids))
+        ctx = patched(decoder_layers, layer, ext_mask, ext_values, mode=mode)
+    elif mlp_patch is not None:
+        mlp_module, mask, values, mode = mlp_patch
+        ext_mask, ext_values = _extend_mask_values_for_suffix(mask, values, len(suffix_ids))
+        ctx = mlp_patched(mlp_module, ext_mask, ext_values, mode=mode)
+    else:
+        ctx = contextlib.nullcontext()
+
+    with ctx:
+        with torch.no_grad():
+            outputs = model(**extended_inputs)
+    logits = outputs.logits[0].float()   # (ext_seq_len, vocab)
+    logprobs_full = torch.log_softmax(logits, dim=-1)
+    prompt_len = inputs["input_ids"].shape[1]
+    full_ids = extended_inputs["input_ids"][0]
+    result = []
+    for j in range(len(suffix_ids)):
+        target_pos = prompt_len + j
+        pred_pos = target_pos - 1   # logits at pred_pos predict the token AT target_pos
+        result.append(logprobs_full[pred_pos, full_ids[target_pos]].item())
+    return result
+
+
+def teacher_forced_minute_logprob(adapter, model, inputs, hour, minute, decoder_layers=None, patch=None,
+                                   mlp_patch=None):
+    """Sum of log P(digit-token | ...) for `minute` (zero-padded to 2
+    digits) appearing right after "{hour}:" -- ISOLATES the minute's own
+    tokens specifically (excludes the hour+colon prefix's own log-probs)
+    via teacher_forced_token_logprobs (`patch`/`mlp_patch`: see there).
+    Qwen tokenizes every digit separately (confirmed directly against the
+    real tokenizer: '05' -> ['0','5'], '45' -> ['4','5']), but the
+    digit-token span is read from the tokenizer here, never assumed to be
+    a fixed count."""
+    tokenizer = adapter.processor.tokenizer
+    hour_prefix_ids = tokenizer.encode(f"{hour}:", add_special_tokens=False)
+    minute_ids = tokenizer.encode(f"{minute:02d}", add_special_tokens=False)
+    all_logprobs = teacher_forced_token_logprobs(adapter, model, inputs, hour_prefix_ids + minute_ids,
+                                                 decoder_layers=decoder_layers, patch=patch, mlp_patch=mlp_patch)
+    return float(sum(all_logprobs[len(hour_prefix_ids):]))
+
+
+def verify_logit_metric(adapter, images_dir, filenames, max_new_tokens):
+    """PASS/FAIL: for a few images, the teacher-forced log-prob of the
+    model's OWN GREEDILY-generated continuation (via
+    teacher_forced_token_logprobs, one combined forward pass) must match
+    the SAME quantity computed independently by
+    generate(..., output_scores=True) (an autoregressive loop, one
+    forward pass per generated token) -- two different computation paths
+    for the identical mathematical quantity, so agreement (within 1e-3)
+    confirms teacher_forced_token_logprobs' machinery (extending
+    input_ids, reading log_softmax at the right position) is correct, not
+    just self-consistent with itself. This is the check the module
+    docstring/README point to before trusting logit_diff on any real
+    sweep."""
+    results = []
+    for fn in filenames:
+        path = os.path.join(images_dir, fn)
+        inputs = adapter.build_inputs(path, PROMPT)
+        with torch.no_grad():
+            gen_out = adapter.model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False,
+                                             output_scores=True, return_dict_in_generate=True)
+        generated_ids = gen_out.sequences[0][inputs["input_ids"].shape[1]:].tolist()
+        scores = gen_out.scores
+        logprob_from_scores = 0.0
+        for step, token_id in enumerate(generated_ids):
+            step_logprobs = torch.log_softmax(scores[step][0].float(), dim=-1)
+            logprob_from_scores += step_logprobs[token_id].item()
+
+        logprob_teacher_forced = float(sum(teacher_forced_token_logprobs(adapter, adapter.model, inputs, generated_ids)))
+        diff = abs(logprob_from_scores - logprob_teacher_forced)
+        results.append({
+            "filename": fn, "n_tokens": len(generated_ids),
+            "logprob_from_scores": logprob_from_scores, "logprob_teacher_forced": logprob_teacher_forced,
+            "diff": diff, "pass": diff < 1e-3,
+        })
+    return results
 
 
 # find_all_image_features_owners: moved to adapters.py as
@@ -679,14 +953,19 @@ def make_random_noise_image(size=512, rng=None):
 
 
 def position_masks(image_mask, seq_len):
-    """The three position sets Experiment A sweeps over, each a (seq_len,)
-    bool tensor."""
+    """The position sets Experiment A can sweep over, each a (seq_len,)
+    bool tensor. The default sweep (--position_mode unset) uses the first
+    three; 'text_all' (every NON-image position -- the prompt tokens after
+    the image, e.g. the question text and chat-template tokens) is a
+    separate, explicit mode (--position_mode text_all) with its own output
+    directory, not part of the default sweep -- see run_experiment_a."""
     final_token = torch.zeros(seq_len, dtype=torch.bool)
     final_token[-1] = True
     return {
         "image_tokens": image_mask,
         "final_token": final_token,
         "all_positions": torch.ones(seq_len, dtype=torch.bool),
+        "text_all": ~image_mask,
     }
 
 
@@ -847,7 +1126,22 @@ def _baseline_fields(prefix, base):
 
 def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_method,
                       df, images_dir, out_dir, n_pairs=N_PAIRS, max_pairs=None, min_gap=MIN_GAP_MINUTES,
-                      layers=None, max_new_tokens=MAX_NEW_TOKENS, seed=SEED, exclude_pairs=None):
+                      layers=None, max_new_tokens=MAX_NEW_TOKENS, seed=SEED, exclude_pairs=None,
+                      position_mode=None, logit_metric=True):
+    """position_mode=None (default): sweep the original three position sets
+    (image_tokens, final_token, all_positions). position_mode="text_all":
+    sweep ONLY the text_all position set (every non-image position) --
+    same paired design/metrics, just a different position set and (by
+    convention, see main()) a different --out_dir.
+
+    logit_metric=True (default): for every trial, ALSO compute the
+    teacher-forced logit_diff = logp(B_minute) - logp(A_minute) before and
+    after patching (see teacher_forced_minute_logprob) -- a continuous
+    complement to to_B's discrete "did the argmax flip", motivated by
+    heads.py's own finding that a patch can move the final hidden state
+    without flipping the argmax. Adds 2 extra forward passes per trial
+    (before-patch logprobs are computed once per PAIR, not per trial) --
+    pass False to skip it for a cost-conscious smoke test."""
     rng = np.random.RandomState(seed)
     pairs = build_pairs(df, n_pairs=n_pairs, min_gap=min_gap, seed=seed, exclude_pairs=exclude_pairs)
     if max_pairs is not None:
@@ -858,7 +1152,12 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
     num_layers = len(decoder_layers)
     if layers is None:
         layers = list(range(num_layers + 1))  # 0 (embeddings) .. num_layers (final block output)
-    position_sets = ["image_tokens", "final_token", "all_positions"]
+    if position_mode == "text_all":
+        position_sets = ["text_all"]
+    elif position_mode is None:
+        position_sets = ["image_tokens", "final_token", "all_positions"]
+    else:
+        raise ValueError(f"Unknown position_mode {position_mode!r} -- expected None or 'text_all'.")
     already_used = {f for pair in pairs for f in (pair[0]["filename"], pair[1]["filename"])}
 
     n_sweep_trials_per_pair = len(layers) * len(position_sets) * 3  # 3 conditions: real_b, same_minute, noise
@@ -866,6 +1165,11 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
     print(f"Experiment A: {len(pairs)} pair(s) x {len(layers)} layer(s) x {len(position_sets)} position "
           f"set(s) x 3 conditions, plus {len(pairs)} vision-encoder ceiling trial(s) "
           f"= {n_total_trials} generate() calls total.")
+    if logit_metric:
+        n_extra_forward = n_total_trials * 2 + len(pairs) * 2   # 2 per trial (after) + 2 per pair (before)
+        print(f"logit_metric=True: +{n_extra_forward} plain forward pass(es) (2 per trial for logp_after, "
+              "2 per pair for logp_before -- cheaper than a generate() call each, but not free). Pass "
+              "--skip_logit_metric for a cost-conscious smoke test.")
 
     rows = []
     t_start = time.perf_counter()
@@ -894,7 +1198,44 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
             continue
 
         baseline_a_minute = base_a["pred_minute"] if base_a["parse_success"] else None
+        baseline_b_minute = base_b["pred_minute"] if base_b["parse_success"] else None
         pos_masks = position_masks(base_a["image_mask"], base_a["seq_len"])
+
+        # LOGIT METRIC, "before" half: identical for every layer/position_set/condition of
+        # THIS pair (nothing patched yet), so computed ONCE per pair, not once per trial --
+        # mirrors _baseline_fields' own "compute once, copy into every row" convention.
+        # Ground-truth hour (not the parsed baseline hour, which could itself be a parse
+        # failure) is the shared teacher-forcing prefix -- pairs are same-hour by
+        # construction, so this decouples "does the MINUTE logit move" from "did the model
+        # even get the hour right", matching this metric's stated purpose.
+        a_hour_gt = int(a["hour"])
+        compute_logits = logit_metric and baseline_a_minute is not None and baseline_b_minute is not None
+        if compute_logits:
+            logp_a_before = teacher_forced_minute_logprob(adapter, adapter.model, base_a["inputs"],
+                                                           a_hour_gt, baseline_a_minute)
+            logp_b_before = teacher_forced_minute_logprob(adapter, adapter.model, base_a["inputs"],
+                                                           a_hour_gt, baseline_b_minute)
+            logit_diff_before = logp_b_before - logp_a_before
+        else:
+            logp_a_before = logp_b_before = logit_diff_before = float("nan")
+        before_fields = {"logp_a_minute_before": logp_a_before, "logp_b_minute_before": logp_b_before,
+                         "logit_diff_before": logit_diff_before}
+
+        def _after_fields(patch_spec):
+            """patch_spec: (layer, mask, values, mode), the SAME patch just
+            applied via patched()/generate_answer() for this trial --
+            recomputes the SAME patch (one extra prefill-shaped forward
+            pass per target minute, so 2 extra forward passes per trial)
+            for the teacher-forced logprob readout. NaN if logit_metric is
+            off or either baseline minute failed to parse."""
+            if not compute_logits:
+                nan = float("nan")
+                return {"logp_a_minute_after": nan, "logp_b_minute_after": nan, "logit_diff_after": nan}
+            logp_a = teacher_forced_minute_logprob(adapter, adapter.model, base_a["inputs"], a_hour_gt,
+                                                   baseline_a_minute, decoder_layers=decoder_layers, patch=patch_spec)
+            logp_b = teacher_forced_minute_logprob(adapter, adapter.model, base_a["inputs"], a_hour_gt,
+                                                   baseline_b_minute, decoder_layers=decoder_layers, patch=patch_spec)
+            return {"logp_a_minute_after": logp_a, "logp_b_minute_after": logp_b, "logit_diff_after": logp_b - logp_a}
 
         for layer in layers:
             for pos_name, mask in pos_masks.items():
@@ -917,6 +1258,7 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
                     "patched_answer": ans,
                     "moved_toward": moved, "shift_score": shift,
                     "answer_changed": (ans != base_a["raw_answer"]),
+                    **before_fields, **_after_fields((layer, mask, base_b["hidden_states"][layer], "replace")),
                 })
 
                 # --- control (a): same-minute patch -- should change nothing ---
@@ -938,6 +1280,7 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
                         "patched_answer": ans_same,
                         "moved_toward": moved_s, "shift_score": shift_s,
                         "answer_changed": (ans_same != base_a["raw_answer"]),
+                        **before_fields, **_after_fields((layer, mask, base_same["hidden_states"][layer], "replace")),
                     })
 
                 # --- control (b): matched-norm random noise ---
@@ -961,6 +1304,7 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
                     "patched_answer": ans_noise,
                     "moved_toward": moved_n, "shift_score": shift_n,
                     "answer_changed": (ans_noise != base_a["raw_answer"]),
+                    **before_fields, **_after_fields((layer, mask, noise_vals, "replace")),
                 })
 
                 n_timed += 1
@@ -992,6 +1336,13 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
                 "patched_answer": ans_v,
                 "moved_toward": moved_v, "shift_score": shift_v,
                 "answer_changed": (ans_v != base_a["raw_answer"]),
+                # logit_diff scoped to the decoder-layer sweep only (needs a (layer, mask, values)
+                # patch spec teacher_forced_minute_logprob can re-apply -- the vision-ceiling
+                # condition patches get_image_features/layer0_embed instead, a different mechanism
+                # not wired up for this yet): NaN here, not silently 0 or omitted.
+                **before_fields,
+                "logp_a_minute_after": float("nan"), "logp_b_minute_after": float("nan"),
+                "logit_diff_after": float("nan"),
             })
         else:
             print(f"WARNING: pair {pair_idx} ({a['filename']}/{b['filename']}): vision capture failed "
@@ -1004,6 +1355,175 @@ def run_experiment_a(adapter, decoder_layers, image_features_owners, vision_meth
     trials_df.to_csv(os.path.join(out_dir, "experiment_a_trials.csv"), index=False)
     print(f"\nExperiment A: {len(trials_df)} trials over {len(pairs)} pairs written to "
           f"'{out_dir}/experiment_a_trials.csv'.")
+    return trials_df
+
+
+# ---------------------------------------------------------------------------
+# --component mlp: same paired design as Experiment A, restricted to
+# IMAGE-TOKEN positions, but patches one layer's MLP OUTPUT (mlp_patched)
+# instead of the whole residual stream (patched) -- reuses build_pairs,
+# run_baseline, find_same_minute_partner, make_matched_noise, _baseline_fields,
+# compute_transfer_columns, and the logit metric UNCHANGED.
+# ---------------------------------------------------------------------------
+
+def run_experiment_a_mlp(adapter, decoder_layers, image_features_owners, vision_method,
+                          df, images_dir, out_dir, n_pairs=N_PAIRS, max_pairs=None, min_gap=MIN_GAP_MINUTES,
+                          layers=None, max_new_tokens=MAX_NEW_TOKENS, seed=SEED, exclude_pairs=None,
+                          logit_metric=True):
+    """--component mlp: for a pair of clocks (A, B), replace layer L's MLP
+    OUTPUT at IMAGE-TOKEN positions with B's own MLP output at that layer
+    (mlp_patched) -- everything else (pairing, same-minute/noise controls,
+    to_B-style metrics, logit_diff) matches Experiment A's image-token mode
+    exactly. `layers` must be within [1, num_layers-1] -- see
+    mlp_module_for_layer for why layer 0 and the final layer are refused."""
+    rng = np.random.RandomState(seed)
+    pairs = build_pairs(df, n_pairs=n_pairs, min_gap=min_gap, seed=seed, exclude_pairs=exclude_pairs)
+    if max_pairs is not None:
+        pairs = pairs[:max_pairs]
+    if len(pairs) == 0:
+        raise ValueError("No valid (A, B) pairs found -- check --min_gap against this dataset's spread of hours/minutes.")
+
+    num_layers = len(decoder_layers)
+    mlp_modules = find_mlp_modules(decoder_layers)
+    if layers is None:
+        layers = list(range(1, num_layers))   # excludes 0 (embeddings) and num_layers (final block) by default
+    for L in layers:
+        mlp_module_for_layer(mlp_modules, L)   # raises immediately if any layer is out of the valid range
+    mlp_by_layer = {L: mlp_module_for_layer(mlp_modules, L) for L in layers}
+    already_used = {f for pair in pairs for f in (pair[0]["filename"], pair[1]["filename"])}
+
+    n_total_trials = len(pairs) * len(layers) * 3   # 3 conditions: real_b, same_minute, noise
+    print(f"--component mlp: {len(pairs)} pair(s) x {len(layers)} layer(s) x 3 conditions "
+          f"= {n_total_trials} generate() calls total (image-token positions only).")
+    if logit_metric:
+        n_extra_forward = n_total_trials * 2 + len(pairs) * 2
+        print(f"logit_metric=True: +{n_extra_forward} plain forward pass(es). Pass --skip_logit_metric "
+              "for a cost-conscious smoke test.")
+
+    rows = []
+    t_start = time.perf_counter()
+    n_timed = 0
+
+    for pair_idx, (a, b) in enumerate(tqdm(pairs, desc="--component mlp pairs")):
+        a_path = os.path.join(images_dir, a["filename"])
+        b_path = os.path.join(images_dir, b["filename"])
+
+        mlp_cache_a, mlp_cache_b, mlp_cache_same = {}, {}, {}
+        with capture_mlp_outputs(mlp_by_layer, mlp_cache_a):
+            base_a = run_baseline(adapter, image_features_owners, vision_method, a_path, max_new_tokens=max_new_tokens)
+        with capture_mlp_outputs(mlp_by_layer, mlp_cache_b):
+            base_b = run_baseline(adapter, image_features_owners, vision_method, b_path, max_new_tokens=max_new_tokens)
+
+        same_row = find_same_minute_partner(df, a, exclude=already_used, rng=rng)
+        base_same, mlp_cache_same = None, {}
+        if same_row is not None:
+            same_path = os.path.join(images_dir, same_row["filename"])
+            with capture_mlp_outputs(mlp_by_layer, mlp_cache_same):
+                base_same = run_baseline(adapter, image_features_owners, vision_method, same_path,
+                                          max_new_tokens=max_new_tokens)
+
+        if base_a["seq_len"] != base_b["seq_len"] or (base_same is not None and base_a["seq_len"] != base_same["seq_len"]):
+            print(f"WARNING: sequence-length mismatch for pair ({a['filename']}, {b['filename']}) -- skipping.")
+            continue
+
+        image_mask = base_a["image_mask"]
+        baseline_a_minute = base_a["pred_minute"] if base_a["parse_success"] else None
+        baseline_b_minute = base_b["pred_minute"] if base_b["parse_success"] else None
+        a_hour_gt = int(a["hour"])
+        compute_logits = logit_metric and baseline_a_minute is not None and baseline_b_minute is not None
+        if compute_logits:
+            logp_a_before = teacher_forced_minute_logprob(adapter, adapter.model, base_a["inputs"], a_hour_gt, baseline_a_minute)
+            logp_b_before = teacher_forced_minute_logprob(adapter, adapter.model, base_a["inputs"], a_hour_gt, baseline_b_minute)
+            logit_diff_before = logp_b_before - logp_a_before
+        else:
+            logp_a_before = logp_b_before = logit_diff_before = float("nan")
+        before_fields = {"logp_a_minute_before": logp_a_before, "logp_b_minute_before": logp_b_before,
+                         "logit_diff_before": logit_diff_before}
+
+        def _after_fields_mlp(patch_spec):
+            if not compute_logits:
+                nan = float("nan")
+                return {"logp_a_minute_after": nan, "logp_b_minute_after": nan, "logit_diff_after": nan}
+            layer, mlp_module, mask, values, mode = patch_spec
+            mlp_patch_spec = (mlp_module, mask, values, mode)
+            logp_a = teacher_forced_minute_logprob(adapter, adapter.model, base_a["inputs"], a_hour_gt,
+                                                   baseline_a_minute, mlp_patch=mlp_patch_spec)
+            logp_b = teacher_forced_minute_logprob(adapter, adapter.model, base_a["inputs"], a_hour_gt,
+                                                   baseline_b_minute, mlp_patch=mlp_patch_spec)
+            return {"logp_a_minute_after": logp_a, "logp_b_minute_after": logp_b, "logit_diff_after": logp_b - logp_a}
+
+        for layer in layers:
+            mlp_module = mlp_by_layer[layer]
+            a_cache = mlp_cache_a.get(layer)
+            b_cache = mlp_cache_b.get(layer)
+            same_cache = mlp_cache_same.get(layer) if base_same is not None else None
+            if a_cache is None or b_cache is None:
+                print(f"WARNING: layer {layer}'s MLP was never captured for pair {pair_idx} -- skipping this layer.")
+                continue
+
+            with mlp_patched(mlp_module, image_mask, b_cache, mode="replace"):
+                ans = adapter.generate_answer(base_a["inputs"], max_new_tokens)
+            pred_hour, pred_minute, ok = parse_time_answer(ans)
+            moved, shift = score_shift(baseline_a_minute, pred_minute if ok else None, int(b["minute"]))
+            rows.append({
+                "seed": seed, "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"],
+                "condition": "real_b", "layer": layer, "num_layers": num_layers,
+                "relative_depth": relative_depth(layer, num_layers), "position_set": "image_tokens",
+                "a_true_minute": int(a["minute"]), "b_true_minute": int(b["minute"]), "source_minute": int(b["minute"]),
+                **_baseline_fields("a", base_a), **_baseline_fields("b", base_b), "baseline_minute": baseline_a_minute,
+                "patched_hour": pred_hour if ok else None, "patched_minute": pred_minute if ok else None,
+                "patched_answer": ans, "moved_toward": moved, "shift_score": shift,
+                "answer_changed": (ans != base_a["raw_answer"]),
+                **before_fields, **_after_fields_mlp((layer, mlp_module, image_mask, b_cache, "replace")),
+            })
+
+            if base_same is not None and same_cache is not None:
+                with mlp_patched(mlp_module, image_mask, same_cache, mode="replace"):
+                    ans_s = adapter.generate_answer(base_a["inputs"], max_new_tokens)
+                pred_hour_s, pred_minute_s, ok_s = parse_time_answer(ans_s)
+                moved_s, shift_s = score_shift(baseline_a_minute, pred_minute_s if ok_s else None, int(a["minute"]))
+                rows.append({
+                    "seed": seed, "pair": pair_idx, "a_file": a["filename"], "b_file": same_row["filename"],
+                    "condition": "same_minute", "layer": layer, "num_layers": num_layers,
+                    "relative_depth": relative_depth(layer, num_layers), "position_set": "image_tokens",
+                    "a_true_minute": int(a["minute"]), "b_true_minute": int(same_row["minute"]), "source_minute": int(a["minute"]),
+                    **_baseline_fields("a", base_a), **_baseline_fields("b", base_same), "baseline_minute": baseline_a_minute,
+                    "patched_hour": pred_hour_s if ok_s else None, "patched_minute": pred_minute_s if ok_s else None,
+                    "patched_answer": ans_s, "moved_toward": moved_s, "shift_score": shift_s,
+                    "answer_changed": (ans_s != base_a["raw_answer"]),
+                    **before_fields, **_after_fields_mlp((layer, mlp_module, image_mask, same_cache, "replace")),
+                })
+
+            noise_vals = make_matched_noise(a_cache, rng)
+            with mlp_patched(mlp_module, image_mask, noise_vals, mode="replace"):
+                ans_n = adapter.generate_answer(base_a["inputs"], max_new_tokens)
+            pred_hour_n, pred_minute_n, ok_n = parse_time_answer(ans_n)
+            moved_n, shift_n = score_shift(baseline_a_minute, pred_minute_n if ok_n else None, int(b["minute"]))
+            rows.append({
+                "seed": seed, "pair": pair_idx, "a_file": a["filename"], "b_file": None, "condition": "noise",
+                "layer": layer, "num_layers": num_layers, "relative_depth": relative_depth(layer, num_layers),
+                "position_set": "image_tokens", "a_true_minute": int(a["minute"]), "b_true_minute": int(b["minute"]),
+                "source_minute": int(b["minute"]),
+                **_baseline_fields("a", base_a), **_baseline_fields("b", base_b), "baseline_minute": baseline_a_minute,
+                "patched_hour": pred_hour_n if ok_n else None, "patched_minute": pred_minute_n if ok_n else None,
+                "patched_answer": ans_n, "moved_toward": moved_n, "shift_score": shift_n,
+                "answer_changed": (ans_n != base_a["raw_answer"]),
+                **before_fields, **_after_fields_mlp((layer, mlp_module, image_mask, noise_vals, "replace")),
+            })
+
+            n_timed += 1
+            if pair_idx == 0 and n_timed == 6:
+                elapsed = time.perf_counter() - t_start
+                per_trial = elapsed / n_timed
+                remaining = n_total_trials - n_timed
+                print(f"\n[time estimate] ~{per_trial:.2f}s/trial measured from the first pair -> "
+                      f"~{per_trial * n_total_trials / 60:.1f} min total (~{per_trial * remaining / 60:.1f} min remaining)\n")
+
+    trials_df = pd.DataFrame(rows)
+    os.makedirs(out_dir, exist_ok=True)
+    trials_df.to_csv(os.path.join(out_dir, "experiment_a_mlp_trials.csv"), index=False)
+    print(f"\n--component mlp: {len(trials_df)} trials over {len(pairs)} pairs written to "
+          f"'{out_dir}/experiment_a_mlp_trials.csv'.")
     return trials_df
 
 
@@ -2008,6 +2528,119 @@ def verify_decoder_patch(adapter, decoder_layers, image_features_owners, vision_
     return lines, records
 
 
+def verify_text_all_patch(adapter, decoder_layers, image_features_owners, vision_method,
+                           pairs, images_dir, layers, max_new_tokens):
+    """--position_mode text_all -- 3 specific checks per (pair, layer),
+    each a direct tensor comparison (no new hook machinery needed: the
+    generic decoder-layer patch mechanism is already covered by
+    verify_decoder_patch, which now also exercises text_all automatically
+    since it's in position_masks; this checks the MASK ITSELF is correct,
+    not just that patching propagates):
+      1. the patched mask exactly equals ~image_mask (not almost -- exactly).
+      2. no image-token position's hidden state changed at all (patching
+         text_all must be a strict no-op on image positions).
+      3. the patched positions' hidden state exactly equals B's own value
+         there (mode="replace" should overwrite, not blend)."""
+    records = []
+    lines = ["--- --position_mode text_all patch verification ---"]
+    for pair_idx, (a, b) in enumerate(pairs):
+        a_path = os.path.join(images_dir, a["filename"])
+        b_path = os.path.join(images_dir, b["filename"])
+        base_a = run_baseline(adapter, image_features_owners, vision_method, a_path, max_new_tokens=max_new_tokens)
+        base_b = run_baseline(adapter, image_features_owners, vision_method, b_path, max_new_tokens=max_new_tokens)
+
+        image_mask = base_a["image_mask"]
+        text_mask = position_masks(image_mask, base_a["seq_len"])["text_all"]
+        mask_correct = bool(torch.equal(text_mask, ~image_mask))
+
+        for layer in layers:
+            with patched(decoder_layers, layer, text_mask, base_b["hidden_states"][layer], mode="replace"):
+                hs_patched = forward_hidden_states(adapter.model, base_a["inputs"])
+            hs_unpatched = base_a["hidden_states"]
+
+            image_untouched = bool(torch.allclose(hs_patched[layer][image_mask], hs_unpatched[layer][image_mask]))
+            patched_matches_intended = bool(torch.allclose(
+                hs_patched[layer][text_mask], base_b["hidden_states"][layer][text_mask], atol=1e-4))
+
+            records.append({
+                "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"], "layer": layer,
+                "mask_equals_non_image": mask_correct, "image_positions_untouched": image_untouched,
+                "patched_equals_intended": patched_matches_intended,
+            })
+            lines.append(f"pair {pair_idx} layer {layer}: mask==~image_mask={mask_correct}, "
+                         f"image_untouched={image_untouched}, patched==intended={patched_matches_intended}")
+    return lines, records
+
+
+def verify_mlp_patch(adapter, decoder_layers, image_features_owners, vision_method,
+                      pairs, images_dir, layers, max_new_tokens):
+    """--component mlp -- (a) patched value equals intended value (a direct
+    tensor comparison, at the MLP's own output, restricted to image-token
+    positions); (b) the change propagates to the final layer's hidden
+    state (nonzero diff, same spirit as heads.py's --verify); (c) run once
+    with use_cache=False and confirm IDENTICAL results to the cached run --
+    the patch only ever applies during the single prefill forward pass
+    (mlp_patched's shape guard), so caching mode should never change the
+    outcome; a difference here would mean the patch is (incorrectly)
+    leaking into decode-step behavior somehow."""
+    records = []
+    lines = ["--- --component mlp patch verification ---"]
+    mlp_modules = find_mlp_modules(decoder_layers)
+
+    for pair_idx, (a, b) in enumerate(pairs):
+        a_path = os.path.join(images_dir, a["filename"])
+        b_path = os.path.join(images_dir, b["filename"])
+        mlp_cache_a, mlp_cache_b = {}, {}
+        mlp_by_layer = {L: mlp_module_for_layer(mlp_modules, L) for L in layers}
+        with capture_mlp_outputs(mlp_by_layer, mlp_cache_a):
+            base_a = run_baseline(adapter, image_features_owners, vision_method, a_path, max_new_tokens=max_new_tokens)
+        with capture_mlp_outputs(mlp_by_layer, mlp_cache_b):
+            base_b = run_baseline(adapter, image_features_owners, vision_method, b_path, max_new_tokens=max_new_tokens)
+
+        image_mask = base_a["image_mask"]
+        hs_unpatched = base_a["hidden_states"]
+        final_idx = len(hs_unpatched) - 1
+
+        for layer in layers:
+            mlp_module = mlp_by_layer[layer]
+            b_cache = mlp_cache_b.get(layer)
+            if b_cache is None:
+                lines.append(f"pair {pair_idx} layer {layer}: MLP output never captured -- skipping.")
+                continue
+
+            with mlp_patched(mlp_module, image_mask, b_cache, mode="replace"):
+                actual_mlp_out = {}
+
+                def _spy(module, args, kwargs, output):
+                    out_tensor, _where = _extract_mlp_output(output)
+                    actual_mlp_out["v"] = out_tensor[0].detach().float().cpu().clone()
+
+                handle = mlp_module.register_forward_hook(_spy, with_kwargs=True)
+                try:
+                    hs_patched = forward_hidden_states(adapter.model, base_a["inputs"])
+                finally:
+                    handle.remove()
+            patched_equals_intended = bool(torch.allclose(
+                actual_mlp_out["v"][image_mask], b_cache[image_mask], atol=1e-4))
+            diff_final = relative_l2_diff(hs_unpatched[final_idx][image_mask], hs_patched[final_idx][image_mask])
+
+            with mlp_patched(mlp_module, image_mask, b_cache, mode="replace"):
+                ans_cached = adapter.generate_answer(base_a["inputs"], max_new_tokens, use_cache=True)
+            with mlp_patched(mlp_module, image_mask, b_cache, mode="replace"):
+                ans_nocache = adapter.generate_answer(base_a["inputs"], max_new_tokens, use_cache=False)
+            cache_invariant = (ans_cached == ans_nocache)
+
+            records.append({
+                "pair": pair_idx, "a_file": a["filename"], "b_file": b["filename"], "layer": layer,
+                "patched_equals_intended": patched_equals_intended, "diff_final": diff_final,
+                "cache_invariant": cache_invariant, "ans_cached": ans_cached, "ans_nocache": ans_nocache,
+            })
+            lines.append(f"pair {pair_idx} layer {layer}: patched==intended={patched_equals_intended}, "
+                         f"diff-at-final-layer={diff_final:.4f}, cache_invariant={cache_invariant} "
+                         f"({ans_cached!r} vs {ans_nocache!r})")
+    return lines, records
+
+
 def build_verification_verdict(vision_records, decoder_records):
     """A blunt PASS/FAIL read of the numbers above, so a reviewer doesn't
     have to eyeball a table of floats to know whether the hooks are
@@ -2315,6 +2948,27 @@ def main():
                               "columns, recompute them cheaply (one generate() call per unique image, no "
                               "patching -- see recompute_baselines_for_files) instead of redoing the full "
                               "sweep. Needs the model loaded, unlike a plain --analyze_only.")
+    parser.add_argument("--position_mode", type=str, default=None, choices=["text_all"],
+                         help="Experiment A: sweep ONLY 'text_all' (every non-image position -- prompt "
+                              "tokens after the image) instead of the default three position sets. Same "
+                              "paired design/metrics; default --out_dir becomes intervene_output_textpos/. "
+                              "Combine with --verify for verify_text_all_patch's 3 checks (mask exactly "
+                              "equals ~image_mask; no image position touched; patched value equals "
+                              "intended value) instead of the default vision/decoder checks -- runs the "
+                              "checks and exits, does not proceed to the sweep.")
+    parser.add_argument("--component", type=str, default="residual", choices=["residual", "mlp"],
+                         help="Experiment A: 'mlp' replaces layer L's MLP OUTPUT at image-token positions "
+                              "with B's own MLP output there, instead of patching the whole residual "
+                              "stream ('residual', default). Same paired design/metrics; default --out_dir "
+                              "becomes intervene_output_mlp/; --layers must be within [1, num_layers-1] "
+                              "(layer 0 has no MLP, the final layer is refused -- see mlp_module_for_layer). "
+                              "Combine with --verify for verify_mlp_patch's 3 checks (patched value equals "
+                              "intended value; propagates to the final layer; --no_cache-invariant) instead "
+                              "of the default vision/decoder checks -- runs the checks and exits.")
+    parser.add_argument("--skip_logit_metric", action="store_true",
+                         help="Experiment A (any mode): skip the teacher-forced logit_diff metric (2 extra "
+                              "forward passes per trial, 2 per pair) -- for a cost-conscious smoke test. "
+                              "Default: compute it. With --verify, also skips verify_logit_metric's check.")
     args = parser.parse_args()
 
     df = pd.read_csv(args.data_csv)
@@ -2330,7 +2984,61 @@ def main():
     verify_layers = resolve_layers_cli(args.verify_layers, num_layers)
     steer_layers = resolve_layers_cli(args.steer_layers, num_layers) or list(READOUT_WINDOW_LAYERS_B)
 
+    # --position_mode text_all / --component mlp: default --out_dir changes (only when the user
+    # didn't already override it), and --verify runs THAT mode's own checks and exits, rather than
+    # the default vision/decoder checks feeding into a sweep.
+    if args.component == "mlp" and args.out_dir == OUT_DIR:
+        out_dir = output_dir_for("intervene_output_mlp", adapter)
+    elif args.position_mode == "text_all" and args.out_dir == OUT_DIR:
+        out_dir = output_dir_for("intervene_output_textpos", adapter)
+
     os.makedirs(out_dir, exist_ok=True)
+
+    if args.verify and args.component == "mlp":
+        pairs = build_pairs(df, n_pairs=args.verify_pairs, min_gap=args.min_gap, seed=args.seed)
+        mlp_verify_layers = verify_layers or [max(1, num_layers // 3), max(1, 2 * num_layers // 3)]
+        lines, records = verify_mlp_patch(adapter, decoder_layers, image_features_owners, vision_method,
+                                          pairs, args.images_dir, mlp_verify_layers, args.max_new_tokens)
+        checks = [
+            ("patched value equals intended value", all(r["patched_equals_intended"] for r in records)),
+            ("propagates to the final layer (nonzero diff)", all(r["diff_final"] > 1e-6 for r in records)),
+            ("--no_cache-invariant (cached == uncached answer)", all(r["cache_invariant"] for r in records)),
+        ]
+        if not args.skip_logit_metric:
+            logit_results = verify_logit_metric(adapter, args.images_dir,
+                                                [p[0]["filename"] for p in pairs], args.max_new_tokens)
+            checks.append(("teacher-forced logprob matches generate() scores (<1e-3)",
+                           all(r["pass"] for r in logit_results)))
+        print("\n" + "\n".join(lines))
+        print("\n--- --component mlp --verify verdict ---")
+        all_pass = True
+        for name, ok in checks:
+            print(f"  [{'PASS' if ok else 'FAIL'}] {name}")
+            all_pass = all_pass and ok
+        sys.exit(0 if all_pass else 1)
+
+    if args.verify and args.position_mode == "text_all":
+        pairs = build_pairs(df, n_pairs=args.verify_pairs, min_gap=args.min_gap, seed=args.seed)
+        text_verify_layers = verify_layers or [max(1, num_layers // 3), max(1, 2 * num_layers // 3)]
+        lines, records = verify_text_all_patch(adapter, decoder_layers, image_features_owners, vision_method,
+                                               pairs, args.images_dir, text_verify_layers, args.max_new_tokens)
+        checks = [
+            ("mask exactly equals ~image_mask", all(r["mask_equals_non_image"] for r in records)),
+            ("no image-token position changed", all(r["image_positions_untouched"] for r in records)),
+            ("patched value equals intended value", all(r["patched_equals_intended"] for r in records)),
+        ]
+        if not args.skip_logit_metric:
+            logit_results = verify_logit_metric(adapter, args.images_dir,
+                                                [p[0]["filename"] for p in pairs], args.max_new_tokens)
+            checks.append(("teacher-forced logprob matches generate() scores (<1e-3)",
+                           all(r["pass"] for r in logit_results)))
+        print("\n" + "\n".join(lines))
+        print("\n--- --position_mode text_all --verify verdict ---")
+        all_pass = True
+        for name, ok in checks:
+            print(f"  [{'PASS' if ok else 'FAIL'}] {name}")
+            all_pass = all_pass and ok
+        sys.exit(0 if all_pass else 1)
 
     if args.verify:
         run_verification(
@@ -2338,6 +3046,26 @@ def main():
             df, args.images_dir, out_dir, n_verify_pairs=args.verify_pairs,
             verify_layers=verify_layers, min_gap=args.min_gap,
             max_new_tokens=args.max_new_tokens, seed=args.seed)
+        if not args.skip_logit_metric:
+            logit_pairs_df = df.sample(n=min(args.verify_pairs, len(df)), random_state=args.seed)
+            logit_results = verify_logit_metric(adapter, args.images_dir,
+                                                logit_pairs_df["filename"].tolist(), args.max_new_tokens)
+            print("\n--- logit metric verification (teacher-forced vs. generate() scores) ---")
+            for r in logit_results:
+                print(f"  [{'PASS' if r['pass'] else 'FAIL'}] {r['filename']}: diff={r['diff']:.6f} "
+                     f"(scores={r['logprob_from_scores']:.4f}, teacher_forced={r['logprob_teacher_forced']:.4f})")
+
+    if args.component == "mlp":
+        existing_trials_path = os.path.join(out_dir, "experiment_a_mlp_trials.csv")
+        if os.path.exists(existing_trials_path):
+            print(f"WARNING: '{existing_trials_path}' already exists and WILL BE OVERWRITTEN.")
+        exclude_pairs = load_excluded_pairs(args.exclude_pairs_from) if args.exclude_pairs_from else None
+        run_experiment_a_mlp(
+            adapter, decoder_layers, image_features_owners, vision_method,
+            df, args.images_dir, out_dir, n_pairs=args.n_pairs, max_pairs=args.max_pairs,
+            min_gap=args.min_gap, layers=layers, max_new_tokens=args.max_new_tokens, seed=args.seed,
+            exclude_pairs=exclude_pairs, logit_metric=not args.skip_logit_metric)
+        return
 
     if args.experiment in ("a", "both"):
         existing_trials_path = os.path.join(out_dir, "experiment_a_trials.csv")
@@ -2352,7 +3080,8 @@ def main():
             adapter, decoder_layers, image_features_owners, vision_method,
             df, args.images_dir, out_dir, n_pairs=args.n_pairs, max_pairs=args.max_pairs,
             min_gap=args.min_gap, layers=layers, max_new_tokens=args.max_new_tokens, seed=args.seed,
-            exclude_pairs=exclude_pairs)
+            exclude_pairs=exclude_pairs, position_mode=args.position_mode,
+            logit_metric=not args.skip_logit_metric)
         summary_a = summarize_experiment_a(trials_a, out_dir)
         plot_experiment_a(summary_a, out_dir)
         text_a = print_experiment_a_summary(summary_a, trials_a, vision_method)

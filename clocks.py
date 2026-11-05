@@ -272,9 +272,24 @@ if __name__ == "__main__":
                          help="generate the balanced dataset (equal images per minute value) used for probing")
     parser.add_argument("--images_per_minute", type=int, default=8,
                          help="with --balanced: images per minute value (default 8 -> 480 images)")
+    parser.add_argument("--n_clocks", type=int, default=None,
+                         help="generate this many balanced clocks total (equal count per minute value, "
+                              "0-59 -- same generator as --balanced, just specified by total count instead "
+                              "of --images_per_minute). Must be a multiple of 60. Implies --balanced. "
+                              "Default --out_dir becomes 'data_balanced_<n_clocks>' unless --out_dir is "
+                              "given explicitly (e.g. --n_clocks 1500 -> data_balanced_1500/).")
     args = parser.parse_args()
 
-    if args.balanced:
+    if args.n_clocks is not None:
+        if args.n_clocks % 60 != 0:
+            raise SystemExit(f"--n_clocks must be a multiple of 60 (got {args.n_clocks}) -- an equal count "
+                              "per minute value (0-59) needs the total to divide evenly across all 60.")
+        generate_balanced_dataset(
+            images_per_minute=args.n_clocks // 60,
+            out_dir=args.out_dir or f"data_balanced_{args.n_clocks}",
+            seed=args.seed if args.seed is not None else 123,
+        )
+    elif args.balanced:
         generate_balanced_dataset(
             images_per_minute=args.images_per_minute,
             out_dir=args.out_dir or "data_balanced",
