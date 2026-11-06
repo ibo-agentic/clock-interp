@@ -241,7 +241,7 @@ def run(model_id=None, adapter_name=None, seed=SEED, smoke=False, max_new_tokens
         "transformers_version": transformers.__version__, "torch_version": torch.__version__,
         "python_version": sys.version.split()[0], "git_commit": git_commit(),
         "seed": seed, "image_seed": image_seed, "max_new_tokens": max_new_tokens,
-        "decoding": {"do_sample": False, "strategy": "greedy", "use_cache": True},
+        "decoding": {"do_sample": False, "strategy": "greedy", "use_cache": True, **__import__("adapters").decoding_record(adapter)},
         "dtype": "float16", "device_map": "auto",
         "date_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "smoke": smoke, "n_generations_run": len(df), "n_prompts_full_design": n_groups_full,

@@ -295,3 +295,40 @@ threshold of any gate is changed by this entry; no hypothesis, threshold or deci
    any later E1/E2 still require a passing gate for that model.
 5. **Run structure.** D4 (`notebook_D4_hookfree.ipynb`: E3e, E3f, pilot for the three models, no gate) can run now; D2' (the updated gate-only
    notebook) re-checks items 1-3; the hook-dependent re-run (D3) waits for D2' to pass for the model.
+
+**2026-11-06, third entry (POST-RUN for D2' and D4; PRE-RUN for the next gate re-check).**
+Observed (full tables: `results/mech_e3/D2prime_D4_report.txt`, script `analysis/analyze_D2prime_D4.py`):
+1. **Attention-blocking fix worked.** With the fp32 eager path, G7b = 20/20, G9 = 20/20, G8 = 1.0 and G8a/G8c/G7d pass for InternVL3-2B, Qwen-3B and Qwen-7B.
+   InternVL3-2B passes every gating check (G2-own 0.95, G8b 1.0). Verdict per the pre-registered gate: InternVL3-2B is cleared for the hook-based parts.
+2. **Qwen-3B fails two gating checks that the fix did not touch:** G2-own 0.93 and G8b 0.72. Qwen-7B fails G8b (0.94) only (G2-own 0.98 passes).
+   Not relaxed. No hook-based part runs for either Qwen model until this is diagnosed and the gate passes.
+3. **Diagnosis so far (not yet a confirmed cause).** The cached-vs-uncached KV logits agree (G10: max |logit diff| 0.04-0.06, argmax agreement 1.0), so there is no
+   position/cache bug. But Qwen's cached `generate` differs from the no-cache greedy loop on 26/100 (3B) and 3/100 (7B) trials, in 18/26 (3B) already in the HOUR.
+   InternVL3-2B: 0/100. The Qwen checkpoints ship `repetition_penalty = 1.05` in `generation_config.json` (InternVL3-2B-hf ships none); `generate` applies it, the
+   no-cache loop and the teacher-forced scoring do not. This is the leading explanation and it also means **every Qwen cached-generation output in this project
+   (all behaviour tables, the E3 priors, E3e/E3f/pilot) was produced with that penalty on prompt tokens**. This is a property of the checkpoint's default decoding,
+   not edited here. New informational check G11 (penalty forced to 1.0 vs checkpoint penalty) and a `--rep_penalty` option in `mech_e3.py` (default unset = unchanged
+   behaviour) were added BEFORE any result of them exists; G2-own >= 0.95 and G8b >= 0.95 stay the gates.
+4. **D4 (hook-free, run under the 2026-11-06 second entry).** All steps OK. E3e Qwen-3B, primary verbatim variant: 111 clocks, wrong without image 54.1%, paired
+   difference to the with-image rate -0.9 pts (CI -10.8 to +9.0) -> by the pre-registered rule language-side failure is supported. Caveat: generation used the
+   checkpoint's repetition penalty (item 3) in both arms; a penalty-free sensitivity run is pending and will be reported next to this result, not instead of it.
+   E3e for the other models, the secondary/exploratory variants, E3f and the pilot are descriptive. 7B verbatim sits at a ceiling (0 wrong in both arms), 2B has ~0.7% wrong with image.
+   Pilot: Qwen-3B 0.109 < 0.15 floor; InternVL3-2B 0.500, Qwen-7B 0.692, InternVL3-8B 0.750 clear it.
+
+**2026-11-06, fourth entry (PRE-RUN: written before any rp=1.0 result exists). DECISION: headline decoding = plain greedy, repetition_penalty = 1.0, for ALL four models.**
+Reason (decided by the project owner): (a) the Qwen checkpoints' default `repetition_penalty = 1.05` acts on prompt tokens, so it penalises copying numbers from the prompt
+and is entangled with exactly the hour->minute leak under study; (b) InternVL3 ships no penalty, so the families must be decoded the same way to be comparable.
+1. **Headline vs sensitivity.** Every Qwen-3B / Qwen-7B result used so far (text-only, conversion test, describe, image behaviour, E3 priors, E3e/E3f/pilot of D4) was generated with
+   the checkpoint default (1.05). Those become the **SENSITIVITY analysis ("models' default generation config")** and keep a `_rp105` suffix; they are never overwritten.
+   The HEADLINE for Qwen is the set regenerated at `repetition_penalty = 1.0` (notebook Q). InternVL3-2B/8B results are unchanged (no penalty exists), so they serve both.
+2. **Mechanism of the change.** `CLOCK_REP_PENALTY=1.0` (environment variable read by `adapters.QwenVLAdapter.generate_answer`; unset = old behaviour byte-for-byte) for text_only_v2,
+   conversion_test, describe_check, eval_behavior; `--rep_penalty 1.0` for `mech_e3.py` (its `ctx.gen`). The rp=1.0 value is recorded in each run_config. Max-new-token settings are unchanged.
+3. **Gate re-check (D2'').** Qwen-3B and Qwen-7B are re-gated with `--rep_penalty 1.0` for generation; the no-cache loop and teacher forcing never had a penalty. Thresholds unchanged
+   (G2-own >= 0.95, G8b >= 0.95). If they pass at 1.0 that supports the penalty as the cause of the D2' failures; if they still fail they are diagnosed before any hook-based Qwen part runs.
+   A gate is an inference about the machinery for one decoding setup: hook-based Qwen experiments run only after the rp=1.0 gate passes.
+4. **Quantities that will change and are re-derived, not edited above.** The per-model counts quoted in Section 4 (E3e sets 111/144/242/216, leak counts 46/117, the 55% with-image rate)
+   were computed from rp=1.05 Qwen outputs. All decision rules keep their form and thresholds, evaluated on the rp=1.0 data (relative thresholds use each model's own rp=1.0 baseline).
+   The E3e Qwen-3B confirmatory verdict is **re-computed on the rp=1.0 set (headline)**; the D4 verdict (language-side supported at rp=1.05) is reported as sensitivity. If the two disagree,
+   both are reported and the disagreement is a finding about decoding, not hidden. The text-light pilot and E2's 15% floor are re-evaluated on rp=1.0.
+5. **Order.** D2'' gate (Qwen only) -> notebook Q (regenerate Qwen results at 1.0, incl. E3e/E3f/pilot, `--no_gate`, hook-free) -> only then hook-based Qwen E3a-d, E1, E2 on the rp=1.0 priors.
+   InternVL3-2B E3a-d (its gate passed in D2') runs now as notebook D3-IVL with the unchanged InternVL priors.

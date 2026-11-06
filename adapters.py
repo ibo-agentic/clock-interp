@@ -289,8 +289,12 @@ class QwenVLAdapter(ModelAdapter):
 
     @torch.no_grad()
     def generate_answer(self, inputs, max_new_tokens=16, use_cache=True):
+        extra = {}
+        ov = rep_penalty_override()           # None (env unset) -> the call below is identical to before
+        if ov is not None:
+            extra["repetition_penalty"] = ov
         generated_ids = self.model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False,
-                                             use_cache=use_cache)
+                                             use_cache=use_cache, **extra)
         trimmed = generated_ids[0][inputs["input_ids"].shape[1]:]
         return self.processor.decode(trimmed, skip_special_tokens=True).strip()
 
@@ -547,6 +551,20 @@ _MODEL_ID_HINTS = [
     ("internvl3-8b", "internvl3-8b"),
     ("internvl3-2b", "internvl3-2b"),
 ]
+
+
+def rep_penalty_override():
+    """float from env CLOCK_REP_PENALTY (e.g. "1.0"), or None when unset (then every generate call is EXACTLY as before).
+    Only the Qwen adapter honours it: the Qwen checkpoints ship repetition_penalty=1.05 in generation_config.json, InternVL3 ships none."""
+    v = os.environ.get("CLOCK_REP_PENALTY", "").strip()
+    return float(v) if v else None
+
+
+def decoding_record(adapter):
+    """Extra keys for run_config.json['decoding']: what repetition penalty the checkpoint ships and what (if anything) overrides it."""
+    gc = getattr(getattr(adapter, "model", None), "generation_config", None)
+    return {"checkpoint_default_repetition_penalty": getattr(gc, "repetition_penalty", None),
+            "repetition_penalty_override_applied": rep_penalty_override() if isinstance(adapter, QwenVLAdapter) else None}
 
 
 def get_adapter(model_id=None, adapter_name=None):

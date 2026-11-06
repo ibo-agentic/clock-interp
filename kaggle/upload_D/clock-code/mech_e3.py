@@ -91,9 +91,19 @@ class Ctx:
     def ntok(self, n):
         return len(self.tok(" " + str(n), add_special_tokens=False)["input_ids"])
 
-    def gen(self, text, max_new=None):
-        inputs = self.adapter.build_inputs(None, text)
-        return self.adapter.generate_answer(inputs, max_new_tokens=max_new or self.args.max_new_tokens)
+    def gen(self, text, max_new=None, rep=None):
+        """Cached greedy generation. rep=None and --rep_penalty unset -> the adapter's own path (UNCHANGED: for Qwen checkpoints this
+        means the repetition_penalty=1.05 shipped in generation_config.json is applied). rep=<float> forces that penalty."""
+        return self.gen_inputs(self.adapter.build_inputs(None, text), max_new, rep)
+
+    def gen_inputs(self, inputs, max_new=None, rep=None):
+        rep = rep if rep is not None else getattr(self.args, "rep_penalty", None)
+        if rep is None:
+            return self.adapter.generate_answer(inputs, max_new_tokens=max_new or self.args.max_new_tokens)
+        with torch.no_grad():
+            out = self.adapter.model.generate(**inputs, max_new_tokens=max_new or self.args.max_new_tokens, do_sample=False,
+                                              repetition_penalty=float(rep))
+        return self.adapter.processor.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True).strip()
 
     def save(self, df, name):
         p = os.path.join(self.out, name)
@@ -248,7 +258,8 @@ def g2_gate(ctx, pick):
 def part_verify(ctx):
     ad, tok, L = ctx.adapter, ctx.tok, ctx.L
     rng = np.random.default_rng(SEED)
-    res = {"model": ctx.short, "n_layers": L, "checks": {}}
+    res = {"model": ctx.short, "n_layers": L, "checks": {}, "rep_penalty_arg": getattr(ctx.args, "rep_penalty", None),
+           "checkpoint_default_repetition_penalty": getattr(getattr(ad.model, "generation_config", None), "repetition_penalty", None)}
     trials = ctx.CT.build_groups()
     pick = [trials[i] for i in rng.choice(len(trials), size=min(100, len(trials)), replace=False)]
     if ctx.smoke:
@@ -359,6 +370,36 @@ def part_verify(ctx):
               note="large diffs with finite logits would point at a position/cache bug (e.g. stale rope_deltas); small ones = fp16 noise")
     except Exception as e:  # noqa: BLE001
         check("G10_cached_decode_vs_nocache_forward_logits", False, gating=False, error=_err(e))
+
+    # G11 (informational): is the cached-vs-no-cache gap caused by the checkpoint's repetition_penalty (Qwen ships 1.05)?
+    try:
+        gc_pen = getattr(ad.model.generation_config, "repetition_penalty", None)
+        if gc_pen in (None, 1.0):
+            check("G11_penalty_free_generation_consistency", True, gating=False, checkpoint_repetition_penalty=gc_pen,
+                  note="no repetition penalty in this checkpoint's generation_config: nothing to test")
+        else:
+            eq1, eq0, n11, own_ok, own_n = 0, 0, 0, 0, 0
+            acc1 = acc0 = 0
+            for (lead, n, h) in pick:
+                tp = ctx.prompt(lead, n, h)
+                t1 = ctx.gen(tp.prompt, 32, rep=1.0)
+                t0 = ctx.gen(tp.prompt, 32, rep=gc_pen)
+                nc = ML.greedy_generate_blocked(ad, tp.ids, ML.BlockState(), key_pos=None, max_new=32)
+                eq1 += int(ML.parse_hhmm(nc) == ML.parse_hhmm(t1)); eq0 += int(ML.parse_hhmm(nc) == ML.parse_hhmm(t0))
+                acc1 += int(ML.parse_hhmm(t1)[1] == (n % 12) * 5); acc0 += int(ML.parse_hhmm(t0)[1] == (n % 12) * 5)
+                o1 = own_prefix(t1)
+                if o1 is not None:
+                    pre_o, cs_o = cands_for_prefix(ctx, o1, ALL_MINUTES)
+                    lpo = ML.score_candidates(ad, tp.ids, pre_o, cs_o)
+                    own_ok += int((int(lpo.argmax()) == (n % 12)) == (ML.parse_hhmm(t1)[1] == (n % 12) * 5)); own_n += 1
+                n11 += 1
+            check("G11_penalty_free_generation_consistency", (eq1 / n11 >= 0.95) and (own_n == 0 or own_ok / own_n >= 0.95), gating=False,
+                  checkpoint_repetition_penalty=gc_pen, nocache_eq_generate_with_penalty=round(eq0 / n11, 3),
+                  nocache_eq_generate_penalty_1_0=round(eq1 / n11, 3), own_prefix_TF_agree_penalty_1_0=round(own_ok / max(own_n, 1), 3),
+                  minute_acc_with_penalty=round(acc0 / n11, 3), minute_acc_penalty_1_0=round(acc1 / n11, 3), n=n11,
+                  note="if the penalty-free columns reach >= 0.95 while the with-penalty one does not, the gate gap is the decoding config, not the machinery")
+    except Exception as e:  # noqa: BLE001
+        check("G11_penalty_free_generation_consistency", False, gating=False, error=_err(e))
 
     # G5 empty block == no hook (same eager path), G8 eager vs default, adapter generate agreement
     try:
@@ -979,7 +1020,7 @@ def part_p(ctx):
         for cond in ("matching_clock", "blank"):
             path, ih, im = CT.ensure_image(cond, n, h, images_dir, CT.IMAGE_SEED)
             inputs = ctx.adapter.build_inputs(path, prompt)
-            raw = ctx.adapter.generate_answer(inputs, max_new_tokens=ctx.args.max_new_tokens)
+            raw = ctx.gen_inputs(inputs, ctx.args.max_new_tokens)
             truth = (n % 12) * 5
             lab, ph, pm = ML.label_answer(raw, h, truth)
             rows.append({"cond": cond, "N": n, "H": h, "lead": lead, "raw": raw, "label": lab, "pred_hour": ph,
@@ -1027,6 +1068,8 @@ def main():
     ap.add_argument("--d_mode", default="full", choices=["full", "min"])
     ap.add_argument("--c_pairs", type=int, default=100)
     ap.add_argument("--no_gate", action="store_true")
+    ap.add_argument("--rep_penalty", type=float, default=None,
+                    help="force this repetition_penalty in cached generation (default: unset = the checkpoint's own generation_config)")
     ap.add_argument("--g2_gate", default="own", choices=["own", "gold"],
                     help="which G2 variant gates: own = teacher-force the model's own free-generation prefix; "
                          "gold = the forced zero-padded gold prefix. The other one is logged as informational.")
@@ -1052,7 +1095,10 @@ def main():
     adapter = get_adapter(model_id=args.model_id, adapter_name=args.adapter)
     adapter.load(args.model_id)
     ctx = Ctx(adapter, args)
-    print(f"mech_e3: model={ctx.short} layers={ctx.L} parts={parts} smoke={args.smoke}  [{TIMEOUT_NOTE}]", flush=True)
+    print(f"mech_e3: model={ctx.short} layers={ctx.L} parts={parts} smoke={args.smoke} rep_penalty={args.rep_penalty}  [{TIMEOUT_NOTE}]", flush=True)
+    with open(os.path.join(ctx.out, "decoding_rep_penalty.txt"), "a") as _f:
+        _f.write(f"parts={parts} rep_penalty_arg={args.rep_penalty} checkpoint_default="
+                 f"{getattr(getattr(ctx.adapter.model, 'generation_config', None), 'repetition_penalty', None)}" + chr(10))
 
     if "verify" in parts:
         t0 = time.time()
@@ -1068,7 +1114,10 @@ def main():
         t0 = time.time()
         print(f"\n===== part {p} =====", flush=True)
         PARTS[p](ctx)
-        SUMMARIES[p](ctx)
+        try:
+            SUMMARIES[p](ctx)
+        except Exception as e:  # noqa: BLE001  a summary problem (e.g. an empty result file) must not stop the remaining parts
+            print(f"  summary for part {p} failed: {_err(e)}", flush=True)
         print(f"part {p} took {(time.time() - t0) / 60:.1f} min", flush=True)
     return 0
 
