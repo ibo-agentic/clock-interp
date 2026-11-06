@@ -228,3 +228,40 @@ existing thresholds apply to.
 
 Also logged: per-model verify gate runs inside each model's first step (not one global gate step); HF-cache purge steps between model groups; the
 InternVL3-8B E3e/pilot step runs with `--no_gate` (no hooks used); Qwen-7B E3d runs in `min` mode (intact / H-span all layers / random span).
+
+**2026-11-05 (post-run, notebook D first run) -- gate failure; no mechanism result produced.** On Kaggle (T4 x2, device_map='auto') the verify
+gate crashed in `part_verify` (G4 logit-lens check, `mech_lib.lens_logprobs`) with a cross-device tensor error for Qwen-3B, InternVL3-2B and Qwen-7B
+(indices on one GPU, activations on the other). G3-G9 were never evaluated and no `verify.json` was written, so by the gate rule every dependent part
+(E3d, E3b, E3c) was refused (rc=3). Separately, G2 (teacher-forced vs free-generation agreement, threshold 0.95) FAILED for Qwen-3B (0.85;
+teacher-forced acc 0.74, free acc 0.67, n=100) and InternVL3-2B (0.83; 0.51 / 0.54); Qwen-7B passed (0.99). Consequently E3a, E3b, E3c, E3d, E3f, the
+Qwen/InternVL-2B E3e and the Qwen/InternVL-2B text-light pilots were NOT run, and nothing is claimed for them. What did run: the InternVL3-8B
+128-token re-run (text_only_v2, conversion_test, cap_check) and the 8B E3e + text-light pilot (`--no_gate`, no hooks, as pre-logged). Per the prereg
+("any gate failure -> re-run after a documented fix, log it"), the fix and re-run will be logged here when made; this run's outputs are kept.
+The 8B E3e verbatim variant retained all 216 clocks (none dropped). The 8B E3e verdict string in `e3e_summary.csv` is descriptive only: the
+Section 4 thresholds were written for the Qwen-3B claim and no confirmatory 8B claim exists. The `describe_style` variant is uninformative at
+max_new_tokens=128 (216/216 replies are cut-off chain-of-thought text) and is not interpreted.
+
+**2026-11-06 (PRE-RUN: logged before ANY gate-only or re-run result exists; supersedes nothing above except where it says so).**
+Changes after notebook D's gate crash. No hypothesis, threshold or decision rule of Sections 4-6 is changed.
+1. **Multi-GPU fix.** `mech_lib.lens_logprobs`, `score_candidates` and `patch_residuals` now move every tensor to the device of the tensor it
+   is combined with (hidden state -> final-norm device -> lm_head device; target ids -> logits device). Pure bug fix; no numerical change
+   (checked on a single device and on an emulated 2-GPU split).
+2. **Machinery gate for G2 = G2-own.** G2-own = teacher-force the model's OWN free-generation prefix (the exact string up to and including its
+   first ":", e.g. "1:" or "01:") and compare the argmax-correctness over the 12 minute candidates with the free-generation correctness, on 100 sampled
+   trials. **Gate: G2-own agreement >= 0.95.** A token-level exact-match rate (generated minute digits = teacher-forced argmax) is logged too.
+   `--g2_gate own` is the default.
+3. **G2-gold is always reported, never a gate.** G2-gold = the same comparison with the forced gold zero-padded hour prefix ("01:"), reported with
+   a per-category breakdown of how the model's own prefix relates to the gold prefix (exact match / same hour unpadded / wrong hour padded /
+   wrong hour unpadded / other text / no colon) and a per-trial file (`verify_g2_trials.csv`). A mismatch under the gold prefix is interpreted as a
+   real prefix-dependence effect (consistent with the hour->minute leak: the minute the model writes depends on the hour it wrote), NOT as a
+   machinery failure. (Notebook D's G2-gold values were 0.85 for Qwen-3B and 0.83 for InternVL3-2B; the own-prefix values were not measured.)
+4. **If G2-own < 0.95 for any model, no experiment part runs for that model until the cause is diagnosed** (logged here before any re-run).
+   All other gates (G1, G3-G9) are unchanged and still gate.
+5. **E3a/E3b/E3c are reported under the pre-registered gold prefix, with the caveat of item 3, AND conditioned on trials where the model's own
+   free-generation hour equals the gold hour (mod 12)** (`own_hour_eq_gold` column; extra rows in `e3a_summary.csv` [groups `own_hour_eq_gold*`],
+   `e3b_summary.csv` [subset `own_hour_eq_gold`], and `e3c_summary_own_hour_eq_gold.csv`). The conditioned analysis is a robustness check, not a
+   replacement of the pre-registered one; where the two disagree, both are reported and the disagreement is a finding.
+6. **A crash inside one check is recorded as that check's FAILURE** (with the error text) and the gate continues; `verify.json` is always written;
+   informational checks (non-gating G2 variant) carry `"gating": false`.
+7. **Run structure.** A gate-only notebook (D2: verify for Qwen-3B, InternVL3-2B, Qwen-7B, nothing else) runs first; the full re-run (D3: notebook D
+   minus the InternVL3-8B steps, which are complete) is launched only after all three gates pass.

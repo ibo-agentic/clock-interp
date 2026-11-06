@@ -51,6 +51,18 @@ def _with_hs(out, new):
     return (new,) + tuple(out[1:]) if isinstance(out, tuple) else new
 
 
+# --- multi-device helpers (device_map='auto' puts layers / lm_head on different GPUs; hooks see per-layer devices) ---
+
+def _param_device(module):
+    """Device of a module's (first) parameter. Isolated so a test can emulate a multi-GPU split on CPU."""
+    return next(module.parameters()).device
+
+
+def _to(x, device):
+    """Move tensor x to `device` (single place for every cross-device transfer in this file)."""
+    return x.to(device)
+
+
 # ----------------------------------------------------------------------------------------------------------
 # model internals
 # ----------------------------------------------------------------------------------------------------------
@@ -206,7 +218,8 @@ def patch_residuals(layers, layer_ids, positions, source):
             if h.shape[1] <= int(pos.max()):
                 return None
             new = h.clone()
-            new[:, pos.to(h.device)] = source[li][pos.to(source[li].device)].to(h.dtype)
+            src = _to(source[li][_to(pos, source[li].device)], h.device).to(h.dtype)
+            new[:, _to(pos, h.device)] = src
             return _with_hs(out, new)
         hs.append(layers[li].register_forward_hook(hook))
     try:
@@ -237,7 +250,7 @@ def score_candidates(adapter, prompt_ids, prefix_ids, cands, return_resid=False)
         logits = forward_logits(adapter, ids)
         store = None
     lsm = torch.log_softmax(logits[:, q:q + len(cands[0]), :].float(), dim=-1)
-    tgt = ids[:, q + 1:q + 1 + len(cands[0])]
+    tgt = _to(ids[:, q + 1:q + 1 + len(cands[0])], lsm.device)      # logits may live on another GPU than the ids
     lp = lsm.gather(-1, tgt[..., None])[..., 0].sum(-1)
     return (lp, store, q) if return_resid else lp
 
@@ -245,15 +258,21 @@ def score_candidates(adapter, prompt_ids, prefix_ids, cands, return_resid=False)
 @torch.no_grad()
 def lens_logprobs(adapter, store_row, q, cand):
     """Logit-lens log-prob of one candidate at EVERY layer: store_row = list of (T,d) residuals for that candidate's
-    row; positions q.. predict cand tokens. Returns (n_layers,) float32 numpy."""
+    row; positions q.. predict cand tokens. Returns (n_layers,) float32 numpy.
+    Multi-GPU safe: each residual lives on its own layer's device; it is moved to the final norm's device, then to the
+    lm_head's device (they can differ, and the head may be tied to the embedding on GPU 0), and the target ids follow
+    the logits."""
     layers, norm, head = lm_parts(adapter)
-    pos = torch.arange(q, q + len(cand), device=store_row[0].device)
-    tgt = torch.tensor(cand, dtype=torch.long, device=store_row[0].device)
+    nd, hd = _param_device(norm), _param_device(head)
+    pos = torch.arange(q, q + len(cand))
+    tgt = torch.tensor(cand, dtype=torch.long)
     out = []
     for h in store_row:
-        x = norm(h[pos][None])                                    # (1,len,d)
-        lsm = torch.log_softmax(head(x)[0].float(), dim=-1)
-        out.append(lsm.gather(-1, tgt[:, None])[:, 0].sum().item())
+        x = _to(h[_to(pos, h.device)][None], nd)                  # (1,len,d) on the norm's device
+        x = norm(x)
+        logits = head(_to(x, hd))[0].float()                      # on the head's device
+        lsm = torch.log_softmax(logits, dim=-1)
+        out.append(lsm.gather(-1, _to(tgt, lsm.device)[:, None])[:, 0].sum().item())
     return np.array(out, dtype=np.float32)
 
 
