@@ -265,3 +265,33 @@ Changes after notebook D's gate crash. No hypothesis, threshold or decision rule
    informational checks (non-gating G2 variant) carry `"gating": false`.
 7. **Run structure.** A gate-only notebook (D2: verify for Qwen-3B, InternVL3-2B, Qwen-7B, nothing else) runs first; the full re-run (D3: notebook D
    minus the InternVL3-8B steps, which are complete) is launched only after all three gates pass.
+
+**2026-11-06, second entry (PRE-RUN for the re-check D2' and for D4; written before any result of either exists).**
+Context: the first gate-only run (D2) showed (numbers as reported by the user): Qwen-3B G2-own 0.93, G8b 0.72; Qwen-7B G8b 0.94, G7b 1/20, G8 0.0,
+G9 0/20; InternVL3-2B G7b 0/20, G8 0.0, G9 0/20; G2-gold < G2-own for all models (the prefix hypothesis of the previous entry held). No
+threshold of any gate is changed by this entry; no hypothesis, threshold or decision rule of Sections 4-6 is changed.
+1. **Attention-blocking path (G7b/G8/G9).** Observation: G8 = 0.0 means default-attention output and eager output NEVER agree, while G5 (eager vs eager
+   with an empty hook) passes - so eager does take effect, but its output is different from the default path's. Working hypothesis (NOT yet
+   confirmed on real weights): the stock eager function multiplies q.k^T in fp16, overflows for some heads, and returns NaN/garbage, whereas the fused
+   SDPA kernels accumulate in fp32. This also explains G9 (garbage never contains ":") and G7b (a NaN log-prob difference was counted as "no change"
+   by the old check). Fix: inside `mech_lib.eager_attention()` the modeling module's `eager_attention_forward` is replaced by a copy that computes
+   q.k^T, mask, softmax and p.v in float32 (same math; restored afterwards). Reproduced and fixed on a tiny fp16 Qwen2.5-VL with exploding q.k
+   (stock eager non-finite, new path finite and equal to SDPA); that proves the failure mode exists, not that it is the cause on the real models.
+2. **New or hardened checks (all use the unchanged thresholds where one exists).** G8a (gating): every decoder attention module's own config reads
+   "eager" inside the context, and the per-layer implementation (default and inside the context) is saved to verify.json. G8c (gating): teacher-forced
+   logits under eager are finite, max |logprob diff| to the default path < 0.5 nat, argmax equal on >= 90% of 10 trials. G7d (gating): baseline and
+   blocked log-probs are finite. G7b/G7c/G8/G8b: a NaN counts as a failure, and two unparseable outputs no longer count as agreeing.
+3. **Qwen no-cache loop (G8b, and G2-own 0.93).** The hypothesis "stale `rope_deltas` contaminates the no-cache loop" was checked first: Qwen2.5-VL
+   stores `rope_deltas` on the model, but for a text-only prompt it is a constant added to all three position axes, and RoPE is relative, so a
+   stale value cannot change the logits (verified numerically on the tiny model: identical logits with a stale value of 11). `rope_deltas` is
+   nevertheless reset before every no-cache forward (defensive, no effect expected). New informational diagnostics decide between the remaining
+   candidates (fp16 cached-vs-uncached numerics near ties vs a real position/cache error): G10 (cached incremental decode vs full forward on the same
+   tokens: max logit diff, argmax agreement), the no-cache greedy loop is compared with cached `generate` per trial, and every G2-own disagreement is
+   classified (free minute off the 12-candidate grid / near-tie < 0.5 nat / clear) and listed by prefix class in `verify_g2_trials.csv`.
+   **Rule:** the G2-own >= 0.95 gate and the G8b >= 0.95 gate are NOT relaxed; if either still fails after these fixes it is diagnosed before use.
+4. **Hook-free parts may run without the hook gates.** E3e (text transplant), E3f (H=12 forms) and the text-light pilot use no residual capture/patching,
+   no attention blocking and no logit lens (checked in the code: only `generate` and ordinary forward passes). They may run for Qwen-3B, InternVL3-2B and
+   Qwen-7B with `--no_gate`, exactly as the InternVL3-8B steps already did. They are NOT conditioned on G2-own or on any hook gate. E3a/E3b/E3c/E3d and
+   any later E1/E2 still require a passing gate for that model.
+5. **Run structure.** D4 (`notebook_D4_hookfree.ipynb`: E3e, E3f, pilot for the three models, no gate) can run now; D2' (the updated gate-only
+   notebook) re-checks items 1-3; the hook-dependent re-run (D3) waits for D2' to pass for the model.

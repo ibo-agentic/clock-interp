@@ -17,6 +17,7 @@ Contents
 """
 import contextlib
 import re
+import sys
 
 import numpy as np
 import torch
@@ -94,11 +95,39 @@ def find_attention_modules(layers):
     return mods
 
 
+def attn_impl_report(adapter):
+    """{implementation name: number of decoder attention modules whose own config says so} (what really runs)."""
+    out = {}
+    for am in find_attention_modules(adapter.decoder_layers()):
+        k = str(getattr(getattr(am, "config", None), "_attn_implementation", "?"))
+        out[k] = out.get(k, 0) + 1
+    return out
+
+
+def _eager_fp32_forward(module, query, key, value, attention_mask, scaling, dropout=0.0, **kwargs):
+    """Drop-in for transformers' eager_attention_forward, but q.k^T, the additive mask, softmax and p.v are all computed in
+    float32. The stock eager path does q.k^T in the model dtype (fp16): a head with large activations overflows to inf -> NaN
+    (the fused SDPA kernels accumulate in fp32, so only eager breaks). Same math otherwise; used ONLY inside eager_attention()."""
+    n_rep = query.shape[1] // key.shape[1]
+    if n_rep > 1:
+        b, kvh, t, d = key.shape
+        key = key[:, :, None].expand(b, kvh, n_rep, t, d).reshape(b, kvh * n_rep, t, d)
+        value = value[:, :, None].expand(b, kvh, n_rep, t, d).reshape(b, kvh * n_rep, t, d)
+    w = torch.matmul(query.float(), key.float().transpose(2, 3)) * scaling
+    if attention_mask is not None:
+        w = w + attention_mask[:, :, :, :key.shape[-2]].float()
+    w = torch.softmax(w, dim=-1, dtype=torch.float32)
+    out = torch.matmul(w, value.float()).to(query.dtype).transpose(1, 2).contiguous()
+    return out, w.to(query.dtype)
+
+
 @contextlib.contextmanager
-def eager_attention(adapter):
+def eager_attention(adapter, fp32=True):
     """Force eager attention for the duration (an additive 4-D mask is only exposed to hooks in eager mode).
-    Uses the public set_attn_implementation when available, else patches every config's _attn_implementation.
-    Always restored."""
+    Uses the public set_attn_implementation when available, else patches every config's _attn_implementation; then
+    VERIFIES that every decoder attention module's own config says 'eager' (sets it directly if not, raises if it still
+    does not take). With fp32=True the stock eager function is swapped for an fp32-accumulating copy (see
+    _eager_fp32_forward) in the modeling modules the model uses. Always restored."""
     model = adapter.model
     restore = []
     used_api = False
@@ -118,10 +147,30 @@ def eager_attention(adapter):
                 seen.add(id(cfg))
                 restore.append((lambda c, o: (lambda: setattr(c, "_attn_implementation", o)))(cfg, cfg._attn_implementation))
                 cfg._attn_implementation = "eager"
+    # what the attention modules themselves read at call time
+    for am in find_attention_modules(adapter.decoder_layers()):
+        cfg = getattr(am, "config", None)
+        if cfg is not None and getattr(cfg, "_attn_implementation", None) != "eager":
+            restore.append((lambda c, o: (lambda: setattr(c, "_attn_implementation", o)))(cfg, cfg._attn_implementation))
+            cfg._attn_implementation = "eager"
+    rep = attn_impl_report(adapter)
+    if set(rep) != {"eager"}:
+        for r in reversed(restore):
+            r()
+        raise RuntimeError(f"could not force eager attention on every decoder layer: {rep}")
+    if fp32:
+        done = set()
+        for m in model.modules():
+            modname = type(m).__module__
+            mod = sys.modules.get(modname)
+            if mod is not None and modname not in done and hasattr(mod, "eager_attention_forward"):
+                done.add(modname)
+                restore.append((lambda mo, f: (lambda: setattr(mo, "eager_attention_forward", f)))(mod, mod.eager_attention_forward))
+                mod.eager_attention_forward = _eager_fp32_forward
     try:
         yield
     finally:
-        for r in restore:
+        for r in reversed(restore):
             r()
 
 
@@ -184,10 +233,45 @@ def cand_tokens(tok, hour_pref, minute):
     return p, f[len(p):]
 
 
+def reset_stateful_positions(model):
+    """Qwen2.5-VL caches `rope_deltas` on the model between forwards. For a fresh text-only no-cache forward the correct
+    value is "none"; clear it so no earlier prompt/generate call can leak into this one (harmless for other models)."""
+    for m in (model, getattr(model, "model", None)):
+        if m is not None and hasattr(m, "rope_deltas"):
+            m.rope_deltas = None
+
+
 def forward_logits(adapter, ids):
+    reset_stateful_positions(adapter.model)
     attn = torch.ones_like(ids)
     out = adapter.model(input_ids=ids, attention_mask=attn, use_cache=False)
     return out.logits
+
+
+@torch.no_grad()
+def cache_vs_nocache_probe(adapter, prompt_ids, forced_ids):
+    """Decisive test for 'is incremental (KV-cache) decoding numerically/positionally different from the full no-cache forward':
+    feed prompt+forced tokens (a) in one no-cache forward, (b) as prefill + one-token-at-a-time cached steps. Returns
+    (max_abs_logit_diff, argmax_agree_fraction, finite) over the forced positions (float32)."""
+    forced = torch.tensor([forced_ids], dtype=torch.long, device=prompt_ids.device)
+    full = torch.cat([prompt_ids, forced], dim=1)
+    P = prompt_ids.shape[1]
+    lg_full = forward_logits(adapter, full)[0, P - 1:P - 1 + len(forced_ids) + 1].float().cpu()
+    reset_stateful_positions(adapter.model)
+    out = adapter.model(input_ids=prompt_ids, attention_mask=torch.ones_like(prompt_ids), use_cache=True)
+    steps = [out.logits[0, -1].float().cpu()]
+    pkv = out.past_key_values
+    for j, t in enumerate(forced_ids):
+        tt = torch.tensor([[t]], dtype=torch.long, device=prompt_ids.device)
+        am = torch.ones((1, P + j + 1), dtype=torch.long, device=prompt_ids.device)
+        out = adapter.model(input_ids=tt, attention_mask=am, past_key_values=pkv, use_cache=True)
+        pkv = out.past_key_values
+        steps.append(out.logits[0, -1].float().cpu())
+    lg_cached = torch.stack(steps)
+    ok = bool(torch.isfinite(lg_full).all() and torch.isfinite(lg_cached).all())
+    diff = float((lg_full - lg_cached).abs().max()) if ok else float("nan")
+    agree = float((lg_full.argmax(-1) == lg_cached.argmax(-1)).float().mean())
+    return diff, agree, ok
 
 
 @contextlib.contextmanager

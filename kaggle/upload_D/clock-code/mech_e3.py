@@ -172,13 +172,23 @@ def g2_gate(ctx, pick):
         cat = classify_prefix(own, h)
         r = {"lead": lead, "N": n, "H": h, "free_text": txt[:80], "free_minute": m, "free_ok": free_ok, "gold_tf_ok": tf_gold,
              "gold_tf_argmax_minute": 5 * int(lp.argmax()), "own_prefix": own, "prefix_class": cat, "own_tf_ok": None,
-             "own_tf_argmax_minute": None, "own_token_match": None}
+             "own_tf_argmax_minute": None, "own_token_match": None, "own_tf_margin": None,
+             "free_on_grid": (m is not None and m % 5 == 0 and 0 <= m < 60)}
+        try:    # no-cache greedy loop (the decoding path every knockout experiment uses), default attention
+            nc = ML.greedy_generate_blocked(ad, tp.ids, ML.BlockState(), key_pos=None, max_new=32)
+            r["nocache_text"] = nc[:80]
+            r["nocache_ok"] = (ML.parse_hhmm(nc)[1] == (n % 12) * 5)
+            r["nocache_eq_free"] = (ML.parse_hhmm(nc) == (ph, m))
+        except Exception as e:  # noqa: BLE001
+            r["nocache_text"] = "ERR " + str(e)[:60]
         if own is not None:
             try:
                 pre_o, cs_o = cands_for_prefix(ctx, own, ALL_MINUTES)
                 lp_o = ML.score_candidates(ad, tp.ids, pre_o, cs_o)
                 r["own_tf_ok"] = (int(lp_o.argmax()) == (n % 12))
                 r["own_tf_argmax_minute"] = 5 * int(lp_o.argmax())
+                srt = torch.sort(lp_o.float(), descending=True).values
+                r["own_tf_margin"] = round(float(srt[0] - srt[1]), 4)
                 digits = txt[len(own):len(own) + 2]
                 if len(digits) == 2 and digits.isdigit():
                     # token level: is each generated minute digit the argmax of the teacher-forced distribution?
@@ -209,6 +219,22 @@ def g2_gate(ctx, pick):
                    "gold_tf_acc": round(float(g.gold_tf_ok.mean()), 3),
                    "gold_agree": round(float((g.free_ok == g.gold_tf_ok).mean()), 3),
                    "own_agree": round(float((gu.free_ok.astype(bool) == gu.own_tf_ok.astype(bool)).mean()), 3) if len(gu) else None})
+    if "nocache_ok" in d.columns and d.nocache_ok.notna().any():
+        out["nocache_eq_cached_free"] = round(float(d.nocache_eq_free.dropna().astype(bool).mean()), 3)
+        un = use[use.nocache_ok.notna()]
+        out["own_agree_vs_nocache_loop"] = (round(float((un.nocache_ok.astype(bool) == un.own_tf_ok.astype(bool)).mean()), 3)
+                                            if len(un) else None)
+    dis = use[use.free_ok.astype(bool) != use.own_tf_ok.astype(bool)].copy()
+    if len(dis):
+        def kind(r):
+            if not r.free_on_grid:
+                return "free_minute_off_the_12_candidate_grid"
+            if r.own_tf_margin is not None and r.own_tf_margin == r.own_tf_margin and r.own_tf_margin < 0.5:
+                return "near_tie(margin<0.5nat)"
+            return "clear_disagreement"
+        dis["disagree_kind"] = dis.apply(kind, axis=1)
+        out["own_disagreements"] = {k: int(v) for k, v in dis.disagree_kind.value_counts().items()}
+        out["own_disagreements_by_prefix_class"] = {k: int(v) for k, v in dis.prefix_class.value_counts().items()}
     out["breakdown"] = br
     print("  G2 breakdown by how the model's own prefix relates to the forced gold prefix:")
     print(pd.DataFrame(br).to_string(index=False), flush=True)
@@ -259,7 +285,9 @@ def part_verify(ctx):
               note="informational unless --g2_gate gold (see PREREG deviations log)")
         check("G2_own_prefix_teacher_forced_vs_free_generation", g2["own_agree"] >= 0.95, gating=own_gate,
               agreement=g2["own_agree"], tf_acc=g2["own_tf_acc"], free_acc=g2["free_acc"], n_usable=g2["n_own"],
-              token_level_exact_match=g2["own_token_match"], note="threshold 0.95; the machinery check")
+              token_level_exact_match=g2["own_token_match"], note="threshold 0.95; the machinery check",
+              nocache_loop_eq_cached_free=g2.get("nocache_eq_cached_free"), own_agree_vs_nocache_loop=g2.get("own_agree_vs_nocache_loop"),
+              disagreements=g2.get("own_disagreements"), disagreements_by_prefix_class=g2.get("own_disagreements_by_prefix_class"))
     except Exception as e:  # noqa: BLE001
         check("G2_own_prefix_teacher_forced_vs_free_generation", False, error=_err(e))
 
@@ -282,6 +310,56 @@ def part_verify(ctx):
     except Exception as e:  # noqa: BLE001
         check("G3_G4_identity_patch_and_logit_lens", False, error=_err(e))
 
+    # G8a: which attention implementation really runs, per decoder layer, by default and inside eager_attention()
+    try:
+        default_impl = ML.attn_impl_report(ad)
+        with ML.eager_attention(ad):
+            eager_impl = ML.attn_impl_report(ad)
+        res["attn_impl"] = {"default": default_impl, "inside_eager_context": eager_impl}
+        check("G8a_eager_forced_on_every_attention_layer", set(eager_impl) == {"eager"} and sum(eager_impl.values()) == L,
+              default=default_impl, inside_eager=eager_impl)
+    except Exception as e:  # noqa: BLE001
+        check("G8a_eager_forced_on_every_attention_layer", False, error=_err(e))
+
+    # G8c: teacher-forced logits under (fp32-accumulating) eager attention must be FINITE and close to the default path.
+    # (A fp16 eager path that overflows gives NaN/garbage: every blocked-generation experiment would silently be garbage.)
+    try:
+        fin_e, fin_d, worst, argm = True, True, 0.0, 0
+        sub8 = pick[:10]
+        for (lead, n, h) in sub8:
+            tp = ctx.prompt(lead, n, h)
+            pre, cs = cands_for(ctx, h, ALL_MINUTES)
+            ids_ = torch.cat([tp.ids, torch.tensor([pre], dtype=torch.long, device=tp.ids.device)], dim=1)
+            ld = ML.forward_logits(ad, ids_)[0, -1].float().cpu()
+            with ML.eager_attention(ad):
+                le = ML.forward_logits(ad, ids_)[0, -1].float().cpu()
+            fin_d &= bool(torch.isfinite(ld).all()); fin_e &= bool(torch.isfinite(le).all())
+            if torch.isfinite(ld).all() and torch.isfinite(le).all():
+                worst = max(worst, float((torch.log_softmax(ld, -1) - torch.log_softmax(le, -1)).abs().max()))
+                argm += int(ld.argmax() == le.argmax())
+        check("G8c_eager_logits_finite_and_close_to_default", fin_e and fin_d and worst < 0.5 and argm >= 0.9 * len(sub8),
+              finite_default=fin_d, finite_eager=fin_e, max_abs_logprob_diff=round(worst, 4), argmax_equal=f"{argm}/{len(sub8)}")
+    except Exception as e:  # noqa: BLE001
+        check("G8c_eager_logits_finite_and_close_to_default", False, error=_err(e))
+
+    # G10 (informational): incremental KV-cache decoding vs the full no-cache forward on the same tokens
+    try:
+        diffs, agrees, oks = [], [], []
+        for (lead, n, h) in pick[:8]:
+            tp = ctx.prompt(lead, n, h)
+            txt = ctx.gen(tp.prompt, 12)
+            fids = tok(txt, add_special_tokens=False)["input_ids"][:10]
+            if not fids:
+                continue
+            dfv, ag, okf = ML.cache_vs_nocache_probe(ad, tp.ids, fids)
+            diffs.append(dfv); agrees.append(ag); oks.append(okf)
+        check("G10_cached_decode_vs_nocache_forward_logits", bool(oks) and all(oks) and max(diffs) < 1.0 and min(agrees) >= 0.9,
+              gating=False, max_abs_logit_diff=(round(max(diffs), 3) if diffs and all(oks) else None),
+              min_argmax_agree=(round(min(agrees), 3) if agrees else None), all_finite=all(oks) if oks else None, n=len(oks),
+              note="large diffs with finite logits would point at a position/cache bug (e.g. stale rope_deltas); small ones = fp16 noise")
+    except Exception as e:  # noqa: BLE001
+        check("G10_cached_decode_vs_nocache_forward_logits", False, gating=False, error=_err(e))
+
     # G5 empty block == no hook (same eager path), G8 eager vs default, adapter generate agreement
     try:
         st = ML.BlockState()
@@ -296,9 +374,9 @@ def part_verify(ctx):
             exact += int(a == b)
             # default attention path (no cache loop) vs eager
             c = ML.greedy_generate_blocked(ad, tp.ids, st, key_pos=None)
-            eag_default += int(ML.parse_hhmm(a) == ML.parse_hhmm(c))
+            eag_default += int(ML.parse_hhmm(a) == ML.parse_hhmm(c) and (ML.parse_hhmm(a)[1] is not None or ctx.smoke))
             d = ctx.gen(tp.prompt, 32)
-            vs_adapter += int(ML.parse_hhmm(c) == ML.parse_hhmm(d))
+            vs_adapter += int(ML.parse_hhmm(c) == ML.parse_hhmm(d) and (ML.parse_hhmm(c)[1] is not None or ctx.smoke))
             n5 += 1
         check("G5_empty_block_equals_no_hook", exact == n5, matches=f"{exact}/{n5}")
         check("G8_eager_vs_default_attention_agree", eag_default / n5 >= 0.95, agreement=round(eag_default / n5, 3))
@@ -321,24 +399,31 @@ def part_verify(ctx):
     try:
         # blocking the N-span from the colon position on, at all layers, must (a) fire once per layer and (b) change the
         # candidate log-probs; blocking an EMPTY span must change nothing.
-        changed, fired, n7, empty_diff = 0, 0, 0, 0.0
+        changed, fired, n7, empty_diff, nonfinite = 0, 0, 0, 0.0, 0
         for (lead, n, h) in pick[:20]:
             tp = ctx.prompt(lead, n, h)
             pre, cs = cands_for(ctx, h, [ML.minute_str(n), ML.minute_str(h)])
             with ML.eager_attention(ad):
                 lp0 = ML.score_candidates(ad, tp.ids, pre, cs)
+            if not bool(torch.isfinite(lp0).all()):
+                nonfinite += 1
             q = tp.P + len(pre) - 1
             for tag, key in (("N", tp.spans["N"]), ("empty", [])):
                 st.q_start, st.key_pos, st.calls = q, torch.as_tensor(key, dtype=torch.long), 0
                 with ML.block_attention(ad, (0, L), st):
                     lp1 = ML.score_candidates(ad, tp.ids, pre, cs)
+                dd = float((lp1 - lp0).abs().max())
+                if dd != dd or not bool(torch.isfinite(lp1).all()):      # NaN is a failure, never "no change"
+                    nonfinite += 1
+                    dd = float("inf") if tag == "empty" else 0.0
                 if tag == "N":
                     fired = max(fired, st.calls)
-                    changed += int(float((lp1 - lp0).abs().max()) > 0.01)
+                    changed += int(dd > 0.01)
                 else:
-                    empty_diff = max(empty_diff, float((lp1 - lp0).abs().max()))
+                    empty_diff = max(empty_diff, dd)
             st.q_start = None
             n7 += 1
+        check("G7d_blocked_and_baseline_logprobs_finite", nonfinite == 0, nonfinite_forwards=nonfinite)
         check("G7_hooks_fire_on_every_layer", fired >= L, max_calls_per_forward=fired, n_layers=L)
         check("G7b_blocking_N_span_changes_logprobs", changed / n7 >= 0.5, changed=f"{changed}/{n7}")
         check("G7c_empty_block_changes_nothing", empty_diff < 1e-3, max_abs_diff_nats=empty_diff)
