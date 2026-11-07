@@ -1,0 +1,9 @@
+1_text_only_v2               OK                            19.4 min
+2_conversion_test            OK                            28.1 min
+3_aggregate_text_only        OK                             0.0 min
+4_aggregate_conversion       OK                             0.0 min
+5_describe_check             OK                            21.1 min
+6_eval_behavior              OK                             6.1 min
+
+total wall time: 1.26 h
+MISSING expected files: none

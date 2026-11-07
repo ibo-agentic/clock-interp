@@ -1,0 +1,10 @@
+model,task,phrasing,n,parse_ok,format_ok
+internvl3-8b,a,a1,120,1.0,1.0
+internvl3-8b,a,a2,120,1.0,1.0
+internvl3-8b,a,a3,120,1.0,1.0
+internvl3-8b,b,b1,432,0.9907407407407407,0.9513888888888888
+internvl3-8b,b,b2,432,0.9606481481481481,0.6759259259259259
+internvl3-8b,b,b3,432,0.6597222222222222,0.5231481481481481
+internvl3-8b,c,c1,120,1.0,1.0
+internvl3-8b,c,c2,120,1.0,1.0
+internvl3-8b,c,c3,120,1.0,1.0

@@ -1,0 +1,4 @@
+=== POSITIVE CONTROL: ALL heads patched at once (image-token positions) ===
+  layer 22: to_B(real_b)=0.0% (n=1)  to_B(same_minute)=0.0% (n=3)  to_B(noise)=0.0% (n=1)
+
+-> every layer with actual data shows a 0% real_b rate even with ALL heads patched at once -- this is the OTHER case: the head-patching path itself is likely not reaching generation. Do NOT trust any single-head or --head_groups result until this is found and fixed (start by re-running --verify, then checking whether o_proj's OWN output -- not just its input -- actually feeds the rest of the layer, the same round-3 bug shape this project has hit before).

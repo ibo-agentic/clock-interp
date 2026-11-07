@@ -1,0 +1,334 @@
+filename,variant,N,H,true_hour,true_minute,raw,ok,with_image_ok
+bal_0042.png,verbatim_description,2,9,9,10,09:12,False,False
+bal_0042.png,conv_question,2,9,9,10,09:12,False,False
+bal_0042.png,describe_style,2,9,9,10,The time shown by the long minute hand pointing at the number 2 and the short hour hand pointing at the number 9 is 9:12.,False,False
+bal_0048.png,verbatim_description,2,7,7,10,07:12,False,False
+bal_0048.png,conv_question,2,7,7,10,07:12,False,False
+bal_0048.png,describe_style,2,7,7,10,The time shown by the hands of the clock is 07:12.,False,False
+bal_0049.png,verbatim_description,2,8,8,10,08:12,False,False
+bal_0049.png,conv_question,2,8,8,10,08:12,False,False
+bal_0049.png,describe_style,2,8,8,10,The time shown by the hands of the clock is 08:12.,False,False
+bal_0050.png,verbatim_description,2,8,8,10,08:12,False,False
+bal_0050.png,conv_question,2,8,8,10,08:12,False,False
+bal_0050.png,describe_style,2,8,8,10,The time shown by the hands of the clock is 08:12.,False,False
+bal_0052.png,verbatim_description,2,10,10,10,10:10,True,False
+bal_0052.png,conv_question,2,10,10,10,10:10,True,False
+bal_0052.png,describe_style,2,10,10,10,The time shown by the hands of the clock is 10:10.,True,False
+bal_0055.png,verbatim_description,2,8,8,10,08:12,False,False
+bal_0055.png,conv_question,2,8,8,10,08:12,False,False
+bal_0055.png,describe_style,2,8,8,10,The time shown by the hands of the clock is 08:12.,False,False
+bal_0056.png,verbatim_description,2,8,8,10,08:12,False,False
+bal_0056.png,conv_question,2,8,8,10,08:12,False,False
+bal_0056.png,describe_style,2,8,8,10,The time shown by the hands of the clock is 08:12.,False,False
+bal_0057.png,verbatim_description,2,8,8,10,08:12,False,False
+bal_0057.png,conv_question,2,8,8,10,08:12,False,False
+bal_0057.png,describe_style,2,8,8,10,The time shown by the hands of the clock is 08:12.,False,False
+bal_0059.png,verbatim_description,2,6,6,10,02:30,False,False
+bal_0059.png,conv_question,2,6,6,10,02:30,False,False
+bal_0059.png,describe_style,2,6,6,10,The time shown by the hands of the clock is 12:00.,False,False
+bal_0073.png,verbatim_description,2,10,10,10,10:10,True,False
+bal_0073.png,conv_question,2,10,10,10,10:10,True,False
+bal_0073.png,describe_style,2,10,10,10,The time shown by the hands of the clock is 10:10.,True,False
+bal_0074.png,verbatim_description,2,6,6,10,02:30,False,False
+bal_0074.png,conv_question,2,6,6,10,02:30,False,False
+bal_0074.png,describe_style,2,6,6,10,The time shown by the hands of the clock is 12:00.,False,False
+bal_0075.png,verbatim_description,2,10,10,10,10:10,True,False
+bal_0075.png,conv_question,2,10,10,10,10:10,True,False
+bal_0075.png,describe_style,2,10,10,10,The time shown by the hands of the clock is 10:10.,True,False
+bal_0077.png,verbatim_description,2,3,3,10,02:15,False,False
+bal_0077.png,conv_question,2,3,3,10,02:15,False,False
+bal_0077.png,describe_style,2,3,3,10,The time shown by the hands of the clock is 02:15.,False,False
+bal_0079.png,verbatim_description,2,3,3,10,02:15,False,False
+bal_0079.png,conv_question,2,3,3,10,02:15,False,False
+bal_0079.png,describe_style,2,3,3,10,The time shown by the hands of the clock is 02:15.,False,False
+bal_0081.png,verbatim_description,3,6,6,15,03:30,False,True
+bal_0081.png,conv_question,3,6,6,15,03:30,False,True
+bal_0081.png,describe_style,3,6,6,15,The time shown by the hands of the clock is 06:18.,False,True
+bal_0083.png,verbatim_description,3,4,4,15,03:20,False,True
+bal_0083.png,conv_question,3,4,4,15,03:20,False,True
+bal_0083.png,describe_style,3,4,4,15,The time shown by the hands of the clock is 04:18.,False,True
+bal_0084.png,verbatim_description,3,12,12,15,03:00,False,False
+bal_0084.png,conv_question,3,12,12,15,03:00,False,False
+bal_0084.png,describe_style,3,12,12,15,The time shown by the hands of the clock is 12:00.,False,False
+bal_0087.png,verbatim_description,3,12,12,15,03:00,False,False
+bal_0087.png,conv_question,3,12,12,15,03:00,False,False
+bal_0087.png,describe_style,3,12,12,15,The time shown by the hands of the clock is 12:00.,False,False
+bal_0090.png,verbatim_description,3,4,4,15,03:20,False,True
+bal_0090.png,conv_question,3,4,4,15,03:20,False,True
+bal_0090.png,describe_style,3,4,4,15,The time shown by the hands of the clock is 04:18.,False,True
+bal_0091.png,verbatim_description,3,5,5,15,03:30,False,False
+bal_0091.png,conv_question,3,5,5,15,03:30,False,False
+bal_0091.png,describe_style,3,5,5,15,The time shown by the hands of the clock is 05:15.,True,False
+bal_0092.png,verbatim_description,3,6,6,15,03:30,False,True
+bal_0092.png,conv_question,3,6,6,15,03:30,False,True
+bal_0092.png,describe_style,3,6,6,15,The time shown by the hands of the clock is 06:18.,False,True
+bal_0093.png,verbatim_description,3,12,12,15,03:00,False,False
+bal_0093.png,conv_question,3,12,12,15,03:00,False,False
+bal_0093.png,describe_style,3,12,12,15,The time shown by the hands of the clock is 12:00.,False,False
+bal_0094.png,verbatim_description,3,4,4,15,03:20,False,True
+bal_0094.png,conv_question,3,4,4,15,03:20,False,True
+bal_0094.png,describe_style,3,4,4,15,The time shown by the hands of the clock is 04:18.,False,True
+bal_0096.png,verbatim_description,3,5,5,15,03:30,False,False
+bal_0096.png,conv_question,3,5,5,15,03:30,False,False
+bal_0096.png,describe_style,3,5,5,15,The time shown by the hands of the clock is 05:15.,True,False
+bal_0097.png,verbatim_description,3,12,12,15,03:00,False,False
+bal_0097.png,conv_question,3,12,12,15,03:00,False,False
+bal_0097.png,describe_style,3,12,12,15,The time shown by the hands of the clock is 12:00.,False,False
+bal_0098.png,verbatim_description,3,9,9,15,03:45,False,True
+bal_0098.png,conv_question,3,9,9,15,03:45,False,True
+bal_0098.png,describe_style,3,9,9,15,The time shown by the hands of the clock is 27:45.,False,True
+bal_0101.png,verbatim_description,3,7,7,15,03:35,False,False
+bal_0101.png,conv_question,3,7,7,15,03:35,False,False
+bal_0101.png,describe_style,3,7,7,15,The time shown by the hands of the clock is 07:15.,True,False
+bal_0102.png,verbatim_description,3,12,12,15,03:00,False,False
+bal_0102.png,conv_question,3,12,12,15,03:00,False,False
+bal_0102.png,describe_style,3,12,12,15,The time shown by the hands of the clock is 12:00.,False,False
+bal_0106.png,verbatim_description,3,4,4,15,03:20,False,True
+bal_0106.png,conv_question,3,4,4,15,03:20,False,True
+bal_0106.png,describe_style,3,4,4,15,The time shown by the hands of the clock is 04:18.,False,True
+bal_0107.png,verbatim_description,3,9,9,15,03:45,False,True
+bal_0107.png,conv_question,3,9,9,15,03:45,False,True
+bal_0107.png,describe_style,3,9,9,15,The time shown by the hands of the clock is 27:45.,False,True
+bal_0108.png,verbatim_description,3,7,7,15,03:35,False,False
+bal_0108.png,conv_question,3,7,7,15,03:35,False,False
+bal_0108.png,describe_style,3,7,7,15,The time shown by the hands of the clock is 07:15.,True,False
+bal_0109.png,verbatim_description,3,7,7,15,03:35,False,False
+bal_0109.png,conv_question,3,7,7,15,03:35,False,False
+bal_0109.png,describe_style,3,7,7,15,The time shown by the hands of the clock is 07:15.,True,False
+bal_0110.png,verbatim_description,3,6,6,15,03:30,False,True
+bal_0110.png,conv_question,3,6,6,15,03:30,False,True
+bal_0110.png,describe_style,3,6,6,15,The time shown by the hands of the clock is 06:18.,False,True
+bal_0111.png,verbatim_description,3,7,7,15,03:35,False,False
+bal_0111.png,conv_question,3,7,7,15,03:35,False,False
+bal_0111.png,describe_style,3,7,7,15,The time shown by the hands of the clock is 07:15.,True,False
+bal_0112.png,verbatim_description,3,6,6,15,03:30,False,True
+bal_0112.png,conv_question,3,6,6,15,03:30,False,True
+bal_0112.png,describe_style,3,6,6,15,The time shown by the hands of the clock is 06:18.,False,True
+bal_0113.png,verbatim_description,3,12,12,15,03:00,False,False
+bal_0113.png,conv_question,3,12,12,15,03:00,False,False
+bal_0113.png,describe_style,3,12,12,15,The time shown by the hands of the clock is 12:00.,False,False
+bal_0115.png,verbatim_description,3,2,2,15,02:15,True,True
+bal_0115.png,conv_question,3,2,2,15,02:15,True,True
+bal_0115.png,describe_style,3,2,2,15,The time shown by the hands of the clock is 2:18.,False,True
+bal_0117.png,verbatim_description,3,6,6,15,03:30,False,True
+bal_0117.png,conv_question,3,6,6,15,03:30,False,True
+bal_0117.png,describe_style,3,6,6,15,The time shown by the hands of the clock is 06:18.,False,True
+bal_0118.png,verbatim_description,3,5,5,15,03:30,False,False
+bal_0118.png,conv_question,3,5,5,15,03:30,False,False
+bal_0118.png,describe_style,3,5,5,15,The time shown by the hands of the clock is 05:15.,True,False
+bal_0119.png,verbatim_description,3,5,5,15,03:30,False,False
+bal_0119.png,conv_question,3,5,5,15,03:30,False,False
+bal_0119.png,describe_style,3,5,5,15,The time shown by the hands of the clock is 05:15.,True,False
+bal_0120.png,verbatim_description,4,10,10,20,10:20,True,False
+bal_0120.png,conv_question,4,10,10,20,10:20,True,False
+bal_0120.png,describe_style,4,10,10,20,The time shown by the hands of the clock is 10:20.,True,False
+bal_0121.png,verbatim_description,4,10,10,20,10:20,True,False
+bal_0121.png,conv_question,4,10,10,20,10:20,True,False
+bal_0121.png,describe_style,4,10,10,20,The time shown by the hands of the clock is 10:20.,True,False
+bal_0124.png,verbatim_description,4,7,7,20,07:20,True,False
+bal_0124.png,conv_question,4,7,7,20,07:20,True,False
+bal_0124.png,describe_style,4,7,7,20,The time shown by the hands of the clock is 07:20.,True,False
+bal_0126.png,verbatim_description,4,7,7,20,07:20,True,False
+bal_0126.png,conv_question,4,7,7,20,07:20,True,False
+bal_0126.png,describe_style,4,7,7,20,The time shown by the hands of the clock is 07:20.,True,False
+bal_0127.png,verbatim_description,4,9,9,20,03:40,False,False
+bal_0127.png,conv_question,4,9,9,20,03:40,False,False
+bal_0127.png,describe_style,4,9,9,20,The time shown by the hands of the clock is 9:20.,True,False
+bal_0133.png,verbatim_description,4,7,7,20,07:20,True,False
+bal_0133.png,conv_question,4,7,7,20,07:20,True,False
+bal_0133.png,describe_style,4,7,7,20,The time shown by the hands of the clock is 07:20.,True,False
+bal_0136.png,verbatim_description,4,6,6,20,06:24,False,True
+bal_0136.png,conv_question,4,6,6,20,06:24,False,True
+bal_0136.png,describe_style,4,6,6,20,The time shown by the hands of the clock is 6:20.,True,True
+bal_0138.png,verbatim_description,4,7,7,20,07:20,True,False
+bal_0138.png,conv_question,4,7,7,20,07:20,True,False
+bal_0138.png,describe_style,4,7,7,20,The time shown by the hands of the clock is 07:20.,True,False
+bal_0139.png,verbatim_description,4,10,10,20,10:20,True,False
+bal_0139.png,conv_question,4,10,10,20,10:20,True,False
+bal_0139.png,describe_style,4,10,10,20,The time shown by the hands of the clock is 10:20.,True,False
+bal_0140.png,verbatim_description,4,9,9,20,03:40,False,False
+bal_0140.png,conv_question,4,9,9,20,03:40,False,False
+bal_0140.png,describe_style,4,9,9,20,The time shown by the hands of the clock is 9:20.,True,False
+bal_0141.png,verbatim_description,4,7,7,20,07:20,True,False
+bal_0141.png,conv_question,4,7,7,20,07:20,True,False
+bal_0141.png,describe_style,4,7,7,20,The time shown by the hands of the clock is 07:20.,True,False
+bal_0142.png,verbatim_description,4,6,6,20,06:24,False,True
+bal_0142.png,conv_question,4,6,6,20,06:24,False,True
+bal_0142.png,describe_style,4,6,6,20,The time shown by the hands of the clock is 6:20.,True,True
+bal_0143.png,verbatim_description,4,10,10,20,10:20,True,False
+bal_0143.png,conv_question,4,10,10,20,10:20,True,False
+bal_0143.png,describe_style,4,10,10,20,The time shown by the hands of the clock is 10:20.,True,False
+bal_0144.png,verbatim_description,4,8,8,20,08:20,True,False
+bal_0144.png,conv_question,4,8,8,20,08:20,True,False
+bal_0144.png,describe_style,4,8,8,20,The time shown by the hands of the clock is 8:20.,True,False
+bal_0145.png,verbatim_description,4,6,6,20,06:24,False,True
+bal_0145.png,conv_question,4,6,6,20,06:24,False,True
+bal_0145.png,describe_style,4,6,6,20,The time shown by the hands of the clock is 6:20.,True,True
+bal_0148.png,verbatim_description,4,10,10,20,10:20,True,False
+bal_0148.png,conv_question,4,10,10,20,10:20,True,False
+bal_0148.png,describe_style,4,10,10,20,The time shown by the hands of the clock is 10:20.,True,False
+bal_0150.png,verbatim_description,4,7,7,20,07:20,True,False
+bal_0150.png,conv_question,4,7,7,20,07:20,True,False
+bal_0150.png,describe_style,4,7,7,20,The time shown by the hands of the clock is 07:20.,True,False
+bal_0151.png,verbatim_description,4,9,9,20,03:40,False,False
+bal_0151.png,conv_question,4,9,9,20,03:40,False,False
+bal_0151.png,describe_style,4,9,9,20,The time shown by the hands of the clock is 9:20.,True,False
+bal_0153.png,verbatim_description,4,6,6,20,06:24,False,True
+bal_0153.png,conv_question,4,6,6,20,06:24,False,True
+bal_0153.png,describe_style,4,6,6,20,The time shown by the hands of the clock is 6:20.,True,True
+bal_0154.png,verbatim_description,4,6,6,20,06:24,False,True
+bal_0154.png,conv_question,4,6,6,20,06:24,False,True
+bal_0154.png,describe_style,4,6,6,20,The time shown by the hands of the clock is 6:20.,True,True
+bal_0156.png,verbatim_description,4,9,9,20,03:40,False,False
+bal_0156.png,conv_question,4,9,9,20,03:40,False,False
+bal_0156.png,describe_style,4,9,9,20,The time shown by the hands of the clock is 9:20.,True,False
+bal_0158.png,verbatim_description,4,8,8,20,08:20,True,False
+bal_0158.png,conv_question,4,8,8,20,08:20,True,False
+bal_0158.png,describe_style,4,8,8,20,The time shown by the hands of the clock is 8:20.,True,False
+bal_0159.png,verbatim_description,4,8,8,20,08:20,True,False
+bal_0159.png,conv_question,4,8,8,20,08:20,True,False
+bal_0159.png,describe_style,4,8,8,20,The time shown by the hands of the clock is 8:20.,True,False
+bal_0160.png,verbatim_description,5,10,10,25,10:30,False,False
+bal_0160.png,conv_question,5,10,10,25,10:30,False,False
+bal_0160.png,describe_style,5,10,10,25,The time shown by the hands of the clock is 10:30.,False,False
+bal_0165.png,verbatim_description,5,10,10,25,10:30,False,False
+bal_0165.png,conv_question,5,10,10,25,10:30,False,False
+bal_0165.png,describe_style,5,10,10,25,The time shown by the hands of the clock is 10:30.,False,False
+bal_0172.png,verbatim_description,5,4,4,25,04:30,False,False
+bal_0172.png,conv_question,5,4,4,25,04:30,False,False
+bal_0172.png,describe_style,5,4,4,25,The time shown by the hands of the clock is 4:30.,False,False
+bal_0177.png,verbatim_description,5,9,9,25,09:30,False,False
+bal_0177.png,conv_question,5,9,9,25,09:30,False,False
+bal_0177.png,describe_style,5,9,9,25,The time shown by the hands of the clock is 9:30.,False,False
+bal_0180.png,verbatim_description,5,10,10,25,10:30,False,False
+bal_0180.png,conv_question,5,10,10,25,10:30,False,False
+bal_0180.png,describe_style,5,10,10,25,The time shown by the hands of the clock is 10:30.,False,False
+bal_0188.png,verbatim_description,5,10,10,25,10:30,False,False
+bal_0188.png,conv_question,5,10,10,25,10:30,False,False
+bal_0188.png,describe_style,5,10,10,25,The time shown by the hands of the clock is 10:30.,False,False
+bal_0189.png,verbatim_description,5,10,10,25,10:30,False,False
+bal_0189.png,conv_question,5,10,10,25,10:30,False,False
+bal_0189.png,describe_style,5,10,10,25,The time shown by the hands of the clock is 10:30.,False,False
+bal_0195.png,verbatim_description,5,10,10,25,10:30,False,False
+bal_0195.png,conv_question,5,10,10,25,10:30,False,False
+bal_0195.png,describe_style,5,10,10,25,The time shown by the hands of the clock is 10:30.,False,False
+bal_0199.png,verbatim_description,5,4,4,25,04:30,False,False
+bal_0199.png,conv_question,5,4,4,25,04:30,False,False
+bal_0199.png,describe_style,5,4,4,25,The time shown by the hands of the clock is 4:30.,False,False
+bal_0200.png,verbatim_description,6,3,3,30,03:30,True,True
+bal_0200.png,conv_question,6,3,3,30,03:30,True,True
+bal_0200.png,describe_style,6,3,3,30,The time shown by the hands of the clock is 3:30.,True,True
+bal_0204.png,verbatim_description,6,5,5,30,05:30,True,True
+bal_0204.png,conv_question,6,5,5,30,05:30,True,True
+bal_0204.png,describe_style,6,5,5,30,The time shown by the hands of the clock is 5:30.,True,True
+bal_0206.png,verbatim_description,6,12,12,30,06:00,False,False
+bal_0206.png,conv_question,6,12,12,30,06:00,False,False
+bal_0206.png,describe_style,6,12,12,30,The time shown by the hands of the clock is 12:30.,True,False
+bal_0207.png,verbatim_description,6,9,9,30,09:30,True,True
+bal_0207.png,conv_question,6,9,9,30,09:30,True,True
+bal_0207.png,describe_style,6,9,9,30,The time shown by the hands of the clock is 9:30.,True,True
+bal_0210.png,verbatim_description,6,5,5,30,05:30,True,True
+bal_0210.png,conv_question,6,5,5,30,05:30,True,True
+bal_0210.png,describe_style,6,5,5,30,The time shown by the hands of the clock is 5:30.,True,True
+bal_0211.png,verbatim_description,6,10,10,30,10:30,True,True
+bal_0211.png,conv_question,6,10,10,30,10:30,True,True
+bal_0211.png,describe_style,6,10,10,30,The time shown by the hands of the clock is 10:30.,True,True
+bal_0218.png,verbatim_description,6,3,3,30,03:30,True,True
+bal_0218.png,conv_question,6,3,3,30,03:30,True,True
+bal_0218.png,describe_style,6,3,3,30,The time shown by the hands of the clock is 3:30.,True,True
+bal_0222.png,verbatim_description,6,10,10,30,10:30,True,True
+bal_0222.png,conv_question,6,10,10,30,10:30,True,True
+bal_0222.png,describe_style,6,10,10,30,The time shown by the hands of the clock is 10:30.,True,True
+bal_0223.png,verbatim_description,6,9,9,30,09:30,True,True
+bal_0223.png,conv_question,6,9,9,30,09:30,True,True
+bal_0223.png,describe_style,6,9,9,30,The time shown by the hands of the clock is 9:30.,True,True
+bal_0224.png,verbatim_description,6,3,3,30,03:30,True,True
+bal_0224.png,conv_question,6,3,3,30,03:30,True,True
+bal_0224.png,describe_style,6,3,3,30,The time shown by the hands of the clock is 3:30.,True,True
+bal_0226.png,verbatim_description,6,12,12,30,06:00,False,False
+bal_0226.png,conv_question,6,12,12,30,06:00,False,False
+bal_0226.png,describe_style,6,12,12,30,The time shown by the hands of the clock is 12:30.,True,False
+bal_0230.png,verbatim_description,6,10,10,30,10:30,True,True
+bal_0230.png,conv_question,6,10,10,30,10:30,True,True
+bal_0230.png,describe_style,6,10,10,30,The time shown by the hands of the clock is 10:30.,True,True
+bal_0231.png,verbatim_description,6,12,12,30,06:00,False,False
+bal_0231.png,conv_question,6,12,12,30,06:00,False,False
+bal_0231.png,describe_style,6,12,12,30,The time shown by the hands of the clock is 12:30.,True,False
+bal_0234.png,verbatim_description,6,9,9,30,09:30,True,True
+bal_0234.png,conv_question,6,9,9,30,09:30,True,True
+bal_0234.png,describe_style,6,9,9,30,The time shown by the hands of the clock is 9:30.,True,True
+bal_0235.png,verbatim_description,6,5,5,30,05:30,True,True
+bal_0235.png,conv_question,6,5,5,30,05:30,True,True
+bal_0235.png,describe_style,6,5,5,30,The time shown by the hands of the clock is 5:30.,True,True
+bal_0237.png,verbatim_description,6,12,12,30,06:00,False,False
+bal_0237.png,conv_question,6,12,12,30,06:00,False,False
+bal_0237.png,describe_style,6,12,12,30,The time shown by the hands of the clock is 12:30.,True,False
+bal_0328.png,verbatim_description,9,3,3,45,03:45,True,True
+bal_0328.png,conv_question,9,3,3,45,03:45,True,True
+bal_0328.png,describe_style,9,3,3,45,The time shown by the hands of the clock is 03:45.,True,True
+bal_0341.png,verbatim_description,9,3,3,45,03:45,True,True
+bal_0341.png,conv_question,9,3,3,45,03:45,True,True
+bal_0341.png,describe_style,9,3,3,45,The time shown by the hands of the clock is 03:45.,True,True
+bal_0348.png,verbatim_description,9,3,3,45,03:45,True,True
+bal_0348.png,conv_question,9,3,3,45,03:45,True,True
+bal_0348.png,describe_style,9,3,3,45,The time shown by the hands of the clock is 03:45.,True,True
+bal_0358.png,verbatim_description,9,3,3,45,03:45,True,True
+bal_0358.png,conv_question,9,3,3,45,03:45,True,True
+bal_0358.png,describe_style,9,3,3,45,The time shown by the hands of the clock is 03:45.,True,True
+bal_0376.png,verbatim_description,10,9,9,50,09:30,False,False
+bal_0376.png,conv_question,10,9,9,50,09:30,False,False
+bal_0376.png,describe_style,10,9,9,50,The time shown by the hands of the clock is 9:30.,False,False
+bal_0395.png,verbatim_description,10,9,9,50,09:30,False,False
+bal_0395.png,conv_question,10,9,9,50,09:30,False,False
+bal_0395.png,describe_style,10,9,9,50,The time shown by the hands of the clock is 9:30.,False,False
+bal_0440.png,verbatim_description,12,8,8,0,08:00,True,True
+bal_0440.png,conv_question,12,8,8,0,08:00,True,True
+bal_0440.png,describe_style,12,8,8,0,The time shown by the hands of the clock is 8:00.,True,True
+bal_0444.png,verbatim_description,12,2,2,0,02:00,True,True
+bal_0444.png,conv_question,12,2,2,0,02:00,True,True
+bal_0444.png,describe_style,12,2,2,0,The time shown by the hands of the clock is 2:00.,True,True
+bal_0448.png,verbatim_description,12,3,3,0,03:00,True,True
+bal_0448.png,conv_question,12,3,3,0,03:00,True,True
+bal_0448.png,describe_style,12,3,3,0,The time shown by the hands of the clock is 3:00.,True,True
+bal_0450.png,verbatim_description,12,3,3,0,03:00,True,True
+bal_0450.png,conv_question,12,3,3,0,03:00,True,True
+bal_0450.png,describe_style,12,3,3,0,The time shown by the hands of the clock is 3:00.,True,True
+bal_0453.png,verbatim_description,12,2,2,0,02:00,True,True
+bal_0453.png,conv_question,12,2,2,0,02:00,True,True
+bal_0453.png,describe_style,12,2,2,0,The time shown by the hands of the clock is 2:00.,True,True
+bal_0457.png,verbatim_description,12,3,3,0,03:00,True,True
+bal_0457.png,conv_question,12,3,3,0,03:00,True,True
+bal_0457.png,describe_style,12,3,3,0,The time shown by the hands of the clock is 3:00.,True,True
+bal_0458.png,verbatim_description,12,4,4,0,04:00,True,True
+bal_0458.png,conv_question,12,4,4,0,04:00,True,True
+bal_0458.png,describe_style,12,4,4,0,The time shown by the hands of the clock is 4:00.,True,True
+bal_0459.png,verbatim_description,12,8,8,0,08:00,True,True
+bal_0459.png,conv_question,12,8,8,0,08:00,True,True
+bal_0459.png,describe_style,12,8,8,0,The time shown by the hands of the clock is 8:00.,True,True
+bal_0462.png,verbatim_description,12,4,4,0,04:00,True,True
+bal_0462.png,conv_question,12,4,4,0,04:00,True,True
+bal_0462.png,describe_style,12,4,4,0,The time shown by the hands of the clock is 4:00.,True,True
+bal_0463.png,verbatim_description,12,6,6,0,06:00,True,True
+bal_0463.png,conv_question,12,6,6,0,06:00,True,True
+bal_0463.png,describe_style,12,6,6,0,The time shown by the hands of the clock is 6:00.,True,True
+bal_0465.png,verbatim_description,12,9,9,0,09:00,True,True
+bal_0465.png,conv_question,12,9,9,0,09:00,True,True
+bal_0465.png,describe_style,12,9,9,0,The time shown by the hands of the clock is 9:00.,True,True
+bal_0467.png,verbatim_description,12,8,8,0,08:00,True,True
+bal_0467.png,conv_question,12,8,8,0,08:00,True,True
+bal_0467.png,describe_style,12,8,8,0,The time shown by the hands of the clock is 8:00.,True,True
+bal_0468.png,verbatim_description,12,4,4,0,04:00,True,True
+bal_0468.png,conv_question,12,4,4,0,04:00,True,True
+bal_0468.png,describe_style,12,4,4,0,The time shown by the hands of the clock is 4:00.,True,True
+bal_0470.png,verbatim_description,12,9,9,0,09:00,True,True
+bal_0470.png,conv_question,12,9,9,0,09:00,True,True
+bal_0470.png,describe_style,12,9,9,0,The time shown by the hands of the clock is 9:00.,True,True
+bal_0472.png,verbatim_description,12,6,6,0,06:00,True,True
+bal_0472.png,conv_question,12,6,6,0,06:00,True,True
+bal_0472.png,describe_style,12,6,6,0,The time shown by the hands of the clock is 6:00.,True,True
+bal_0475.png,verbatim_description,12,3,3,0,03:00,True,True
+bal_0475.png,conv_question,12,3,3,0,03:00,True,True
+bal_0475.png,describe_style,12,3,3,0,The time shown by the hands of the clock is 3:00.,True,True
+bal_0476.png,verbatim_description,12,8,8,0,08:00,True,True
+bal_0476.png,conv_question,12,8,8,0,08:00,True,True
+bal_0476.png,describe_style,12,8,8,0,The time shown by the hands of the clock is 8:00.,True,True

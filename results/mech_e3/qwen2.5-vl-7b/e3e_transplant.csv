@@ -1,0 +1,752 @@
+filename,variant,N,H,true_hour,true_minute,raw,ok,with_image_ok
+bal_0000.png,verbatim_description,1,5,5,5,05:05,True,True
+bal_0000.png,conv_question,1,5,5,5,05:05,True,True
+bal_0000.png,describe_style,1,5,5,5,The time is 5:05.,True,True
+bal_0001.png,verbatim_description,1,10,10,5,10:05,True,True
+bal_0001.png,conv_question,1,10,10,5,10:05,True,True
+bal_0001.png,describe_style,1,10,10,5,"The time described is 10:05. Here's the reasoning:
+
+- The long minute hand pointing at the number 1 indicates that it is",True,True
+bal_0002.png,verbatim_description,1,7,7,5,07:05,True,True
+bal_0002.png,conv_question,1,7,7,5,07:05,True,True
+bal_0002.png,describe_style,1,7,7,5,The time is 07:05.,True,True
+bal_0003.png,verbatim_description,1,4,4,5,04:05,True,True
+bal_0003.png,conv_question,1,4,4,5,04:05,True,True
+bal_0003.png,describe_style,1,4,4,5,The time is 04:05.,True,True
+bal_0004.png,verbatim_description,1,4,4,5,04:05,True,True
+bal_0004.png,conv_question,1,4,4,5,04:05,True,True
+bal_0004.png,describe_style,1,4,4,5,The time is 04:05.,True,True
+bal_0005.png,verbatim_description,1,8,8,5,08:05,True,True
+bal_0005.png,conv_question,1,8,8,5,08:05,True,True
+bal_0005.png,describe_style,1,8,8,5,The time is 8:05.,True,True
+bal_0006.png,verbatim_description,1,8,8,5,08:05,True,True
+bal_0006.png,conv_question,1,8,8,5,08:05,True,True
+bal_0006.png,describe_style,1,8,8,5,The time is 8:05.,True,True
+bal_0007.png,verbatim_description,1,10,10,5,10:05,True,True
+bal_0007.png,conv_question,1,10,10,5,10:05,True,True
+bal_0007.png,describe_style,1,10,10,5,"The time described is 10:05. Here's the reasoning:
+
+- The long minute hand pointing at the number 1 indicates that it is",True,True
+bal_0008.png,verbatim_description,1,8,8,5,08:05,True,True
+bal_0008.png,conv_question,1,8,8,5,08:05,True,True
+bal_0008.png,describe_style,1,8,8,5,The time is 8:05.,True,True
+bal_0009.png,verbatim_description,1,9,9,5,09:05,True,True
+bal_0009.png,conv_question,1,9,9,5,09:05,True,True
+bal_0009.png,describe_style,1,9,9,5,The time is 9:05.,True,True
+bal_0010.png,verbatim_description,1,10,10,5,10:05,True,True
+bal_0010.png,conv_question,1,10,10,5,10:05,True,True
+bal_0010.png,describe_style,1,10,10,5,"The time described is 10:05. Here's the reasoning:
+
+- The long minute hand pointing at the number 1 indicates that it is",True,True
+bal_0011.png,verbatim_description,1,11,11,5,11:05,True,True
+bal_0011.png,conv_question,1,11,11,5,11:05,True,True
+bal_0011.png,describe_style,1,11,11,5,The time is 11:05.,True,True
+bal_0012.png,verbatim_description,1,11,11,5,11:05,True,True
+bal_0012.png,conv_question,1,11,11,5,11:05,True,True
+bal_0012.png,describe_style,1,11,11,5,The time is 11:05.,True,True
+bal_0013.png,verbatim_description,1,9,9,5,09:05,True,True
+bal_0013.png,conv_question,1,9,9,5,09:05,True,True
+bal_0013.png,describe_style,1,9,9,5,The time is 9:05.,True,True
+bal_0014.png,verbatim_description,1,8,8,5,08:05,True,True
+bal_0014.png,conv_question,1,8,8,5,08:05,True,True
+bal_0014.png,describe_style,1,8,8,5,The time is 8:05.,True,True
+bal_0015.png,verbatim_description,1,7,7,5,07:05,True,True
+bal_0015.png,conv_question,1,7,7,5,07:05,True,True
+bal_0015.png,describe_style,1,7,7,5,The time is 07:05.,True,True
+bal_0016.png,verbatim_description,1,5,5,5,05:05,True,True
+bal_0016.png,conv_question,1,5,5,5,05:05,True,True
+bal_0016.png,describe_style,1,5,5,5,The time is 5:05.,True,True
+bal_0018.png,verbatim_description,1,8,8,5,08:05,True,True
+bal_0018.png,conv_question,1,8,8,5,08:05,True,True
+bal_0018.png,describe_style,1,8,8,5,The time is 8:05.,True,True
+bal_0020.png,verbatim_description,1,12,12,5,01:05,False,True
+bal_0020.png,conv_question,1,12,12,5,01:00,False,True
+bal_0020.png,describe_style,1,12,12,5,The time is 12:05.,True,True
+bal_0021.png,verbatim_description,1,8,8,5,08:05,True,True
+bal_0021.png,conv_question,1,8,8,5,08:05,True,True
+bal_0021.png,describe_style,1,8,8,5,The time is 8:05.,True,True
+bal_0022.png,verbatim_description,1,11,11,5,11:05,True,True
+bal_0022.png,conv_question,1,11,11,5,11:05,True,True
+bal_0022.png,describe_style,1,11,11,5,The time is 11:05.,True,True
+bal_0023.png,verbatim_description,1,7,7,5,07:05,True,True
+bal_0023.png,conv_question,1,7,7,5,07:05,True,True
+bal_0023.png,describe_style,1,7,7,5,The time is 07:05.,True,True
+bal_0024.png,verbatim_description,1,4,4,5,04:05,True,True
+bal_0024.png,conv_question,1,4,4,5,04:05,True,True
+bal_0024.png,describe_style,1,4,4,5,The time is 04:05.,True,True
+bal_0025.png,verbatim_description,1,6,6,5,06:05,True,True
+bal_0025.png,conv_question,1,6,6,5,06:05,True,True
+bal_0025.png,describe_style,1,6,6,5,The time is 6:05.,True,True
+bal_0026.png,verbatim_description,1,9,9,5,09:05,True,True
+bal_0026.png,conv_question,1,9,9,5,09:05,True,True
+bal_0026.png,describe_style,1,9,9,5,The time is 9:05.,True,True
+bal_0027.png,verbatim_description,1,9,9,5,09:05,True,True
+bal_0027.png,conv_question,1,9,9,5,09:05,True,True
+bal_0027.png,describe_style,1,9,9,5,The time is 9:05.,True,True
+bal_0028.png,verbatim_description,1,8,8,5,08:05,True,True
+bal_0028.png,conv_question,1,8,8,5,08:05,True,True
+bal_0028.png,describe_style,1,8,8,5,The time is 8:05.,True,True
+bal_0029.png,verbatim_description,1,6,6,5,06:05,True,True
+bal_0029.png,conv_question,1,6,6,5,06:05,True,True
+bal_0029.png,describe_style,1,6,6,5,The time is 6:05.,True,True
+bal_0031.png,verbatim_description,1,12,12,5,01:05,False,True
+bal_0031.png,conv_question,1,12,12,5,01:00,False,True
+bal_0031.png,describe_style,1,12,12,5,The time is 12:05.,True,True
+bal_0033.png,verbatim_description,1,3,3,5,03:05,True,True
+bal_0033.png,conv_question,1,3,3,5,03:05,True,True
+bal_0033.png,describe_style,1,3,3,5,The time is 3:05.,True,True
+bal_0034.png,verbatim_description,1,9,9,5,09:05,True,True
+bal_0034.png,conv_question,1,9,9,5,09:05,True,True
+bal_0034.png,describe_style,1,9,9,5,The time is 9:05.,True,True
+bal_0035.png,verbatim_description,1,10,10,5,10:05,True,True
+bal_0035.png,conv_question,1,10,10,5,10:05,True,True
+bal_0035.png,describe_style,1,10,10,5,"The time described is 10:05. Here's the reasoning:
+
+- The long minute hand pointing at the number 1 indicates that it is",True,True
+bal_0036.png,verbatim_description,1,7,7,5,07:05,True,True
+bal_0036.png,conv_question,1,7,7,5,07:05,True,True
+bal_0036.png,describe_style,1,7,7,5,The time is 07:05.,True,True
+bal_0037.png,verbatim_description,1,5,5,5,05:05,True,True
+bal_0037.png,conv_question,1,5,5,5,05:05,True,True
+bal_0037.png,describe_style,1,5,5,5,The time is 5:05.,True,True
+bal_0038.png,verbatim_description,1,10,10,5,10:05,True,True
+bal_0038.png,conv_question,1,10,10,5,10:05,True,True
+bal_0038.png,describe_style,1,10,10,5,"The time described is 10:05. Here's the reasoning:
+
+- The long minute hand pointing at the number 1 indicates that it is",True,True
+bal_0039.png,verbatim_description,1,8,8,5,08:05,True,True
+bal_0039.png,conv_question,1,8,8,5,08:05,True,True
+bal_0039.png,describe_style,1,8,8,5,The time is 8:05.,True,True
+bal_0040.png,verbatim_description,2,4,4,10,04:10,True,True
+bal_0040.png,conv_question,2,4,4,10,04:10,True,True
+bal_0040.png,describe_style,2,4,4,10,The time is 4:10.,True,True
+bal_0041.png,verbatim_description,2,4,4,10,04:10,True,True
+bal_0041.png,conv_question,2,4,4,10,04:10,True,True
+bal_0041.png,describe_style,2,4,4,10,The time is 4:10.,True,True
+bal_0042.png,verbatim_description,2,9,9,10,09:10,True,True
+bal_0042.png,conv_question,2,9,9,10,09:10,True,True
+bal_0042.png,describe_style,2,9,9,10,The time is 9:10.,True,True
+bal_0043.png,verbatim_description,2,4,4,10,04:10,True,True
+bal_0043.png,conv_question,2,4,4,10,04:10,True,True
+bal_0043.png,describe_style,2,4,4,10,The time is 4:10.,True,True
+bal_0044.png,verbatim_description,2,1,1,10,01:10,True,True
+bal_0044.png,conv_question,2,1,1,10,01:10,True,True
+bal_0044.png,describe_style,2,1,1,10,The time is 1:10.,True,True
+bal_0045.png,verbatim_description,2,2,2,10,02:10,True,True
+bal_0045.png,conv_question,2,2,2,10,02:10,True,True
+bal_0045.png,describe_style,2,2,2,10,The time is 2:10.,True,True
+bal_0046.png,verbatim_description,2,1,1,10,01:10,True,True
+bal_0046.png,conv_question,2,1,1,10,01:10,True,True
+bal_0046.png,describe_style,2,1,1,10,The time is 1:10.,True,True
+bal_0047.png,verbatim_description,2,1,1,10,01:10,True,True
+bal_0047.png,conv_question,2,1,1,10,01:10,True,True
+bal_0047.png,describe_style,2,1,1,10,The time is 1:10.,True,True
+bal_0048.png,verbatim_description,2,7,7,10,07:10,True,True
+bal_0048.png,conv_question,2,7,7,10,07:10,True,True
+bal_0048.png,describe_style,2,7,7,10,The time is 07:10.,True,True
+bal_0049.png,verbatim_description,2,8,8,10,08:10,True,True
+bal_0049.png,conv_question,2,8,8,10,08:10,True,True
+bal_0049.png,describe_style,2,8,8,10,The time is 8:10.,True,True
+bal_0050.png,verbatim_description,2,8,8,10,08:10,True,True
+bal_0050.png,conv_question,2,8,8,10,08:10,True,True
+bal_0050.png,describe_style,2,8,8,10,The time is 8:10.,True,True
+bal_0051.png,verbatim_description,2,11,11,10,11:10,True,True
+bal_0051.png,conv_question,2,11,11,10,11:10,True,True
+bal_0051.png,describe_style,2,11,11,10,The time is 11:10.,True,True
+bal_0052.png,verbatim_description,2,10,10,10,10:10,True,True
+bal_0052.png,conv_question,2,10,10,10,10:10,True,True
+bal_0052.png,describe_style,2,10,10,10,The time is 10:10.,True,True
+bal_0053.png,verbatim_description,2,4,4,10,04:10,True,True
+bal_0053.png,conv_question,2,4,4,10,04:10,True,True
+bal_0053.png,describe_style,2,4,4,10,The time is 4:10.,True,True
+bal_0054.png,verbatim_description,2,1,1,10,01:10,True,True
+bal_0054.png,conv_question,2,1,1,10,01:10,True,True
+bal_0054.png,describe_style,2,1,1,10,The time is 1:10.,True,True
+bal_0055.png,verbatim_description,2,8,8,10,08:10,True,True
+bal_0055.png,conv_question,2,8,8,10,08:10,True,True
+bal_0055.png,describe_style,2,8,8,10,The time is 8:10.,True,True
+bal_0056.png,verbatim_description,2,8,8,10,08:10,True,True
+bal_0056.png,conv_question,2,8,8,10,08:10,True,True
+bal_0056.png,describe_style,2,8,8,10,The time is 8:10.,True,True
+bal_0057.png,verbatim_description,2,8,8,10,08:10,True,True
+bal_0057.png,conv_question,2,8,8,10,08:10,True,True
+bal_0057.png,describe_style,2,8,8,10,The time is 8:10.,True,True
+bal_0058.png,verbatim_description,2,1,1,10,01:10,True,True
+bal_0058.png,conv_question,2,1,1,10,01:10,True,True
+bal_0058.png,describe_style,2,1,1,10,The time is 1:10.,True,True
+bal_0059.png,verbatim_description,2,6,6,10,06:10,True,True
+bal_0059.png,conv_question,2,6,6,10,06:10,True,True
+bal_0059.png,describe_style,2,6,6,10,The time is 6:10.,True,True
+bal_0060.png,verbatim_description,2,5,5,10,05:10,True,True
+bal_0060.png,conv_question,2,5,5,10,05:10,True,True
+bal_0060.png,describe_style,2,5,5,10,The time is 5:10.,True,True
+bal_0061.png,verbatim_description,2,4,4,10,04:10,True,True
+bal_0061.png,conv_question,2,4,4,10,04:10,True,True
+bal_0061.png,describe_style,2,4,4,10,The time is 4:10.,True,True
+bal_0062.png,verbatim_description,2,2,2,10,02:10,True,True
+bal_0062.png,conv_question,2,2,2,10,02:10,True,True
+bal_0062.png,describe_style,2,2,2,10,The time is 2:10.,True,True
+bal_0063.png,verbatim_description,2,4,4,10,04:10,True,True
+bal_0063.png,conv_question,2,4,4,10,04:10,True,True
+bal_0063.png,describe_style,2,4,4,10,The time is 4:10.,True,True
+bal_0066.png,verbatim_description,2,2,2,10,02:10,True,True
+bal_0066.png,conv_question,2,2,2,10,02:10,True,True
+bal_0066.png,describe_style,2,2,2,10,The time is 2:10.,True,True
+bal_0067.png,verbatim_description,2,4,4,10,04:10,True,True
+bal_0067.png,conv_question,2,4,4,10,04:10,True,True
+bal_0067.png,describe_style,2,4,4,10,The time is 4:10.,True,True
+bal_0069.png,verbatim_description,2,5,5,10,05:10,True,True
+bal_0069.png,conv_question,2,5,5,10,05:10,True,True
+bal_0069.png,describe_style,2,5,5,10,The time is 5:10.,True,True
+bal_0070.png,verbatim_description,2,4,4,10,04:10,True,True
+bal_0070.png,conv_question,2,4,4,10,04:10,True,True
+bal_0070.png,describe_style,2,4,4,10,The time is 4:10.,True,True
+bal_0071.png,verbatim_description,2,2,2,10,02:10,True,True
+bal_0071.png,conv_question,2,2,2,10,02:10,True,True
+bal_0071.png,describe_style,2,2,2,10,The time is 2:10.,True,True
+bal_0073.png,verbatim_description,2,10,10,10,10:10,True,True
+bal_0073.png,conv_question,2,10,10,10,10:10,True,True
+bal_0073.png,describe_style,2,10,10,10,The time is 10:10.,True,True
+bal_0074.png,verbatim_description,2,6,6,10,06:10,True,True
+bal_0074.png,conv_question,2,6,6,10,06:10,True,True
+bal_0074.png,describe_style,2,6,6,10,The time is 6:10.,True,True
+bal_0075.png,verbatim_description,2,10,10,10,10:10,True,True
+bal_0075.png,conv_question,2,10,10,10,10:10,True,True
+bal_0075.png,describe_style,2,10,10,10,The time is 10:10.,True,True
+bal_0076.png,verbatim_description,2,2,2,10,02:10,True,True
+bal_0076.png,conv_question,2,2,2,10,02:10,True,True
+bal_0076.png,describe_style,2,2,2,10,The time is 2:10.,True,True
+bal_0077.png,verbatim_description,2,3,3,10,03:10,True,True
+bal_0077.png,conv_question,2,3,3,10,03:10,True,True
+bal_0077.png,describe_style,2,3,3,10,The time is 3:10.,True,True
+bal_0078.png,verbatim_description,2,4,4,10,04:10,True,True
+bal_0078.png,conv_question,2,4,4,10,04:10,True,True
+bal_0078.png,describe_style,2,4,4,10,The time is 4:10.,True,True
+bal_0079.png,verbatim_description,2,3,3,10,03:10,True,True
+bal_0079.png,conv_question,2,3,3,10,03:10,True,True
+bal_0079.png,describe_style,2,3,3,10,The time is 3:10.,True,True
+bal_0082.png,verbatim_description,3,8,8,15,08:15,True,True
+bal_0082.png,conv_question,3,8,8,15,08:15,True,True
+bal_0082.png,describe_style,3,8,8,15,The long minute hand pointing at the number 3 indicates that the minutes are 15 minutes past the hour (since each number on the clock represents 5,False,True
+bal_0083.png,verbatim_description,3,4,4,15,04:15,True,True
+bal_0083.png,conv_question,3,4,4,15,04:15,True,True
+bal_0083.png,describe_style,3,4,4,15,The time is 04:15.,True,True
+bal_0085.png,verbatim_description,3,11,11,15,11:15,True,True
+bal_0085.png,conv_question,3,11,11,15,11:15,True,True
+bal_0085.png,describe_style,3,11,11,15,The time is 11:15.,True,True
+bal_0086.png,verbatim_description,3,1,1,15,01:15,True,True
+bal_0086.png,conv_question,3,1,1,15,01:15,True,True
+bal_0086.png,describe_style,3,1,1,15,The time is 1:15.,True,True
+bal_0088.png,verbatim_description,3,10,10,15,10:15,True,True
+bal_0088.png,conv_question,3,10,10,15,10:15,True,True
+bal_0088.png,describe_style,3,10,10,15,The long minute hand pointing at the number 3 indicates that the minutes are 15 minutes past the hour (since each number on the clock represents 5,False,True
+bal_0089.png,verbatim_description,3,10,10,15,10:15,True,True
+bal_0089.png,conv_question,3,10,10,15,10:15,True,True
+bal_0089.png,describe_style,3,10,10,15,The long minute hand pointing at the number 3 indicates that the minutes are 15 minutes past the hour (since each number on the clock represents 5,False,True
+bal_0090.png,verbatim_description,3,4,4,15,04:15,True,True
+bal_0090.png,conv_question,3,4,4,15,04:15,True,True
+bal_0090.png,describe_style,3,4,4,15,The time is 04:15.,True,True
+bal_0091.png,verbatim_description,3,5,5,15,05:15,True,True
+bal_0091.png,conv_question,3,5,5,15,05:15,True,True
+bal_0091.png,describe_style,3,5,5,15,The time is 5:15.,True,True
+bal_0094.png,verbatim_description,3,4,4,15,04:15,True,True
+bal_0094.png,conv_question,3,4,4,15,04:15,True,True
+bal_0094.png,describe_style,3,4,4,15,The time is 04:15.,True,True
+bal_0095.png,verbatim_description,3,1,1,15,01:15,True,True
+bal_0095.png,conv_question,3,1,1,15,01:15,True,True
+bal_0095.png,describe_style,3,1,1,15,The time is 1:15.,True,True
+bal_0096.png,verbatim_description,3,5,5,15,05:15,True,True
+bal_0096.png,conv_question,3,5,5,15,05:15,True,True
+bal_0096.png,describe_style,3,5,5,15,The time is 5:15.,True,True
+bal_0098.png,verbatim_description,3,9,9,15,09:15,True,True
+bal_0098.png,conv_question,3,9,9,15,09:15,True,True
+bal_0098.png,describe_style,3,9,9,15,The time is 9:15.,True,True
+bal_0099.png,verbatim_description,3,11,11,15,11:15,True,True
+bal_0099.png,conv_question,3,11,11,15,11:15,True,True
+bal_0099.png,describe_style,3,11,11,15,The time is 11:15.,True,True
+bal_0100.png,verbatim_description,3,11,11,15,11:15,True,True
+bal_0100.png,conv_question,3,11,11,15,11:15,True,True
+bal_0100.png,describe_style,3,11,11,15,The time is 11:15.,True,True
+bal_0101.png,verbatim_description,3,7,7,15,07:15,True,True
+bal_0101.png,conv_question,3,7,7,15,07:15,True,True
+bal_0101.png,describe_style,3,7,7,15,The time is 07:15.,True,True
+bal_0103.png,verbatim_description,3,8,8,15,08:15,True,True
+bal_0103.png,conv_question,3,8,8,15,08:15,True,True
+bal_0103.png,describe_style,3,8,8,15,The long minute hand pointing at the number 3 indicates that the minutes are 15 minutes past the hour (since each number on the clock represents 5,False,True
+bal_0105.png,verbatim_description,3,8,8,15,08:15,True,True
+bal_0105.png,conv_question,3,8,8,15,08:15,True,True
+bal_0105.png,describe_style,3,8,8,15,The long minute hand pointing at the number 3 indicates that the minutes are 15 minutes past the hour (since each number on the clock represents 5,False,True
+bal_0106.png,verbatim_description,3,4,4,15,04:15,True,True
+bal_0106.png,conv_question,3,4,4,15,04:15,True,True
+bal_0106.png,describe_style,3,4,4,15,The time is 04:15.,True,True
+bal_0107.png,verbatim_description,3,9,9,15,09:15,True,True
+bal_0107.png,conv_question,3,9,9,15,09:15,True,True
+bal_0107.png,describe_style,3,9,9,15,The time is 9:15.,True,True
+bal_0108.png,verbatim_description,3,7,7,15,07:15,True,True
+bal_0108.png,conv_question,3,7,7,15,07:15,True,True
+bal_0108.png,describe_style,3,7,7,15,The time is 07:15.,True,True
+bal_0109.png,verbatim_description,3,7,7,15,07:15,True,True
+bal_0109.png,conv_question,3,7,7,15,07:15,True,True
+bal_0109.png,describe_style,3,7,7,15,The time is 07:15.,True,True
+bal_0111.png,verbatim_description,3,7,7,15,07:15,True,True
+bal_0111.png,conv_question,3,7,7,15,07:15,True,True
+bal_0111.png,describe_style,3,7,7,15,The time is 07:15.,True,True
+bal_0114.png,verbatim_description,3,8,8,15,08:15,True,True
+bal_0114.png,conv_question,3,8,8,15,08:15,True,True
+bal_0114.png,describe_style,3,8,8,15,The long minute hand pointing at the number 3 indicates that the minutes are 15 minutes past the hour (since each number on the clock represents 5,False,True
+bal_0115.png,verbatim_description,3,2,2,15,02:15,True,True
+bal_0115.png,conv_question,3,2,2,15,02:15,True,True
+bal_0115.png,describe_style,3,2,2,15,The time is 2:15.,True,True
+bal_0116.png,verbatim_description,3,11,11,15,11:15,True,True
+bal_0116.png,conv_question,3,11,11,15,11:15,True,True
+bal_0116.png,describe_style,3,11,11,15,The time is 11:15.,True,True
+bal_0118.png,verbatim_description,3,5,5,15,05:15,True,True
+bal_0118.png,conv_question,3,5,5,15,05:15,True,True
+bal_0118.png,describe_style,3,5,5,15,The time is 5:15.,True,True
+bal_0119.png,verbatim_description,3,5,5,15,05:15,True,True
+bal_0119.png,conv_question,3,5,5,15,05:15,True,True
+bal_0119.png,describe_style,3,5,5,15,The time is 5:15.,True,True
+bal_0120.png,verbatim_description,4,10,10,20,10:20,True,True
+bal_0120.png,conv_question,4,10,10,20,10:20,True,True
+bal_0120.png,describe_style,4,10,10,20,The long minute hand pointing at the number 4 indicates that the minutes are 20 minutes past the hour (since each number on the clock represents 5,False,True
+bal_0121.png,verbatim_description,4,10,10,20,10:20,True,True
+bal_0121.png,conv_question,4,10,10,20,10:20,True,True
+bal_0121.png,describe_style,4,10,10,20,The long minute hand pointing at the number 4 indicates that the minutes are 20 minutes past the hour (since each number on the clock represents 5,False,True
+bal_0122.png,verbatim_description,4,11,11,20,11:20,True,True
+bal_0122.png,conv_question,4,11,11,20,11:20,True,True
+bal_0122.png,describe_style,4,11,11,20,The time is 11:20.,True,True
+bal_0124.png,verbatim_description,4,7,7,20,07:20,True,True
+bal_0124.png,conv_question,4,7,7,20,07:20,True,True
+bal_0124.png,describe_style,4,7,7,20,The time is 07:20.,True,True
+bal_0125.png,verbatim_description,4,3,3,20,03:20,True,True
+bal_0125.png,conv_question,4,3,3,20,03:20,True,True
+bal_0125.png,describe_style,4,3,3,20,The time is 3:20.,True,True
+bal_0126.png,verbatim_description,4,7,7,20,07:20,True,True
+bal_0126.png,conv_question,4,7,7,20,07:20,True,True
+bal_0126.png,describe_style,4,7,7,20,The time is 07:20.,True,True
+bal_0127.png,verbatim_description,4,9,9,20,09:20,True,True
+bal_0127.png,conv_question,4,9,9,20,09:20,True,True
+bal_0127.png,describe_style,4,9,9,20,The time is 9:20.,True,True
+bal_0128.png,verbatim_description,4,3,3,20,03:20,True,True
+bal_0128.png,conv_question,4,3,3,20,03:20,True,True
+bal_0128.png,describe_style,4,3,3,20,The time is 3:20.,True,True
+bal_0130.png,verbatim_description,4,11,11,20,11:20,True,True
+bal_0130.png,conv_question,4,11,11,20,11:20,True,True
+bal_0130.png,describe_style,4,11,11,20,The time is 11:20.,True,True
+bal_0131.png,verbatim_description,4,5,5,20,05:20,True,True
+bal_0131.png,conv_question,4,5,5,20,05:20,True,True
+bal_0131.png,describe_style,4,5,5,20,The time is 5:20.,True,True
+bal_0132.png,verbatim_description,4,2,2,20,02:20,True,True
+bal_0132.png,conv_question,4,2,2,20,02:20,True,True
+bal_0132.png,describe_style,4,2,2,20,The time is 2:20.,True,True
+bal_0133.png,verbatim_description,4,7,7,20,07:20,True,True
+bal_0133.png,conv_question,4,7,7,20,07:20,True,True
+bal_0133.png,describe_style,4,7,7,20,The time is 07:20.,True,True
+bal_0134.png,verbatim_description,4,11,11,20,11:20,True,True
+bal_0134.png,conv_question,4,11,11,20,11:20,True,True
+bal_0134.png,describe_style,4,11,11,20,The time is 11:20.,True,True
+bal_0135.png,verbatim_description,4,2,2,20,02:20,True,True
+bal_0135.png,conv_question,4,2,2,20,02:20,True,True
+bal_0135.png,describe_style,4,2,2,20,The time is 2:20.,True,True
+bal_0137.png,verbatim_description,4,2,2,20,02:20,True,True
+bal_0137.png,conv_question,4,2,2,20,02:20,True,True
+bal_0137.png,describe_style,4,2,2,20,The time is 2:20.,True,True
+bal_0138.png,verbatim_description,4,7,7,20,07:20,True,True
+bal_0138.png,conv_question,4,7,7,20,07:20,True,True
+bal_0138.png,describe_style,4,7,7,20,The time is 07:20.,True,True
+bal_0139.png,verbatim_description,4,10,10,20,10:20,True,True
+bal_0139.png,conv_question,4,10,10,20,10:20,True,True
+bal_0139.png,describe_style,4,10,10,20,The long minute hand pointing at the number 4 indicates that the minutes are 20 minutes past the hour (since each number on the clock represents 5,False,True
+bal_0140.png,verbatim_description,4,9,9,20,09:20,True,True
+bal_0140.png,conv_question,4,9,9,20,09:20,True,True
+bal_0140.png,describe_style,4,9,9,20,The time is 9:20.,True,True
+bal_0141.png,verbatim_description,4,7,7,20,07:20,True,True
+bal_0141.png,conv_question,4,7,7,20,07:20,True,True
+bal_0141.png,describe_style,4,7,7,20,The time is 07:20.,True,True
+bal_0143.png,verbatim_description,4,10,10,20,10:20,True,True
+bal_0143.png,conv_question,4,10,10,20,10:20,True,True
+bal_0143.png,describe_style,4,10,10,20,The long minute hand pointing at the number 4 indicates that the minutes are 20 minutes past the hour (since each number on the clock represents 5,False,True
+bal_0144.png,verbatim_description,4,8,8,20,08:20,True,True
+bal_0144.png,conv_question,4,8,8,20,08:20,True,True
+bal_0144.png,describe_style,4,8,8,20,The time is 8:20.,True,True
+bal_0146.png,verbatim_description,4,5,5,20,05:20,True,True
+bal_0146.png,conv_question,4,5,5,20,05:20,True,True
+bal_0146.png,describe_style,4,5,5,20,The time is 5:20.,True,True
+bal_0148.png,verbatim_description,4,10,10,20,10:20,True,True
+bal_0148.png,conv_question,4,10,10,20,10:20,True,True
+bal_0148.png,describe_style,4,10,10,20,The long minute hand pointing at the number 4 indicates that the minutes are 20 minutes past the hour (since each number on the clock represents 5,False,True
+bal_0150.png,verbatim_description,4,7,7,20,07:20,True,True
+bal_0150.png,conv_question,4,7,7,20,07:20,True,True
+bal_0150.png,describe_style,4,7,7,20,The time is 07:20.,True,True
+bal_0151.png,verbatim_description,4,9,9,20,09:20,True,True
+bal_0151.png,conv_question,4,9,9,20,09:20,True,True
+bal_0151.png,describe_style,4,9,9,20,The time is 9:20.,True,True
+bal_0152.png,verbatim_description,4,2,2,20,02:20,True,True
+bal_0152.png,conv_question,4,2,2,20,02:20,True,True
+bal_0152.png,describe_style,4,2,2,20,The time is 2:20.,True,True
+bal_0156.png,verbatim_description,4,9,9,20,09:20,True,True
+bal_0156.png,conv_question,4,9,9,20,09:20,True,True
+bal_0156.png,describe_style,4,9,9,20,The time is 9:20.,True,True
+bal_0158.png,verbatim_description,4,8,8,20,08:20,True,True
+bal_0158.png,conv_question,4,8,8,20,08:20,True,True
+bal_0158.png,describe_style,4,8,8,20,The time is 8:20.,True,True
+bal_0159.png,verbatim_description,4,8,8,20,08:20,True,True
+bal_0159.png,conv_question,4,8,8,20,08:20,True,True
+bal_0159.png,describe_style,4,8,8,20,The time is 8:20.,True,True
+bal_0160.png,verbatim_description,5,10,10,25,10:25,True,True
+bal_0160.png,conv_question,5,10,10,25,10:25,True,True
+bal_0160.png,describe_style,5,10,10,25,The time is 10:25.,True,True
+bal_0162.png,verbatim_description,5,8,8,25,08:25,True,True
+bal_0162.png,conv_question,5,8,8,25,08:25,True,True
+bal_0162.png,describe_style,5,8,8,25,The time is 8:25.,True,True
+bal_0164.png,verbatim_description,5,11,11,25,11:25,True,True
+bal_0164.png,conv_question,5,11,11,25,11:25,True,True
+bal_0164.png,describe_style,5,11,11,25,The time is 11:25.,True,True
+bal_0165.png,verbatim_description,5,10,10,25,10:25,True,True
+bal_0165.png,conv_question,5,10,10,25,10:25,True,True
+bal_0165.png,describe_style,5,10,10,25,The time is 10:25.,True,True
+bal_0169.png,verbatim_description,5,3,3,25,03:25,True,True
+bal_0169.png,conv_question,5,3,3,25,03:25,True,True
+bal_0169.png,describe_style,5,3,3,25,The time is 3:25.,True,True
+bal_0172.png,verbatim_description,5,4,4,25,04:25,True,True
+bal_0172.png,conv_question,5,4,4,25,04:25,True,True
+bal_0172.png,describe_style,5,4,4,25,The time is 04:25.,True,True
+bal_0175.png,verbatim_description,5,8,8,25,08:25,True,True
+bal_0175.png,conv_question,5,8,8,25,08:25,True,True
+bal_0175.png,describe_style,5,8,8,25,The time is 8:25.,True,True
+bal_0176.png,verbatim_description,5,2,2,25,02:25,True,True
+bal_0176.png,conv_question,5,2,2,25,02:25,True,True
+bal_0176.png,describe_style,5,2,2,25,The time is 2:25.,True,True
+bal_0177.png,verbatim_description,5,9,9,25,09:25,True,True
+bal_0177.png,conv_question,5,9,9,25,09:25,True,True
+bal_0177.png,describe_style,5,9,9,25,The time is 9:25.,True,True
+bal_0180.png,verbatim_description,5,10,10,25,10:25,True,True
+bal_0180.png,conv_question,5,10,10,25,10:25,True,True
+bal_0180.png,describe_style,5,10,10,25,The time is 10:25.,True,True
+bal_0181.png,verbatim_description,5,11,11,25,11:25,True,True
+bal_0181.png,conv_question,5,11,11,25,11:25,True,True
+bal_0181.png,describe_style,5,11,11,25,The time is 11:25.,True,True
+bal_0183.png,verbatim_description,5,3,3,25,03:25,True,True
+bal_0183.png,conv_question,5,3,3,25,03:25,True,True
+bal_0183.png,describe_style,5,3,3,25,The time is 3:25.,True,True
+bal_0185.png,verbatim_description,5,8,8,25,08:25,True,True
+bal_0185.png,conv_question,5,8,8,25,08:25,True,True
+bal_0185.png,describe_style,5,8,8,25,The time is 8:25.,True,True
+bal_0187.png,verbatim_description,5,3,3,25,03:25,True,True
+bal_0187.png,conv_question,5,3,3,25,03:25,True,True
+bal_0187.png,describe_style,5,3,3,25,The time is 3:25.,True,True
+bal_0188.png,verbatim_description,5,10,10,25,10:25,True,True
+bal_0188.png,conv_question,5,10,10,25,10:25,True,True
+bal_0188.png,describe_style,5,10,10,25,The time is 10:25.,True,True
+bal_0189.png,verbatim_description,5,10,10,25,10:25,True,True
+bal_0189.png,conv_question,5,10,10,25,10:25,True,True
+bal_0189.png,describe_style,5,10,10,25,The time is 10:25.,True,True
+bal_0192.png,verbatim_description,5,2,2,25,02:25,True,True
+bal_0192.png,conv_question,5,2,2,25,02:25,True,True
+bal_0192.png,describe_style,5,2,2,25,The time is 2:25.,True,True
+bal_0195.png,verbatim_description,5,10,10,25,10:25,True,True
+bal_0195.png,conv_question,5,10,10,25,10:25,True,True
+bal_0195.png,describe_style,5,10,10,25,The time is 10:25.,True,True
+bal_0196.png,verbatim_description,5,2,2,25,02:25,True,True
+bal_0196.png,conv_question,5,2,2,25,02:25,True,True
+bal_0196.png,describe_style,5,2,2,25,The time is 2:25.,True,True
+bal_0197.png,verbatim_description,5,2,2,25,02:25,True,True
+bal_0197.png,conv_question,5,2,2,25,02:25,True,True
+bal_0197.png,describe_style,5,2,2,25,The time is 2:25.,True,True
+bal_0199.png,verbatim_description,5,4,4,25,04:25,True,True
+bal_0199.png,conv_question,5,4,4,25,04:25,True,True
+bal_0199.png,describe_style,5,4,4,25,The time is 04:25.,True,True
+bal_0207.png,verbatim_description,6,9,9,30,09:30,True,True
+bal_0207.png,conv_question,6,9,9,30,09:30,True,True
+bal_0207.png,describe_style,6,9,9,30,The time is 9:30.,True,True
+bal_0223.png,verbatim_description,6,9,9,30,09:30,True,True
+bal_0223.png,conv_question,6,9,9,30,09:30,True,True
+bal_0223.png,describe_style,6,9,9,30,The time is 9:30.,True,True
+bal_0234.png,verbatim_description,6,9,9,30,09:30,True,True
+bal_0234.png,conv_question,6,9,9,30,09:30,True,True
+bal_0234.png,describe_style,6,9,9,30,The time is 9:30.,True,True
+bal_0240.png,verbatim_description,7,5,5,35,05:35,True,True
+bal_0240.png,conv_question,7,5,5,35,05:35,True,True
+bal_0240.png,describe_style,7,5,5,35,The time is 5:35.,True,True
+bal_0244.png,verbatim_description,7,3,3,35,03:35,True,True
+bal_0244.png,conv_question,7,3,3,35,03:35,True,True
+bal_0244.png,describe_style,7,3,3,35,The time is 3:35.,True,True
+bal_0246.png,verbatim_description,7,4,4,35,04:35,True,True
+bal_0246.png,conv_question,7,4,4,35,04:35,True,True
+bal_0246.png,describe_style,7,4,4,35,The time is 04:35.,True,True
+bal_0248.png,verbatim_description,7,9,9,35,09:35,True,True
+bal_0248.png,conv_question,7,9,9,35,09:35,True,True
+bal_0248.png,describe_style,7,9,9,35,The time is 9:35.,True,True
+bal_0249.png,verbatim_description,7,4,4,35,04:35,True,True
+bal_0249.png,conv_question,7,4,4,35,04:35,True,True
+bal_0249.png,describe_style,7,4,4,35,The time is 04:35.,True,True
+bal_0257.png,verbatim_description,7,5,5,35,05:35,True,True
+bal_0257.png,conv_question,7,5,5,35,05:35,True,True
+bal_0257.png,describe_style,7,5,5,35,The time is 5:35.,True,True
+bal_0269.png,verbatim_description,7,9,9,35,09:35,True,True
+bal_0269.png,conv_question,7,9,9,35,09:35,True,True
+bal_0269.png,describe_style,7,9,9,35,The time is 9:35.,True,True
+bal_0270.png,verbatim_description,7,5,5,35,05:35,True,True
+bal_0270.png,conv_question,7,5,5,35,05:35,True,True
+bal_0270.png,describe_style,7,5,5,35,The time is 5:35.,True,True
+bal_0273.png,verbatim_description,7,9,9,35,09:35,True,True
+bal_0273.png,conv_question,7,9,9,35,09:35,True,True
+bal_0273.png,describe_style,7,9,9,35,The time is 9:35.,True,True
+bal_0275.png,verbatim_description,7,3,3,35,03:35,True,True
+bal_0275.png,conv_question,7,3,3,35,03:35,True,True
+bal_0275.png,describe_style,7,3,3,35,The time is 3:35.,True,True
+bal_0276.png,verbatim_description,7,5,5,35,05:35,True,True
+bal_0276.png,conv_question,7,5,5,35,05:35,True,True
+bal_0276.png,describe_style,7,5,5,35,The time is 5:35.,True,True
+bal_0278.png,verbatim_description,7,5,5,35,05:35,True,True
+bal_0278.png,conv_question,7,5,5,35,05:35,True,True
+bal_0278.png,describe_style,7,5,5,35,The time is 5:35.,True,True
+bal_0281.png,verbatim_description,8,3,3,40,03:40,True,True
+bal_0281.png,conv_question,8,3,3,40,03:40,True,True
+bal_0281.png,describe_style,8,3,3,40,The time is 3:40.,True,True
+bal_0284.png,verbatim_description,8,3,3,40,03:40,True,True
+bal_0284.png,conv_question,8,3,3,40,03:40,True,True
+bal_0284.png,describe_style,8,3,3,40,The time is 3:40.,True,True
+bal_0285.png,verbatim_description,8,10,10,40,10:40,True,True
+bal_0285.png,conv_question,8,10,10,40,10:40,True,True
+bal_0285.png,describe_style,8,10,10,40,The time is 10:40.,True,True
+bal_0286.png,verbatim_description,8,7,7,40,07:40,True,True
+bal_0286.png,conv_question,8,7,7,40,07:40,True,True
+bal_0286.png,describe_style,8,7,7,40,The time is 07:40.,True,True
+bal_0287.png,verbatim_description,8,3,3,40,03:40,True,True
+bal_0287.png,conv_question,8,3,3,40,03:40,True,True
+bal_0287.png,describe_style,8,3,3,40,The time is 3:40.,True,True
+bal_0293.png,verbatim_description,8,7,7,40,07:40,True,True
+bal_0293.png,conv_question,8,7,7,40,07:40,True,True
+bal_0293.png,describe_style,8,7,7,40,The time is 07:40.,True,True
+bal_0295.png,verbatim_description,8,11,11,40,11:40,True,True
+bal_0295.png,conv_question,8,11,11,40,11:40,True,True
+bal_0295.png,describe_style,8,11,11,40,The time is 11:40.,True,True
+bal_0296.png,verbatim_description,8,7,7,40,07:40,True,True
+bal_0296.png,conv_question,8,7,7,40,07:40,True,True
+bal_0296.png,describe_style,8,7,7,40,The time is 07:40.,True,True
+bal_0297.png,verbatim_description,8,5,5,40,05:40,True,True
+bal_0297.png,conv_question,8,5,5,40,05:40,True,True
+bal_0297.png,describe_style,8,5,5,40,The time is 5:40.,True,True
+bal_0298.png,verbatim_description,8,7,7,40,07:40,True,True
+bal_0298.png,conv_question,8,7,7,40,07:40,True,True
+bal_0298.png,describe_style,8,7,7,40,The time is 07:40.,True,True
+bal_0299.png,verbatim_description,8,3,3,40,03:40,True,True
+bal_0299.png,conv_question,8,3,3,40,03:40,True,True
+bal_0299.png,describe_style,8,3,3,40,The time is 3:40.,True,True
+bal_0300.png,verbatim_description,8,7,7,40,07:40,True,True
+bal_0300.png,conv_question,8,7,7,40,07:40,True,True
+bal_0300.png,describe_style,8,7,7,40,The time is 07:40.,True,True
+bal_0308.png,verbatim_description,8,10,10,40,10:40,True,True
+bal_0308.png,conv_question,8,10,10,40,10:40,True,True
+bal_0308.png,describe_style,8,10,10,40,The time is 10:40.,True,True
+bal_0311.png,verbatim_description,8,7,7,40,07:40,True,True
+bal_0311.png,conv_question,8,7,7,40,07:40,True,True
+bal_0311.png,describe_style,8,7,7,40,The time is 07:40.,True,True
+bal_0312.png,verbatim_description,8,3,3,40,03:40,True,True
+bal_0312.png,conv_question,8,3,3,40,03:40,True,True
+bal_0312.png,describe_style,8,3,3,40,The time is 3:40.,True,True
+bal_0314.png,verbatim_description,8,7,7,40,07:40,True,True
+bal_0314.png,conv_question,8,7,7,40,07:40,True,True
+bal_0314.png,describe_style,8,7,7,40,The time is 07:40.,True,True
+bal_0316.png,verbatim_description,8,10,10,40,10:40,True,True
+bal_0316.png,conv_question,8,10,10,40,10:40,True,True
+bal_0316.png,describe_style,8,10,10,40,The time is 10:40.,True,True
+bal_0318.png,verbatim_description,8,5,5,40,05:40,True,True
+bal_0318.png,conv_question,8,5,5,40,05:40,True,True
+bal_0318.png,describe_style,8,5,5,40,The time is 5:40.,True,True
+bal_0323.png,verbatim_description,9,5,5,45,05:45,True,True
+bal_0323.png,conv_question,9,5,5,45,05:45,True,True
+bal_0323.png,describe_style,9,5,5,45,The time is 5:45.,True,True
+bal_0325.png,verbatim_description,9,5,5,45,05:45,True,True
+bal_0325.png,conv_question,9,5,5,45,05:45,True,True
+bal_0325.png,describe_style,9,5,5,45,The time is 5:45.,True,True
+bal_0331.png,verbatim_description,9,5,5,45,05:45,True,True
+bal_0331.png,conv_question,9,5,5,45,05:45,True,True
+bal_0331.png,describe_style,9,5,5,45,The time is 5:45.,True,True
+bal_0346.png,verbatim_description,9,5,5,45,05:45,True,True
+bal_0346.png,conv_question,9,5,5,45,05:45,True,True
+bal_0346.png,describe_style,9,5,5,45,The time is 5:45.,True,True
+bal_0347.png,verbatim_description,9,11,11,45,11:45,True,True
+bal_0347.png,conv_question,9,11,11,45,11:45,True,True
+bal_0347.png,describe_style,9,11,11,45,The time is 11:45.,True,True
+bal_0352.png,verbatim_description,9,11,11,45,11:45,True,True
+bal_0352.png,conv_question,9,11,11,45,11:45,True,True
+bal_0352.png,describe_style,9,11,11,45,The time is 11:45.,True,True
+bal_0361.png,verbatim_description,10,11,11,50,11:50,True,True
+bal_0361.png,conv_question,10,11,11,50,11:50,True,True
+bal_0361.png,describe_style,10,11,11,50,The time is 11:50.,True,True
+bal_0369.png,verbatim_description,10,10,10,50,10:50,True,True
+bal_0369.png,conv_question,10,10,10,50,10:55,False,True
+bal_0369.png,describe_style,10,10,10,50,"The time described is 10:55. Here's the reasoning:
+
+- The long minute hand (the minute hand) is pointing at the number",False,True
+bal_0377.png,verbatim_description,10,11,11,50,11:50,True,True
+bal_0377.png,conv_question,10,11,11,50,11:50,True,True
+bal_0377.png,describe_style,10,11,11,50,The time is 11:50.,True,True
+bal_0379.png,verbatim_description,10,10,10,50,10:50,True,True
+bal_0379.png,conv_question,10,10,10,50,10:55,False,True
+bal_0379.png,describe_style,10,10,10,50,"The time described is 10:55. Here's the reasoning:
+
+- The long minute hand (the minute hand) is pointing at the number",False,True
+bal_0381.png,verbatim_description,10,11,11,50,11:50,True,True
+bal_0381.png,conv_question,10,11,11,50,11:50,True,True
+bal_0381.png,describe_style,10,11,11,50,The time is 11:50.,True,True
+bal_0383.png,verbatim_description,10,11,11,50,11:50,True,True
+bal_0383.png,conv_question,10,11,11,50,11:50,True,True
+bal_0383.png,describe_style,10,11,11,50,The time is 11:50.,True,True
+bal_0387.png,verbatim_description,10,10,10,50,10:50,True,True
+bal_0387.png,conv_question,10,10,10,50,10:55,False,True
+bal_0387.png,describe_style,10,10,10,50,"The time described is 10:55. Here's the reasoning:
+
+- The long minute hand (the minute hand) is pointing at the number",False,True
+bal_0391.png,verbatim_description,10,10,10,50,10:50,True,True
+bal_0391.png,conv_question,10,10,10,50,10:55,False,True
+bal_0391.png,describe_style,10,10,10,50,"The time described is 10:55. Here's the reasoning:
+
+- The long minute hand (the minute hand) is pointing at the number",False,True
+bal_0392.png,verbatim_description,10,10,10,50,10:50,True,True
+bal_0392.png,conv_question,10,10,10,50,10:55,False,True
+bal_0392.png,describe_style,10,10,10,50,"The time described is 10:55. Here's the reasoning:
+
+- The long minute hand (the minute hand) is pointing at the number",False,True
+bal_0393.png,verbatim_description,10,10,10,50,10:50,True,True
+bal_0393.png,conv_question,10,10,10,50,10:55,False,True
+bal_0393.png,describe_style,10,10,10,50,"The time described is 10:55. Here's the reasoning:
+
+- The long minute hand (the minute hand) is pointing at the number",False,True
+bal_0409.png,verbatim_description,11,10,10,55,10:55,True,True
+bal_0409.png,conv_question,11,10,10,55,10:55,True,True
+bal_0409.png,describe_style,11,10,10,55,The time is 10:55.,True,True
+bal_0414.png,verbatim_description,11,11,11,55,11:55,True,True
+bal_0414.png,conv_question,11,11,11,55,11:55,True,True
+bal_0414.png,describe_style,11,11,11,55,The time is 11:55.,True,True
+bal_0418.png,verbatim_description,11,10,10,55,10:55,True,True
+bal_0418.png,conv_question,11,10,10,55,10:55,True,True
+bal_0418.png,describe_style,11,10,10,55,The time is 10:55.,True,True
+bal_0422.png,verbatim_description,11,11,11,55,11:55,True,True
+bal_0422.png,conv_question,11,11,11,55,11:55,True,True
+bal_0422.png,describe_style,11,11,11,55,The time is 11:55.,True,True
+bal_0428.png,verbatim_description,11,11,11,55,11:55,True,True
+bal_0428.png,conv_question,11,11,11,55,11:55,True,True
+bal_0428.png,describe_style,11,11,11,55,The time is 11:55.,True,True
+bal_0429.png,verbatim_description,11,11,11,55,11:55,True,True
+bal_0429.png,conv_question,11,11,11,55,11:55,True,True
+bal_0429.png,describe_style,11,11,11,55,The time is 11:55.,True,True
+bal_0434.png,verbatim_description,11,11,11,55,11:55,True,True
+bal_0434.png,conv_question,11,11,11,55,11:55,True,True
+bal_0434.png,describe_style,11,11,11,55,The time is 11:55.,True,True
+bal_0440.png,verbatim_description,12,8,8,0,08:00,True,True
+bal_0440.png,conv_question,12,8,8,0,08:00,True,True
+bal_0440.png,describe_style,12,8,8,0,The time is 8:00.,True,True
+bal_0441.png,verbatim_description,12,5,5,0,05:00,True,True
+bal_0441.png,conv_question,12,5,5,0,05:00,True,True
+bal_0441.png,describe_style,12,5,5,0,The time is 5:00.,True,True
+bal_0442.png,verbatim_description,12,10,10,0,10:00,True,True
+bal_0442.png,conv_question,12,10,10,0,10:00,True,True
+bal_0442.png,describe_style,12,10,10,0,The time is 10:00.,True,True
+bal_0443.png,verbatim_description,12,1,1,0,01:00,True,True
+bal_0443.png,conv_question,12,1,1,0,01:00,True,True
+bal_0443.png,describe_style,12,1,1,0,The time is 01:00.,True,True
+bal_0444.png,verbatim_description,12,2,2,0,02:00,True,True
+bal_0444.png,conv_question,12,2,2,0,02:00,True,True
+bal_0444.png,describe_style,12,2,2,0,The time is 2:00.,True,True
+bal_0445.png,verbatim_description,12,1,1,0,01:00,True,True
+bal_0445.png,conv_question,12,1,1,0,01:00,True,True
+bal_0445.png,describe_style,12,1,1,0,The time is 01:00.,True,True
+bal_0446.png,verbatim_description,12,11,11,0,11:00,True,True
+bal_0446.png,conv_question,12,11,11,0,11:00,True,True
+bal_0446.png,describe_style,12,11,11,0,The time is 11:00.,True,True
+bal_0447.png,verbatim_description,12,7,7,0,07:00,True,True
+bal_0447.png,conv_question,12,7,7,0,07:00,True,True
+bal_0447.png,describe_style,12,7,7,0,The time is 07:00.,True,True
+bal_0448.png,verbatim_description,12,3,3,0,03:00,True,True
+bal_0448.png,conv_question,12,3,3,0,03:00,True,True
+bal_0448.png,describe_style,12,3,3,0,The time is 3:00.,True,True
+bal_0449.png,verbatim_description,12,1,1,0,01:00,True,True
+bal_0449.png,conv_question,12,1,1,0,01:00,True,True
+bal_0449.png,describe_style,12,1,1,0,The time is 01:00.,True,True
+bal_0450.png,verbatim_description,12,3,3,0,03:00,True,True
+bal_0450.png,conv_question,12,3,3,0,03:00,True,True
+bal_0450.png,describe_style,12,3,3,0,The time is 3:00.,True,True
+bal_0451.png,verbatim_description,12,5,5,0,05:00,True,True
+bal_0451.png,conv_question,12,5,5,0,05:00,True,True
+bal_0451.png,describe_style,12,5,5,0,The time is 5:00.,True,True
+bal_0452.png,verbatim_description,12,5,5,0,05:00,True,True
+bal_0452.png,conv_question,12,5,5,0,05:00,True,True
+bal_0452.png,describe_style,12,5,5,0,The time is 5:00.,True,True
+bal_0453.png,verbatim_description,12,2,2,0,02:00,True,True
+bal_0453.png,conv_question,12,2,2,0,02:00,True,True
+bal_0453.png,describe_style,12,2,2,0,The time is 2:00.,True,True
+bal_0454.png,verbatim_description,12,11,11,0,11:00,True,True
+bal_0454.png,conv_question,12,11,11,0,11:00,True,True
+bal_0454.png,describe_style,12,11,11,0,The time is 11:00.,True,True
+bal_0455.png,verbatim_description,12,1,1,0,01:00,True,True
+bal_0455.png,conv_question,12,1,1,0,01:00,True,True
+bal_0455.png,describe_style,12,1,1,0,The time is 01:00.,True,True
+bal_0456.png,verbatim_description,12,1,1,0,01:00,True,True
+bal_0456.png,conv_question,12,1,1,0,01:00,True,True
+bal_0456.png,describe_style,12,1,1,0,The time is 01:00.,True,True
+bal_0457.png,verbatim_description,12,3,3,0,03:00,True,True
+bal_0457.png,conv_question,12,3,3,0,03:00,True,True
+bal_0457.png,describe_style,12,3,3,0,The time is 3:00.,True,True
+bal_0458.png,verbatim_description,12,4,4,0,04:00,True,True
+bal_0458.png,conv_question,12,4,4,0,04:00,True,True
+bal_0458.png,describe_style,12,4,4,0,The time is 4:00.,True,True
+bal_0459.png,verbatim_description,12,8,8,0,08:00,True,True
+bal_0459.png,conv_question,12,8,8,0,08:00,True,True
+bal_0459.png,describe_style,12,8,8,0,The time is 8:00.,True,True
+bal_0460.png,verbatim_description,12,7,7,0,07:00,True,True
+bal_0460.png,conv_question,12,7,7,0,07:00,True,True
+bal_0460.png,describe_style,12,7,7,0,The time is 07:00.,True,True
+bal_0461.png,verbatim_description,12,10,10,0,10:00,True,True
+bal_0461.png,conv_question,12,10,10,0,10:00,True,True
+bal_0461.png,describe_style,12,10,10,0,The time is 10:00.,True,True
+bal_0462.png,verbatim_description,12,4,4,0,04:00,True,True
+bal_0462.png,conv_question,12,4,4,0,04:00,True,True
+bal_0462.png,describe_style,12,4,4,0,The time is 4:00.,True,True
+bal_0463.png,verbatim_description,12,6,6,0,06:00,True,True
+bal_0463.png,conv_question,12,6,6,0,06:00,True,True
+bal_0463.png,describe_style,12,6,6,0,The time is 6:00.,True,True
+bal_0464.png,verbatim_description,12,7,7,0,07:00,True,True
+bal_0464.png,conv_question,12,7,7,0,07:00,True,True
+bal_0464.png,describe_style,12,7,7,0,The time is 07:00.,True,True
+bal_0465.png,verbatim_description,12,9,9,0,09:00,True,True
+bal_0465.png,conv_question,12,9,9,0,09:00,True,True
+bal_0465.png,describe_style,12,9,9,0,The time is 9:00.,True,True
+bal_0466.png,verbatim_description,12,7,7,0,07:00,True,True
+bal_0466.png,conv_question,12,7,7,0,07:00,True,True
+bal_0466.png,describe_style,12,7,7,0,The time is 07:00.,True,True
+bal_0467.png,verbatim_description,12,8,8,0,08:00,True,True
+bal_0467.png,conv_question,12,8,8,0,08:00,True,True
+bal_0467.png,describe_style,12,8,8,0,The time is 8:00.,True,True
+bal_0468.png,verbatim_description,12,4,4,0,04:00,True,True
+bal_0468.png,conv_question,12,4,4,0,04:00,True,True
+bal_0468.png,describe_style,12,4,4,0,The time is 4:00.,True,True
+bal_0470.png,verbatim_description,12,9,9,0,09:00,True,True
+bal_0470.png,conv_question,12,9,9,0,09:00,True,True
+bal_0470.png,describe_style,12,9,9,0,The time is 9:00.,True,True
+bal_0472.png,verbatim_description,12,6,6,0,06:00,True,True
+bal_0472.png,conv_question,12,6,6,0,06:00,True,True
+bal_0472.png,describe_style,12,6,6,0,The time is 6:00.,True,True
+bal_0473.png,verbatim_description,12,7,7,0,07:00,True,True
+bal_0473.png,conv_question,12,7,7,0,07:00,True,True
+bal_0473.png,describe_style,12,7,7,0,The time is 07:00.,True,True
+bal_0474.png,verbatim_description,12,5,5,0,05:00,True,True
+bal_0474.png,conv_question,12,5,5,0,05:00,True,True
+bal_0474.png,describe_style,12,5,5,0,The time is 5:00.,True,True
+bal_0475.png,verbatim_description,12,3,3,0,03:00,True,True
+bal_0475.png,conv_question,12,3,3,0,03:00,True,True
+bal_0475.png,describe_style,12,3,3,0,The time is 3:00.,True,True
+bal_0476.png,verbatim_description,12,8,8,0,08:00,True,True
+bal_0476.png,conv_question,12,8,8,0,08:00,True,True
+bal_0476.png,describe_style,12,8,8,0,The time is 8:00.,True,True
+bal_0477.png,verbatim_description,12,10,10,0,10:00,True,True
+bal_0477.png,conv_question,12,10,10,0,10:00,True,True
+bal_0477.png,describe_style,12,10,10,0,The time is 10:00.,True,True
+bal_0478.png,verbatim_description,12,7,7,0,07:00,True,True
+bal_0478.png,conv_question,12,7,7,0,07:00,True,True
+bal_0478.png,describe_style,12,7,7,0,The time is 07:00.,True,True
+bal_0479.png,verbatim_description,12,11,11,0,11:00,True,True
+bal_0479.png,conv_question,12,11,11,0,11:00,True,True
+bal_0479.png,describe_style,12,11,11,0,The time is 11:00.,True,True

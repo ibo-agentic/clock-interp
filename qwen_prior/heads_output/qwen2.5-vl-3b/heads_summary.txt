@@ -1,0 +1,21 @@
+=== HEAD-LEVEL SUMMARY ===
+
+16 (layer, head) cell(s) tested; 0 significant after Bonferroni correction (alpha=0.05) -- read the RAW p_value column with that correction in mind, not at face value, given how many cells were tested at once.
+
+ layer  head  rel_depth  to_B(real_b)  to_B(same_min)  to_B(noise)     diff    n        p   p_bonf  sig
+    22     0       0.61          0.0%            0.0%         0.0%    +0.0%    9   1.0000   1.0000     
+    22     1       0.61          0.0%            0.0%         0.0%    +0.0%    9   1.0000   1.0000     
+    22     2       0.61          0.0%            0.0%         0.0%    +0.0%    9   1.0000   1.0000     
+    22     3       0.61          0.0%            0.0%         0.0%    +0.0%    9   1.0000   1.0000     
+    22     4       0.61          0.0%            0.0%         0.0%    +0.0%    9   1.0000   1.0000     
+    22     5       0.61          0.0%            0.0%         0.0%    +0.0%    9   1.0000   1.0000     
+    22     6       0.61          0.0%            0.0%         0.0%    +0.0%    9   1.0000   1.0000     
+    22     7       0.61          0.0%            0.0%         0.0%    +0.0%    9   1.0000   1.0000     
+    22     8       0.61          0.0%            0.0%         0.0%    +0.0%    9   1.0000   1.0000     
+    22     9       0.61          0.0%            0.0%         0.0%    +0.0%    9   1.0000   1.0000     
+
+Concentration -- fraction of the total positive (diff_vs_noise) effect mass carried by the top-K heads (one head dominating vs. spread across many looks very different here):
+  top  1 head(s): nan% of total positive effect (n=0 of 0 heads with a positive effect)
+  top  3 head(s): nan% of total positive effect (n=0 of 0 heads with a positive effect)
+  top  5 head(s): nan% of total positive effect (n=0 of 0 heads with a positive effect)
+  top 10 head(s): nan% of total positive effect (n=0 of 0 heads with a positive effect)

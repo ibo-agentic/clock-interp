@@ -1,0 +1,74 @@
+=== 1. RUN HEALTH ===
+01_q3b_verify_a_e_f_pilot        FAILED rc=1                    2.1 min
+02_q3b_E3d_knockout              FAILED rc=3                    0.3 min
+03_q3b_E3b_E3c_patching          FAILED rc=3                    0.3 min
+04_i2b_verify_a_e_f_pilot        FAILED rc=1                    1.6 min
+05_i2b_E3d_knockout              FAILED rc=3                    0.2 min
+06_i2b_E3b_E3c_patching          FAILED rc=3                    0.2 min
+07_purge_3b_2b_cache             OK                             0.0 min
+08_q7b_verify_a_e_f_pilot        FAILED rc=1                    4.4 min
+09_q7b_E3d_min                   FAILED rc=3                    0.9 min
+10_purge_7b_cache                OK                             0.0 min
+11_text_only_v2_8b_128tok        OK                            27.0 min
+12_conversion_test_8b_128tok     OK                            31.0 min
+13_aggregate_text_only           OK                             0.0 min
+14_aggregate_conversion          OK                             0.0 min
+15_cap_check_8b_128              OK                             0.2 min
+16_i8b_E3e_pilot                 OK                            43.9 min
+
+total wall time: 1.88 h
+
+--- verify gate per model (from step logs; verify.json is only written when the gate code finishes) ---
+qwen2.5-vl-3b: gates reached = [('PASS', 'G1_tokens_and_spans'), ('FAIL', 'G2_teacher_forced_vs_free_generation')];  crash = RuntimeError: indices should be either on cpu or on the same device as the indexed tensor (cuda:1);  verify.json exists = False
+internvl3-2b: gates reached = [('PASS', 'G1_tokens_and_spans'), ('FAIL', 'G2_teacher_forced_vs_free_generation')];  crash = RuntimeError: indices should be either on cpu or on the same device as the indexed tensor (cuda:1);  verify.json exists = False
+qwen2.5-vl-7b: gates reached = [('PASS', 'G1_tokens_and_spans'), ('PASS', 'G2_teacher_forced_vs_free_generation')];  crash = RuntimeError: Expected all tensors to be on the same device, but got index is on cuda:0, different from other tensors on cuda:1 (when checking argument in method wrapper_CUDA_gather);  verify.json exists = False
+-> G3..G9 were never reached for any model (crash inside the G4 logit-lens check). No model has a passing gate.
+
+=== 3. CHECKS BEFORE RESULTS ===
+--- E3e coverage: clocks with BOTH hands exactly right in describe.csv, and how many have an extractable verbatim description ---
+qwen2.5-vl-3b: both-exact=111  verbatim-extractable=111  dropped=0  with-image wrong rate on these=0.550   [offline recomputation with the same regex as mech_e3.py]
+internvl3-2b: both-exact=144  verbatim-extractable=144  dropped=0  with-image wrong rate on these=0.007   [offline recomputation with the same regex as mech_e3.py]
+qwen2.5-vl-7b: both-exact=242  verbatim-extractable=242  dropped=0  with-image wrong rate on these=0.000   [offline recomputation with the same regex as mech_e3.py]
+internvl3-8b: both-exact=216  verbatim-extractable=216  dropped=0  with-image wrong rate on these=0.074   [offline recomputation with the same regex as mech_e3.py]
+n_clocks actually run (only InternVL3-8B ran):
+             variant  n_clocks
+       conv_question       216
+      describe_style       216
+verbatim_description       216
+
+--- text-light pilot (hour in text, minute only in image) ---
+       model           cond   n  minute_acc  hour_acc  unparsed  chance_12_positions  E2_floor_rule_pass_(>=0.15)
+internvl3-8b          blank 432    0.083333  1.000000       0.0             0.083333                         True
+internvl3-8b matching_clock 432    0.750000  0.988426       0.0             0.083333                         True
+Only InternVL3-8B has a pilot; the other three crashed before the pilot.
+
+--- InternVL3-8B at max_new_tokens=128 ---
+                                    file  cap    n  max_tokens  p99  hit_cap  within_1_of_cap  unparsed
+   results/internvl3-8b/text_only_v2.csv  128 2016         128   79        2                4         4
+results/internvl3-8b/conversion_test.csv  128 1728          90   65        0                0         0
+text_only_v2     64 tok   n=2016 parse_ok=0.9618 minute_correct=0.9474
+text_only_v2     128 tok  n=2016 parse_ok=0.9980 minute_correct=0.9836
+conversion_test  64 tok   n=1728 parse_ok=0.9913 minute_correct=0.9740
+conversion_test  128 tok  n=1728 parse_ok=1.0000 minute_correct=0.9826
+                    n  minute_correct  parse_ok
+condition                                      
+blank             432          0.9884       1.0
+matching_clock    432          1.0000       1.0
+mismatched_clock  432          0.9630       1.0
+text_only         432          0.9792       1.0
+
+=== 4. RESULTS (only what was validly run) ===
+Confirmatory tests (E3d for Qwen-3B / InternVL3-2B, E3e verbatim for Qwen-3B, E3a/b/c/f): NOT RUN -- gate failed/crashed.
+InternVL3-8B E3e (prereg lists the 8B among the 'analogous sets'; no confirmatory claim is attached to the 8B):
+                                       0               1                     2
+variant                    conv_question  describe_style  verbatim_description
+n_clocks                             216             216                   216
+wrong_with_image                0.074074        0.074074              0.074074
+wrong_transplant                0.083333        0.828704              0.134259
+paired_diff                     0.009259         0.75463              0.060185
+diff_lo                        -0.041667        0.689815               0.00463
+diff_hi                         0.064815        0.814815               0.12037
+sign_flip_p                     0.858514          0.0001              0.058494
+is_primary                         False           False                  True
+PREREG_verdict_if_primary          mixed           mixed    image_interference
+describe_style exploratory variant: 216/216 replies are long chain-of-thought text (cut off at 128 tokens) -> 'wrong' mostly = unparsed, NOT a language-side result.

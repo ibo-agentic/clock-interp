@@ -1,0 +1,8 @@
+01_q3b_E3e_E3f_pilot             OK                            21.0 min
+02_i2b_E3e_E3f_pilot             OK                            15.3 min
+03_purge_3b_2b_cache             OK                             0.0 min
+04_q7b_E3e_E3f_pilot             OK                            33.0 min
+05_purge_7b_cache                OK                             0.0 min
+
+total wall time: 1.16 h
+MISSING expected files: none

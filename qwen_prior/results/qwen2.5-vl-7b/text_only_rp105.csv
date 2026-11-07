@@ -1,0 +1,16 @@
+case,minute_hand_num,hour_hand_num,correct_answer,raw_answer,correct
+hand_to_time,10,8.0,8:50,08:50,True
+hand_to_time,2,7.0,7:10,07:10,True
+hand_to_time,6,5.0,5:30,17:30,True
+hand_to_time,4,10.0,10:20,10:20,True
+hand_to_time,12,3.0,3:00,03:00,True
+hand_to_time,9,1.0,1:45,01:45,True
+hand_to_time,7,11.0,11:35,11:35,True
+hand_to_time,3,6.0,6:15,06:15,True
+arithmetic,2,,10,10,True
+arithmetic,4,,20,20,True
+arithmetic,6,,30,30,True
+arithmetic,7,,35,35,True
+arithmetic,9,,45,45,True
+arithmetic,10,,50,50,True
+arithmetic,12,,0,0,True

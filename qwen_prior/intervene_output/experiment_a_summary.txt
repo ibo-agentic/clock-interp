@@ -1,0 +1,57 @@
+=== EXPERIMENT A SUMMARY -- TOWARD TRUE MINUTE (activation patching) ===
+
+n pairs: 60
+transformers==5.0.0
+vision-ceiling mechanism: layer0_embed (patches hidden_states[0] at image-token positions -- the same mechanism the decoder-patch sweep above uses; get_image_features interception was attempted and failed --verify on three prior rounds on this transformers version, see README.md)
+
+position_set   best_layer  moved%   shift   chg%  ||   same-min moved% same-min chg%  ||   noise moved% noise chg%
+image_tokens           22   45.0%    0.17 100.0%  ||             10.3%         61.7%  ||          26.7%      98.3%
+final_token            23    3.3%    0.03   3.3%  ||              0.0%          0.0%  ||          18.2%      90.0%
+all_positions          23   45.0%    0.20  98.3%  ||             17.2%         65.0%  ||          33.3%     100.0%
+
+vision-encoder ceiling [mechanism: layer0_embed] (whole visual representation swapped): moved toward B 38.3%, mean shift 0.13, answer changed 96.7%
+
+Read 'moved%' RELATIVE TO ITS OWN same-min/noise columns, not against an assumed 50%:
+when A and B's minutes are far apart (up to 30, the maximum on a 60-minute circle),
+baseline sits near the worst possible starting point, so almost ANY perturbation --
+including pure noise -- has good odds of looking 'closer' by chance. The noise and
+same-minute columns above already reflect that same geometry, so if real_b's numbers
+stay close to noise's at the same layer/position (not clearly higher), and 'chg%' stays
+low across the WHOLE sweep including the vision-encoder ceiling, THAT null result is
+the finding: the angle information is present but the model's answer doesn't use it.
+
+CAUTION -- these 'moved toward TRUE minute' numbers are further confounded on top of the
+chance-level geometry above: the model states the TRUE minute correctly only ~2-3% of
+the time even when looking straight at the source, so 'moved%'/'chg%' here are capped by
+that baseline failure rate regardless of what the patch actually did. See the
+TRANSFER-TO-BASELINE summary below for the metric that isn't confounded this way --
+compare it, not this table, when judging whether the intervention had a real effect.
+
+=== EXPERIMENT A SUMMARY -- TRANSFER TO BASELINE (fixes the true-minute confound) ===
+
+Compares the PATCHED answer to what the model ITSELF says (unpatched) about the patch
+source/target, NOT to its true minute -- well-defined regardless of whether that answer
+is correct, so it isn't capped by how rarely the model states the truth.
+
+Baseline agreement rate per condition (A's and the target's UNPATCHED answers already
+identical -- EXCLUDED from the transfer rates below, since transfer there would be
+trivially 'successful' regardless of what the patch did):
+  real_b        : 3.3% of 60 pairs
+  same_minute   : 45.0% of 60 pairs
+  noise         : 3.3% of 60 pairs
+
+position_set   best_layer  ||  condition      exact%  minute%  hour%  n_usable
+image_tokens           14  ||  real_b          98.3%   100.0%  98.3%        58
+                           ||  same_minute     87.9%    87.9%  97.0%        33
+                           ||  noise            6.9%    27.6%   8.6%        58
+final_token            14  ||  real_b           0.0%    37.9%   5.2%        58
+                           ||  same_minute      0.0%    48.5%  12.1%        33
+                           ||  noise            0.0%    38.2%   5.9%        34
+all_positions          14  ||  real_b          98.3%   100.0%  98.3%        58
+                           ||  same_minute     87.9%    87.9%  97.0%        33
+                           ||  noise            nan%     nan%   nan%         0
+
+vision-encoder ceiling: exact_transfer=100.0%, minute_transfer=100.0%, hour_transfer=100.0% (n_usable=58/58)
+
+As with the true-minute table, compare real_b's numbers to same-minute/noise AT THE SAME
+layer, not in isolation -- that's the actual test of whether B's specific content matters.

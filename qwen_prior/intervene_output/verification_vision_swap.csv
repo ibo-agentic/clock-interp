@@ -1,0 +1,4 @@
+pair,a_file,b_file,vision_method,vision_output_rel_l2_diff,layer0_rel_l2_diff_at_image_tokens,layer1_rel_l2_diff_at_image_tokens,extreme_zero_answer,extreme_zero_answer_changed,extreme_noise_image_answer,extreme_noise_image_answer_changed
+0,probe_0245.png,probe_0041.png,layer0_embed,0.40333110231087516,0.0,0.38322641313135625,03:15,True,01:35,True
+1,probe_0136.png,probe_0006.png,layer0_embed,0.4082664376040948,0.0,0.3831839826567463,,,,
+2,probe_0246.png,probe_0049.png,layer0_embed,0.38533517140689894,0.0,0.3666809905844324,,,,

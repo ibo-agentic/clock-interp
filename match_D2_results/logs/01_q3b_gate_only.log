@@ -1,0 +1,31 @@
+Loading Qwen/Qwen2.5-VL-3B-Instruct in float16 ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+mech_e3: model=qwen2.5-vl-3b layers=36 parts=['verify'] smoke=False  [all timings in the log are measurements of THIS run; planning numbers elsewhere are guesses]
+  [PASS] G1_tokens_and_spans {}
+  wrote results/mech_e3/qwen2.5-vl-3b/verify_g2_trials.csv (100 rows)
+  G2 breakdown by how the model's own prefix relates to the forced gold prefix:
+     prefix_class  n  free_acc  gold_tf_acc  gold_agree  own_agree
+      exact_match 79     0.772        0.747       0.924      0.924
+wrong_hour_padded 21     0.286        0.714       0.571      0.952
+  [info:FAIL] G2_gold_prefix_teacher_forced_vs_free_generation {'agreement': 0.85, 'tf_acc': 0.74, 'free_acc': 0.67, 'n': 100, 'note': 'informational unless --g2_gate gold (see PREREG deviations log)'}
+  [FAIL] G2_own_prefix_teacher_forced_vs_free_generation {'agreement': 0.93, 'tf_acc': 0.66, 'free_acc': 0.67, 'n_usable': 100, 'token_level_exact_match': 0.91, 'note': 'threshold 0.95; the machinery check', 'nocache_loop_eq_cached_free': 0.74, 'own_agree_vs_nocache_loop': 0.88, 'disagreements': {'clear_disagreement': 4, 'near_tie(margin<0.5nat)': 2, 'free_minute_off_the_12_candidate_grid': 1}, 'disagreements_by_prefix_class': {'exact_match': 6, 'wrong_hour_padded': 1}}
+  [PASS] G3_identity_patch_no_change {'max_abs_diff_nats': 0.0}
+  [PASS] G4_logit_lens_final_layer_matches_model {'max_abs_diff_nats': 0.0}
+  [PASS] G8a_eager_forced_on_every_attention_layer {'default': {'sdpa': 36}, 'inside_eager': {'eager': 36}}
+/kaggle/working/run/mech_e3.py:338: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  worst = max(worst, float((torch.log_softmax(ld, -1) - torch.log_softmax(le, -1)).abs().max()))
+  [PASS] G8c_eager_logits_finite_and_close_to_default {'finite_default': True, 'finite_eager': True, 'max_abs_logprob_diff': 0.0488, 'argmax_equal': '10/10'}
+  [info:pass] G10_cached_decode_vs_nocache_forward_logits {'max_abs_logit_diff': 0.039, 'min_argmax_agree': 1.0, 'all_finite': True, 'n': 8, 'note': 'large diffs with finite logits would point at a position/cache bug (e.g. stale rope_deltas); small ones = fp16 noise'}
+  [PASS] G5_empty_block_equals_no_hook {'matches': '50/50'}
+  [PASS] G8_eager_vs_default_attention_agree {'agreement': 1.0}
+  [FAIL] G8b_nocache_loop_vs_adapter_generate_agree {'agreement': 0.72, 'note': 'parsed HH:MM equality; fp16 + different code path, so a small disagreement is expected'}
+  [PASS] G6_guard_rejects_full_prompt_block {}
+  [PASS] G7d_blocked_and_baseline_logprobs_finite {'nonfinite_forwards': 0}
+  [PASS] G7_hooks_fire_on_every_layer {'max_calls_per_forward': 36, 'n_layers': 36}
+  [PASS] G7b_blocking_N_span_changes_logprobs {'changed': '20/20'}
+  [PASS] G7c_empty_block_changes_nothing {'max_abs_diff_nats': 0.0}
+  [PASS] G9_block_activates_during_generation {'activated': '20/20', 'note': "needs >=90% (a model that never writes ':' would silently get no knockout); smoke only logs it"}
+VERIFY GATE FAILED for qwen2.5-vl-3b
+verify took 251s
+GATE FAILED -> not running any experiment part for this model (see verify.json).

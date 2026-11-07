@@ -1,0 +1,68 @@
+Loading OpenGVLab/InternVL3-8B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+
+conversion test [internvl3-8b]:   0%|          | 0/1728 [00:00<?, ?it/s]
+conversion test [internvl3-8b]:   4%|▍         | 65/1728 [01:00<25:43,  1.08it/s]
+conversion test [internvl3-8b]:   5%|▍         | 86/1728 [01:20<25:23,  1.08it/s]
+conversion test [internvl3-8b]:   8%|▊         | 136/1728 [02:00<23:25,  1.13it/s]
+conversion test [internvl3-8b]:   9%|▉         | 159/1728 [02:20<23:04,  1.13it/s]
+conversion test [internvl3-8b]:  12%|█▏        | 207/1728 [03:01<22:00,  1.15it/s]
+conversion test [internvl3-8b]:  13%|█▎        | 227/1728 [03:20<21:43,  1.15it/s]
+conversion test [internvl3-8b]:  16%|█▌        | 278/1728 [04:01<20:50,  1.16it/s]
+conversion test [internvl3-8b]:  17%|█▋        | 299/1728 [04:20<20:32,  1.16it/s]
+conversion test [internvl3-8b]:  20%|██        | 349/1728 [05:01<19:40,  1.17it/s]
+conversion test [internvl3-8b]:  21%|██        | 367/1728 [05:20<19:25,  1.17it/s]
+conversion test [internvl3-8b]:  24%|██▍       | 415/1728 [06:02<19:10,  1.14it/s]
+conversion test [internvl3-8b]:  25%|██▌       | 438/1728 [06:20<18:50,  1.14it/s]
+conversion test [internvl3-8b]:  28%|██▊       | 486/1728 [07:03<17:59,  1.15it/s]
+conversion test [internvl3-8b]:  29%|██▉       | 502/1728 [07:20<17:45,  1.15it/s]
+conversion test [internvl3-8b]:  32%|███▏      | 554/1728 [08:04<17:09,  1.14it/s]
+conversion test [internvl3-8b]:  33%|███▎      | 574/1728 [08:20<16:52,  1.14it/s]
+conversion test [internvl3-8b]:  35%|███▌      | 606/1728 [09:04<17:46,  1.05it/s]
+conversion test [internvl3-8b]:  36%|███▌      | 622/1728 [09:20<17:31,  1.05it/s]
+conversion test [internvl3-8b]:  38%|███▊      | 658/1728 [10:05<18:00,  1.01s/it]
+conversion test [internvl3-8b]:  39%|███▉      | 674/1728 [10:20<17:44,  1.01s/it]
+conversion test [internvl3-8b]:  41%|████      | 707/1728 [11:06<18:12,  1.07s/it]
+conversion test [internvl3-8b]:  42%|████▏     | 723/1728 [11:20<17:55,  1.07s/it]
+conversion test [internvl3-8b]:  44%|████▍     | 767/1728 [12:06<16:48,  1.05s/it]
+conversion test [internvl3-8b]:  45%|████▍     | 777/1728 [12:20<16:38,  1.05s/it]
+conversion test [internvl3-8b]:  47%|████▋     | 818/1728 [13:06<16:28,  1.09s/it]
+conversion test [internvl3-8b]:  48%|████▊     | 828/1728 [13:20<16:17,  1.09s/it]
+conversion test [internvl3-8b]:  51%|█████     | 876/1728 [14:07<15:15,  1.07s/it]
+conversion test [internvl3-8b]:  51%|█████     | 885/1728 [14:20<15:06,  1.07s/it]
+conversion test [internvl3-8b]:  54%|█████▍    | 929/1728 [15:07<14:32,  1.09s/it]
+conversion test [internvl3-8b]:  54%|█████▍    | 936/1728 [15:20<14:25,  1.09s/it]
+conversion test [internvl3-8b]:  57%|█████▋    | 981/1728 [16:08<13:49,  1.11s/it]
+conversion test [internvl3-8b]:  57%|█████▋    | 989/1728 [16:20<13:40,  1.11s/it]
+conversion test [internvl3-8b]:  60%|██████    | 1038/1728 [17:08<12:37,  1.10s/it]
+conversion test [internvl3-8b]:  61%|██████    | 1051/1728 [17:20<12:22,  1.10s/it]
+conversion test [internvl3-8b]:  63%|██████▎   | 1095/1728 [18:09<11:28,  1.09s/it]
+conversion test [internvl3-8b]:  64%|██████▍   | 1109/1728 [18:20<11:13,  1.09s/it]
+conversion test [internvl3-8b]:  68%|██████▊   | 1167/1728 [19:10<09:20,  1.00it/s]
+conversion test [internvl3-8b]:  68%|██████▊   | 1177/1728 [19:20<09:10,  1.00it/s]
+conversion test [internvl3-8b]:  71%|███████▏  | 1232/1728 [20:10<08:04,  1.02it/s]
+conversion test [internvl3-8b]:  73%|███████▎  | 1254/1728 [20:30<07:42,  1.02it/s]
+conversion test [internvl3-8b]:  75%|███████▌  | 1299/1728 [21:10<06:49,  1.05it/s]
+conversion test [internvl3-8b]:  76%|███████▋  | 1318/1728 [21:30<06:30,  1.05it/s]
+conversion test [internvl3-8b]:  79%|███████▉  | 1363/1728 [22:11<05:46,  1.05it/s]
+conversion test [internvl3-8b]:  80%|████████  | 1383/1728 [22:30<05:27,  1.05it/s]
+conversion test [internvl3-8b]:  83%|████████▎ | 1429/1728 [23:11<04:40,  1.07it/s]
+conversion test [internvl3-8b]:  84%|████████▍ | 1450/1728 [23:30<04:20,  1.07it/s]
+conversion test [internvl3-8b]:  87%|████████▋ | 1496/1728 [24:11<03:34,  1.08it/s]
+conversion test [internvl3-8b]:  88%|████████▊ | 1515/1728 [24:30<03:17,  1.08it/s]
+conversion test [internvl3-8b]:  90%|█████████ | 1563/1728 [25:11<02:31,  1.09it/s]
+conversion test [internvl3-8b]:  92%|█████████▏| 1584/1728 [25:30<02:12,  1.09it/s]
+conversion test [internvl3-8b]:  94%|█████████▍| 1631/1728 [26:12<01:28,  1.10it/s]
+conversion test [internvl3-8b]:  95%|█████████▌| 1649/1728 [26:30<01:11,  1.10it/s]
+conversion test [internvl3-8b]:  98%|█████████▊| 1696/1728 [27:12<00:29,  1.09it/s]
+conversion test [internvl3-8b]:  99%|█████████▉| 1716/1728 [27:30<00:10,  1.09it/s]
+conversion test [internvl3-8b]: 100%|██████████| 1728/1728 [27:39<00:00,  1.04it/s]
+
+Saved 1728 generations to 'results/internvl3-8b/conversion_test.csv', config to 'results/internvl3-8b/conversion_test_run_config.json'.
+text_only reproduction vs text_only_v2: CHECKED -- n=432, exact raw match 100.0%, minute_correct agreement 100.0%
+parse_ok: 95.5%
+  blank             minute_correct 84.7% (n=432)
+  matching_clock    minute_correct 100.0% (n=432)
+  mismatched_clock  minute_correct 96.3% (n=432)  matches_image_minute 2.5%
+  text_only         minute_correct 94.0% (n=432)

@@ -1,0 +1,433 @@
+filename,variant,N,H,true_hour,true_minute,raw,ok,with_image_ok
+bal_0040.png,verbatim_description,2,4,4,10,4:10,True,True
+bal_0040.png,conv_question,2,4,4,10,4:10,True,True
+bal_0040.png,describe_style,2,4,4,10,The time is 4:20.,False,True
+bal_0041.png,verbatim_description,2,4,4,10,4:10,True,True
+bal_0041.png,conv_question,2,4,4,10,4:10,True,True
+bal_0041.png,describe_style,2,4,4,10,The time is 4:20.,False,True
+bal_0042.png,verbatim_description,2,9,9,10,2:45,False,True
+bal_0042.png,conv_question,2,9,9,10,9:30,False,True
+bal_0042.png,describe_style,2,9,9,10,The time is 9:30.,False,True
+bal_0043.png,verbatim_description,2,4,4,10,4:10,True,True
+bal_0043.png,conv_question,2,4,4,10,4:10,True,True
+bal_0043.png,describe_style,2,4,4,10,The time is 4:20.,False,True
+bal_0044.png,verbatim_description,2,1,1,10,01:02,False,True
+bal_0044.png,conv_question,2,1,1,10,01:02,False,True
+bal_0044.png,describe_style,2,1,1,10,The time is 1:05.,False,True
+bal_0046.png,verbatim_description,2,1,1,10,01:02,False,True
+bal_0046.png,conv_question,2,1,1,10,01:02,False,True
+bal_0046.png,describe_style,2,1,1,10,The time is 1:05.,False,True
+bal_0047.png,verbatim_description,2,1,1,10,01:02,False,True
+bal_0047.png,conv_question,2,1,1,10,01:02,False,True
+bal_0047.png,describe_style,2,1,1,10,The time is 1:05.,False,True
+bal_0048.png,verbatim_description,2,7,7,10,7:14,False,True
+bal_0048.png,conv_question,2,7,7,10,7:14,False,True
+bal_0048.png,describe_style,2,7,7,10,The time is 7:15.,False,True
+bal_0049.png,verbatim_description,2,8,8,10,8:16,False,True
+bal_0049.png,conv_question,2,8,8,10,8:16,False,True
+bal_0049.png,describe_style,2,8,8,10,The time is 8:12.,False,True
+bal_0050.png,verbatim_description,2,8,8,10,8:16,False,True
+bal_0050.png,conv_question,2,8,8,10,8:16,False,True
+bal_0050.png,describe_style,2,8,8,10,The time is 8:12.,False,True
+bal_0051.png,verbatim_description,2,11,11,10,11:10,True,True
+bal_0051.png,conv_question,2,11,11,10,11:10,True,True
+bal_0051.png,describe_style,2,11,11,10,The time is 11:15.,False,True
+bal_0052.png,verbatim_description,2,10,10,10,10:10,True,True
+bal_0052.png,conv_question,2,10,10,10,10:20,False,True
+bal_0052.png,describe_style,2,10,10,10,The time is 10:20.,False,True
+bal_0053.png,verbatim_description,2,4,4,10,4:10,True,True
+bal_0053.png,conv_question,2,4,4,10,4:10,True,True
+bal_0053.png,describe_style,2,4,4,10,The time is 4:20.,False,True
+bal_0054.png,verbatim_description,2,1,1,10,01:02,False,True
+bal_0054.png,conv_question,2,1,1,10,01:02,False,True
+bal_0054.png,describe_style,2,1,1,10,The time is 1:05.,False,True
+bal_0055.png,verbatim_description,2,8,8,10,8:16,False,True
+bal_0055.png,conv_question,2,8,8,10,8:16,False,True
+bal_0055.png,describe_style,2,8,8,10,The time is 8:12.,False,True
+bal_0056.png,verbatim_description,2,8,8,10,8:16,False,True
+bal_0056.png,conv_question,2,8,8,10,8:16,False,True
+bal_0056.png,describe_style,2,8,8,10,The time is 8:12.,False,True
+bal_0057.png,verbatim_description,2,8,8,10,8:16,False,True
+bal_0057.png,conv_question,2,8,8,10,8:16,False,True
+bal_0057.png,describe_style,2,8,8,10,The time is 8:12.,False,True
+bal_0058.png,verbatim_description,2,1,1,10,01:02,False,True
+bal_0058.png,conv_question,2,1,1,10,01:02,False,True
+bal_0058.png,describe_style,2,1,1,10,The time is 1:05.,False,True
+bal_0059.png,verbatim_description,2,6,6,10,6:12,False,True
+bal_0059.png,conv_question,2,6,6,10,6:30,False,True
+bal_0059.png,describe_style,2,6,6,10,The time is 6:30.,False,True
+bal_0060.png,verbatim_description,2,5,5,10,2:25,False,True
+bal_0060.png,conv_question,2,5,5,10,2:25,False,True
+bal_0060.png,describe_style,2,5,5,10,The time is 5:30.,False,True
+bal_0061.png,verbatim_description,2,4,4,10,4:10,True,True
+bal_0061.png,conv_question,2,4,4,10,4:10,True,True
+bal_0061.png,describe_style,2,4,4,10,The time is 4:20.,False,True
+bal_0063.png,verbatim_description,2,4,4,10,4:10,True,True
+bal_0063.png,conv_question,2,4,4,10,4:10,True,True
+bal_0063.png,describe_style,2,4,4,10,The time is 4:20.,False,True
+bal_0064.png,verbatim_description,2,12,12,10,12:00,False,True
+bal_0064.png,conv_question,2,12,12,10,12:00,False,True
+bal_0064.png,describe_style,2,12,12,10,The time is 12:00.,False,True
+bal_0065.png,verbatim_description,2,12,12,10,12:00,False,True
+bal_0065.png,conv_question,2,12,12,10,12:00,False,True
+bal_0065.png,describe_style,2,12,12,10,The time is 12:00.,False,True
+bal_0067.png,verbatim_description,2,4,4,10,4:10,True,True
+bal_0067.png,conv_question,2,4,4,10,4:10,True,True
+bal_0067.png,describe_style,2,4,4,10,The time is 4:20.,False,True
+bal_0068.png,verbatim_description,2,12,12,10,12:00,False,True
+bal_0068.png,conv_question,2,12,12,10,12:00,False,True
+bal_0068.png,describe_style,2,12,12,10,The time is 12:00.,False,True
+bal_0069.png,verbatim_description,2,5,5,10,2:25,False,True
+bal_0069.png,conv_question,2,5,5,10,2:25,False,True
+bal_0069.png,describe_style,2,5,5,10,The time is 5:30.,False,True
+bal_0070.png,verbatim_description,2,4,4,10,4:10,True,True
+bal_0070.png,conv_question,2,4,4,10,4:10,True,True
+bal_0070.png,describe_style,2,4,4,10,The time is 4:20.,False,True
+bal_0072.png,verbatim_description,2,12,12,10,12:00,False,True
+bal_0072.png,conv_question,2,12,12,10,12:00,False,True
+bal_0072.png,describe_style,2,12,12,10,The time is 12:00.,False,True
+bal_0073.png,verbatim_description,2,10,10,10,10:10,True,True
+bal_0073.png,conv_question,2,10,10,10,10:20,False,True
+bal_0073.png,describe_style,2,10,10,10,The time is 10:20.,False,True
+bal_0074.png,verbatim_description,2,6,6,10,6:12,False,True
+bal_0074.png,conv_question,2,6,6,10,6:30,False,True
+bal_0074.png,describe_style,2,6,6,10,The time is 6:30.,False,True
+bal_0075.png,verbatim_description,2,10,10,10,10:10,True,True
+bal_0075.png,conv_question,2,10,10,10,10:20,False,True
+bal_0075.png,describe_style,2,10,10,10,The time is 10:20.,False,True
+bal_0077.png,verbatim_description,2,3,3,10,3:05,False,True
+bal_0077.png,conv_question,2,3,3,10,3:15,False,True
+bal_0077.png,describe_style,2,3,3,10,The time is 3:15.,False,True
+bal_0078.png,verbatim_description,2,4,4,10,4:10,True,True
+bal_0078.png,conv_question,2,4,4,10,4:10,True,True
+bal_0078.png,describe_style,2,4,4,10,The time is 4:20.,False,True
+bal_0079.png,verbatim_description,2,3,3,10,3:05,False,True
+bal_0079.png,conv_question,2,3,3,10,3:15,False,True
+bal_0079.png,describe_style,2,3,3,10,The time is 3:15.,False,True
+bal_0081.png,verbatim_description,3,6,6,15,12:30,False,True
+bal_0081.png,conv_question,3,6,6,15,6:15,True,True
+bal_0081.png,describe_style,3,6,6,15,The time is 6:30.,False,True
+bal_0082.png,verbatim_description,3,8,8,15,8:15,True,True
+bal_0082.png,conv_question,3,8,8,15,8:15,True,True
+bal_0082.png,describe_style,3,8,8,15,The time is 8:15.,True,True
+bal_0083.png,verbatim_description,3,4,4,15,4:15,True,True
+bal_0083.png,conv_question,3,4,4,15,4:15,True,True
+bal_0083.png,describe_style,3,4,4,15,The time is 4:20.,False,True
+bal_0084.png,verbatim_description,3,12,12,15,12:00,False,True
+bal_0084.png,conv_question,3,12,12,15,12:00,False,True
+bal_0084.png,describe_style,3,12,12,15,The time is 12:15.,True,True
+bal_0085.png,verbatim_description,3,11,11,15,11:15,True,True
+bal_0085.png,conv_question,3,11,11,15,11:15,True,True
+bal_0085.png,describe_style,3,11,11,15,The time is 11:15.,True,True
+bal_0086.png,verbatim_description,3,1,1,15,3:05,False,True
+bal_0086.png,conv_question,3,1,1,15,3:05,False,True
+bal_0086.png,describe_style,3,1,1,15,The time is 3:05.,False,True
+bal_0087.png,verbatim_description,3,12,12,15,12:00,False,True
+bal_0087.png,conv_question,3,12,12,15,12:00,False,True
+bal_0087.png,describe_style,3,12,12,15,The time is 12:15.,True,True
+bal_0090.png,verbatim_description,3,4,4,15,4:15,True,True
+bal_0090.png,conv_question,3,4,4,15,4:15,True,True
+bal_0090.png,describe_style,3,4,4,15,The time is 4:20.,False,True
+bal_0091.png,verbatim_description,3,5,5,15,5:15,True,True
+bal_0091.png,conv_question,3,5,5,15,5:15,True,True
+bal_0091.png,describe_style,3,5,5,15,The time is 5:15.,True,True
+bal_0092.png,verbatim_description,3,6,6,15,12:30,False,True
+bal_0092.png,conv_question,3,6,6,15,6:15,True,True
+bal_0092.png,describe_style,3,6,6,15,The time is 6:30.,False,True
+bal_0093.png,verbatim_description,3,12,12,15,12:00,False,True
+bal_0093.png,conv_question,3,12,12,15,12:00,False,True
+bal_0093.png,describe_style,3,12,12,15,The time is 12:15.,True,True
+bal_0094.png,verbatim_description,3,4,4,15,4:15,True,True
+bal_0094.png,conv_question,3,4,4,15,4:15,True,True
+bal_0094.png,describe_style,3,4,4,15,The time is 4:20.,False,True
+bal_0095.png,verbatim_description,3,1,1,15,3:05,False,True
+bal_0095.png,conv_question,3,1,1,15,3:05,False,True
+bal_0095.png,describe_style,3,1,1,15,The time is 3:05.,False,True
+bal_0096.png,verbatim_description,3,5,5,15,5:15,True,True
+bal_0096.png,conv_question,3,5,5,15,5:15,True,True
+bal_0096.png,describe_style,3,5,5,15,The time is 5:15.,True,True
+bal_0097.png,verbatim_description,3,12,12,15,12:00,False,True
+bal_0097.png,conv_question,3,12,12,15,12:00,False,True
+bal_0097.png,describe_style,3,12,12,15,The time is 12:15.,True,True
+bal_0098.png,verbatim_description,3,9,9,15,9:30,False,True
+bal_0098.png,conv_question,3,9,9,15,9:30,False,True
+bal_0098.png,describe_style,3,9,9,15,The time is 9:15.,True,True
+bal_0099.png,verbatim_description,3,11,11,15,11:15,True,True
+bal_0099.png,conv_question,3,11,11,15,11:15,True,True
+bal_0099.png,describe_style,3,11,11,15,The time is 11:15.,True,True
+bal_0100.png,verbatim_description,3,11,11,15,11:15,True,True
+bal_0100.png,conv_question,3,11,11,15,11:15,True,True
+bal_0100.png,describe_style,3,11,11,15,The time is 11:15.,True,True
+bal_0101.png,verbatim_description,3,7,7,15,7:15,True,True
+bal_0101.png,conv_question,3,7,7,15,7:15,True,True
+bal_0101.png,describe_style,3,7,7,15,The time is 7:30.,False,True
+bal_0102.png,verbatim_description,3,12,12,15,12:00,False,True
+bal_0102.png,conv_question,3,12,12,15,12:00,False,True
+bal_0102.png,describe_style,3,12,12,15,The time is 12:15.,True,True
+bal_0103.png,verbatim_description,3,8,8,15,8:15,True,True
+bal_0103.png,conv_question,3,8,8,15,8:15,True,True
+bal_0103.png,describe_style,3,8,8,15,The time is 8:15.,True,True
+bal_0105.png,verbatim_description,3,8,8,15,8:15,True,True
+bal_0105.png,conv_question,3,8,8,15,8:15,True,True
+bal_0105.png,describe_style,3,8,8,15,The time is 8:15.,True,True
+bal_0106.png,verbatim_description,3,4,4,15,4:15,True,True
+bal_0106.png,conv_question,3,4,4,15,4:15,True,True
+bal_0106.png,describe_style,3,4,4,15,The time is 4:20.,False,True
+bal_0107.png,verbatim_description,3,9,9,15,9:30,False,True
+bal_0107.png,conv_question,3,9,9,15,9:30,False,True
+bal_0107.png,describe_style,3,9,9,15,The time is 9:15.,True,True
+bal_0108.png,verbatim_description,3,7,7,15,7:15,True,True
+bal_0108.png,conv_question,3,7,7,15,7:15,True,True
+bal_0108.png,describe_style,3,7,7,15,The time is 7:30.,False,True
+bal_0109.png,verbatim_description,3,7,7,15,7:15,True,True
+bal_0109.png,conv_question,3,7,7,15,7:15,True,True
+bal_0109.png,describe_style,3,7,7,15,The time is 7:30.,False,True
+bal_0110.png,verbatim_description,3,6,6,15,12:30,False,True
+bal_0110.png,conv_question,3,6,6,15,6:15,True,True
+bal_0110.png,describe_style,3,6,6,15,The time is 6:30.,False,True
+bal_0111.png,verbatim_description,3,7,7,15,7:15,True,True
+bal_0111.png,conv_question,3,7,7,15,7:15,True,True
+bal_0111.png,describe_style,3,7,7,15,The time is 7:30.,False,True
+bal_0112.png,verbatim_description,3,6,6,15,12:30,False,True
+bal_0112.png,conv_question,3,6,6,15,6:15,True,True
+bal_0112.png,describe_style,3,6,6,15,The time is 6:30.,False,True
+bal_0113.png,verbatim_description,3,12,12,15,12:00,False,True
+bal_0113.png,conv_question,3,12,12,15,12:00,False,True
+bal_0113.png,describe_style,3,12,12,15,The time is 12:15.,True,True
+bal_0114.png,verbatim_description,3,8,8,15,8:15,True,True
+bal_0114.png,conv_question,3,8,8,15,8:15,True,True
+bal_0114.png,describe_style,3,8,8,15,The time is 8:15.,True,True
+bal_0115.png,verbatim_description,3,2,2,15,2:15,True,True
+bal_0115.png,conv_question,3,2,2,15,2:15,True,True
+bal_0115.png,describe_style,3,2,2,15,The time is 2:15.,True,True
+bal_0116.png,verbatim_description,3,11,11,15,11:15,True,True
+bal_0116.png,conv_question,3,11,11,15,11:15,True,True
+bal_0116.png,describe_style,3,11,11,15,The time is 11:15.,True,True
+bal_0117.png,verbatim_description,3,6,6,15,12:30,False,True
+bal_0117.png,conv_question,3,6,6,15,6:15,True,True
+bal_0117.png,describe_style,3,6,6,15,The time is 6:30.,False,True
+bal_0118.png,verbatim_description,3,5,5,15,5:15,True,True
+bal_0118.png,conv_question,3,5,5,15,5:15,True,True
+bal_0118.png,describe_style,3,5,5,15,The time is 5:15.,True,True
+bal_0119.png,verbatim_description,3,5,5,15,5:15,True,True
+bal_0119.png,conv_question,3,5,5,15,5:15,True,True
+bal_0119.png,describe_style,3,5,5,15,The time is 5:15.,True,True
+bal_0123.png,verbatim_description,4,1,1,20,04:01,False,True
+bal_0123.png,conv_question,4,1,1,20,4:05,False,True
+bal_0123.png,describe_style,4,1,1,20,The time is 4:05.,False,True
+bal_0125.png,verbatim_description,4,3,3,20,3:20,True,True
+bal_0125.png,conv_question,4,3,3,20,3:15,False,True
+bal_0125.png,describe_style,4,3,3,20,The time is 3:20.,True,True
+bal_0127.png,verbatim_description,4,9,9,20,9:20,True,True
+bal_0127.png,conv_question,4,9,9,20,9:45,False,True
+bal_0127.png,describe_style,4,9,9,20,The time is 9:45.,False,True
+bal_0128.png,verbatim_description,4,3,3,20,3:20,True,True
+bal_0128.png,conv_question,4,3,3,20,3:15,False,True
+bal_0128.png,describe_style,4,3,3,20,The time is 3:20.,True,True
+bal_0129.png,verbatim_description,4,12,12,20,12:00,False,True
+bal_0129.png,conv_question,4,12,12,20,12:00,False,True
+bal_0129.png,describe_style,4,12,12,20,The time is 12:20.,True,True
+bal_0131.png,verbatim_description,4,5,5,20,5:20,True,True
+bal_0131.png,conv_question,4,5,5,20,4:25,False,True
+bal_0131.png,describe_style,4,5,5,20,The time is 5:20.,True,True
+bal_0132.png,verbatim_description,4,2,2,20,2:20,True,True
+bal_0132.png,conv_question,4,2,2,20,2:08,False,True
+bal_0132.png,describe_style,4,2,2,20,The time is 2:20.,True,True
+bal_0135.png,verbatim_description,4,2,2,20,2:20,True,True
+bal_0135.png,conv_question,4,2,2,20,2:08,False,True
+bal_0135.png,describe_style,4,2,2,20,The time is 2:20.,True,True
+bal_0136.png,verbatim_description,4,6,6,20,12:30,False,True
+bal_0136.png,conv_question,4,6,6,20,12:30,False,True
+bal_0136.png,describe_style,4,6,6,20,The time is 6:24.,False,True
+bal_0137.png,verbatim_description,4,2,2,20,2:20,True,True
+bal_0137.png,conv_question,4,2,2,20,2:08,False,True
+bal_0137.png,describe_style,4,2,2,20,The time is 2:20.,True,True
+bal_0140.png,verbatim_description,4,9,9,20,9:20,True,True
+bal_0140.png,conv_question,4,9,9,20,9:45,False,True
+bal_0140.png,describe_style,4,9,9,20,The time is 9:45.,False,True
+bal_0142.png,verbatim_description,4,6,6,20,12:30,False,True
+bal_0142.png,conv_question,4,6,6,20,12:30,False,True
+bal_0142.png,describe_style,4,6,6,20,The time is 6:24.,False,True
+bal_0145.png,verbatim_description,4,6,6,20,12:30,False,True
+bal_0145.png,conv_question,4,6,6,20,12:30,False,True
+bal_0145.png,describe_style,4,6,6,20,The time is 6:24.,False,True
+bal_0146.png,verbatim_description,4,5,5,20,5:20,True,True
+bal_0146.png,conv_question,4,5,5,20,4:25,False,True
+bal_0146.png,describe_style,4,5,5,20,The time is 5:20.,True,True
+bal_0147.png,verbatim_description,4,12,12,20,12:00,False,True
+bal_0147.png,conv_question,4,12,12,20,12:00,False,True
+bal_0147.png,describe_style,4,12,12,20,The time is 12:20.,True,True
+bal_0149.png,verbatim_description,4,12,12,20,12:00,False,True
+bal_0149.png,conv_question,4,12,12,20,12:00,False,True
+bal_0149.png,describe_style,4,12,12,20,The time is 12:20.,True,True
+bal_0151.png,verbatim_description,4,9,9,20,9:20,True,True
+bal_0151.png,conv_question,4,9,9,20,9:45,False,True
+bal_0151.png,describe_style,4,9,9,20,The time is 9:45.,False,True
+bal_0152.png,verbatim_description,4,2,2,20,2:20,True,True
+bal_0152.png,conv_question,4,2,2,20,2:08,False,True
+bal_0152.png,describe_style,4,2,2,20,The time is 2:20.,True,True
+bal_0153.png,verbatim_description,4,6,6,20,12:30,False,True
+bal_0153.png,conv_question,4,6,6,20,12:30,False,True
+bal_0153.png,describe_style,4,6,6,20,The time is 6:24.,False,True
+bal_0154.png,verbatim_description,4,6,6,20,12:30,False,True
+bal_0154.png,conv_question,4,6,6,20,12:30,False,True
+bal_0154.png,describe_style,4,6,6,20,The time is 6:24.,False,True
+bal_0155.png,verbatim_description,4,12,12,20,12:00,False,True
+bal_0155.png,conv_question,4,12,12,20,12:00,False,True
+bal_0155.png,describe_style,4,12,12,20,The time is 12:20.,True,True
+bal_0156.png,verbatim_description,4,9,9,20,9:20,True,True
+bal_0156.png,conv_question,4,9,9,20,9:45,False,True
+bal_0156.png,describe_style,4,9,9,20,The time is 9:45.,False,True
+bal_0162.png,verbatim_description,5,8,8,25,8:40,False,True
+bal_0162.png,conv_question,5,8,8,25,8:40,False,True
+bal_0162.png,describe_style,5,8,8,25,The time is 8:40.,False,True
+bal_0163.png,verbatim_description,5,6,6,25,12:30,False,True
+bal_0163.png,conv_question,5,6,6,25,5:30,False,True
+bal_0163.png,describe_style,5,6,6,25,The time is 6:30.,False,True
+bal_0167.png,verbatim_description,5,12,12,25,12:00,False,True
+bal_0167.png,conv_question,5,12,12,25,12:00,False,True
+bal_0167.png,describe_style,5,12,12,25,The time is 12:00.,False,True
+bal_0168.png,verbatim_description,5,12,12,25,12:00,False,True
+bal_0168.png,conv_question,5,12,12,25,12:00,False,True
+bal_0168.png,describe_style,5,12,12,25,The time is 12:00.,False,True
+bal_0171.png,verbatim_description,5,6,6,25,12:30,False,True
+bal_0171.png,conv_question,5,6,6,25,5:30,False,True
+bal_0171.png,describe_style,5,6,6,25,The time is 6:30.,False,True
+bal_0172.png,verbatim_description,5,4,4,25,4:25,True,True
+bal_0172.png,conv_question,5,4,4,25,4:20,False,True
+bal_0172.png,describe_style,5,4,4,25,The time is 4:25.,True,True
+bal_0174.png,verbatim_description,5,6,6,25,12:30,False,True
+bal_0174.png,conv_question,5,6,6,25,5:30,False,True
+bal_0174.png,describe_style,5,6,6,25,The time is 6:30.,False,True
+bal_0175.png,verbatim_description,5,8,8,25,8:40,False,True
+bal_0175.png,conv_question,5,8,8,25,8:40,False,True
+bal_0175.png,describe_style,5,8,8,25,The time is 8:40.,False,True
+bal_0179.png,verbatim_description,5,12,12,25,12:00,False,True
+bal_0179.png,conv_question,5,12,12,25,12:00,False,True
+bal_0179.png,describe_style,5,12,12,25,The time is 12:00.,False,True
+bal_0185.png,verbatim_description,5,8,8,25,8:40,False,True
+bal_0185.png,conv_question,5,8,8,25,8:40,False,True
+bal_0185.png,describe_style,5,8,8,25,The time is 8:40.,False,True
+bal_0190.png,verbatim_description,5,6,6,25,12:30,False,True
+bal_0190.png,conv_question,5,6,6,25,5:30,False,True
+bal_0190.png,describe_style,5,6,6,25,The time is 6:30.,False,True
+bal_0191.png,verbatim_description,5,12,12,25,12:00,False,True
+bal_0191.png,conv_question,5,12,12,25,12:00,False,True
+bal_0191.png,describe_style,5,12,12,25,The time is 12:00.,False,True
+bal_0198.png,verbatim_description,5,6,6,25,12:30,False,True
+bal_0198.png,conv_question,5,6,6,25,5:30,False,True
+bal_0198.png,describe_style,5,6,6,25,The time is 6:30.,False,True
+bal_0199.png,verbatim_description,5,4,4,25,4:25,True,True
+bal_0199.png,conv_question,5,4,4,25,4:20,False,True
+bal_0199.png,describe_style,5,4,4,25,The time is 4:25.,True,True
+bal_0240.png,verbatim_description,7,5,5,35,7:25,False,True
+bal_0240.png,conv_question,7,5,5,35,7:25,False,True
+bal_0240.png,describe_style,7,5,5,35,The time is 7:25.,False,True
+bal_0257.png,verbatim_description,7,5,5,35,7:25,False,True
+bal_0257.png,conv_question,7,5,5,35,7:25,False,True
+bal_0257.png,describe_style,7,5,5,35,The time is 7:25.,False,True
+bal_0270.png,verbatim_description,7,5,5,35,7:25,False,True
+bal_0270.png,conv_question,7,5,5,35,7:25,False,True
+bal_0270.png,describe_style,7,5,5,35,The time is 7:25.,False,True
+bal_0274.png,verbatim_description,7,6,6,35,7:30,False,False
+bal_0274.png,conv_question,7,6,6,35,7:30,False,False
+bal_0274.png,describe_style,7,6,6,35,The time is 6:35.,True,False
+bal_0276.png,verbatim_description,7,5,5,35,7:25,False,True
+bal_0276.png,conv_question,7,5,5,35,7:25,False,True
+bal_0276.png,describe_style,7,5,5,35,The time is 7:25.,False,True
+bal_0278.png,verbatim_description,7,5,5,35,7:25,False,True
+bal_0278.png,conv_question,7,5,5,35,7:25,False,True
+bal_0278.png,describe_style,7,5,5,35,The time is 7:25.,False,True
+bal_0283.png,verbatim_description,8,6,6,40,8:30,False,True
+bal_0283.png,conv_question,8,6,6,40,8:30,False,True
+bal_0283.png,describe_style,8,6,6,40,The time is 8:30.,False,True
+bal_0288.png,verbatim_description,8,6,6,40,8:30,False,True
+bal_0288.png,conv_question,8,6,6,40,8:30,False,True
+bal_0288.png,describe_style,8,6,6,40,The time is 8:30.,False,True
+bal_0291.png,verbatim_description,8,6,6,40,8:30,False,True
+bal_0291.png,conv_question,8,6,6,40,8:30,False,True
+bal_0291.png,describe_style,8,6,6,40,The time is 8:30.,False,True
+bal_0292.png,verbatim_description,8,6,6,40,8:30,False,True
+bal_0292.png,conv_question,8,6,6,40,8:30,False,True
+bal_0292.png,describe_style,8,6,6,40,The time is 8:30.,False,True
+bal_0306.png,verbatim_description,8,6,6,40,8:30,False,True
+bal_0306.png,conv_question,8,6,6,40,8:30,False,True
+bal_0306.png,describe_style,8,6,6,40,The time is 8:30.,False,True
+bal_0313.png,verbatim_description,8,6,6,40,8:30,False,True
+bal_0313.png,conv_question,8,6,6,40,8:30,False,True
+bal_0313.png,describe_style,8,6,6,40,The time is 8:30.,False,True
+bal_0334.png,verbatim_description,9,8,8,45,7:40,False,True
+bal_0334.png,conv_question,9,8,8,45,8:45,True,True
+bal_0334.png,describe_style,9,8,8,45,The time is 8:45.,True,True
+bal_0336.png,verbatim_description,9,8,8,45,7:40,False,True
+bal_0336.png,conv_question,9,8,8,45,8:45,True,True
+bal_0336.png,describe_style,9,8,8,45,The time is 8:45.,True,True
+bal_0339.png,verbatim_description,9,8,8,45,7:40,False,True
+bal_0339.png,conv_question,9,8,8,45,8:45,True,True
+bal_0339.png,describe_style,9,8,8,45,The time is 8:45.,True,True
+bal_0353.png,verbatim_description,9,8,8,45,7:40,False,True
+bal_0353.png,conv_question,9,8,8,45,8:45,True,True
+bal_0353.png,describe_style,9,8,8,45,The time is 8:45.,True,True
+bal_0361.png,verbatim_description,10,11,11,50,10:55,False,True
+bal_0361.png,conv_question,10,11,11,50,11:55,False,True
+bal_0361.png,describe_style,10,11,11,50,The time is 11:50.,True,True
+bal_0377.png,verbatim_description,10,11,11,50,10:55,False,True
+bal_0377.png,conv_question,10,11,11,50,11:55,False,True
+bal_0377.png,describe_style,10,11,11,50,The time is 11:50.,True,True
+bal_0381.png,verbatim_description,10,11,11,50,10:55,False,True
+bal_0381.png,conv_question,10,11,11,50,11:55,False,True
+bal_0381.png,describe_style,10,11,11,50,The time is 11:50.,True,True
+bal_0383.png,verbatim_description,10,11,11,50,10:55,False,True
+bal_0383.png,conv_question,10,11,11,50,11:55,False,True
+bal_0383.png,describe_style,10,11,11,50,The time is 11:50.,True,True
+bal_0443.png,verbatim_description,12,1,1,0,12:01,False,True
+bal_0443.png,conv_question,12,1,1,0,12:01,False,True
+bal_0443.png,describe_style,12,1,1,0,The time is 12:01.,False,True
+bal_0445.png,verbatim_description,12,1,1,0,12:01,False,True
+bal_0445.png,conv_question,12,1,1,0,12:01,False,True
+bal_0445.png,describe_style,12,1,1,0,The time is 12:01.,False,True
+bal_0447.png,verbatim_description,12,7,7,0,7:45,False,True
+bal_0447.png,conv_question,12,7,7,0,7:45,False,True
+bal_0447.png,describe_style,12,7,7,0,The time is 7:00.,True,True
+bal_0448.png,verbatim_description,12,3,3,0,3:15,False,True
+bal_0448.png,conv_question,12,3,3,0,3:15,False,True
+bal_0448.png,describe_style,12,3,3,0,The time is 3:00.,True,True
+bal_0449.png,verbatim_description,12,1,1,0,12:01,False,True
+bal_0449.png,conv_question,12,1,1,0,12:01,False,True
+bal_0449.png,describe_style,12,1,1,0,The time is 12:01.,False,True
+bal_0450.png,verbatim_description,12,3,3,0,3:15,False,True
+bal_0450.png,conv_question,12,3,3,0,3:15,False,True
+bal_0450.png,describe_style,12,3,3,0,The time is 3:00.,True,True
+bal_0455.png,verbatim_description,12,1,1,0,12:01,False,True
+bal_0455.png,conv_question,12,1,1,0,12:01,False,True
+bal_0455.png,describe_style,12,1,1,0,The time is 12:01.,False,True
+bal_0456.png,verbatim_description,12,1,1,0,12:01,False,True
+bal_0456.png,conv_question,12,1,1,0,12:01,False,True
+bal_0456.png,describe_style,12,1,1,0,The time is 12:01.,False,True
+bal_0457.png,verbatim_description,12,3,3,0,3:15,False,True
+bal_0457.png,conv_question,12,3,3,0,3:15,False,True
+bal_0457.png,describe_style,12,3,3,0,The time is 3:00.,True,True
+bal_0460.png,verbatim_description,12,7,7,0,7:45,False,True
+bal_0460.png,conv_question,12,7,7,0,7:45,False,True
+bal_0460.png,describe_style,12,7,7,0,The time is 7:00.,True,True
+bal_0463.png,verbatim_description,12,6,6,0,12:30,False,True
+bal_0463.png,conv_question,12,6,6,0,12:30,False,True
+bal_0463.png,describe_style,12,6,6,0,The time is 6:00.,True,True
+bal_0464.png,verbatim_description,12,7,7,0,7:45,False,True
+bal_0464.png,conv_question,12,7,7,0,7:45,False,True
+bal_0464.png,describe_style,12,7,7,0,The time is 7:00.,True,True
+bal_0466.png,verbatim_description,12,7,7,0,7:45,False,True
+bal_0466.png,conv_question,12,7,7,0,7:45,False,True
+bal_0466.png,describe_style,12,7,7,0,The time is 7:00.,True,True
+bal_0472.png,verbatim_description,12,6,6,0,12:30,False,True
+bal_0472.png,conv_question,12,6,6,0,12:30,False,True
+bal_0472.png,describe_style,12,6,6,0,The time is 6:00.,True,True
+bal_0473.png,verbatim_description,12,7,7,0,7:45,False,True
+bal_0473.png,conv_question,12,7,7,0,7:45,False,True
+bal_0473.png,describe_style,12,7,7,0,The time is 7:00.,True,True
+bal_0475.png,verbatim_description,12,3,3,0,3:15,False,True
+bal_0475.png,conv_question,12,3,3,0,3:15,False,True
+bal_0475.png,describe_style,12,3,3,0,The time is 3:00.,True,True
+bal_0478.png,verbatim_description,12,7,7,0,7:45,False,True
+bal_0478.png,conv_question,12,7,7,0,7:45,False,True
+bal_0478.png,describe_style,12,7,7,0,The time is 7:00.,True,True

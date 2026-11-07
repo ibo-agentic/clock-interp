@@ -1,0 +1,166 @@
+==================================================================================================== 
+PART 1  D2' GATE RE-CHECK
+====================================================================================================
+01_q3b_gate_only                 FAILED rc=3                    5.2 min
+02_i2b_gate_only                 OK                             4.1 min
+03_purge_3b_2b_cache             OK                             0.0 min
+04_q7b_gate_only                 FAILED rc=3                    9.1 min
+
+total wall time: 0.31 h
+MISSING expected files: none
+
+
+qwen2.5-vl-3b: GATE FAILED   attention impl: {'default': {'sdpa': 36}, 'inside_eager_context': {'eager': 36}}
+  [PASS     ] G1_tokens_and_spans  {}
+  [info:FAIL] G2_gold_prefix_teacher_forced_vs_free_generation  {'agreement': 0.85, 'tf_acc': 0.74, 'free_acc': 0.67, 'n': 100}
+  [FAIL     ] G2_own_prefix_teacher_forced_vs_free_generation  {'agreement': 0.93, 'tf_acc': 0.66, 'free_acc': 0.67, 'n_usable': 100, 'token_level_exact_match': 0.91, 'nocache_loop_eq_cached_free': 0.74, 'own_agree_vs_nocache_loop': 0.88, 'disagreements': {'clear_disagreement': 4, 'near_tie(margin<0.5nat)': 2, 'free_minute_off_the_12_candidate_grid': 1}, 'disagreements_by_prefix_class': {'exact_match': 6, 'wrong_hour_padded': 1}}
+  [PASS     ] G3_identity_patch_no_change  {'max_abs_diff_nats': 0.0}
+  [PASS     ] G4_logit_lens_final_layer_matches_model  {'max_abs_diff_nats': 0.0}
+  [PASS     ] G8a_eager_forced_on_every_attention_layer  {'default': {'sdpa': 36}, 'inside_eager': {'eager': 36}}
+  [PASS     ] G8c_eager_logits_finite_and_close_to_default  {'finite_default': True, 'finite_eager': True, 'max_abs_logprob_diff': 0.0488, 'argmax_equal': '10/10'}
+  [info:pass] G10_cached_decode_vs_nocache_forward_logits  {'max_abs_logit_diff': 0.039, 'min_argmax_agree': 1.0, 'all_finite': True, 'n': 8}
+  [PASS     ] G5_empty_block_equals_no_hook  {'matches': '50/50'}
+  [PASS     ] G8_eager_vs_default_attention_agree  {'agreement': 1.0}
+  [FAIL     ] G8b_nocache_loop_vs_adapter_generate_agree  {'agreement': 0.72}
+  [PASS     ] G6_guard_rejects_full_prompt_block  {}
+  [PASS     ] G7d_blocked_and_baseline_logprobs_finite  {'nonfinite_forwards': 0}
+  [PASS     ] G7_hooks_fire_on_every_layer  {'max_calls_per_forward': 36, 'n_layers': 36}
+  [PASS     ] G7b_blocking_N_span_changes_logprobs  {'changed': '20/20'}
+  [PASS     ] G7c_empty_block_changes_nothing  {'max_abs_diff_nats': 0.0}
+  [PASS     ] G9_block_activates_during_generation  {'activated': '20/20'}
+
+internvl3-2b: GATE PASSED   attention impl: {'default': {'sdpa': 28}, 'inside_eager_context': {'eager': 28}}
+  [PASS     ] G1_tokens_and_spans  {}
+  [info:FAIL] G2_gold_prefix_teacher_forced_vs_free_generation  {'agreement': 0.83, 'tf_acc': 0.51, 'free_acc': 0.54, 'n': 100}
+  [PASS     ] G2_own_prefix_teacher_forced_vs_free_generation  {'agreement': 0.95, 'tf_acc': 0.59, 'free_acc': 0.54, 'n_usable': 100, 'token_level_exact_match': 1.0, 'nocache_loop_eq_cached_free': 1.0, 'own_agree_vs_nocache_loop': 0.95, 'disagreements': {'free_minute_off_the_12_candidate_grid': 5}, 'disagreements_by_prefix_class': {'same_hour_unpadded': 4, 'exact_match': 1}}
+  [PASS     ] G3_identity_patch_no_change  {'max_abs_diff_nats': 0.0}
+  [PASS     ] G4_logit_lens_final_layer_matches_model  {'max_abs_diff_nats': 0.0}
+  [PASS     ] G8a_eager_forced_on_every_attention_layer  {'default': {'sdpa': 28}, 'inside_eager': {'eager': 28}}
+  [PASS     ] G8c_eager_logits_finite_and_close_to_default  {'finite_default': True, 'finite_eager': True, 'max_abs_logprob_diff': 0.0799, 'argmax_equal': '10/10'}
+  [info:pass] G10_cached_decode_vs_nocache_forward_logits  {'max_abs_logit_diff': 0.064, 'min_argmax_agree': 1.0, 'all_finite': True, 'n': 8}
+  [PASS     ] G5_empty_block_equals_no_hook  {'matches': '50/50'}
+  [PASS     ] G8_eager_vs_default_attention_agree  {'agreement': 1.0}
+  [PASS     ] G8b_nocache_loop_vs_adapter_generate_agree  {'agreement': 1.0}
+  [PASS     ] G6_guard_rejects_full_prompt_block  {}
+  [PASS     ] G7d_blocked_and_baseline_logprobs_finite  {'nonfinite_forwards': 0}
+  [PASS     ] G7_hooks_fire_on_every_layer  {'max_calls_per_forward': 28, 'n_layers': 28}
+  [PASS     ] G7b_blocking_N_span_changes_logprobs  {'changed': '20/20'}
+  [PASS     ] G7c_empty_block_changes_nothing  {'max_abs_diff_nats': 0.0}
+  [PASS     ] G9_block_activates_during_generation  {'activated': '20/20'}
+
+qwen2.5-vl-7b: GATE FAILED   attention impl: {'default': {'sdpa': 28}, 'inside_eager_context': {'eager': 28}}
+  [PASS     ] G1_tokens_and_spans  {}
+  [info:pass] G2_gold_prefix_teacher_forced_vs_free_generation  {'agreement': 0.99, 'tf_acc': 1.0, 'free_acc': 0.99, 'n': 100}
+  [PASS     ] G2_own_prefix_teacher_forced_vs_free_generation  {'agreement': 0.98, 'tf_acc': 0.97, 'free_acc': 0.99, 'n_usable': 100, 'token_level_exact_match': 0.97, 'nocache_loop_eq_cached_free': 0.97, 'own_agree_vs_nocache_loop': 0.98, 'disagreements': {'near_tie(margin<0.5nat)': 1, 'clear_disagreement': 1}, 'disagreements_by_prefix_class': {'wrong_hour_padded': 2}}
+  [PASS     ] G3_identity_patch_no_change  {'max_abs_diff_nats': 0.0}
+  [PASS     ] G4_logit_lens_final_layer_matches_model  {'max_abs_diff_nats': 3.2708048820495605e-06}
+  [PASS     ] G8a_eager_forced_on_every_attention_layer  {'default': {'sdpa': 28}, 'inside_eager': {'eager': 28}}
+  [PASS     ] G8c_eager_logits_finite_and_close_to_default  {'finite_default': True, 'finite_eager': True, 'max_abs_logprob_diff': 0.0469, 'argmax_equal': '10/10'}
+  [info:pass] G10_cached_decode_vs_nocache_forward_logits  {'max_abs_logit_diff': 0.047, 'min_argmax_agree': 1.0, 'all_finite': True, 'n': 8}
+  [PASS     ] G5_empty_block_equals_no_hook  {'matches': '50/50'}
+  [PASS     ] G8_eager_vs_default_attention_agree  {'agreement': 1.0}
+  [FAIL     ] G8b_nocache_loop_vs_adapter_generate_agree  {'agreement': 0.94}
+  [PASS     ] G6_guard_rejects_full_prompt_block  {}
+  [PASS     ] G7d_blocked_and_baseline_logprobs_finite  {'nonfinite_forwards': 0}
+  [PASS     ] G7_hooks_fire_on_every_layer  {'max_calls_per_forward': 28, 'n_layers': 28}
+  [PASS     ] G7b_blocking_N_span_changes_logprobs  {'changed': '20/20'}
+  [PASS     ] G7c_empty_block_changes_nothing  {'max_abs_diff_nats': 0.0}
+  [PASS     ] G9_block_activates_during_generation  {'activated': '20/20'}
+
+--- Bug A: where do cached `generate` and the no-cache greedy loop differ? (verify_g2_trials.csv, n=100 each)
+        model  cached==nocache  n_differ  differ_already_in_hour  acc_cached  acc_nocache  hour_correct_cached  hour_correct_nocache
+qwen2.5-vl-3b             0.74        26                      18        0.67         0.60                 0.79                  0.81
+ internvl3-2b             1.00         0                       0        0.54         0.54                 0.93                  0.93
+qwen2.5-vl-7b             0.97         3                       2        0.99         0.99                 0.96                  0.98
+
+Qwen-3B G2-own disagreements (cached free generation vs own-prefix teacher forcing):
+ lead  N  H free_text nocache_text own_prefix      prefix_class  free_on_grid  own_tf_margin
+    0  1  9     09:05        09:00        09:       exact_match          True         0.8928
+    1  8  8     08:40        08:00        08:       exact_match          True         0.5395
+    1  7  7     07:35        07:30        07:       exact_match          True         0.7188
+    0 12  7     07:30        07:00        07:       exact_match          True         1.1245
+    0  2  9     09:12        09:12        09:       exact_match         False         2.2623
+    0 11  6     05:30        11:30        05: wrong_hour_padded          True         0.2299
+    1 10  2     02:50        02:50        02:       exact_match          True         0.1599
+
+Generate-config check (Qwen checkpoints ship repetition_penalty=1.05 in generation_config.json; InternVL3-hf ships none).
+`adapter.generate_answer` only overrides do_sample=False, so cached generate for Qwen is run WITH that penalty; the no-cache argmax loop and
+the teacher-forced scoring are NOT. See report for what this means.
+
+==================================================================================================== 
+PART 2  D4 HOOK-FREE EXPERIMENTS
+====================================================================================================
+01_q3b_E3e_E3f_pilot             OK                            21.0 min
+02_i2b_E3e_E3f_pilot             OK                            15.3 min
+03_purge_3b_2b_cache             OK                             0.0 min
+04_q7b_E3e_E3f_pilot             OK                            33.0 min
+05_purge_7b_cache                OK                             0.0 min
+
+total wall time: 1.16 h
+MISSING expected files: none
+
+steps FAILED/SKIPPED: none
+[merge] copied 24 new files into results/mech_e3/<model>/, skipped 0 that already existed (no overwrite)
+
+--- E3e description transplant (CONFIRMATORY for Qwen-3B primary = verbatim; other models and variants DESCRIPTIVE)
+
+qwen2.5-vl-3b   <- confirmatory claim (verbatim row only)
+             variant                status  n_clocks  wrong_img  wrong_noimg  paired_diff  diff_lo  diff_hi  sign_flip_p verdict_by_thresholds
+       conv_question secondary/exploratory       111       0.55        0.541       -0.009   -0.108    0.090        1.000         language_side
+      describe_style secondary/exploratory       111       0.55        0.360       -0.189   -0.306   -0.072        0.002                 mixed
+verbatim_description               PRIMARY       111       0.55        0.541       -0.009   -0.108    0.090        1.000         language_side
+
+internvl3-2b   (descriptive: thresholds were written for Qwen-3B)
+             variant                status  n_clocks  wrong_img  wrong_noimg  paired_diff  diff_lo  diff_hi  sign_flip_p verdict_by_thresholds
+       conv_question secondary/exploratory       144      0.007        0.722        0.715    0.639    0.785          0.0                 mixed
+      describe_style secondary/exploratory       144      0.007        0.611        0.604    0.521    0.681          0.0                 mixed
+verbatim_description               PRIMARY       144      0.007        0.667        0.660    0.583    0.736          0.0                 mixed
+
+qwen2.5-vl-7b   (descriptive: thresholds were written for Qwen-3B)
+             variant                status  n_clocks  wrong_img  wrong_noimg  paired_diff  diff_lo  diff_hi  sign_flip_p verdict_by_thresholds
+       conv_question secondary/exploratory       242        0.0        0.091        0.091    0.058    0.128          0.0    image_interference
+      describe_style secondary/exploratory       242        0.0        0.595        0.595    0.533    0.657          0.0                 mixed
+verbatim_description               PRIMARY       242        0.0        0.000        0.000    0.000    0.000          1.0                 mixed
+
+Qwen-3B verbatim, pre-registered rule: wrong without image 54.1% (>=40%: True); paired diff -0.9% CI [-10.8%, +9.0%] inside +/-15 pts: True  ->  LANGUAGE-SIDE SUPPORTED;  image-interference not supported
+
+--- E3f H=12 (rule: 'numeral/tokenisation form' if the word form raises H=12 minute accuracy to within 10 pts of the H!=12 accuracy while the numeral keeps the gap)
+
+qwen2.5-vl-3b
+ cond(N/H)  acc_H!=12  acc_H=12  gap_pts  H12_minute_00  H12_leak  H12_hour_acc  H12_hour_copied_from_N  H12_hour_01
+   num/num      0.810     0.194   61.601          0.694     0.611         0.278                   0.556        0.222
+num/oclock      0.732     0.111   62.092          0.944     0.861         0.083                   0.806        0.167
+  num/word      0.791     0.278   51.307          0.528     0.444         0.528                   0.444        0.083
+oclock/num      0.719     0.083   63.562          0.944     0.861         0.167                   0.806        0.111
+  word/num      0.641     0.111   52.941          0.944     0.861         0.083                   0.806        0.167
+  rule: word-H gap 51.3 pts (<=10: False); numeral gap 61.6 pts (keeps gap: True)  ->  'semantic 12=00' explanation (gap remains for all forms)
+
+internvl3-2b
+ cond(N/H)  acc_H!=12  acc_H=12  gap_pts  H12_minute_00  H12_leak  H12_hour_acc  H12_hour_copied_from_N  H12_hour_01
+   num/num      0.595     0.194   40.033          0.889     0.806         0.972                   0.028        0.000
+num/oclock      0.654     0.250   40.359          0.833     0.750         0.972                   0.028        0.000
+  num/word      0.595     0.361   23.366          0.694     0.611         0.972                   0.028        0.000
+oclock/num      0.523     0.083   43.954          1.000     0.917         0.472                   0.528        0.028
+  word/num      0.556     0.194   36.111          0.861     0.778         0.972                   0.028        0.000
+  rule: word-H gap 23.4 pts (<=10: False); numeral gap 40.0 pts (keeps gap: True)  ->  'semantic 12=00' explanation (gap remains for all forms)
+
+qwen2.5-vl-7b
+ cond(N/H)  acc_H!=12  acc_H=12  gap_pts  H12_minute_00  H12_leak  H12_hour_acc  H12_hour_copied_from_N  H12_hour_01
+   num/num      0.974     0.778   19.608          0.167     0.083         0.639                   0.083        0.306
+num/oclock      0.987     0.778   20.915          0.278     0.194         0.750                   0.222        0.056
+  num/word      0.993     0.861   13.235          0.139     0.056         0.833                   0.083        0.111
+oclock/num      0.993     0.722   27.124          0.250     0.167         0.583                   0.278        0.194
+  word/num      0.993     0.806   18.791          0.250     0.167         0.667                   0.222        0.139
+  rule: word-H gap 13.2 pts (<=10: False); numeral gap 19.6 pts (keeps gap: True)  ->  'semantic 12=00' explanation (gap remains for all forms)
+
+--- Text-light pilot (E2 floor rule: intact minute accuracy >= 0.15; blank = no clock image, chance 1/12 = 0.083)
+        model           cond   n  minute_acc  hour_acc  unparsed  chance_12_positions  E2_floor_rule_pass_(>=0.15)
+qwen2.5-vl-3b          blank 432       0.083     1.000       0.0                0.083                        False
+qwen2.5-vl-3b matching_clock 432       0.109     0.778       0.0                0.083                        False
+ internvl3-2b          blank 432       0.083     1.000       0.0                0.083                         True
+ internvl3-2b matching_clock 432       0.500     0.748       0.0                0.083                         True
+qwen2.5-vl-7b          blank 432       0.083     1.000       0.0                0.083                         True
+qwen2.5-vl-7b matching_clock 432       0.692     0.963       0.0                0.083                         True
+ internvl3-8b          blank 432       0.083     1.000       0.0                0.083                         True
+ internvl3-8b matching_clock 432       0.750     0.988       0.0                0.083                         True
+clears the 15% floor: ['internvl3-2b', 'internvl3-8b', 'qwen2.5-vl-7b']

@@ -1,0 +1,6 @@
+01_q3b_gate_rp1                  OK                             7.4 min
+02_purge_3b_cache                OK                             0.0 min
+03_q7b_gate_rp1                  OK                            12.3 min
+
+total wall time: 0.33 h
+MISSING expected files: none

@@ -1,0 +1,33 @@
+Loading Qwen/Qwen2.5-VL-7B-Instruct in float16 ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+text-only gate [qwen2.5-vl-7b]:   0%|          | 0/2016 [00:00<?, ?it/s]
+text-only gate [qwen2.5-vl-7b]:  14%|█▍        | 282/2016 [01:00<06:08,  4.70it/s]
+text-only gate [qwen2.5-vl-7b]:  14%|█▍        | 282/2016 [01:12<06:08,  4.70it/s]
+text-only gate [qwen2.5-vl-7b]:  23%|██▎       | 465/2016 [02:00<06:56,  3.73it/s]
+text-only gate [qwen2.5-vl-7b]:  23%|██▎       | 465/2016 [02:12<06:56,  3.73it/s]
+text-only gate [qwen2.5-vl-7b]:  30%|███       | 609/2016 [03:00<07:31,  3.12it/s]
+text-only gate [qwen2.5-vl-7b]:  30%|███       | 609/2016 [03:12<07:31,  3.12it/s]
+text-only gate [qwen2.5-vl-7b]:  37%|███▋      | 753/2016 [04:00<07:25,  2.83it/s]
+text-only gate [qwen2.5-vl-7b]:  37%|███▋      | 753/2016 [04:12<07:25,  2.83it/s]
+text-only gate [qwen2.5-vl-7b]:  44%|████▍     | 897/2016 [05:00<06:58,  2.68it/s]
+text-only gate [qwen2.5-vl-7b]:  44%|████▍     | 897/2016 [05:12<06:58,  2.68it/s]
+text-only gate [qwen2.5-vl-7b]:  52%|█████▏    | 1041/2016 [06:00<06:18,  2.58it/s]
+text-only gate [qwen2.5-vl-7b]:  52%|█████▏    | 1041/2016 [06:12<06:18,  2.58it/s]
+text-only gate [qwen2.5-vl-7b]:  59%|█████▊    | 1184/2016 [07:00<05:31,  2.51it/s]
+text-only gate [qwen2.5-vl-7b]:  59%|█████▊    | 1184/2016 [07:12<05:31,  2.51it/s]
+text-only gate [qwen2.5-vl-7b]:  66%|██████▌   | 1328/2016 [08:01<04:38,  2.47it/s]
+text-only gate [qwen2.5-vl-7b]:  66%|██████▌   | 1328/2016 [08:12<04:38,  2.47it/s]
+text-only gate [qwen2.5-vl-7b]:  73%|███████▎  | 1471/2016 [09:01<03:42,  2.44it/s]
+text-only gate [qwen2.5-vl-7b]:  73%|███████▎  | 1471/2016 [09:12<03:42,  2.44it/s]
+text-only gate [qwen2.5-vl-7b]:  80%|████████  | 1615/2016 [10:01<02:45,  2.43it/s]
+text-only gate [qwen2.5-vl-7b]:  80%|████████  | 1615/2016 [10:12<02:45,  2.43it/s]
+text-only gate [qwen2.5-vl-7b]:  92%|█████████▏| 1857/2016 [11:01<00:54,  2.92it/s]
+text-only gate [qwen2.5-vl-7b]:  92%|█████████▏| 1857/2016 [11:12<00:54,  2.92it/s]
+text-only gate [qwen2.5-vl-7b]: 100%|██████████| 2016/2016 [11:35<00:00,  2.90it/s]
+
+Saved 2016 trials to 'results/qwen2.5-vl-7b/text_only_v2.csv' and config to 'results/qwen2.5-vl-7b/run_config.json'.
+parse_ok: 100.0%   format_ok (bare answer): 100.0%
+  task a: headline-correct 97.8% (n=360)
+  task b: headline-correct 99.2% (n=1296)
+  task c: headline-correct 100.0% (n=360)

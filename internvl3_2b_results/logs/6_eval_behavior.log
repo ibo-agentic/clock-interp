@@ -1,0 +1,12 @@
+Loading OpenGVLab/InternVL3-2B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+
+Evaluating clocks:   0%|          | 0/500 [00:00<?, ?it/s]
+Evaluating clocks:  34%|███▍      | 169/500 [01:00<01:57,  2.81it/s]
+Evaluating clocks:  34%|███▍      | 169/500 [01:20<01:57,  2.81it/s]
+Evaluating clocks:  69%|██████▉   | 344/500 [02:00<00:54,  2.86it/s]
+Evaluating clocks:  69%|██████▉   | 344/500 [02:20<00:54,  2.86it/s]
+Evaluating clocks: 100%|██████████| 500/500 [02:54<00:00,  2.86it/s]
+Done. 500 images evaluated, 2 parse failures (0.4%).
+Results saved to 'results/internvl3-2b/results.csv', parse failures to 'results/internvl3-2b/parse_failures.csv'.

@@ -1,0 +1,74 @@
+[
+ {
+  "step": "01_q3b_text_only_v2_rp1",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 12.4
+ },
+ {
+  "step": "02_q3b_conversion_test_rp1",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 20.7
+ },
+ {
+  "step": "03_q3b_describe_check_rp1",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 24.7
+ },
+ {
+  "step": "04_q3b_eval_behavior_rp1",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 6.1
+ },
+ {
+  "step": "05_q3b_E3e_E3f_pilot_rp1",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 20.9
+ },
+ {
+  "step": "06_purge_3b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "07_q7b_text_only_v2_rp1",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 14.0
+ },
+ {
+  "step": "08_q7b_conversion_test_rp1",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 25.9
+ },
+ {
+  "step": "09_q7b_describe_check_rp1",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 33.2
+ },
+ {
+  "step": "10_q7b_eval_behavior_rp1",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 7.7
+ },
+ {
+  "step": "11_q7b_E3e_E3f_pilot_rp1",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 26.9
+ },
+ {
+  "step": "12_purge_7b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]

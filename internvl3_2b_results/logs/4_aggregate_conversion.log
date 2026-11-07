@@ -1,0 +1,22 @@
+Wrote summary.csv, paired_tests.csv, parse_rates.csv, minute_accuracy_vs_position.png to 'results/conversion_test'.
+
+=== OVERALL (n=432 per cell) ===
+internvl3-2b    blank             changed_vs_text_only   53.9% [49.2%, 58.6%] (n=432)
+internvl3-2b    matching_clock    changed_vs_text_only   72.2% [67.8%, 76.2%] (n=432)
+internvl3-2b    mismatched_clock  changed_vs_text_only   79.9% [75.8%, 83.4%] (n=432)
+internvl3-2b    blank             correct                44.7% [40.1%, 49.4%] (n=432)
+internvl3-2b    matching_clock    correct                70.4% [65.9%, 74.5%] (n=432)
+internvl3-2b    mismatched_clock  correct                39.4% [34.9%, 44.0%] (n=432)
+internvl3-2b    text_only         correct                49.1% [44.4%, 53.8%] (n=432)
+internvl3-2b    mismatched_clock  matches_image_full      1.6% [0.8%, 3.3%] (n=432)
+internvl3-2b    mismatched_clock  matches_image_hour      7.9% [5.7%, 10.8%] (n=432)
+internvl3-2b    mismatched_clock  matches_image_minute   15.3% [12.2%, 19.0%] (n=432)
+internvl3-2b    blank             minute_correct         45.6% [41.0%, 50.3%] (n=432)
+internvl3-2b    matching_clock    minute_correct         71.8% [67.3%, 75.8%] (n=432)
+internvl3-2b    mismatched_clock  minute_correct         43.8% [39.1%, 48.5%] (n=432)
+internvl3-2b    text_only         minute_correct         49.8% [45.1%, 54.5%] (n=432)
+
+=== PAIRED McNEMAR, text_only vs image condition, overall ===
+internvl3-2b    text_only_vs_matching_clock      only_text= 29 only_image=124 both_ok=186 both_wrong= 93  p=3.424e-15
+internvl3-2b    text_only_vs_blank               only_text= 48 only_image= 30 both_ok=167 both_wrong=187  p=0.05354
+internvl3-2b    text_only_vs_mismatched_clock    only_text= 93 only_image= 67 both_ok=122 both_wrong=150  p=0.04777

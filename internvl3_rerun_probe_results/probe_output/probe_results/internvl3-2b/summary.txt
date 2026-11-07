@@ -1,0 +1,16 @@
+=== PROBE SUMMARY (best layer per representation x hand) ===
+n images: 480   minute read correctly in final answer: 10.2%   hour read correctly: 55.2%
+R^2 = 0 is what always predicting the mean angle would score, so it's already
+its own baseline. 'shuffled' re-runs the same probe with labels randomly
+permuted across images, to check the probe isn't just fitting noise.
+'data' flags whether the best layer's numbers came from clean activations
+('ok'), activations with NaN/Inf repaired ('REPAIRED' -- treat with extra
+caution), or found no usable layer at all ('NONE USABLE').
+
+representation   hand     layer      data  n_all n_corr n_wrong  R2_all  R2_corr  R2_wrong  R2_shuf  acc_all  acc_corr  acc_wrong  acc_shuf acc_majrty
+hidden_last      minute       2        ok    480     49     431    0.94     0.95      0.94    -0.22    92.9%    100.0%      92.1%      7.5%       8.3%
+hidden_last      hour        26        ok    480    265     215    0.96     0.96      0.96    -0.25    94.8%     96.6%      92.6%      9.2%      10.4%
+hidden_meanpool  minute      10        ok    480     49     431    0.98     0.98      0.98    -0.27    97.3%    100.0%      97.0%      9.2%       8.3%
+hidden_meanpool  hour         6        ok    480    265     215    0.98     0.97      0.98    -0.27    97.3%     98.1%      96.3%      9.6%      10.4%
+vision_encoder   minute       0        ok    480     49     431    0.98     0.98      0.98    -0.28    96.2%    100.0%      95.8%      7.9%       8.3%
+vision_encoder   hour         0        ok    480    265     215    0.98     0.98      0.98    -0.30    97.5%     97.7%      97.2%      9.4%      10.4%

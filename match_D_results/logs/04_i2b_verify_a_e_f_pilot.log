@@ -1,0 +1,21 @@
+Loading OpenGVLab/InternVL3-2B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+mech_e3: model=internvl3-2b layers=28 parts=['verify', 'a', 'e', 'f', 'p'] smoke=False  [all timings in the log are measurements of THIS run; planning numbers elsewhere are guesses]
+  [PASS] G1_tokens_and_spans {}
+  [FAIL] G2_teacher_forced_vs_free_generation {'agreement': 0.83, 'tf_acc': 0.51, 'free_acc': 0.54, 'n': 100, 'note': 'threshold 0.95'}
+Traceback (most recent call last):
+  File "/kaggle/working/run/mech_e3.py", line 835, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/kaggle/working/run/mech_e3.py", line 817, in main
+    ok = part_verify(ctx)
+  File "/kaggle/working/run/mech_e3.py", line 172, in part_verify
+    lens = ML.lens_logprobs(ad, [s[0] for s in store], q, cs[0])
+  File "/usr/local/lib/python3.13/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "/kaggle/working/run/mech_lib.py", line 254, in lens_logprobs
+    x = norm(h[pos][None])                                    # (1,len,d)
+             ~^^^^^
+RuntimeError: indices should be either on cpu or on the same device as the indexed tensor (cuda:1)

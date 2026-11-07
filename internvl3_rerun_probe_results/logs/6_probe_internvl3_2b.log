@@ -1,0 +1,50 @@
+Loading OpenGVLab/InternVL3-2B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+
+Extracting activations:   0%|          | 0/480 [00:00<?, ?it/s]
+Extracting activations:  24%|██▍       | 116/480 [01:00<03:09,  1.92it/s]
+Extracting activations:  24%|██▍       | 116/480 [01:19<03:09,  1.92it/s]
+Extracting activations:  50%|█████     | 240/480 [02:00<01:59,  2.00it/s]
+Extracting activations:  50%|█████     | 240/480 [02:19<01:59,  2.00it/s]
+Extracting activations:  76%|███████▌  | 363/480 [03:00<00:57,  2.02it/s]
+Extracting activations:  76%|███████▌  | 363/480 [03:19<00:57,  2.02it/s]
+Extracting activations: 100%|██████████| 480/480 [03:58<00:00,  2.02it/s]
+
+Saved activations for 480 images to 'probe_output/activations/internvl3-2b/':
+  hidden_last.npy:     (480, 29, 1536)
+  hidden_meanpool.npy: (480, 29, 1536)
+  vision_meanpool.npy: (480, 1024)
+  exact accuracy on this set:  6.2%
+  minute read correctly:       10.2%
+  hour read correctly:         55.2%
+Cleaning hidden_last (29 layer(s)) ...
+  -> hidden_last: 0 layer(s) repaired, 1 layer(s) skipped (of 29 total)
+Cleaning hidden_meanpool (29 layer(s)) ...
+Cleaning vision_encoder (1 layer(s)) ...
+Probing hidden_last / minute hand (29 layer(s)) ...
+Probing hidden_last / hour hand (29 layer(s)) ...
+Probing hidden_meanpool / minute hand (29 layer(s)) ...
+Probing hidden_meanpool / hour hand (29 layer(s)) ...
+Probing vision_encoder / minute hand (1 layer(s)) ...
+Probing vision_encoder / hour hand (1 layer(s)) ...
+
+=== PROBE SUMMARY (best layer per representation x hand) ===
+n images: 480   minute read correctly in final answer: 10.2%   hour read correctly: 55.2%
+R^2 = 0 is what always predicting the mean angle would score, so it's already
+its own baseline. 'shuffled' re-runs the same probe with labels randomly
+permuted across images, to check the probe isn't just fitting noise.
+'data' flags whether the best layer's numbers came from clean activations
+('ok'), activations with NaN/Inf repaired ('REPAIRED' -- treat with extra
+caution), or found no usable layer at all ('NONE USABLE').
+
+representation   hand     layer      data  n_all n_corr n_wrong  R2_all  R2_corr  R2_wrong  R2_shuf  acc_all  acc_corr  acc_wrong  acc_shuf acc_majrty
+hidden_last      minute       2        ok    480     49     431    0.94     0.95      0.94    -0.22    92.9%    100.0%      92.1%      7.5%       8.3%
+hidden_last      hour        26        ok    480    265     215    0.96     0.96      0.96    -0.25    94.8%     96.6%      92.6%      9.2%      10.4%
+hidden_meanpool  minute      10        ok    480     49     431    0.98     0.98      0.98    -0.27    97.3%    100.0%      97.0%      9.2%       8.3%
+hidden_meanpool  hour         6        ok    480    265     215    0.98     0.97      0.98    -0.27    97.3%     98.1%      96.3%      9.6%      10.4%
+vision_encoder   minute       0        ok    480     49     431    0.98     0.98      0.98    -0.28    96.2%    100.0%      95.8%      7.9%       8.3%
+vision_encoder   hour         0        ok    480    265     215    0.98     0.98      0.98    -0.30    97.5%     97.7%      97.2%      9.4%      10.4%
+
+Full per-layer results, plots, and summary written to 'probe_output/probe_results/internvl3-2b/'.

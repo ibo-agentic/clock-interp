@@ -1,0 +1,11 @@
+n_total_images: 500
+n_parsed: 500
+parse_failure_rate: 0.0
+exact_accuracy: 0.018
+hour_accuracy: 0.264
+minute_accuracy: 0.024
+within_5min_accuracy: 0.132
+n_overlap_clocks: 53
+overlap_rate: 0.106
+hand_swap_rate_including_overlap: 0.04
+hand_swap_rate_excluding_overlap: 0.035794183445190156

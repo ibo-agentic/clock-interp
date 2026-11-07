@@ -1,0 +1,71 @@
+{
+  "script": "text_only_v2.py",
+  "model_id": "OpenGVLab/InternVL3-8B-hf",
+  "adapter": "InternVL3_8BAdapter",
+  "short_name": "internvl3-8b",
+  "transformers_version": "5.20.2",
+  "torch_version": "2.11.0+cu130",
+  "python_version": "3.13.16",
+  "git_commit": null,
+  "seed": 0,
+  "max_new_tokens": 32,
+  "decoding": {
+    "do_sample": false,
+    "strategy": "greedy",
+    "use_cache": true
+  },
+  "dtype": "float16",
+  "device_map": "auto",
+  "note_max_new_tokens": "32 here and in later image runs; eval_behavior.py's original runs used 16",
+  "date_utc": "2026-11-05T06:54:37+00:00",
+  "smoke": false,
+  "n_trials_run": 2016,
+  "n_trials_full_design": 2016,
+  "b_lead_ins": 3,
+  "lead_ins": [
+    "",
+    "Consider a standard 12-hour analog clock.",
+    "Here is a question about reading a clock.",
+    "Answer the following question.",
+    "Think of a round clock face with the numbers 1 to 12.",
+    "This is a quick quiz.",
+    "Please read the question carefully.",
+    "Imagine a wall clock.",
+    "Here is a short problem.",
+    "Use standard conventions."
+  ],
+  "phrasings": {
+    "a": {
+      "a1": "The minute hand points at {N}. How many minutes past the hour is it? Answer with a number only.",
+      "a2": "The long minute hand is pointing at the number {N}. How many minutes past the hour does this represent? Answer with a number only.",
+      "a3": "On an analog clock, the minute hand is on the {N}. What is the minute value? Answer with a number only."
+    },
+    "b": {
+      "b1": "The hour hand is just past {H} and the minute hand points at {N}. What time is it? Answer only in HH:MM format.",
+      "b2": "The long minute hand is pointing at the number {N}, and the short hour hand is pointing at the number {H}. What time does the clock show? Answer only in HH:MM format.",
+      "b3": "On an analog clock the short hand is just past the {H} and the long hand is on the {N}. What time is it? Answer only in HH:MM format."
+    },
+    "c": {
+      "c1": "What is {N} times 5? Answer with a number only.",
+      "c2": "Compute {N} multiplied by 5. Answer with a number only.",
+      "c3": "{N} x 5 = ? Answer with a number only."
+    }
+  },
+  "headline_phrasing_b": "b2",
+  "prompts_sha256": "503bc45513e09302183b5789cde1541f56691e9a2a50337149d815aeeaba64da",
+  "chat_template_check": {
+    "text_only_rendered": "<|im_start|>user\n<PROMPT><|im_end|>\n<|im_start|>assistant\n",
+    "with_image_rendered": "<|im_start|>user\n<IMG_CONTEXT>\n<PROMPT><|im_end|>\n<|im_start|>assistant\n",
+    "system_prompt_present": false
+  },
+  "chat_path": "adapter.build_inputs(image_or_None, prompt) -> adapter.generate_answer(); identical to eval_behavior.py",
+  "adapter_notes": {
+    "family": "InternVL3 (transformers-native -hf checkpoint)",
+    "model_class": "InternVLForConditionalGeneration",
+    "dtype": "float16",
+    "image_preprocessing": "single 448x448 tile: processor called with crop_to_patches=False on every image, so 256 image tokens (<img> + 256 x <IMG_CONTEXT> + </img>) per image regardless of the processor's own default",
+    "system_prompt": "NONE: the InternVL3-hf chat template injects no default system prompt. Qwen2.5-VL's template injects one by default -- a known template difference between the two families; within each family text-only and image runs use the same template.",
+    "image_position": "image first, then text (template renders '<IMG_CONTEXT>' + newline before the text)",
+    "chat_template": "<|im_start|>{role} newline {content}<|im_end|> newline ... <|im_start|>assistant newline"
+  }
+}

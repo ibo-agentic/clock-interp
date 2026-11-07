@@ -1,0 +1,17 @@
+model,condition,n,parse_ok
+internvl3-2b,blank,432,1.0
+internvl3-2b,matching_clock,432,1.0
+internvl3-2b,mismatched_clock,432,0.9930555555555556
+internvl3-2b,text_only,432,1.0
+internvl3-8b,blank,432,0.9953703703703703
+internvl3-8b,matching_clock,432,1.0
+internvl3-8b,mismatched_clock,432,1.0
+internvl3-8b,text_only,432,0.9699074074074074
+qwen2.5-vl-3b,blank,432,1.0
+qwen2.5-vl-3b,matching_clock,432,1.0
+qwen2.5-vl-3b,mismatched_clock,432,1.0
+qwen2.5-vl-3b,text_only,432,1.0
+qwen2.5-vl-7b,blank,432,1.0
+qwen2.5-vl-7b,matching_clock,432,1.0
+qwen2.5-vl-7b,mismatched_clock,432,1.0
+qwen2.5-vl-7b,text_only,432,1.0

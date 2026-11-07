@@ -1,0 +1,4 @@
+variant,n_clocks,wrong_with_image,wrong_transplant,paired_diff,diff_lo,diff_hi,sign_flip_p,is_primary,PREREG_verdict_if_primary
+conv_question,242,0.0,0.09090909090909091,0.09090909090909091,0.05785123966942149,0.128099173553719,9.999000099990002e-05,False,image_interference
+describe_style,242,0.0,0.5950413223140496,0.5950413223140496,0.5330578512396694,0.6570247933884298,9.999000099990002e-05,False,mixed
+verbatim_description,242,0.0,0.0,0.0,0.0,0.0,1.0,True,mixed

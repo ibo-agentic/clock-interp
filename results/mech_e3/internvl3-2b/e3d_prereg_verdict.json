@@ -1,0 +1,16 @@
+{
+ "model": "internvl3-2b",
+ "leak_intact": 117,
+ "leak_blocked": 28,
+ "leak_rel_drop": 0.7606837606837606,
+ "acc_diff_points": 22.453703703703702,
+ "acc_ci_points": [
+  17.36111111111111,
+  27.546296296296298
+ ],
+ "leak_ci_excludes0": true,
+ "acc_ci_excludes0": true,
+ "random_span_acc_diff_points": 3.009259259259259,
+ "M_bind_supported": false,
+ "weak_conversion_account": false
+}

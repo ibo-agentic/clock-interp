@@ -1,0 +1,101 @@
+lead,N,H,free_text,free_minute,free_ok,gold_tf_ok,gold_tf_argmax_minute,own_prefix,prefix_class,own_tf_ok,own_tf_argmax_minute,own_token_match,own_tf_margin,free_on_grid,nocache_text,nocache_ok,nocache_eq_free
+0,10,5,10:25,25,False,False,25,10:,wrong_hour_padded,False,25,True,8.0781,True,10:25,False,True
+0,1,9,9:30,30,False,False,45,9:,same_hour_unpadded,False,30,True,0.0535,True,9:30,False,True
+0,12,10,10:20,20,False,False,20,10:,exact_match,False,20,True,0.3423,True,10:20,False,True
+2,2,1,1:00,0,False,False,0,1:,same_hour_unpadded,False,0,True,0.5296,True,1:00,False,True
+0,3,9,9:30,30,False,False,45,9:,same_hour_unpadded,False,45,True,0.1408,True,9:30,False,True
+1,6,8,The clock shows 8:30.,30,True,True,30,The clock shows 8:,other_text_before_colon,True,30,True,1.9912,True,The clock shows 8:30,True,True
+0,2,1,01:02,2,False,False,5,01:,exact_match,False,5,True,1.8125,False,01:02,False,True
+1,12,1,The clock shows 1:00.,0,True,True,0,The clock shows 1:,other_text_before_colon,True,0,True,5.2188,True,The clock shows 1:00,True,True
+1,12,3,The clock shows 3:00.,0,True,False,15,The clock shows 3:,other_text_before_colon,True,0,True,3.2859,True,The clock shows 3:00,True,True
+1,3,11,The clock shows 11:15.,15,True,True,15,The clock shows 11:,other_text_before_colon,True,15,True,4.2017,True,The clock shows 11:15,True,True
+1,2,10,The clock shows 10:10.,10,True,True,10,The clock shows 10:,other_text_before_colon,True,10,True,3.8242,True,The clock shows 10:10,True,True
+2,5,1,1:25,25,True,False,5,1:,same_hour_unpadded,True,25,True,2.3425,True,1:25,True,True
+2,3,2,2:15,15,True,True,15,2:,same_hour_unpadded,True,15,True,4.7364,True,2:15,True,True
+1,6,9,The clock shows 9:30.,30,True,True,30,The clock shows 9:,other_text_before_colon,True,30,True,2.5951,True,The clock shows 9:30,True,True
+0,1,11,11:05,5,True,True,5,11:,exact_match,True,5,True,1.8125,True,11:05,True,True
+1,8,3,The clock shows 3:40.,40,True,True,40,The clock shows 3:,other_text_before_colon,True,40,True,5.9045,True,The clock shows 3:40,True,True
+1,9,6,The clock shows 6:45.,45,True,True,45,The clock shows 6:,other_text_before_colon,True,45,True,3.2899,True,The clock shows 6:45,True,True
+2,2,5,5:10,10,True,True,10,5:,same_hour_unpadded,True,10,True,2.219,True,5:10,True,True
+1,4,11,The clock shows 11:20.,20,True,True,20,The clock shows 11:,other_text_before_colon,True,20,True,5.3388,True,The clock shows 11:20,True,True
+0,4,11,11:20,20,True,True,20,11:,exact_match,True,20,True,1.8906,True,11:20,True,True
+1,5,8,The clock shows 8:25.,25,True,False,30,The clock shows 8:,other_text_before_colon,True,25,True,1.9638,True,The clock shows 8:25,True,True
+2,8,9,9:40,40,True,True,40,9:,same_hour_unpadded,True,40,True,6.4871,True,9:40,True,True
+1,7,3,The clock shows 3:45.,45,False,False,45,The clock shows 3:,other_text_before_colon,False,45,True,0.2346,True,The clock shows 3:45,False,True
+1,12,2,The clock shows 2:00.,0,True,True,0,The clock shows 2:,other_text_before_colon,True,0,True,6.0942,True,The clock shows 2:00,True,True
+1,8,9,The clock shows 9:40.,40,True,True,40,The clock shows 9:,other_text_before_colon,True,40,True,5.7179,True,The clock shows 9:40,True,True
+2,2,12,12:00,0,False,False,0,12:,exact_match,False,0,True,5.4487,True,12:00,False,True
+0,9,10,10:45,45,True,True,45,10:,exact_match,True,45,True,4.7921,True,10:45,True,True
+0,9,3,9:15,15,False,False,15,9:,wrong_hour_unpadded,False,15,True,0.4574,True,9:15,False,True
+1,1,8,The clock shows 8:00.,0,False,False,0,The clock shows 8:,other_text_before_colon,False,0,True,1.4062,True,The clock shows 8:00,False,True
+0,5,12,12:00,0,False,False,0,12:,exact_match,False,0,True,0.6244,True,12:00,False,True
+1,3,6,The clock shows 6:15.,15,True,True,15,The clock shows 6:,other_text_before_colon,True,15,True,1.3439,True,The clock shows 6:15,True,True
+1,8,8,The clock shows 8:00.,0,False,False,0,The clock shows 8:,other_text_before_colon,False,0,True,2.5918,True,The clock shows 8:00,False,True
+2,9,5,5:45,45,True,True,45,5:,same_hour_unpadded,True,45,True,10.2892,True,5:45,True,True
+0,9,1,9:05,5,False,False,0,9:,wrong_hour_unpadded,False,5,True,2.6562,True,9:05,False,True
+0,3,6,6:15,15,True,False,30,6:,same_hour_unpadded,True,15,True,0.4366,True,6:15,True,True
+2,7,12,12:00,0,False,False,0,12:,exact_match,False,0,True,3.6902,True,12:00,False,True
+2,10,9,9:50,50,True,False,40,9:,same_hour_unpadded,True,50,True,0.5234,True,9:50,True,True
+1,9,9,The clock shows 9:45.,45,True,True,45,The clock shows 9:,other_text_before_colon,True,45,True,0.5519,True,The clock shows 9:45,True,True
+2,5,4,4:25,25,True,True,25,4:,same_hour_unpadded,True,25,True,4.4062,True,4:25,True,True
+2,3,4,4:15,15,True,True,15,4:,same_hour_unpadded,True,15,True,4.3508,True,4:15,True,True
+1,5,5,The clock shows 5:00.,0,False,False,0,The clock shows 5:,other_text_before_colon,False,0,True,4.122,True,The clock shows 5:00,False,True
+1,12,8,The clock shows 8:00.,0,True,True,0,The clock shows 8:,other_text_before_colon,True,0,True,4.9127,True,The clock shows 8:00,True,True
+2,6,12,12:00,0,False,False,0,12:,exact_match,False,0,True,6.3907,True,12:00,False,True
+1,5,7,The clock shows 7:25.,25,True,False,30,The clock shows 7:,other_text_before_colon,True,25,True,2.0489,True,The clock shows 7:25,True,True
+1,11,4,The clock shows 4:55.,55,True,True,55,The clock shows 4:,other_text_before_colon,True,55,True,5.5116,True,The clock shows 4:55,True,True
+1,7,5,The clock shows 5:35.,35,True,True,35,The clock shows 5:,other_text_before_colon,True,35,True,3.0694,True,The clock shows 5:35,True,True
+1,11,1,The clock shows 1:55.,55,True,False,5,The clock shows 1:,other_text_before_colon,True,55,True,3.1601,True,The clock shows 1:55,True,True
+2,11,4,4:55,55,True,True,55,4:,same_hour_unpadded,True,55,True,2.6875,True,4:55,True,True
+0,9,2,2:30,30,False,False,30,2:,same_hour_unpadded,False,30,True,0.6401,True,2:30,False,True
+1,3,4,The clock shows 4:15.,15,True,True,15,The clock shows 4:,other_text_before_colon,True,15,True,4.0255,True,The clock shows 4:15,True,True
+2,9,1,1:45,45,True,False,0,1:,same_hour_unpadded,True,45,True,0.5084,True,1:45,True,True
+1,7,7,The clock shows 7:00.,0,False,False,0,The clock shows 7:,other_text_before_colon,False,0,True,0.5053,True,The clock shows 7:00,False,True
+0,5,6,5:30,30,False,False,30,5:,wrong_hour_unpadded,False,30,True,3.011,True,5:30,False,True
+2,2,7,7:14,14,False,True,10,7:,same_hour_unpadded,True,10,True,0.7566,False,7:14,False,True
+0,12,9,9:30,30,False,False,45,9:,same_hour_unpadded,False,30,True,0.0299,True,9:30,False,True
+1,8,11,The clock shows 11:40.,40,True,True,40,The clock shows 11:,other_text_before_colon,True,40,True,6.7597,True,The clock shows 11:40,True,True
+1,3,10,The clock shows 10:15.,15,True,True,15,The clock shows 10:,other_text_before_colon,True,15,True,3.7425,True,The clock shows 10:15,True,True
+0,1,4,4:20,20,False,False,20,4:,same_hour_unpadded,False,20,True,2.5207,True,4:20,False,True
+0,10,3,3:15,15,False,False,10,3:,same_hour_unpadded,False,15,True,3.8044,True,3:15,False,True
+0,12,7,7:45,45,False,False,45,7:,same_hour_unpadded,False,45,True,1.9725,True,7:45,False,True
+2,10,11,11:50,50,True,True,50,11:,exact_match,True,50,True,3.875,True,11:50,True,True
+2,11,11,11:55,55,True,True,55,11:,exact_match,True,55,True,0.0615,True,11:55,True,True
+0,2,9,9:30,30,False,False,15,9:,same_hour_unpadded,False,30,True,0.1755,True,9:30,False,True
+0,8,7,7:40,40,True,True,40,7:,same_hour_unpadded,True,40,True,5.3475,True,7:40,True,True
+2,12,4,04:00,0,True,True,0,04:,exact_match,True,0,True,8.8346,True,04:00,True,True
+2,1,5,5:05,5,True,True,5,5:,same_hour_unpadded,True,5,True,0.8281,True,5:05,True,True
+2,3,9,9:45,45,False,False,45,9:,same_hour_unpadded,False,45,True,0.3459,True,9:45,False,True
+2,4,7,7:20,20,True,True,20,7:,same_hour_unpadded,True,20,True,3.4688,True,7:20,True,True
+1,5,6,The clock shows 6:30.,30,False,False,30,The clock shows 6:,other_text_before_colon,False,30,True,3.7023,True,The clock shows 6:30,False,True
+1,1,11,The clock shows 11:00.,0,False,True,5,The clock shows 11:,other_text_before_colon,False,0,True,0.3142,True,The clock shows 11:00,False,True
+2,1,1,1:00,0,False,False,0,1:,same_hour_unpadded,False,0,True,4.5938,True,1:00,False,True
+2,5,12,12:00,0,False,False,0,12:,exact_match,False,0,True,3.4209,True,12:00,False,True
+0,1,3,3:15,15,False,False,15,3:,same_hour_unpadded,False,15,True,2.6259,True,3:15,False,True
+2,8,7,7:40,40,True,True,40,7:,same_hour_unpadded,True,40,True,9.9141,True,7:40,True,True
+0,3,2,2:15,15,True,True,15,2:,same_hour_unpadded,True,15,True,3.0606,True,2:15,True,True
+0,11,6,11:30,30,False,True,55,11:,wrong_hour_padded,False,30,True,3.1554,True,11:30,False,True
+1,10,2,The clock shows 2:10.,10,False,False,10,The clock shows 2:,other_text_before_colon,False,10,True,0.9117,True,The clock shows 2:10,False,True
+1,2,7,The clock shows 7:10.,10,True,True,10,The clock shows 7:,other_text_before_colon,True,10,True,3.7656,True,The clock shows 7:10,True,True
+0,4,1,4:05,5,False,False,5,4:,wrong_hour_unpadded,False,5,True,2.2656,True,4:05,False,True
+2,8,6,6:40,40,True,True,40,6:,same_hour_unpadded,True,40,True,6.4362,True,6:40,True,True
+0,9,8,8:45,45,True,True,45,8:,same_hour_unpadded,True,45,True,5.8715,True,8:45,True,True
+2,9,11,11:45,45,True,True,45,11:,exact_match,True,45,True,8.0119,True,11:45,True,True
+2,4,6,6:24,24,False,True,20,6:,same_hour_unpadded,True,20,True,3.4401,False,6:24,False,True
+1,10,3,The clock shows 3:10.,10,False,False,10,The clock shows 3:,other_text_before_colon,False,10,True,1.2915,True,The clock shows 3:10,False,True
+2,10,4,4:20,20,False,False,20,4:,same_hour_unpadded,False,20,True,5.7352,True,4:20,False,True
+1,11,3,The clock shows 3:55.,55,True,False,5,The clock shows 3:,other_text_before_colon,True,55,True,5.083,True,The clock shows 3:55,True,True
+1,2,2,The clock shows 2:00.,0,False,False,0,The clock shows 2:,other_text_before_colon,False,0,True,5.0,True,The clock shows 2:00,False,True
+2,7,3,3:21,21,False,True,35,3:,same_hour_unpadded,True,35,True,2.0459,False,3:21,False,True
+1,6,6,The clock shows 6:00.,0,False,False,0,The clock shows 6:,other_text_before_colon,False,0,True,3.7016,True,The clock shows 6:00,False,True
+1,1,4,The clock shows 4:05.,5,True,False,0,The clock shows 4:,other_text_before_colon,True,5,True,0.0937,True,The clock shows 4:05,True,True
+2,2,8,8:16,16,False,True,10,8:,same_hour_unpadded,True,10,True,2.4594,False,8:16,False,True
+1,11,8,The clock shows 8:55.,55,True,True,55,The clock shows 8:,other_text_before_colon,True,55,True,4.6454,True,The clock shows 8:55,True,True
+0,2,2,2:00,0,False,False,0,2:,same_hour_unpadded,False,0,True,2.6844,True,2:00,False,True
+0,1,6,6:30,30,False,False,30,6:,same_hour_unpadded,False,30,True,2.0378,True,6:30,False,True
+0,12,2,2:00,0,True,True,0,2:,same_hour_unpadded,True,0,True,5.6437,True,2:00,True,True
+2,11,1,11:00,0,False,False,5,11:,wrong_hour_padded,False,0,True,0.0625,True,11:00,False,True
+0,1,1,1:00,0,False,False,0,1:,same_hour_unpadded,False,0,True,0.5469,True,1:00,False,True
+0,6,4,04:24,24,False,True,30,04:,exact_match,True,30,True,1.2262,False,04:24,False,True
+2,8,11,11:40,40,True,True,40,11:,exact_match,True,40,True,8.747,True,11:40,True,True
+1,1,7,The clock shows 7:05.,5,True,True,5,The clock shows 7:,other_text_before_colon,True,5,True,0.4687,True,The clock shows 7:05,True,True

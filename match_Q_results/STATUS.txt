@@ -1,0 +1,15 @@
+01_q3b_text_only_v2_rp1          OK                            12.4 min
+02_q3b_conversion_test_rp1       OK                            20.7 min
+03_q3b_describe_check_rp1        OK                            24.7 min
+04_q3b_eval_behavior_rp1         OK                             6.1 min
+05_q3b_E3e_E3f_pilot_rp1         OK                            20.9 min
+06_purge_3b_cache                OK                             0.0 min
+07_q7b_text_only_v2_rp1          OK                            14.0 min
+08_q7b_conversion_test_rp1       OK                            25.9 min
+09_q7b_describe_check_rp1        OK                            33.2 min
+10_q7b_eval_behavior_rp1         OK                             7.7 min
+11_q7b_E3e_E3f_pilot_rp1         OK                            26.9 min
+12_purge_7b_cache                OK                             0.0 min
+
+total wall time: 3.23 h
+MISSING expected files: none

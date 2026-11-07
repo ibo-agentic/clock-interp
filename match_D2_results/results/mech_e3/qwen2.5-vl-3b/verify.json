@@ -1,0 +1,151 @@
+{
+ "model": "qwen2.5-vl-3b",
+ "n_layers": 36,
+ "checks": {
+  "G1_tokens_and_spans": {
+   "pass": true,
+   "gating": true
+  },
+  "G2_gold_prefix_teacher_forced_vs_free_generation": {
+   "pass": false,
+   "gating": false,
+   "agreement": 0.85,
+   "tf_acc": 0.74,
+   "free_acc": 0.67,
+   "n": 100,
+   "note": "informational unless --g2_gate gold (see PREREG deviations log)"
+  },
+  "G2_own_prefix_teacher_forced_vs_free_generation": {
+   "pass": false,
+   "gating": true,
+   "agreement": 0.93,
+   "tf_acc": 0.66,
+   "free_acc": 0.67,
+   "n_usable": 100,
+   "token_level_exact_match": 0.91,
+   "note": "threshold 0.95; the machinery check",
+   "nocache_loop_eq_cached_free": 0.74,
+   "own_agree_vs_nocache_loop": 0.88,
+   "disagreements": {
+    "clear_disagreement": 4,
+    "near_tie(margin<0.5nat)": 2,
+    "free_minute_off_the_12_candidate_grid": 1
+   },
+   "disagreements_by_prefix_class": {
+    "exact_match": 6,
+    "wrong_hour_padded": 1
+   }
+  },
+  "G3_identity_patch_no_change": {
+   "pass": true,
+   "gating": true,
+   "max_abs_diff_nats": 0.0
+  },
+  "G4_logit_lens_final_layer_matches_model": {
+   "pass": true,
+   "gating": true,
+   "max_abs_diff_nats": 0.0
+  },
+  "G8a_eager_forced_on_every_attention_layer": {
+   "pass": true,
+   "gating": true,
+   "default": {
+    "sdpa": 36
+   },
+   "inside_eager": {
+    "eager": 36
+   }
+  },
+  "G8c_eager_logits_finite_and_close_to_default": {
+   "pass": true,
+   "gating": true,
+   "finite_default": true,
+   "finite_eager": true,
+   "max_abs_logprob_diff": 0.0488,
+   "argmax_equal": "10/10"
+  },
+  "G10_cached_decode_vs_nocache_forward_logits": {
+   "pass": true,
+   "gating": false,
+   "max_abs_logit_diff": 0.039,
+   "min_argmax_agree": 1.0,
+   "all_finite": true,
+   "n": 8,
+   "note": "large diffs with finite logits would point at a position/cache bug (e.g. stale rope_deltas); small ones = fp16 noise"
+  },
+  "G5_empty_block_equals_no_hook": {
+   "pass": true,
+   "gating": true,
+   "matches": "50/50"
+  },
+  "G8_eager_vs_default_attention_agree": {
+   "pass": true,
+   "gating": true,
+   "agreement": 1.0
+  },
+  "G8b_nocache_loop_vs_adapter_generate_agree": {
+   "pass": false,
+   "gating": true,
+   "agreement": 0.72,
+   "note": "parsed HH:MM equality; fp16 + different code path, so a small disagreement is expected"
+  },
+  "G6_guard_rejects_full_prompt_block": {
+   "pass": true,
+   "gating": true
+  },
+  "G7d_blocked_and_baseline_logprobs_finite": {
+   "pass": true,
+   "gating": true,
+   "nonfinite_forwards": 0
+  },
+  "G7_hooks_fire_on_every_layer": {
+   "pass": true,
+   "gating": true,
+   "max_calls_per_forward": 36,
+   "n_layers": 36
+  },
+  "G7b_blocking_N_span_changes_logprobs": {
+   "pass": true,
+   "gating": true,
+   "changed": "20/20"
+  },
+  "G7c_empty_block_changes_nothing": {
+   "pass": true,
+   "gating": true,
+   "max_abs_diff_nats": 0.0
+  },
+  "G9_block_activates_during_generation": {
+   "pass": true,
+   "gating": true,
+   "activated": "20/20",
+   "note": "needs >=90% (a model that never writes ':' would silently get no knockout); smoke only logs it"
+  }
+ },
+ "g2_breakdown": [
+  {
+   "prefix_class": "exact_match",
+   "n": 79,
+   "free_acc": 0.772,
+   "gold_tf_acc": 0.747,
+   "gold_agree": 0.924,
+   "own_agree": 0.924
+  },
+  {
+   "prefix_class": "wrong_hour_padded",
+   "n": 21,
+   "free_acc": 0.286,
+   "gold_tf_acc": 0.714,
+   "gold_agree": 0.571,
+   "own_agree": 0.952
+  }
+ ],
+ "attn_impl": {
+  "default": {
+   "sdpa": 36
+  },
+  "inside_eager_context": {
+   "eager": 36
+  }
+ },
+ "pass": false
+}

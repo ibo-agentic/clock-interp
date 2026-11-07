@@ -1,0 +1,98 @@
+[
+ {
+  "step": "01_q3b_verify_a_e_f_pilot",
+  "status": "FAILED rc=1",
+  "returncode": 1,
+  "minutes": 2.1
+ },
+ {
+  "step": "02_q3b_E3d_knockout",
+  "status": "FAILED rc=3",
+  "returncode": 3,
+  "minutes": 0.3
+ },
+ {
+  "step": "03_q3b_E3b_E3c_patching",
+  "status": "FAILED rc=3",
+  "returncode": 3,
+  "minutes": 0.3
+ },
+ {
+  "step": "04_i2b_verify_a_e_f_pilot",
+  "status": "FAILED rc=1",
+  "returncode": 1,
+  "minutes": 1.6
+ },
+ {
+  "step": "05_i2b_E3d_knockout",
+  "status": "FAILED rc=3",
+  "returncode": 3,
+  "minutes": 0.2
+ },
+ {
+  "step": "06_i2b_E3b_E3c_patching",
+  "status": "FAILED rc=3",
+  "returncode": 3,
+  "minutes": 0.2
+ },
+ {
+  "step": "07_purge_3b_2b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "08_q7b_verify_a_e_f_pilot",
+  "status": "FAILED rc=1",
+  "returncode": 1,
+  "minutes": 4.4
+ },
+ {
+  "step": "09_q7b_E3d_min",
+  "status": "FAILED rc=3",
+  "returncode": 3,
+  "minutes": 0.9
+ },
+ {
+  "step": "10_purge_7b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "11_text_only_v2_8b_128tok",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 27.0
+ },
+ {
+  "step": "12_conversion_test_8b_128tok",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 31.0
+ },
+ {
+  "step": "13_aggregate_text_only",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "14_aggregate_conversion",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "15_cap_check_8b_128",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.2
+ },
+ {
+  "step": "16_i8b_E3e_pilot",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 43.9
+ }
+]

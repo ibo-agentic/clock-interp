@@ -1,0 +1,10 @@
+model,task,phrasing,n,parse_ok,format_ok
+internvl3-2b,a,a1,120,1.0,0.9916666666666667
+internvl3-2b,a,a2,120,1.0,1.0
+internvl3-2b,a,a3,120,1.0,1.0
+internvl3-2b,b,b1,432,1.0,1.0
+internvl3-2b,b,b2,432,1.0,0.6666666666666666
+internvl3-2b,b,b3,432,1.0,0.9884259259259259
+internvl3-2b,c,c1,120,1.0,1.0
+internvl3-2b,c,c2,120,1.0,1.0
+internvl3-2b,c,c3,120,1.0,1.0

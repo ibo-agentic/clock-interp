@@ -1,0 +1,18 @@
+=== HEADS.PY VERIFICATION REPORT ===
+
+--- Head-level patch verification (vision method: layer0_embed) ---
+Checking 2 pair(s) x layers [12, 24] x heads [0, 1] (of 16 total heads/layer).
+pair 0 layer 12 head 0: diff-vs-A-baseline=0.3583, diff-vs-intended=0.0000 (independent, want ~0), diff-output-vs-expected=0.0002 (independent, want ~0), diff-at-layer-13=0.0196, diff-at-final-layer=0.0688
+pair 0 layer 12 head 1: diff-vs-A-baseline=0.2604, diff-vs-intended=0.0000 (independent, want ~0), diff-output-vs-expected=0.0002 (independent, want ~0), diff-at-layer-13=0.0069, diff-at-final-layer=0.0269
+pair 0 layer 24 head 0: diff-vs-A-baseline=0.6287, diff-vs-intended=0.0000 (independent, want ~0), diff-output-vs-expected=0.0003 (independent, want ~0), diff-at-layer-25=0.0324, diff-at-final-layer=0.0531
+pair 0 layer 24 head 1: diff-vs-A-baseline=0.7490, diff-vs-intended=0.0000 (independent, want ~0), diff-output-vs-expected=0.0003 (independent, want ~0), diff-at-layer-25=0.0344, diff-at-final-layer=0.0566
+pair 1 layer 12 head 0: diff-vs-A-baseline=0.3433, diff-vs-intended=0.0000 (independent, want ~0), diff-output-vs-expected=0.0002 (independent, want ~0), diff-at-layer-13=0.0201, diff-at-final-layer=0.0713
+pair 1 layer 12 head 1: diff-vs-A-baseline=0.2750, diff-vs-intended=0.0000 (independent, want ~0), diff-output-vs-expected=0.0002 (independent, want ~0), diff-at-layer-13=0.0075, diff-at-final-layer=0.0171
+pair 1 layer 24 head 0: diff-vs-A-baseline=0.5866, diff-vs-intended=0.0000 (independent, want ~0), diff-output-vs-expected=0.0003 (independent, want ~0), diff-at-layer-25=0.0310, diff-at-final-layer=0.0504
+pair 1 layer 24 head 1: diff-vs-A-baseline=0.7018, diff-vs-intended=0.0000 (independent, want ~0), diff-output-vs-expected=0.0003 (independent, want ~0), diff-at-layer-25=0.0335, diff-at-final-layer=0.0498
+
+EXTREME (ALL heads zeroed at layer 12, image-token positions): baseline='06:30' -> '06:30' (changed=False)
+
+--- Verdict ---
+FAIL -- do not trust any head-level sweep result yet:
+  - The EXTREME test (ALL heads zeroed at one layer, image-token positions) did NOT change the answer. If even total removal of every head's image-token contribution at a layer doesn't move the answer, the hook is not wired into generation -- any null result from the real sweep is unverified until this is fixed.

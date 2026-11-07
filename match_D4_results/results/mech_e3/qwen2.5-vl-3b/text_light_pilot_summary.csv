@@ -1,0 +1,3 @@
+model,cond,n,minute_acc,hour_acc,unparsed,chance_12_positions,E2_floor_rule_pass_(>=0.15)
+qwen2.5-vl-3b,blank,432,0.08333333333333333,1.0,0.0,0.08333333333333333,False
+qwen2.5-vl-3b,matching_clock,432,0.1087962962962963,0.7777777777777778,0.0,0.08333333333333333,False

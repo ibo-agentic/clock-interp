@@ -1,0 +1,57 @@
+Loading OpenGVLab/InternVL3-8B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+
+Describing clocks:   0%|          | 0/480 [00:00<?, ?it/s]
+Describing clocks:   5%|▍         | 22/480 [01:01<21:10,  2.77s/it]
+Describing clocks:   5%|▍         | 22/480 [01:20<21:10,  2.77s/it]
+Describing clocks:   9%|▉         | 44/480 [02:01<20:07,  2.77s/it]
+Describing clocks:   9%|▉         | 44/480 [02:20<20:07,  2.77s/it]
+Describing clocks:  14%|█▍        | 69/480 [03:04<18:03,  2.64s/it]
+Describing clocks:  14%|█▍        | 69/480 [03:20<18:03,  2.64s/it]
+Describing clocks:  19%|█▉        | 91/480 [04:05<17:25,  2.69s/it]
+Describing clocks:  19%|█▉        | 91/480 [04:20<17:25,  2.69s/it]
+Describing clocks:  23%|██▎       | 112/480 [05:06<16:59,  2.77s/it]
+Describing clocks:  23%|██▎       | 112/480 [05:20<16:59,  2.77s/it]
+Describing clocks:  28%|██▊       | 135/480 [06:08<15:43,  2.73s/it]
+Describing clocks:  28%|██▊       | 135/480 [06:20<15:43,  2.73s/it]
+Describing clocks:  33%|███▎      | 159/480 [07:08<14:13,  2.66s/it]
+Describing clocks:  33%|███▎      | 159/480 [07:20<14:13,  2.66s/it]
+Describing clocks:  38%|███▊      | 183/480 [08:08<12:54,  2.61s/it]
+Describing clocks:  38%|███▊      | 183/480 [08:20<12:54,  2.61s/it]
+Describing clocks:  43%|████▎     | 207/480 [09:10<11:48,  2.60s/it]
+Describing clocks:  43%|████▎     | 207/480 [09:30<11:48,  2.60s/it]
+Describing clocks:  48%|████▊     | 231/480 [10:11<10:41,  2.58s/it]
+Describing clocks:  48%|████▊     | 231/480 [10:30<10:41,  2.58s/it]
+Describing clocks:  53%|█████▎    | 255/480 [11:12<09:38,  2.57s/it]
+Describing clocks:  53%|█████▎    | 255/480 [11:30<09:38,  2.57s/it]
+Describing clocks:  58%|█████▊    | 280/480 [12:14<08:29,  2.55s/it]
+Describing clocks:  58%|█████▊    | 280/480 [12:30<08:29,  2.55s/it]
+Describing clocks:  64%|██████▎   | 305/480 [13:17<07:23,  2.53s/it]
+Describing clocks:  64%|██████▎   | 305/480 [13:30<07:23,  2.53s/it]
+Describing clocks:  69%|██████▉   | 330/480 [14:19<06:18,  2.52s/it]
+Describing clocks:  69%|██████▉   | 330/480 [14:30<06:18,  2.52s/it]
+Describing clocks:  74%|███████▍  | 354/480 [15:20<05:17,  2.52s/it]
+Describing clocks:  74%|███████▍  | 354/480 [15:30<05:17,  2.52s/it]
+Describing clocks:  79%|███████▉  | 378/480 [16:21<04:17,  2.53s/it]
+Describing clocks:  79%|███████▉  | 378/480 [16:40<04:17,  2.53s/it]
+Describing clocks:  84%|████████▎ | 401/480 [17:21<03:21,  2.56s/it]
+Describing clocks:  84%|████████▎ | 401/480 [17:40<03:21,  2.56s/it]
+Describing clocks:  89%|████████▊ | 425/480 [18:22<02:20,  2.56s/it]
+Describing clocks:  89%|████████▊ | 425/480 [18:40<02:20,  2.56s/it]
+Describing clocks:  93%|█████████▎| 448/480 [19:23<01:22,  2.57s/it]
+Describing clocks:  93%|█████████▎| 448/480 [19:40<01:22,  2.57s/it]
+Describing clocks:  98%|█████████▊| 471/480 [20:23<00:23,  2.60s/it]
+Describing clocks:  98%|█████████▊| 471/480 [20:40<00:23,  2.60s/it]
+Describing clocks: 100%|██████████| 480/480 [20:47<00:00,  2.60s/it]
+
+=== DESCRIPTION vs ANSWER ===
+  n images:                              480
+  minute-hand number described right:    84.2%
+  hour-hand number described right:      66.9%
+  both described right:                  56.7%
+  final answer right:                    46.0%
+  >> described BOTH right but answered WRONG: 72/272 (26.5% of those)
+  parse failures (no numbers found):     0.0%
+
+Saved to results/internvl3-8b/describe.csv

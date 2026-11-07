@@ -1,0 +1,59 @@
+Loading OpenGVLab/InternVL3-8B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+
+text-only gate [internvl3-8b]:   0%|          | 0/2016 [00:00<?, ?it/s]
+text-only gate [internvl3-8b]:  14%|█▍        | 285/2016 [01:00<06:05,  4.74it/s]
+text-only gate [internvl3-8b]:  14%|█▍        | 285/2016 [01:15<06:05,  4.74it/s]
+text-only gate [internvl3-8b]:  23%|██▎       | 470/2016 [02:00<06:51,  3.75it/s]
+text-only gate [internvl3-8b]:  23%|██▎       | 470/2016 [02:15<06:51,  3.75it/s]
+text-only gate [internvl3-8b]:  31%|███       | 617/2016 [03:00<07:23,  3.15it/s]
+text-only gate [internvl3-8b]:  31%|███       | 617/2016 [03:15<07:23,  3.15it/s]
+text-only gate [internvl3-8b]:  36%|███▌      | 723/2016 [04:08<08:40,  2.48it/s]
+text-only gate [internvl3-8b]:  36%|███▌      | 723/2016 [04:20<08:40,  2.48it/s]
+text-only gate [internvl3-8b]:  42%|████▏     | 854/2016 [05:08<08:09,  2.37it/s]
+text-only gate [internvl3-8b]:  42%|████▏     | 854/2016 [05:20<08:09,  2.37it/s]
+text-only gate [internvl3-8b]:  47%|████▋     | 953/2016 [06:11<08:26,  2.10it/s]
+text-only gate [internvl3-8b]:  47%|████▋     | 953/2016 [06:25<08:26,  2.10it/s]
+text-only gate [internvl3-8b]:  50%|████▉     | 1001/2016 [07:12<10:03,  1.68it/s]
+text-only gate [internvl3-8b]:  50%|████▉     | 1001/2016 [07:25<10:03,  1.68it/s]
+text-only gate [internvl3-8b]:  53%|█████▎    | 1065/2016 [08:12<10:40,  1.49it/s]
+text-only gate [internvl3-8b]:  53%|█████▎    | 1065/2016 [08:25<10:40,  1.49it/s]
+text-only gate [internvl3-8b]:  58%|█████▊    | 1172/2016 [09:13<08:56,  1.57it/s]
+text-only gate [internvl3-8b]:  58%|█████▊    | 1172/2016 [09:25<08:56,  1.57it/s]
+text-only gate [internvl3-8b]:  64%|██████▍   | 1293/2016 [10:13<07:03,  1.71it/s]
+text-only gate [internvl3-8b]:  64%|██████▍   | 1293/2016 [10:25<07:03,  1.71it/s]
+text-only gate [internvl3-8b]:  68%|██████▊   | 1375/2016 [11:14<06:40,  1.60it/s]
+text-only gate [internvl3-8b]:  68%|██████▊   | 1375/2016 [11:25<06:40,  1.60it/s]
+text-only gate [internvl3-8b]:  69%|██████▉   | 1398/2016 [12:18<08:33,  1.20it/s]
+text-only gate [internvl3-8b]:  69%|██████▉   | 1398/2016 [12:30<08:33,  1.20it/s]
+text-only gate [internvl3-8b]:  70%|███████   | 1414/2016 [13:19<10:52,  1.08s/it]
+text-only gate [internvl3-8b]:  70%|███████   | 1414/2016 [13:30<10:52,  1.08s/it]
+text-only gate [internvl3-8b]:  71%|███████   | 1435/2016 [14:20<12:56,  1.34s/it]
+text-only gate [internvl3-8b]:  71%|███████   | 1435/2016 [14:35<12:56,  1.34s/it]
+text-only gate [internvl3-8b]:  72%|███████▏  | 1456/2016 [15:24<15:06,  1.62s/it]
+text-only gate [internvl3-8b]:  72%|███████▏  | 1456/2016 [15:35<15:06,  1.62s/it]
+text-only gate [internvl3-8b]:  74%|███████▎  | 1482/2016 [16:26<15:56,  1.79s/it]
+text-only gate [internvl3-8b]:  74%|███████▎  | 1482/2016 [16:40<15:56,  1.79s/it]
+text-only gate [internvl3-8b]:  75%|███████▌  | 1515/2016 [17:27<15:06,  1.81s/it]
+text-only gate [internvl3-8b]:  75%|███████▌  | 1515/2016 [17:40<15:06,  1.81s/it]
+text-only gate [internvl3-8b]:  76%|███████▋  | 1540/2016 [18:30<15:37,  1.97s/it]
+text-only gate [internvl3-8b]:  76%|███████▋  | 1540/2016 [18:40<15:37,  1.97s/it]
+text-only gate [internvl3-8b]:  77%|███████▋  | 1559/2016 [19:30<16:53,  2.22s/it]
+text-only gate [internvl3-8b]:  77%|███████▋  | 1559/2016 [19:45<16:53,  2.22s/it]
+text-only gate [internvl3-8b]:  79%|███████▊  | 1586/2016 [20:30<15:56,  2.22s/it]
+text-only gate [internvl3-8b]:  79%|███████▊  | 1586/2016 [20:45<15:56,  2.22s/it]
+text-only gate [internvl3-8b]:  80%|███████▉  | 1610/2016 [21:30<15:34,  2.30s/it]
+text-only gate [internvl3-8b]:  80%|███████▉  | 1610/2016 [21:45<15:34,  2.30s/it]
+text-only gate [internvl3-8b]:  81%|████████  | 1637/2016 [22:31<14:23,  2.28s/it]
+text-only gate [internvl3-8b]:  81%|████████  | 1637/2016 [22:45<14:23,  2.28s/it]
+text-only gate [internvl3-8b]:  89%|████████▊ | 1785/2016 [23:31<03:41,  1.04it/s]
+text-only gate [internvl3-8b]:  89%|████████▊ | 1785/2016 [23:45<03:41,  1.04it/s]
+text-only gate [internvl3-8b]: 100%|██████████| 2016/2016 [24:18<00:00,  1.38it/s]
+
+Saved 2016 trials to 'results/internvl3-8b/text_only_v2.csv' and config to 'results/internvl3-8b/run_config.json'.
+parse_ok: 99.8%   format_ok (bare answer): 81.8%
+  task a: headline-correct 99.7% (n=360)
+  task b: headline-correct 97.5% (n=1296)
+  task c: headline-correct 100.0% (n=360)

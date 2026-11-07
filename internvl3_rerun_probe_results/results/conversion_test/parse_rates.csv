@@ -1,0 +1,5 @@
+model,condition,n,parse_ok
+internvl3-8b,blank,432,0.9953703703703703
+internvl3-8b,matching_clock,432,1.0
+internvl3-8b,mismatched_clock,432,1.0
+internvl3-8b,text_only,432,0.9699074074074074

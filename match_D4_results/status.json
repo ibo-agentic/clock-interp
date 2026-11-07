@@ -1,0 +1,32 @@
+[
+ {
+  "step": "01_q3b_E3e_E3f_pilot",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 21.0
+ },
+ {
+  "step": "02_i2b_E3e_E3f_pilot",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 15.3
+ },
+ {
+  "step": "03_purge_3b_2b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "04_q7b_E3e_E3f_pilot",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 33.0
+ },
+ {
+  "step": "05_purge_7b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]

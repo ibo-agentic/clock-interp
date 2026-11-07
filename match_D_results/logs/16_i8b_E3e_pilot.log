@@ -1,0 +1,23 @@
+Loading OpenGVLab/InternVL3-8B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+mech_e3: model=internvl3-8b layers=28 parts=['e', 'p'] smoke=False  [all timings in the log are measurements of THIS run; planning numbers elsewhere are guesses]
+
+===== part e =====
+  E3e 50/216
+  E3e 100/216
+  E3e 150/216
+  E3e 200/216
+  wrote results/mech_e3/internvl3-8b/e3e_transplant.csv (648 rows)
+  wrote results/mech_e3/internvl3-8b/e3e_summary.csv (3 rows)
+part e took 31.6 min
+
+===== part p =====
+  pilot 100/432  150s
+  pilot 200/432  313s
+  pilot 300/432  486s
+  pilot 400/432  655s
+  wrote results/mech_e3/internvl3-8b/text_light_pilot.csv (864 rows)
+  wrote results/mech_e3/internvl3-8b/text_light_pilot_summary.csv (2 rows)
+  TEXT-LIGHT PILOT internvl3-8b: matching-clock minute accuracy 0.750 -> floor rule PASSED
+part p took 11.8 min

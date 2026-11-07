@@ -1,0 +1,3 @@
+file,cap,n,max_tokens,p99,hit_cap,within_1_of_cap,unparsed
+results/internvl3-8b/text_only_v2.csv,128,2016,128,79,2,4,4
+results/internvl3-8b/conversion_test.csv,128,1728,90,65,0,0,0

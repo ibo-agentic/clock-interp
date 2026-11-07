@@ -1,0 +1,4 @@
+{'file': 'results/internvl3-8b/text_only_v2.csv', 'cap': 128, 'n': 2016, 'max_tokens': 128, 'p99': 79, 'hit_cap': 2, 'within_1_of_cap': 4, 'unparsed': 4}
+{'file': 'results/internvl3-8b/conversion_test.csv', 'cap': 128, 'n': 1728, 'max_tokens': 90, 'p99': 65, 'hit_cap': 0, 'within_1_of_cap': 0, 'unparsed': 0}
+wrote results/internvl3-8b/cap_check_128.csv
+WARNING: some replies still hit the cap -- consider a larger --max_new_tokens.

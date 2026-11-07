@@ -1,0 +1,36 @@
+Loading OpenGVLab/InternVL3-2B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+
+conversion test [internvl3-2b]:   0%|          | 0/1728 [00:00<?, ?it/s]
+conversion test [internvl3-2b]:   9%|▊         | 151/1728 [01:00<10:29,  2.50it/s]
+conversion test [internvl3-2b]:  12%|█▏        | 203/1728 [01:20<10:09,  2.50it/s]
+conversion test [internvl3-2b]:  18%|█▊        | 314/1728 [02:00<08:59,  2.62it/s]
+conversion test [internvl3-2b]:  21%|██        | 365/1728 [02:20<08:40,  2.62it/s]
+conversion test [internvl3-2b]:  27%|██▋       | 475/1728 [03:00<07:54,  2.64it/s]
+conversion test [internvl3-2b]:  30%|███       | 523/1728 [03:20<07:36,  2.64it/s]
+conversion test [internvl3-2b]:  36%|███▌      | 625/1728 [04:01<07:07,  2.58it/s]
+conversion test [internvl3-2b]:  39%|███▊      | 668/1728 [04:20<06:51,  2.58it/s]
+conversion test [internvl3-2b]:  44%|████▍     | 764/1728 [05:01<06:28,  2.48it/s]
+conversion test [internvl3-2b]:  47%|████▋     | 807/1728 [05:20<06:10,  2.48it/s]
+conversion test [internvl3-2b]:  52%|█████▏    | 902/1728 [06:01<05:41,  2.42it/s]
+conversion test [internvl3-2b]:  55%|█████▍    | 944/1728 [06:20<05:24,  2.42it/s]
+conversion test [internvl3-2b]:  60%|██████    | 1040/1728 [07:02<04:49,  2.38it/s]
+conversion test [internvl3-2b]:  62%|██████▎   | 1080/1728 [07:20<04:32,  2.38it/s]
+conversion test [internvl3-2b]:  68%|██████▊   | 1183/1728 [08:02<03:49,  2.38it/s]
+conversion test [internvl3-2b]:  71%|███████   | 1229/1728 [08:20<03:30,  2.38it/s]
+conversion test [internvl3-2b]:  78%|███████▊  | 1343/1728 [09:02<02:36,  2.46it/s]
+conversion test [internvl3-2b]:  80%|████████  | 1389/1728 [09:20<02:17,  2.46it/s]
+conversion test [internvl3-2b]:  87%|████████▋ | 1504/1728 [10:02<01:28,  2.53it/s]
+conversion test [internvl3-2b]:  90%|████████▉ | 1551/1728 [10:20<01:09,  2.53it/s]
+conversion test [internvl3-2b]:  96%|█████████▋| 1666/1728 [11:03<00:24,  2.58it/s]
+conversion test [internvl3-2b]:  99%|█████████▉| 1711/1728 [11:20<00:06,  2.58it/s]
+conversion test [internvl3-2b]: 100%|██████████| 1728/1728 [11:26<00:00,  2.52it/s]
+
+Saved 1728 generations to 'results/internvl3-2b/conversion_test.csv', config to 'results/internvl3-2b/conversion_test_run_config.json'.
+text_only reproduction vs text_only_v2: CHECKED -- n=432, exact raw match 100.0%, minute_correct agreement 100.0%
+parse_ok: 99.8%
+  blank             minute_correct 45.6% (n=432)
+  matching_clock    minute_correct 71.8% (n=432)
+  mismatched_clock  minute_correct 43.8% (n=432)  matches_image_minute 15.3%
+  text_only         minute_correct 49.8% (n=432)

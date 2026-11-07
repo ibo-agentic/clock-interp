@@ -1,0 +1,5 @@
+Loading OpenGVLab/InternVL3-2B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+mech_e3: model=internvl3-2b layers=28 parts=['d'] smoke=False  [all timings in the log are measurements of THIS run; planning numbers elsewhere are guesses]
+part d: skipped, no passing verify.json for internvl3-2b

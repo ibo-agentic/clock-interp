@@ -1,0 +1,106 @@
+=== EXPERIMENT A SUMMARY -- TOWARD TRUE MINUTE (activation patching) ===
+
+n pairs: 40
+transformers==5.0.0
+vision-ceiling mechanism: layer0_embed (patches hidden_states[0] at image-token positions -- the same mechanism the decoder-patch sweep above uses; get_image_features interception was attempted and failed --verify on three prior rounds on this transformers version, see README.md)
+
+position_set   best_layer  moved%   shift   chg%  ||   same-min moved% same-min chg%  ||   noise moved% noise chg%
+image_tokens           11  100.0%    0.95 100.0%  ||              6.5%         97.5%  ||          65.0%     100.0%
+final_token            11    0.0%    0.00   0.0%  ||              0.0%          0.0%  ||           0.0%      32.5%
+all_positions          11  100.0%    0.95 100.0%  ||              6.5%         97.5%  ||           0.0%     100.0%
+
+vision-encoder ceiling [mechanism: layer0_embed] (whole visual representation swapped): moved toward B 100.0%, mean shift 0.95, answer changed 100.0%
+
+Read 'moved%' RELATIVE TO ITS OWN same-min/noise columns, not against an assumed 50%:
+when A and B's minutes are far apart (up to 30, the maximum on a 60-minute circle),
+baseline sits near the worst possible starting point, so almost ANY perturbation --
+including pure noise -- has good odds of looking 'closer' by chance. The noise and
+same-minute columns above already reflect that same geometry, so if real_b's numbers
+stay close to noise's at the same layer/position (not clearly higher), and 'chg%' stays
+low across the WHOLE sweep including the vision-encoder ceiling, THAT null result is
+the finding: the angle information is present but the model's answer doesn't use it.
+
+CAUTION -- these 'moved toward TRUE minute' numbers are further confounded on top of the
+chance-level geometry above: the model states the TRUE minute correctly only ~2-3% of
+the time even when looking straight at the source, so 'moved%'/'chg%' here are capped by
+that baseline failure rate regardless of what the patch actually did. See the
+TRANSFER-TO-BASELINE summary below for the metric that isn't confounded this way --
+compare it, not this table, when judging whether the intervention had a real effect.
+
+=== EXPERIMENT A SUMMARY -- TRANSFER TO BASELINE (fixes the true-minute confound) ===
+
+Compares the PATCHED answer to what the model ITSELF says (unpatched) about the patch
+source/target, NOT to its true minute -- well-defined regardless of whether that answer
+is correct, so it isn't capped by how rarely the model states the truth.
+
+Baseline agreement rate per condition (A's and the target's UNPATCHED answers already
+identical -- EXCLUDED from the transfer rates below, since transfer there would be
+trivially 'successful' regardless of what the patch did):
+  real_b        : 0.0% of 40 pairs
+  same_minute   : 2.5% of 40 pairs
+  noise         : 0.0% of 40 pairs
+
+position_set   best_layer  ||  condition      exact%  minute%  hour%  n_usable
+image_tokens           11  ||  real_b         100.0%   100.0% 100.0%        40
+                           ||  same_minute    100.0%   100.0% 100.0%        39
+                           ||  noise            0.0%    12.5%   0.0%        40
+final_token            11  ||  real_b           0.0%     0.0%  57.5%        40
+                           ||  same_minute      0.0%    64.1%   5.1%        39
+                           ||  noise            0.0%     0.0%  64.3%        28
+all_positions          11  ||  real_b         100.0%   100.0% 100.0%        40
+                           ||  same_minute    100.0%   100.0% 100.0%        39
+                           ||  noise            0.0%     0.0%   0.0%         1
+
+vision-encoder ceiling: exact_transfer=100.0%, minute_transfer=100.0%, hour_transfer=100.0% (n_usable=40/40)
+
+As with the true-minute table, compare real_b's numbers to same-minute/noise AT THE SAME
+layer, not in isolation -- that's the actual test of whether B's specific content matters.
+
+=== EXPERIMENT A SUMMARY -- PER-LAYER to_B / stay_A / other (image-token readout) ===
+
+Restricted to pairs where A's and the target's OWN STATED MINUTES differ (not just where
+the full hour+minute baseline answer differs) -- the direct test of whether patching moved
+the stated MINUTE specifically. to_B: patched minute == target's baseline minute. stay_A:
+patched minute == A's own baseline minute (patch had no visible effect). other: neither --
+the patch changed the answer, but not to either recognizable value. These three sum to
+~100% of n_usable within each row.
+
+ layer  ||             real_b             ||   same_minute to_B%  ||    noise to_B%
+        ||     to_B%   stay_A%   other%  n_usable  ||                      ||               
+
+--- position_set = image_tokens ---
+    11  ||    100.0%      0.0%     0.0%        40  ||              100.0%  ||          12.5%
+    14  ||     97.5%      0.0%     2.5%        40  ||               92.9%  ||           7.5%
+    15  ||     97.5%      0.0%     2.5%        40  ||              100.0%  ||           7.5%
+    17  ||     92.5%      0.0%     7.5%        40  ||               78.6%  ||           7.5%
+    18  ||     87.5%      0.0%    12.5%        40  ||               78.6%  ||          10.0%
+    20  ||     70.0%      2.5%    27.5%        40  ||               21.4%  ||          10.0%
+    22  ||     60.0%      5.0%    35.0%        40  ||               21.4%  ||           5.0%
+vision-enc  ||    100.0%      0.0%     0.0%        40  ||  (n/a)  ||  (n/a)
+
+--- position_set = final_token ---
+    11  ||      0.0%    100.0%     0.0%        40  ||                0.0%  ||           0.0%
+    14  ||      0.0%    100.0%     0.0%        40  ||                0.0%  ||           0.0%
+    15  ||      0.0%    100.0%     0.0%        40  ||                0.0%  ||           4.0%
+    17  ||      0.0%    100.0%     0.0%        40  ||                0.0%  ||           0.0%
+    18  ||      0.0%    100.0%     0.0%        40  ||                0.0%  ||           0.0%
+    20  ||      0.0%    100.0%     0.0%        40  ||                0.0%  ||           0.0%
+    22  ||      0.0%    100.0%     0.0%        40  ||                0.0%  ||           0.0%
+
+--- position_set = all_positions ---
+    11  ||    100.0%      0.0%     0.0%        40  ||              100.0%  ||           0.0%
+    14  ||     97.5%      0.0%     2.5%        40  ||               92.9%  ||           0.0%
+    15  ||     97.5%      0.0%     2.5%        40  ||              100.0%  ||           0.0%
+    17  ||     95.0%      0.0%     5.0%        40  ||               71.4%  ||           0.0%
+    18  ||     92.5%      0.0%     7.5%        40  ||               71.4%  ||           nan%
+    20  ||     70.0%      2.5%    27.5%        40  ||               35.7%  ||          20.0%
+    22  ||     60.0%      5.0%    35.0%        40  ||               21.4%  ||           0.0%
+
+NOTE on the layer-28 (final decoder layer) row above: patching it is a KV-cache
+mechanics artifact, not a measurement of whether that layer matters. The patch only ever
+applies during the single prefill forward pass; this transformers version computes
+attention/KV-caching for each block from THAT block's UNPATCHED input, and there is no
+block downstream of the last one to re-attend to the patched positions -- so a patch to
+the last layer's image-token positions never reaches the logits for ANY generated token,
+first or later. A near-0% rate there is expected regardless of whether the minute is
+causally read out of image tokens at all -- read the window BELOW it (e.g. 16-24) instead.

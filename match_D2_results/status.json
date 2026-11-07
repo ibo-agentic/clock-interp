@@ -1,0 +1,26 @@
+[
+ {
+  "step": "01_q3b_gate_only",
+  "status": "FAILED rc=3",
+  "returncode": 3,
+  "minutes": 5.2
+ },
+ {
+  "step": "02_i2b_gate_only",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 4.1
+ },
+ {
+  "step": "03_purge_3b_2b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "04_q7b_gate_only",
+  "status": "FAILED rc=3",
+  "returncode": 3,
+  "minutes": 9.1
+ }
+]

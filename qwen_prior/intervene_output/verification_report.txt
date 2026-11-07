@@ -1,0 +1,62 @@
+=== VERIFICATION REPORT ===
+
+--- Vision-encoder swap verification (method: layer0_embed) ---
+pair 0 (probe_0245.png <- probe_0041.png): vision_output rel L2 diff=0.4033, layer0 rel L2 diff at image tokens=0.0000, layer1 rel L2 diff at image tokens=0.3832
+  baseline answer: '06:30'
+  EXTREME zero-vision answer: '03:15' (changed=True)
+  EXTREME random-noise-image answer: '01:35' (changed=True)
+pair 1 (probe_0136.png <- probe_0006.png): vision_output rel L2 diff=0.4083, layer0 rel L2 diff at image tokens=0.0000, layer1 rel L2 diff at image tokens=0.3832
+pair 2 (probe_0246.png <- probe_0049.png): vision_output rel L2 diff=0.3853, layer0 rel L2 diff at image tokens=0.0000, layer1 rel L2 diff at image tokens=0.3667
+
+--- Decoder-layer patch verification ---
+pair 0, position_set='image_tokens': covers 324/360 positions (90.0%)
+  layer 0: diff-at-patch=0.0000, diff-at-layer-1=0.3832, diff-at-final-layer=0.4971
+  layer 1: diff-at-patch=0.3832, diff-at-layer-2=0.3542, diff-at-final-layer=0.4971
+  layer 18: diff-at-patch=0.3640, diff-at-layer-19=0.3531, diff-at-final-layer=0.4971
+  layer 36: diff-at-patch=0.6939, diff-at-layer-36=0.6939, diff-at-final-layer=0.6939
+pair 0, position_set='final_token': covers 1/360 positions (0.3%)
+  layer 0: diff-at-patch=0.0000, diff-at-layer-1=0.0000, diff-at-final-layer=0.0000
+  layer 1: diff-at-patch=0.0176, diff-at-layer-2=0.0127, diff-at-final-layer=0.0014
+  layer 18: diff-at-patch=0.0211, diff-at-layer-19=0.0191, diff-at-final-layer=0.0076
+  layer 36: diff-at-patch=0.5303, diff-at-layer-36=0.5303, diff-at-final-layer=0.5303
+pair 0, position_set='all_positions': covers 360/360 positions (100.0%)
+  layer 0: diff-at-patch=0.0000, diff-at-layer-1=0.3795, diff-at-final-layer=0.4717
+  layer 1: diff-at-patch=0.3795, diff-at-layer-2=0.3493, diff-at-final-layer=0.4717
+  layer 18: diff-at-patch=0.1237, diff-at-layer-19=0.1267, diff-at-final-layer=0.4717
+  layer 36: diff-at-patch=0.6699, diff-at-layer-36=0.6699, diff-at-final-layer=0.6699
+pair 1, position_set='image_tokens': covers 324/360 positions (90.0%)
+  layer 0: diff-at-patch=0.0000, diff-at-layer-1=0.3832, diff-at-final-layer=0.5083
+  layer 1: diff-at-patch=0.3832, diff-at-layer-2=0.3542, diff-at-final-layer=0.5083
+  layer 18: diff-at-patch=0.3553, diff-at-layer-19=0.3434, diff-at-final-layer=0.5083
+  layer 36: diff-at-patch=0.6979, diff-at-layer-36=0.6979, diff-at-final-layer=0.6979
+pair 1, position_set='final_token': covers 1/360 positions (0.3%)
+  layer 0: diff-at-patch=0.0000, diff-at-layer-1=0.0000, diff-at-final-layer=0.0000
+  layer 1: diff-at-patch=0.0387, diff-at-layer-2=0.0278, diff-at-final-layer=0.0023
+  layer 18: diff-at-patch=0.0244, diff-at-layer-19=0.0208, diff-at-final-layer=0.0076
+  layer 36: diff-at-patch=0.5312, diff-at-layer-36=0.5312, diff-at-final-layer=0.5312
+pair 1, position_set='all_positions': covers 360/360 positions (100.0%)
+  layer 0: diff-at-patch=0.0000, diff-at-layer-1=0.3793, diff-at-final-layer=0.4822
+  layer 1: diff-at-patch=0.3793, diff-at-layer-2=0.3491, diff-at-final-layer=0.4822
+  layer 18: diff-at-patch=0.1199, diff-at-layer-19=0.1226, diff-at-final-layer=0.4822
+  layer 36: diff-at-patch=0.6732, diff-at-layer-36=0.6732, diff-at-final-layer=0.6732
+pair 2, position_set='image_tokens': covers 324/360 positions (90.0%)
+  layer 0: diff-at-patch=0.0000, diff-at-layer-1=0.3667, diff-at-final-layer=0.4891
+  layer 1: diff-at-patch=0.3667, diff-at-layer-2=0.3389, diff-at-final-layer=0.4891
+  layer 18: diff-at-patch=0.3559, diff-at-layer-19=0.3460, diff-at-final-layer=0.4891
+  layer 36: diff-at-patch=0.6866, diff-at-layer-36=0.6866, diff-at-final-layer=0.6866
+pair 2, position_set='final_token': covers 1/360 positions (0.3%)
+  layer 0: diff-at-patch=0.0000, diff-at-layer-1=0.0000, diff-at-final-layer=0.0000
+  layer 1: diff-at-patch=0.0204, diff-at-layer-2=0.0148, diff-at-final-layer=0.0017
+  layer 18: diff-at-patch=0.0217, diff-at-layer-19=0.0195, diff-at-final-layer=0.0049
+  layer 36: diff-at-patch=0.5196, diff-at-layer-36=0.5196, diff-at-final-layer=0.5196
+pair 2, position_set='all_positions': covers 360/360 positions (100.0%)
+  layer 0: diff-at-patch=0.0000, diff-at-layer-1=0.3631, diff-at-final-layer=0.4642
+  layer 1: diff-at-patch=0.3631, diff-at-layer-2=0.3342, diff-at-final-layer=0.4642
+  layer 18: diff-at-patch=0.1209, diff-at-layer-19=0.1242, diff-at-final-layer=0.4642
+  layer 36: diff-at-patch=0.6631, diff-at-layer-36=0.6631, diff-at-final-layer=0.6631
+
+--- Verdict ---
+PASS: the vision swap and decoder patches both write genuinely different tensors that
+propagate downstream, and the extreme vision test(s) DO change the answer -- the
+intervention mechanism is demonstrably wired into the forward path. A null result from
+the main experiment reflects the model's actual behavior, not a broken hook.

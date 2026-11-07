@@ -528,3 +528,187 @@ def label_answer(text, hour, truth_minute, image_minute=None):
     else:
         lab = "other"
     return lab, h, m
+
+
+# ----------------------------------------------------------------------------------------------------------
+# E1 / E2 additions: image-key attention block (query sets A / B), embedding-level hidden capture & patch,
+# extended inputs for teacher forcing with images, pixel mask -> image-token-grid mask
+# ----------------------------------------------------------------------------------------------------------
+
+class ImageBlockState:
+    """State of the text->image-key attention block (E1).
+    image_mask : (P,) bool CPU tensor, True at image-token positions of the PROMPT (P = prompt length)
+    qset       : 'B' = every non-image query position (question text + generated tokens); 'A' = the last prompt token + generated tokens
+    active     : False -> hook is a no-op (used for the 'empty block' gate)"""
+
+    def __init__(self):
+        self.image_mask = None
+        self.qset = "B"
+        self.active = False
+        self.calls = 0           # invocations that modified a mask
+        self.decode_calls = 0    # ... of which single-token (cached decode) invocations
+        self.seen = 0
+
+    def set(self, image_mask, qset, active=True):
+        self.image_mask = torch.as_tensor(image_mask, dtype=torch.bool).cpu()
+        self.qset, self.active = qset, active
+        self.calls = self.decode_calls = self.seen = 0
+
+
+def _make_image_block_hook(state):
+    def hook(_module, args, kwargs):
+        state.seen += 1
+        if not state.active or state.image_mask is None:
+            return None
+        mask, where = _extract_mask(args, kwargs)
+        if mask is None or mask.dim() != 4 or not torch.is_floating_point(mask):
+            raise RuntimeError("image-block hook needs eager attention with a float 4-D additive mask; got "
+                               f"{None if mask is None else (tuple(mask.shape), mask.dtype)}")
+        _, _, q_len, kv_len = mask.shape
+        P = int(state.image_mask.shape[0])
+        dev = mask.device
+        im = torch.zeros(kv_len, dtype=torch.bool)
+        n = min(P, kv_len)
+        im[:n] = state.image_mask[:n]
+        qpos = torch.arange(kv_len - q_len, kv_len)                       # absolute positions of the query rows
+        if state.qset == "A":
+            rows = qpos >= (P - 1)
+        else:
+            rows = ~im[qpos]
+        if not bool(rows.any()) or not bool(im.any()):
+            return None
+        new = mask.clone()
+        sel = new[:, :, rows.to(dev), :]
+        sel[..., im.to(dev)] = torch.finfo(new.dtype).min
+        new[:, :, rows.to(dev), :] = sel
+        state.calls += 1
+        state.decode_calls += int(q_len == 1)
+        if where == "arg1":
+            return (args[0], new) + tuple(args[2:]), kwargs
+        kw = dict(kwargs)
+        kw["attention_mask"] = new
+        return args, kw
+    return hook
+
+
+@contextlib.contextmanager
+def block_image_attention(adapter, layer_range, state):
+    """Pre-hook on the attention modules of decoder layers [start, end): text queries (set by state.qset) cannot attend to image-token keys,
+    in prefill AND in every cached decode step. Eager (fp32-accumulating) attention is forced for the duration."""
+    layers = adapter.decoder_layers()
+    attn = find_attention_modules(layers)
+    s, e = layer_range
+    handles = []
+    with eager_attention(adapter):
+        for i in range(max(s, 0), min(e, len(attn))):
+            handles.append(attn[i].register_forward_pre_hook(_make_image_block_hook(state), with_kwargs=True))
+        try:
+            yield
+        finally:
+            for h in handles:
+                h.remove()
+
+
+@contextlib.contextmanager
+def capture_hidden(layers):
+    """store[0] = input to decoder layer 0 (the embedding output, vision features already merged); store[k] = output of decoder layer k-1
+    (same indexing as output_hidden_states). Each entry (B,T,d), detached."""
+    store = [None] * (len(layers) + 1)
+    hs = []
+
+    def pre(_m, args, kwargs):
+        h = args[0] if args else kwargs["hidden_states"]
+        store[0] = h.detach()
+    hs.append(layers[0].register_forward_pre_hook(pre, with_kwargs=True))
+    for i, ly in enumerate(layers):
+        def hook(_m, _a, out, i=i):
+            store[i + 1] = _hs(out).detach()
+        hs.append(ly.register_forward_hook(hook))
+    try:
+        yield store
+    finally:
+        for h in hs:
+            h.remove()
+
+
+@contextlib.contextmanager
+def patch_hidden(layers, k, positions, rows):
+    """Replace hidden state k (0 = embedding output / input of layer 0, k>=1 = output of layer k-1) at `positions` by `rows` ((npos,d) tensor,
+    aligned with sorted positions). Only prefill-length passes are touched (a pass shorter than the largest position is left alone)."""
+    pos = torch.as_tensor(sorted(set(int(p) for p in positions)), dtype=torch.long)
+    if len(pos) == 0:
+        yield
+        return
+
+    def apply(h):
+        if h.shape[1] <= int(pos.max()):
+            return None
+        new = h.clone()
+        new[:, _to(pos, h.device)] = _to(rows, h.device).to(h.dtype)
+        return new
+    if k == 0:
+        def pre(_m, args, kwargs):
+            h = args[0] if args else kwargs["hidden_states"]
+            new = apply(h)
+            if new is None:
+                return None
+            if args:
+                return (new,) + tuple(args[1:]), kwargs
+            kw = dict(kwargs); kw["hidden_states"] = new
+            return args, kw
+        handle = layers[0].register_forward_pre_hook(pre, with_kwargs=True)
+    else:
+        def hook(_m, _a, out):
+            new = apply(_hs(out))
+            return None if new is None else _with_hs(out, new)
+        handle = layers[k - 1].register_forward_hook(hook)
+    try:
+        yield
+    finally:
+        handle.remove()
+
+
+def make_matched_noise(orig_rows, rng):
+    """Gaussian noise with the same per-row norm as orig_rows ((n,d) float tensor); rng = numpy RandomState."""
+    noise = torch.from_numpy(rng.standard_normal(tuple(orig_rows.shape)).astype(np.float32))
+    row_norm = orig_rows.float().cpu().norm(dim=-1, keepdim=True)
+    return (noise * (row_norm / noise.norm(dim=-1, keepdim=True).clamp_min(1e-8))).to(orig_rows.dtype)
+
+
+def extended_inputs(inputs, extra_ids):
+    """Copy of an input dict with `extra_ids` appended to input_ids (attention_mask extended with ones; any other (1,P) integer tensor such as
+    mm_token_type_ids padded with zeros). Image tensors are shared, not copied."""
+    ids = inputs["input_ids"]
+    extra = torch.as_tensor(list(extra_ids), dtype=ids.dtype, device=ids.device)[None]
+    out = dict(inputs)
+    P = ids.shape[1]
+    out["input_ids"] = torch.cat([ids, extra], dim=1)
+    for k, v in inputs.items():
+        if k == "input_ids" or not torch.is_tensor(v) or v.dim() != 2 or v.shape[1] != P or v.dtype.is_floating_point:
+            continue
+        pad = torch.ones_like(extra) if k == "attention_mask" else torch.zeros_like(extra)
+        out[k] = torch.cat([v, pad.to(v.dtype)], dim=1)
+    return out
+
+
+@torch.no_grad()
+def minute_logprob(adapter, inputs, hour_prefix_ids, minute_ids):
+    """log p(minute digits | prompt+image, forced 'HH:' prefix) for ONE minute string; works with image inputs (use_cache=False)."""
+    full = extended_inputs(inputs, list(hour_prefix_ids) + list(minute_ids))
+    out = adapter.model(**full, use_cache=False)
+    q = inputs["input_ids"].shape[1] + len(hour_prefix_ids) - 1
+    lsm = torch.log_softmax(out.logits[0, q:q + len(minute_ids)].float(), dim=-1)
+    tgt = _to(torch.as_tensor(list(minute_ids), dtype=torch.long), lsm.device)
+    return float(lsm.gather(-1, tgt[:, None])[:, 0].sum())
+
+
+def pixel_mask_to_token_mask(pix_mask, grid):
+    """pix_mask: (H,W) bool numpy; returns (grid*grid,) bool: token (r,c) True if ANY pixel of its cell (proportional cells) is True."""
+    H, W = pix_mask.shape
+    out = np.zeros((grid, grid), dtype=bool)
+    ys = np.linspace(0, H, grid + 1).astype(int)
+    xs = np.linspace(0, W, grid + 1).astype(int)
+    for r in range(grid):
+        for c in range(grid):
+            out[r, c] = bool(pix_mask[ys[r]:max(ys[r + 1], ys[r] + 1), xs[c]:max(xs[c + 1], xs[c] + 1)].any())
+    return out.reshape(-1)

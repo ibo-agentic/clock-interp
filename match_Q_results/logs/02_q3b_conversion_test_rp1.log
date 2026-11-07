@@ -1,0 +1,52 @@
+Loading Qwen/Qwen2.5-VL-3B-Instruct in float16 ...
+
+conversion test [qwen2.5-vl-3b]:   0%|          | 0/1728 [00:00<?, ?it/s]
+conversion test [qwen2.5-vl-3b]:   5%|▍         | 78/1728 [01:00<21:10,  1.30it/s]
+conversion test [qwen2.5-vl-3b]:   6%|▌         | 107/1728 [01:20<20:48,  1.30it/s]
+conversion test [qwen2.5-vl-3b]:  10%|▉         | 167/1728 [02:00<18:30,  1.41it/s]
+conversion test [qwen2.5-vl-3b]:  11%|█▏        | 196/1728 [02:20<18:10,  1.41it/s]
+conversion test [qwen2.5-vl-3b]:  15%|█▍        | 256/1728 [03:00<17:03,  1.44it/s]
+conversion test [qwen2.5-vl-3b]:  16%|█▋        | 285/1728 [03:20<16:43,  1.44it/s]
+conversion test [qwen2.5-vl-3b]:  20%|█▉        | 345/1728 [04:00<15:51,  1.45it/s]
+conversion test [qwen2.5-vl-3b]:  22%|██▏       | 373/1728 [04:20<15:32,  1.45it/s]
+conversion test [qwen2.5-vl-3b]:  25%|██▌       | 434/1728 [05:01<14:46,  1.46it/s]
+conversion test [qwen2.5-vl-3b]:  27%|██▋       | 461/1728 [05:20<14:27,  1.46it/s]
+conversion test [qwen2.5-vl-3b]:  30%|███       | 522/1728 [06:01<13:47,  1.46it/s]
+conversion test [qwen2.5-vl-3b]:  32%|███▏      | 549/1728 [06:20<13:28,  1.46it/s]
+conversion test [qwen2.5-vl-3b]:  35%|███▌      | 611/1728 [07:02<12:44,  1.46it/s]
+conversion test [qwen2.5-vl-3b]:  37%|███▋      | 637/1728 [07:20<12:26,  1.46it/s]
+conversion test [qwen2.5-vl-3b]:  40%|████      | 699/1728 [08:03<11:45,  1.46it/s]
+conversion test [qwen2.5-vl-3b]:  42%|████▏     | 723/1728 [08:20<11:29,  1.46it/s]
+conversion test [qwen2.5-vl-3b]:  46%|████▌     | 787/1728 [09:03<10:44,  1.46it/s]
+conversion test [qwen2.5-vl-3b]:  47%|████▋     | 811/1728 [09:20<10:28,  1.46it/s]
+conversion test [qwen2.5-vl-3b]:  51%|█████     | 874/1728 [10:03<09:47,  1.45it/s]
+conversion test [qwen2.5-vl-3b]:  52%|█████▏    | 897/1728 [10:20<09:31,  1.45it/s]
+conversion test [qwen2.5-vl-3b]:  55%|█████▌    | 958/1728 [11:03<08:56,  1.43it/s]
+conversion test [qwen2.5-vl-3b]:  57%|█████▋    | 979/1728 [11:20<08:42,  1.43it/s]
+conversion test [qwen2.5-vl-3b]:  60%|██████    | 1042/1728 [12:04<08:02,  1.42it/s]
+conversion test [qwen2.5-vl-3b]:  62%|██████▏   | 1063/1728 [12:20<07:47,  1.42it/s]
+conversion test [qwen2.5-vl-3b]:  65%|██████▌   | 1126/1728 [13:04<07:06,  1.41it/s]
+conversion test [qwen2.5-vl-3b]:  66%|██████▋   | 1147/1728 [13:20<06:51,  1.41it/s]
+conversion test [qwen2.5-vl-3b]:  70%|███████   | 1210/1728 [14:05<06:08,  1.40it/s]
+conversion test [qwen2.5-vl-3b]:  71%|███████   | 1230/1728 [14:20<05:54,  1.40it/s]
+conversion test [qwen2.5-vl-3b]:  75%|███████▍  | 1293/1728 [15:05<05:11,  1.39it/s]
+conversion test [qwen2.5-vl-3b]:  76%|███████▌  | 1312/1728 [15:20<04:58,  1.39it/s]
+conversion test [qwen2.5-vl-3b]:  80%|███████▉  | 1376/1728 [16:06<04:13,  1.39it/s]
+conversion test [qwen2.5-vl-3b]:  81%|████████  | 1395/1728 [16:20<03:59,  1.39it/s]
+conversion test [qwen2.5-vl-3b]:  84%|████████▍ | 1459/1728 [17:06<03:14,  1.39it/s]
+conversion test [qwen2.5-vl-3b]:  85%|████████▌ | 1477/1728 [17:20<03:01,  1.39it/s]
+conversion test [qwen2.5-vl-3b]:  89%|████████▉ | 1541/1728 [18:06<02:15,  1.38it/s]
+conversion test [qwen2.5-vl-3b]:  90%|█████████ | 1559/1728 [18:20<02:02,  1.38it/s]
+conversion test [qwen2.5-vl-3b]:  94%|█████████▍| 1623/1728 [19:06<01:16,  1.37it/s]
+conversion test [qwen2.5-vl-3b]:  95%|█████████▍| 1641/1728 [19:20<01:03,  1.37it/s]
+conversion test [qwen2.5-vl-3b]:  99%|█████████▊| 1706/1728 [20:06<00:15,  1.38it/s]
+conversion test [qwen2.5-vl-3b]: 100%|█████████▉| 1724/1728 [20:20<00:02,  1.38it/s]
+conversion test [qwen2.5-vl-3b]: 100%|██████████| 1728/1728 [20:22<00:00,  1.41it/s]
+
+Saved 1728 generations to 'results/qwen2.5-vl-3b/conversion_test.csv', config to 'results/qwen2.5-vl-3b/conversion_test_run_config.json'.
+text_only reproduction vs text_only_v2: CHECKED -- n=432, exact raw match 100.0%, minute_correct agreement 100.0%
+parse_ok: 100.0%
+  blank             minute_correct 66.2% (n=432)
+  matching_clock    minute_correct 54.2% (n=432)
+  mismatched_clock  minute_correct 56.0% (n=432)  matches_image_minute 3.9%
+  text_only         minute_correct 64.4% (n=432)

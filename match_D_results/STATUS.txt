@@ -1,0 +1,19 @@
+01_q3b_verify_a_e_f_pilot        FAILED rc=1                    2.1 min
+02_q3b_E3d_knockout              FAILED rc=3                    0.3 min
+03_q3b_E3b_E3c_patching          FAILED rc=3                    0.3 min
+04_i2b_verify_a_e_f_pilot        FAILED rc=1                    1.6 min
+05_i2b_E3d_knockout              FAILED rc=3                    0.2 min
+06_i2b_E3b_E3c_patching          FAILED rc=3                    0.2 min
+07_purge_3b_2b_cache             OK                             0.0 min
+08_q7b_verify_a_e_f_pilot        FAILED rc=1                    4.4 min
+09_q7b_E3d_min                   FAILED rc=3                    0.9 min
+10_purge_7b_cache                OK                             0.0 min
+11_text_only_v2_8b_128tok        OK                            27.0 min
+12_conversion_test_8b_128tok     OK                            31.0 min
+13_aggregate_text_only           OK                             0.0 min
+14_aggregate_conversion          OK                             0.0 min
+15_cap_check_8b_128              OK                             0.2 min
+16_i8b_E3e_pilot                 OK                            43.9 min
+
+total wall time: 1.88 h
+MISSING expected files: results/mech_e3/qwen2.5-vl-3b/verify.json, results/mech_e3/qwen2.5-vl-3b/e3a_lens.csv, results/mech_e3/qwen2.5-vl-3b/e3d_knockout.csv, results/mech_e3/qwen2.5-vl-3b/e3b_swap.csv, results/mech_e3/qwen2.5-vl-3b/e3c_restoration.csv, results/mech_e3/qwen2.5-vl-3b/e3e_transplant.csv, results/mech_e3/qwen2.5-vl-3b/e3f_forms.csv, results/mech_e3/qwen2.5-vl-3b/text_light_pilot.csv, results/mech_e3/internvl3-2b/verify.json, results/mech_e3/internvl3-2b/e3a_lens.csv, results/mech_e3/internvl3-2b/e3d_knockout.csv, results/mech_e3/internvl3-2b/e3b_swap.csv, results/mech_e3/internvl3-2b/e3c_restoration.csv, results/mech_e3/internvl3-2b/e3e_transplant.csv, results/mech_e3/internvl3-2b/e3f_forms.csv, results/mech_e3/internvl3-2b/text_light_pilot.csv, results/mech_e3/qwen2.5-vl-7b/verify.json, results/mech_e3/qwen2.5-vl-7b/e3a_lens.csv, results/mech_e3/qwen2.5-vl-7b/e3d_knockout.csv, results/mech_e3/qwen2.5-vl-7b/e3e_transplant.csv, results/mech_e3/qwen2.5-vl-7b/e3f_forms.csv, results/mech_e3/qwen2.5-vl-7b/text_light_pilot.csv

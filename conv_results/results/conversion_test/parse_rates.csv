@@ -1,0 +1,9 @@
+model,condition,n,parse_ok
+qwen2.5-vl-3b,blank,432,1.0
+qwen2.5-vl-3b,matching_clock,432,1.0
+qwen2.5-vl-3b,mismatched_clock,432,1.0
+qwen2.5-vl-3b,text_only,432,1.0
+qwen2.5-vl-7b,blank,432,1.0
+qwen2.5-vl-7b,matching_clock,432,1.0
+qwen2.5-vl-7b,mismatched_clock,432,1.0
+qwen2.5-vl-7b,text_only,432,1.0

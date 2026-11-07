@@ -1,0 +1,38 @@
+Loading OpenGVLab/InternVL3-2B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+mech_e3: model=internvl3-2b layers=28 parts=['b', 'c'] smoke=False rep_penalty=None  [all timings in the log are measurements of THIS run; planning numbers elsewhere are guesses]
+
+===== part b =====
+  E3b 25/234  100s
+  E3b 50/234  198s
+  E3b 75/234  296s
+  E3b 100/234  395s
+  E3b 125/234  493s
+  E3b 150/234  591s
+  E3b 175/234  688s
+  E3b 200/234  786s
+  E3b 225/234  883s
+  wrote results/mech_e3/internvl3-2b/e3b_swap.csv (13338 rows)
+  wrote results/mech_e3/internvl3-2b/e3b_summary.csv (228 rows)
+  wrote results/mech_e3/internvl3-2b/e3b_prereg_rule.csv (36 rows)
+part b took 15.4 min
+
+===== part c =====
+  E3c 20/250  135s
+  E3c 40/250  268s
+  E3c 60/250  391s
+  E3c 80/250  520s
+  E3c 100/250  649s
+  E3c 120/250  748s
+  E3c 140/250  847s
+  E3c 160/250  944s
+  E3c 180/250  1038s
+  E3c 200/250  1136s
+  E3c 220/250  1239s
+  E3c 240/250  1338s
+  wrote results/mech_e3/internvl3-2b/e3c_restoration.csv (10200 rows)
+  wrote results/mech_e3/internvl3-2b/e3c_summary.csv (120 rows)
+  wrote results/mech_e3/internvl3-2b/e3c_prereg_rule.csv (36 rows)
+  wrote results/mech_e3/internvl3-2b/e3c_summary_own_hour_eq_gold.csv (120 rows)
+part c took 23.2 min

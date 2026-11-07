@@ -1,0 +1,27 @@
+{
+  "sources": {
+    "qwen2.5-vl-3b/results.csv": "results\\qwen2.5-vl-3b\\results.csv",
+    "qwen2.5-vl-3b/describe.csv": "results\\qwen2.5-vl-3b\\describe.csv",
+    "qwen2.5-vl-3b/text_only_v2.csv": "results\\qwen2.5-vl-3b\\text_only_v2.csv",
+    "qwen2.5-vl-3b/conversion_test.csv": "results\\qwen2.5-vl-3b\\conversion_test.csv",
+    "qwen2.5-vl-7b/results.csv": "results\\qwen2.5-vl-7b\\results.csv",
+    "qwen2.5-vl-7b/describe.csv": "results\\qwen2.5-vl-7b\\describe.csv",
+    "qwen2.5-vl-7b/text_only_v2.csv": "results\\qwen2.5-vl-7b\\text_only_v2.csv",
+    "qwen2.5-vl-7b/conversion_test.csv": "results\\qwen2.5-vl-7b\\conversion_test.csv",
+    "internvl3-2b/results.csv": "results\\internvl3-2b\\results.csv",
+    "internvl3-2b/describe.csv": "results\\internvl3-2b\\describe.csv",
+    "internvl3-2b/text_only_v2.csv": "results\\internvl3-2b\\text_only_v2.csv",
+    "internvl3-2b/conversion_test.csv": "results\\internvl3-2b\\conversion_test.csv",
+    "internvl3-8b/results.csv": "results\\internvl3-8b\\results.csv",
+    "internvl3-8b/describe.csv": "results\\internvl3-8b\\describe.csv",
+    "internvl3-8b/text_only_v2.csv": "results\\internvl3-8b\\text_only_v2.csv",
+    "internvl3-8b/conversion_test.csv": "results\\internvl3-8b\\conversion_test.csv"
+  },
+  "notes": [],
+  "roots": [
+    "results",
+    "results_v2/results",
+    "conv_results/results",
+    "qwen_prior/results"
+  ]
+}

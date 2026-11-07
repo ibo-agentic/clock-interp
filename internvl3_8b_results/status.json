@@ -1,0 +1,38 @@
+[
+ {
+  "step": "1_text_only_v2",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 19.4
+ },
+ {
+  "step": "2_conversion_test",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 28.1
+ },
+ {
+  "step": "3_aggregate_text_only",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "4_aggregate_conversion",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "5_describe_check",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 21.1
+ },
+ {
+  "step": "6_eval_behavior",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 6.1
+ }
+]

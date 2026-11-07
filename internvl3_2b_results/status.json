@@ -1,0 +1,44 @@
+[
+ {
+  "step": "1_text_only_v2",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 9.5
+ },
+ {
+  "step": "2_conversion_test",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 11.7
+ },
+ {
+  "step": "3_aggregate_text_only",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "4_aggregate_conversion",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "5_describe_check",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 13.8
+ },
+ {
+  "step": "6_eval_behavior",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 3.1
+ },
+ {
+  "step": "7_describe_check_qwen3b",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 24.2
+ }
+]

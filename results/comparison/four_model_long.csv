@@ -1,0 +1,109 @@
+model,metric,value,ci_lo,ci_hi,k,n,extra,source
+qwen2.5-vl-3b,behavior_exact,0.018,0.009498085051756854,0.03385204721203399,9,500,,results\qwen2.5-vl-3b\results.csv
+qwen2.5-vl-3b,behavior_hour,0.262,0.22537563309481617,0.30225368532589386,131,500,,results\qwen2.5-vl-3b\results.csv
+qwen2.5-vl-3b,behavior_minute,0.024,0.013781177149521824,0.04147745969189818,12,500,,results\qwen2.5-vl-3b\results.csv
+qwen2.5-vl-3b,behavior_parse_rate,1.0,0.9923753814690964,0.9999999999999999,500,500,,results\qwen2.5-vl-3b\results.csv
+qwen2.5-vl-3b,describe_minute_exact,0.5958333333333333,0.5513390759294168,0.6388057979301274,286,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_hour_ok,0.3125,0.27266038826543604,0.3553170324441516,150,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_both_exact,0.25416666666666665,0.21727366665916786,0.2949633960489581,122,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_wrong_given_both_exact,0.7049180327868853,0.6187308107303047,0.7785940802437452,86,122,122 of 480 images had both hands described EXACTLY right,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_minute_ok,0.7916666666666666,0.7530896686536218,0.8256121213536863,380,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_wrong_given_both_ok,0.7428571428571429,0.664651664004354,0.8080905746804214,104,140,140 of 480 images had both hands described right (+/-1 minute number),results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_parse_rate,1.0,0.9920602114410997,1.0,480,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_hour_ok_tol,0.3125,0.27266038826543604,0.3553170324441516,150,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_both_exact_tol,0.25416666666666665,0.21727366665916786,0.2949633960489581,122,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_wrong_given_both_exact_tol,0.7049180327868853,0.6187308107303047,0.7785940802437452,86,122,122 of 480 (tolerant hour parse),results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_wrong_given_both_ok_tol,0.7428571428571429,0.664651664004354,0.8080905746804214,104,140,"140 of 480 (tolerant hour parse, +/-1 minute number)",results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_parse_rate_tol,1.0,0.9920602114410997,1.0,480,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,textonly_b2_minute,0.6435185185185185,0.5972690543254014,0.6872379775871097,278,432,,results\qwen2.5-vl-3b\text_only_v2.csv
+qwen2.5-vl-3b,conv_text_only_minute,0.6435185185185185,0.5972690543254014,0.6872379775871097,278,432,,results\qwen2.5-vl-3b\conversion_test.csv
+qwen2.5-vl-3b,conv_matching_clock_minute,0.5416666666666666,0.4945192274495118,0.5880795882670236,234,432,,results\qwen2.5-vl-3b\conversion_test.csv
+qwen2.5-vl-3b,conv_blank_minute,0.6620370370370371,0.6161772121368017,0.7050404045386145,286,432,,results\qwen2.5-vl-3b\conversion_test.csv
+qwen2.5-vl-3b,conv_mismatched_clock_minute,0.5601851851851852,0.5130509779635978,0.6062584225158426,242,432,,results\qwen2.5-vl-3b\conversion_test.csv
+qwen2.5-vl-3b,conv_mismatched_follows_image_minute,0.03935185185185185,0.024712054825613408,0.06211214919713247,17,432,,results\qwen2.5-vl-3b\conversion_test.csv
+qwen2.5-vl-3b,conv_mismatched_follows_image_hour,0.0,8.673617379884035e-19,0.008814211401573416,0,432,,results\qwen2.5-vl-3b\conversion_test.csv
+qwen2.5-vl-3b,conv_parse_rate,1.0,0.9977817832762536,1.0,1728,1728,,results\qwen2.5-vl-3b\conversion_test.csv
+qwen2.5-vl-3b,conv_mcnemar_matching_clock,4.609247371251198e-05,,,35,432,"only-text-correct=79, only-image-correct=35, both=199, neither=119",results\qwen2.5-vl-3b\conversion_test.csv
+qwen2.5-vl-3b,conv_mcnemar_blank,0.22948101302608848,,,21,432,"only-text-correct=13, only-image-correct=21, both=265, neither=133",results\qwen2.5-vl-3b\conversion_test.csv
+qwen2.5-vl-3b,conv_mcnemar_mismatched_clock,0.0009591967698984301,,,39,432,"only-text-correct=75, only-image-correct=39, both=203, neither=115",results\qwen2.5-vl-3b\conversion_test.csv
+qwen2.5-vl-7b,behavior_exact,0.126,0.09973485690292784,0.1579683577581879,63,500,,results\qwen2.5-vl-7b\results.csv
+qwen2.5-vl-7b,behavior_hour,0.694,0.6522544304326852,0.7327872175773242,347,500,,results\qwen2.5-vl-7b\results.csv
+qwen2.5-vl-7b,behavior_minute,0.162,0.13230129007093688,0.19685295205595382,81,500,,results\qwen2.5-vl-7b\results.csv
+qwen2.5-vl-7b,behavior_parse_rate,1.0,0.9923753814690964,0.9999999999999999,500,500,,results\qwen2.5-vl-7b\results.csv
+qwen2.5-vl-7b,describe_minute_exact,0.84375,0.8085522736473225,0.8734891217184335,405,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_hour_ok,0.5979166666666667,0.5534422331705291,0.6408362249033528,287,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_both_exact,0.50625,0.4616510839113691,0.5507496687316445,243,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_wrong_given_both_exact,0.0,0.0,0.015563016930695634,0,243,243 of 480 images had both hands described EXACTLY right,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_minute_ok,0.8583333333333333,0.8242864672267544,0.886690017639367,412,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_wrong_given_both_ok,0.028,0.013627884857773491,0.056658466945870976,7,250,250 of 480 images had both hands described right (+/-1 minute number),results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_parse_rate,1.0,0.9920602114410997,1.0,480,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_hour_ok_tol,0.5979166666666667,0.5534422331705291,0.6408362249033528,287,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_both_exact_tol,0.50625,0.4616510839113691,0.5507496687316445,243,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_wrong_given_both_exact_tol,0.0,0.0,0.015563016930695634,0,243,243 of 480 (tolerant hour parse),results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_wrong_given_both_ok_tol,0.028,0.013627884857773491,0.056658466945870976,7,250,"250 of 480 (tolerant hour parse, +/-1 minute number)",results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_parse_rate_tol,1.0,0.9920602114410997,1.0,480,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,textonly_b2_minute,0.9791666666666666,0.9608846860527704,0.9890016946873883,423,432,,results\qwen2.5-vl-7b\text_only_v2.csv
+qwen2.5-vl-7b,conv_text_only_minute,0.9791666666666666,0.9608846860527704,0.9890016946873883,423,432,,results\qwen2.5-vl-7b\conversion_test.csv
+qwen2.5-vl-7b,conv_matching_clock_minute,0.9953703703703703,0.9832786467146731,0.9987294956930272,430,432,,results\qwen2.5-vl-7b\conversion_test.csv
+qwen2.5-vl-7b,conv_blank_minute,1.0,0.9911857885984265,1.0,432,432,,results\qwen2.5-vl-7b\conversion_test.csv
+qwen2.5-vl-7b,conv_mismatched_clock_minute,1.0,0.9911857885984265,1.0,432,432,,results\qwen2.5-vl-7b\conversion_test.csv
+qwen2.5-vl-7b,conv_mismatched_follows_image_minute,0.0,8.673617379884035e-19,0.008814211401573416,0,432,,results\qwen2.5-vl-7b\conversion_test.csv
+qwen2.5-vl-7b,conv_mismatched_follows_image_hour,0.0,8.673617379884035e-19,0.008814211401573416,0,432,,results\qwen2.5-vl-7b\conversion_test.csv
+qwen2.5-vl-7b,conv_parse_rate,1.0,0.9977817832762536,1.0,1728,1728,,results\qwen2.5-vl-7b\conversion_test.csv
+qwen2.5-vl-7b,conv_mcnemar_matching_clock,0.0654296875,,,9,432,"only-text-correct=2, only-image-correct=9, both=421, neither=0",results\qwen2.5-vl-7b\conversion_test.csv
+qwen2.5-vl-7b,conv_mcnemar_blank,0.00390625,,,9,432,"only-text-correct=0, only-image-correct=9, both=423, neither=0",results\qwen2.5-vl-7b\conversion_test.csv
+qwen2.5-vl-7b,conv_mcnemar_mismatched_clock,0.00390625,,,9,432,"only-text-correct=0, only-image-correct=9, both=423, neither=0",results\qwen2.5-vl-7b\conversion_test.csv
+internvl3-2b,behavior_exact,0.08835341365461848,0.06647422565276344,0.11653491508008933,44,498,,results\internvl3-2b\results.csv
+internvl3-2b,behavior_hour,0.5803212851405622,0.5365237552643619,0.6228890953243497,289,498,,results\internvl3-2b\results.csv
+internvl3-2b,behavior_minute,0.1144578313253012,0.08939843758701634,0.14541987958716768,57,498,,results\internvl3-2b\results.csv
+internvl3-2b,behavior_parse_rate,0.996,0.9855339859585811,0.9989023924587627,498,500,,results\internvl3-2b\results.csv
+internvl3-2b,describe_minute_exact,0.5229166666666667,0.47822841610341255,0.5672410102543046,251,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_hour_ok,0.5270833333333333,0.4823804396100301,0.571356155176363,253,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_both_exact,0.3,0.26072382665453797,0.3424520887690221,144,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_wrong_given_both_exact,0.006944444444444444,0.001226887030401979,0.03828567235748344,1,144,144 of 480 images had both hands described EXACTLY right,results\internvl3-2b\describe.csv
+internvl3-2b,describe_minute_ok,0.5979166666666667,0.5534422331705291,0.6408362249033528,287,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_wrong_given_both_ok,0.08695652173913043,0.0525035756984701,0.14066125647981498,14,161,161 of 480 images had both hands described right (+/-1 minute number),results\internvl3-2b\describe.csv
+internvl3-2b,describe_parse_rate,1.0,0.9920602114410997,1.0,480,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_hour_ok_tol,0.5270833333333333,0.4823804396100301,0.571356155176363,253,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_both_exact_tol,0.3,0.26072382665453797,0.3424520887690221,144,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_wrong_given_both_exact_tol,0.006944444444444444,0.001226887030401979,0.03828567235748344,1,144,144 of 480 (tolerant hour parse),results\internvl3-2b\describe.csv
+internvl3-2b,describe_wrong_given_both_ok_tol,0.08695652173913043,0.0525035756984701,0.14066125647981498,14,161,"161 of 480 (tolerant hour parse, +/-1 minute number)",results\internvl3-2b\describe.csv
+internvl3-2b,describe_parse_rate_tol,1.0,0.9920602114410997,1.0,480,480,,results\internvl3-2b\describe.csv
+internvl3-2b,textonly_b2_minute,0.4976851851851852,0.4507640712537698,0.5446471056508669,215,432,,results\internvl3-2b\text_only_v2.csv
+internvl3-2b,conv_text_only_minute,0.4976851851851852,0.4507640712537698,0.5446471056508669,215,432,,results\internvl3-2b\conversion_test.csv
+internvl3-2b,conv_matching_clock_minute,0.7175925925925926,0.673367371249813,0.757981999714317,310,432,,results\internvl3-2b\conversion_test.csv
+internvl3-2b,conv_blank_minute,0.45601851851851855,0.4096445170235352,0.5031678441645661,197,432,,results\internvl3-2b\conversion_test.csv
+internvl3-2b,conv_mismatched_clock_minute,0.4375,0.39147379282303224,0.48462798360216436,189,432,,results\internvl3-2b\conversion_test.csv
+internvl3-2b,conv_mismatched_follows_image_minute,0.1527777777777778,0.12192294259987174,0.18975359309566536,66,432,,results\internvl3-2b\conversion_test.csv
+internvl3-2b,conv_mismatched_follows_image_hour,0.0787037037037037,0.05686513654548073,0.1079690600984376,34,432,,results\internvl3-2b\conversion_test.csv
+internvl3-2b,conv_parse_rate,0.9982638888888888,0.994907858731787,0.9994094044636461,1725,1728,,results\internvl3-2b\conversion_test.csv
+internvl3-2b,conv_mcnemar_matching_clock,3.4235122949020383e-15,,,124,432,"only-text-correct=29, only-image-correct=124, both=186, neither=93",results\internvl3-2b\conversion_test.csv
+internvl3-2b,conv_mcnemar_blank,0.053544392168502264,,,30,432,"only-text-correct=48, only-image-correct=30, both=167, neither=187",results\internvl3-2b\conversion_test.csv
+internvl3-2b,conv_mcnemar_mismatched_clock,0.04776699602827609,,,67,432,"only-text-correct=93, only-image-correct=67, both=122, neither=150",results\internvl3-2b\conversion_test.csv
+internvl3-8b,behavior_exact,0.098,0.07492354740061163,0.1272066458982347,49,500,,results\internvl3-8b\results.csv
+internvl3-8b,behavior_hour,0.632,0.5888709172413829,0.6731161834664587,316,500,,results\internvl3-8b\results.csv
+internvl3-8b,behavior_minute,0.112,0.0872623972834597,0.14265430669652132,56,500,,results\internvl3-8b\results.csv
+internvl3-8b,behavior_parse_rate,1.0,0.9923753814690964,0.9999999999999999,500,500,,results\internvl3-8b\results.csv
+internvl3-8b,describe_minute_exact,0.6979166666666666,0.6554013009734058,0.7372891993886962,335,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_hour_ok,0.66875,0.6254501270296939,0.709370194331677,321,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_both_exact,0.45,0.406065789704345,0.4947281891515451,216,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_wrong_given_both_exact,0.07407407407407407,0.046106229076395056,0.11692751885848168,16,216,216 of 480 images had both hands described EXACTLY right,results\internvl3-8b\describe.csv
+internvl3-8b,describe_minute_ok,0.8416666666666667,0.8063127326027417,0.8715950785486763,404,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_wrong_given_both_ok,0.2647058823529412,0.21581564263636144,0.3201499260088321,72,272,272 of 480 images had both hands described right (+/-1 minute number),results\internvl3-8b\describe.csv
+internvl3-8b,describe_parse_rate,0.9583333333333334,0.9365205738901328,0.9728679532642086,460,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_hour_ok_tol,0.70625,0.663993732629122,0.7452311045903318,339,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_both_exact_tol,0.4875,0.44306031609678864,0.5321381786171838,234,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_wrong_given_both_exact_tol,0.06837606837606838,0.04252243854921824,0.10817281408951274,16,234,234 of 480 (tolerant hour parse),results\internvl3-8b\describe.csv
+internvl3-8b,describe_wrong_given_both_ok_tol,0.2482758620689655,0.2020608523238211,0.3010728088051682,72,290,"290 of 480 (tolerant hour parse, +/-1 minute number)",results\internvl3-8b\describe.csv
+internvl3-8b,describe_parse_rate_tol,1.0,0.9920602114410997,1.0,480,480,,results\internvl3-8b\describe.csv
+internvl3-8b,textonly_b2_minute,0.9791666666666666,0.9608846860527704,0.9890016946873883,423,432,,results\internvl3-8b\text_only_v2.csv
+internvl3-8b,conv_text_only_minute,0.9791666666666666,0.9608846860527704,0.9890016946873883,423,432,,results\internvl3-8b\conversion_test.csv
+internvl3-8b,conv_matching_clock_minute,1.0,0.9911857885984265,1.0,432,432,,results\internvl3-8b\conversion_test.csv
+internvl3-8b,conv_blank_minute,0.9884259259259259,0.9731952068086007,0.9950464663130103,427,432,,results\internvl3-8b\conversion_test.csv
+internvl3-8b,conv_mismatched_clock_minute,0.9629629629629629,0.940688541879417,0.9770760771932,416,432,,results\internvl3-8b\conversion_test.csv
+internvl3-8b,conv_mismatched_follows_image_minute,0.02546296296296296,0.014276317164143536,0.045014948286423814,11,432,,results\internvl3-8b\conversion_test.csv
+internvl3-8b,conv_mismatched_follows_image_hour,0.006944444444444444,0.0023644485394878206,0.020216232148174848,3,432,,results\internvl3-8b\conversion_test.csv
+internvl3-8b,conv_parse_rate,1.0,0.9977817832762536,1.0,1728,1728,,results\internvl3-8b\conversion_test.csv
+internvl3-8b,conv_mcnemar_matching_clock,0.00390625,,,9,432,"only-text-correct=0, only-image-correct=9, both=423, neither=0",results\internvl3-8b\conversion_test.csv
+internvl3-8b,conv_mcnemar_blank,0.3876953125,,,8,432,"only-text-correct=4, only-image-correct=8, both=419, neither=1",results\internvl3-8b\conversion_test.csv
+internvl3-8b,conv_mcnemar_mismatched_clock,0.21003961563110352,,,8,432,"only-text-correct=15, only-image-correct=8, both=408, neither=1",results\internvl3-8b\conversion_test.csv

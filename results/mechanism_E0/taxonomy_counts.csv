@@ -1,0 +1,17 @@
+condition,n,correct,leak,follows_image,adjacent,default_0_30,other,unparsed,model
+text_only,432,292,46,0,35,30,29,0,qwen2.5-vl-3b
+matching_clock,432,267,19,0,47,28,71,0,qwen2.5-vl-3b
+blank,432,311,34,0,38,21,28,0,qwen2.5-vl-3b
+mismatched_clock,432,288,28,9,49,22,36,0,qwen2.5-vl-3b
+text_only,432,419,4,0,4,4,1,0,qwen2.5-vl-7b
+matching_clock,432,429,0,0,0,0,3,0,qwen2.5-vl-7b
+blank,432,432,0,0,0,0,0,0,qwen2.5-vl-7b
+mismatched_clock,432,431,0,0,0,0,1,0,qwen2.5-vl-7b
+text_only,432,215,117,0,24,32,44,0,internvl3-2b
+matching_clock,432,310,34,0,32,16,40,0,internvl3-2b
+blank,432,197,119,0,20,35,61,0,internvl3-2b
+mismatched_clock,432,189,69,54,24,41,52,3,internvl3-2b
+text_only,432,410,2,0,4,0,3,13,internvl3-8b
+matching_clock,432,432,0,0,0,0,0,0,internvl3-8b
+blank,432,425,0,0,3,0,2,2,internvl3-8b
+mismatched_clock,432,416,4,7,1,0,4,0,internvl3-8b

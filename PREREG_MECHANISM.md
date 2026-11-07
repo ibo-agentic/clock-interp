@@ -332,3 +332,58 @@ and is entangled with exactly the hour->minute leak under study; (b) InternVL3 s
    both are reported and the disagreement is a finding about decoding, not hidden. The text-light pilot and E2's 15% floor are re-evaluated on rp=1.0.
 5. **Order.** D2'' gate (Qwen only) -> notebook Q (regenerate Qwen results at 1.0, incl. E3e/E3f/pilot, `--no_gate`, hook-free) -> only then hook-based Qwen E3a-d, E1, E2 on the rp=1.0 priors.
    InternVL3-2B E3a-d (its gate passed in D2') runs now as notebook D3-IVL with the unchanged InternVL priors.
+
+**2026-11-07 (POST-RUN for D2'', notebook Q, D3-IVL; no rule or threshold changed). Full tables: `results/mech_e3/Q_D3IVL_report.txt`; script `analysis/analyze_Q_D3IVL.py`.**
+1. **Penalty was the cause of the Qwen gate mismatch.** At `--rep_penalty 1.0`: Qwen-3B G2-own 0.93 -> 0.97, G8b 0.72 -> 1.0; Qwen-7B G2-own 0.98 -> 1.0, G8b 0.94 -> 1.0; every gating check
+   passes for both (G11: no-cache loop equals penalty-free generation on 100/100 trials, but only 74/100 (3B) and 97/100 (7B) with the checkpoint's 1.05). Both Qwen models are cleared for the hook-based
+   parts, to be run on rp=1.0 priors. InternVL3-2B's gate passed again in D3-IVL with identical numbers (G2-own exactly 0.95; the run is deterministic).
+2. **Headline re-derivation (rp 1.0).** Both-hands-exact describe sets: Qwen-3B 122 (was 111), Qwen-7B 243 (242), InternVL3-2B 144, InternVL3-8B 216. Conversion-test text-only leak counts (of 432):
+   Qwen-3B 40 (was 46), Qwen-7B 6, InternVL3-2B 117, InternVL3-8B 2. (The counting method reproduces 111/46/242 on the rp 1.05 snapshot.) Relative thresholds that were stated as "46 -> <= 32" for the 3B
+   now read 40 -> <= 28; 2B is unchanged (117 -> <= 82).
+3. **E3e, Qwen-3B, verbatim variant (confirmatory) at rp 1.0: 122 clocks; wrong without image 57.4%, with image 70.5%; paired difference -13.1 pts, CI [-23.8, -3.3].** The wrong-rate condition
+   (>= 40%) holds but the CI is not inside +/-15 pts, and 57.4% is above the 25% image-interference bar, so neither rule is met: pre-registered label = **mixed**. The earlier D4 result at rp 1.05
+   (111 clocks, 54.1% vs 55.0%, diff -0.9, CI [-10.8, +9.0]: language-side) is the sensitivity result. The two differ and both are reported; the disagreement is a finding about decoding.
+4. **E3d, InternVL3-2B (confirmatory), pre-registered verdict: `M_bind_supported = false`.** Leaks 117 -> 28 (-76%), accuracy +22.5 pts (CI [+17.4, +27.5]); leak and accuracy CIs exclude 0 and the
+   thresholds (>= 30%, >= 4 pts) are met, but the **random-span control raised accuracy by +3.0 pts (CI [+1.2, +5.1]) which violates the pre-registered clause "< 2 pts"**, so the rule as written is not
+   satisfied. This is reported as such; the effect is ~7x the control's, leaks are unchanged under the control (113 vs 117), and the effect is localised to layers 16-23 (windows 16-20: 87 leaks,
+   20-24: 37, cumulative-to-end 28). The Holm correction over the family {3B, 2B, 7B} is still open (E3d for Qwen not yet run).
+5. **E3b (N-span) supported at 8 of 9 tested layers; E3c not supported (best cell 48.8% restoration at layer 15, H-span, vs the 50% bar; best control 23.8%); E3a exploratory.**
+6. **Pilot / E2 floor at rp 1.0:** Qwen-3B 0.093 (fails 0.15), Qwen-7B 0.637, InternVL3-2B 0.500, InternVL3-8B 0.750 (pass).
+7. **Housekeeping.** All pre-Q Qwen per-model result files were renamed `*_rp105*` (never overwritten); the rp 1.05 state is also snapshotted under normal names in `results/_sens_rp105/` for the
+   sensitivity comparison; the aggregates that were regenerated are backed up in `results/_backup_pre_Q/`. The frozen top-level files (`results/results.csv`, `describe*.csv`) are untouched.
+
+**2026-11-07, second entry (decision of the project owner; no rule or threshold changed).**
+1. **E3d InternVL3-2B: the pre-registered verdict stays exactly as computed (`M_bind_supported = false`)**, the cause being that the random-span control changed accuracy by +3.0 points against the pre-registered
+   bound of < 2 points. In addition, a **control-adjusted comparison is reported, labelled EXPLORATORY** (`analysis/e3d_control_adjusted.py`, `e3d_control_adjusted.csv`; paired per-trial contrasts, cluster bootstrap over
+   (N,H) cells, 10000 resamples): blocking the H-span minus blocking the random span = accuracy +19.4 pts (95% CI +14.4 to +24.5), leak rate -19.7 pts of trials (CI -23.6 to -16.0); the random-span control alone:
+   accuracy +3.0 (CI +1.2 to +5.1), leak rate -0.9 (CI -2.8 to +0.7). It is not used to change the verdict.
+2. **Priors for the Qwen hook-based parts = the rp 1.0 files** (headline decoding, entry of 2026-11-06 fourth). `kaggle/upload_D/clock-prior` now holds the rp 1.0 Qwen files; the previous (rp 1.05) version is kept
+   as `kaggle/upload_D/clock-prior_rp105` for sensitivity. InternVL3 priors are unchanged.
+3. **Qwen E3a-d (notebook D3-Q), all at `--rep_penalty 1.0`:** Qwen-3B confirmatory E3d bar re-stated on the rp 1.0 baseline: leaks 40 -> <= 28 (>= 30% relative drop) AND accuracy rise >= 4 pts, both CIs excluding
+   0, random-span control < 2 pts; Qwen-7B (6 leaks at baseline) is the specificity control (E3d `min` mode, expected no effect), not a confirmatory test. Holm over the family {3B, 2B, 7B} as pre-registered.
+
+**2026-11-07, third entry (PRE-RUN for E1 and E2; decisions of the project owner; written before any E1/E2 code has run).**
+1. **E1 gate: the "eager and SDPA attention agree to < 1e-3 on logits" rule (Section 5) is replaced by the G8c form:** with eager attention (fp32-accumulating, `mech_lib.eager_attention`) the logits on 10 prompts are finite, the
+   maximum absolute log-prob difference to the default attention path is < 0.5 nat, and the argmax is equal on >= 90% of the 10 prompts. Reason: 1e-3 is numerically impossible in fp16 - the measured differences were 0.05-0.08 nat
+   on every model with identical argmax (G8c in the D2'/D2''/D3-IVL runs) - discovered before any E1 run. All other E1 gate items (empty block set reproduces intact generations exactly; hook reaches every decoder layer;
+   machinery check within 5 points) are unchanged.
+2. **E1 query sets (confirmed):** A = the last prompt token plus the generated tokens (the positions that produce the answer); B = all text positions after the last image token (question text and generated tokens).
+   Image tokens are never blocked as queries. Primary query set = B, as pre-registered.
+3. **E2 scope:** 100 pairs per model (seed 0). InternVL3-2B is the confirmatory model (decision rules of Section 6); Qwen-7B and InternVL3-8B are run with the same procedure and reported as DESCRIPTIVE (no pre-registered rule);
+   Qwen-3B is EXPLORATORY (text-light floor 0.093 < 0.15, pre-declared). E2 layers: embedding output plus the layers at 1/8..7/8 of depth, fixed before any run.
+4. **E1 Qwen-3B machinery check** is re-stated on the headline (rp 1.0) text-only run: text-only 64.4%, tolerance 5 points (the Section 5 numbers 67.6%/61.8%/62.6% were rp 1.05). Qwen-3B E1 stays exploratory by pre-declaration.
+5. **Decoding** for E1 and E2 generations: cached greedy generation, `repetition_penalty 1.0` (Qwen), max_new_tokens 32, eager fp32 attention inside the knockout context.
+
+**2026-11-07, fourth entry (PRE-RUN for E1 and E2 implementation choices; written before any E1/E2 result exists; no hypothesis or threshold changed).**
+1. **H-E1-2 needs one extra step.** The pre-registered cell list runs blank/mismatched_clock only for {all, early, late, final4}, but H-E1-2 tests "the sliding window with the largest matching_clock drop (selected on matching_clock only)" on
+   mismatched_clock. That window is data-dependent, so it is run in a follow-up step (`mech_e1.py --parts followup`) after the matching_clock cells are complete, for each query set; selection uses matching_clock only.
+2. **E1 trials/images** are exactly the conversion-test ones (432 groups; `conversion_test.ensure_image`; prompt `conversion_test.prompt_for`). Cached greedy generation, max_new_tokens 32, `--rep_penalty 1.0`. An extra `intact_eager`
+   cell (matching_clock, eager fp32 attention, no hook) is run to quantify eager-vs-default differences; "intact" in all pre-registered comparisons is the default-attention run.
+3. **E2 clocks and pairs.** Clocks are rendered with the conversion-test renderer (`clocks.generate_clock_image` defaults). 100 pairs (seed 0): A = 100 distinct (N, H) cells drawn from the 144; B = same hour H, minute number >= 3 away (circular); c1 partner = same N,
+   different hour. Text = conversion-test prompt of A (lead-in 0) for variant `standard`; for variant `text_light` the hour-only prompt of the text-light pilot. Variants run: `standard` for all four models; `text_light` for InternVL3-2B (positive control) and Qwen-3B (exploratory; floor fails).
+4. **E2 patch positions and sets.** Hidden-state index k: 0 = embedding output (vision features merged), k >= 1 = output of decoder layer k-1; k in {0, floor(L*i/8), i = 1..7}. Token sets: all image tokens; minute-hand tokens and hour-hand tokens (pixels of the drawn strokes of A union B, from re-rendering
+   with and without hands, mapped to the token grid; a token is in the set if any of its pixels is); other = all minus the two. Patch acts on the prefill pass; decoding uses the patched KV cache. c2 (matched noise) is run for the sets {all, minute_hand} only (cost); c1 and real-B for all four sets.
+   Generation for E2 uses max_new_tokens 8 (answers are "HH:MM"; the first parsed time is used).
+5. **E2 gate interpretation.** "The embedding-level all-token patch reproduces the existing mismatched_clock follow-image rates within 3 points" is implemented as: patching the embedding output of clock A's image tokens with those of clock B gives the same follow-B rate (within 3 points, and identical parsed answers in >= 95% of
+   pairs) as directly showing image B with A's text - the property the existing rates rest on. The existing conversion-test mismatched rate is not a like-for-like target (different hour and minute for the image) and is reported only for information. Identity patch (source = A itself): 0 of 100 generations may change.
+6. **Machinery check for E1** is computed in `mech_e1.py` (`e1_machinery.json`) from the blocked-all matching_clock cell and the model's own text-only conversion run (same 432 trials); outcome reported for each query set whether or not it passes.

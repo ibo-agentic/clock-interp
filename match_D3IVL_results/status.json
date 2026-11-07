@@ -1,0 +1,26 @@
+[
+ {
+  "step": "01_i2b_verify_E3a",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 6.5
+ },
+ {
+  "step": "02_i2b_E3d_knockout",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 42.6
+ },
+ {
+  "step": "03_i2b_E3b_E3c_patching",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 38.8
+ },
+ {
+  "step": "04_purge_2b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]

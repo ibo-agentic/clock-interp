@@ -1,0 +1,7 @@
+01_i2b_verify_E3a                OK                             6.5 min
+02_i2b_E3d_knockout              OK                            42.6 min
+03_i2b_E3b_E3c_patching          OK                            38.8 min
+04_purge_2b_cache                OK                             0.0 min
+
+total wall time: 1.48 h
+MISSING expected files: none

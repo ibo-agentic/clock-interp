@@ -1,0 +1,15 @@
+[
+ "backup results\\text_only_v2 -> results\\_backup_pre_Q\\text_only_v2",
+ "backup results\\conversion_test -> results\\_backup_pre_Q\\conversion_test",
+ "backup results\\comparison -> results\\_backup_pre_Q\\comparison",
+ "snapshot qwen_prior/results\\qwen2.5-vl-3b\\results.csv -> results\\_sens_rp105/qwen2.5-vl-3b/results.csv",
+ "snapshot results\\qwen2.5-vl-3b\\describe.csv -> results\\_sens_rp105/qwen2.5-vl-3b/describe.csv",
+ "snapshot results\\qwen2.5-vl-3b\\text_only_v2.csv -> results\\_sens_rp105/qwen2.5-vl-3b/text_only_v2.csv",
+ "snapshot results\\qwen2.5-vl-3b\\conversion_test.csv -> results\\_sens_rp105/qwen2.5-vl-3b/conversion_test.csv",
+ "snapshot qwen_prior/results\\qwen2.5-vl-7b\\results.csv -> results\\_sens_rp105/qwen2.5-vl-7b/results.csv",
+ "snapshot qwen_prior/results\\qwen2.5-vl-7b\\describe.csv -> results\\_sens_rp105/qwen2.5-vl-7b/describe.csv",
+ "snapshot results\\qwen2.5-vl-7b\\text_only_v2.csv -> results\\_sens_rp105/qwen2.5-vl-7b/text_only_v2.csv",
+ "snapshot results\\qwen2.5-vl-7b\\conversion_test.csv -> results\\_sens_rp105/qwen2.5-vl-7b/conversion_test.csv",
+ "renamed 43 existing Qwen files to *_rp105*",
+ "merged 47 new files, skipped 0 that already existed"
+]

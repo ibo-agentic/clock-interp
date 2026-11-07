@@ -1,0 +1,35 @@
+Loading Qwen/Qwen2.5-VL-7B-Instruct in float16 ...
+mech_e3: model=qwen2.5-vl-7b layers=28 parts=['e', 'f', 'p'] smoke=False rep_penalty=1.0  [all timings in the log are measurements of THIS run; planning numbers elsewhere are guesses]
+
+===== part e =====
+  E3e 50/243
+  E3e 100/243
+  E3e 150/243
+  E3e 200/243
+  wrote results/mech_e3/qwen2.5-vl-7b/e3e_transplant.csv (729 rows)
+  wrote results/mech_e3/qwen2.5-vl-7b/e3e_summary.csv (3 rows)
+part e took 6.8 min
+
+===== part f =====
+  E3f 100/945  42s
+  E3f 200/945  84s
+  E3f 300/945  125s
+  E3f 400/945  167s
+  E3f 500/945  210s
+  E3f 600/945  252s
+  E3f 700/945  294s
+  E3f 800/945  336s
+  E3f 900/945  378s
+  wrote results/mech_e3/qwen2.5-vl-7b/e3f_forms.csv (945 rows)
+  wrote results/mech_e3/qwen2.5-vl-7b/e3f_summary.csv (15 rows)
+part f took 6.6 min
+
+===== part p =====
+  pilot 100/432  183s
+  pilot 200/432  363s
+  pilot 300/432  545s
+  pilot 400/432  728s
+  wrote results/mech_e3/qwen2.5-vl-7b/text_light_pilot.csv (864 rows)
+  wrote results/mech_e3/qwen2.5-vl-7b/text_light_pilot_summary.csv (2 rows)
+  TEXT-LIGHT PILOT qwen2.5-vl-7b: matching-clock minute accuracy 0.637 -> floor rule PASSED
+part p took 13.1 min

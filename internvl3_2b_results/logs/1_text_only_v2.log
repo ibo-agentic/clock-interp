@@ -1,0 +1,29 @@
+Loading OpenGVLab/InternVL3-2B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+
+text-only gate [internvl3-2b]:   0%|          | 0/2016 [00:00<?, ?it/s]
+text-only gate [internvl3-2b]:  19%|█▉        | 386/2016 [01:00<04:14,  6.41it/s]
+text-only gate [internvl3-2b]:  19%|█▉        | 386/2016 [01:15<04:14,  6.41it/s]
+text-only gate [internvl3-2b]:  29%|██▉       | 591/2016 [02:00<05:06,  4.65it/s]
+text-only gate [internvl3-2b]:  29%|██▉       | 591/2016 [02:15<05:06,  4.65it/s]
+text-only gate [internvl3-2b]:  39%|███▉      | 796/2016 [03:00<04:58,  4.08it/s]
+text-only gate [internvl3-2b]:  39%|███▉      | 796/2016 [03:15<04:58,  4.08it/s]
+text-only gate [internvl3-2b]:  48%|████▊     | 975/2016 [04:00<04:45,  3.64it/s]
+text-only gate [internvl3-2b]:  48%|████▊     | 975/2016 [04:15<04:45,  3.64it/s]
+text-only gate [internvl3-2b]:  54%|█████▍    | 1095/2016 [05:00<05:01,  3.05it/s]
+text-only gate [internvl3-2b]:  54%|█████▍    | 1095/2016 [05:15<05:01,  3.05it/s]
+text-only gate [internvl3-2b]:  65%|██████▍   | 1308/2016 [06:00<03:39,  3.22it/s]
+text-only gate [internvl3-2b]:  65%|██████▍   | 1308/2016 [06:15<03:39,  3.22it/s]
+text-only gate [internvl3-2b]:  75%|███████▍  | 1509/2016 [07:00<02:35,  3.26it/s]
+text-only gate [internvl3-2b]:  75%|███████▍  | 1509/2016 [07:15<02:35,  3.26it/s]
+text-only gate [internvl3-2b]:  87%|████████▋ | 1762/2016 [08:01<01:11,  3.56it/s]
+text-only gate [internvl3-2b]:  87%|████████▋ | 1762/2016 [08:15<01:11,  3.56it/s]
+text-only gate [internvl3-2b]: 100%|██████████| 2016/2016 [08:40<00:00,  3.87it/s]
+
+Saved 2016 trials to 'results/internvl3-2b/text_only_v2.csv' and config to 'results/internvl3-2b/run_config.json'.
+parse_ok: 100.0%   format_ok (bare answer): 92.6%
+  task a: headline-correct 42.8% (n=360)
+  task b: headline-correct 67.3% (n=1296)
+  task c: headline-correct 99.4% (n=360)

@@ -1,0 +1,9 @@
+1_text_only_v2_8b_64tok        OK                            24.8 min
+2_conversion_test_8b_64tok     OK                            30.6 min
+3_aggregate_text_only          OK                             0.0 min
+4_aggregate_conversion         OK                             0.0 min
+5_cap_check_8b                 OK                             0.2 min
+6_probe_internvl3_2b           OK                            34.5 min
+
+total wall time: 1.54 h
+MISSING expected files: none

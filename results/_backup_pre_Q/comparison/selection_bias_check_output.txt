@@ -1,0 +1,239 @@
+#################### A. SELECTION BIAS (describe_check) ####################
+
+===== qwen2.5-vl-3b: both-hands-described-correct = 147 of 480; wrong = 97 (66.0%) =====
+     all480  both_ok  wrong|both  %incl  share_sel%  share_all%  wrong_rate%  textonly_b2_acc%  conv_match_acc%  conv_blank_acc%
+pos                                                                                                                             
+1        40       14          14   35.0         9.5         8.3        100.0              25.0             14.0             39.0
+2        40       14          14   35.0         9.5         8.3        100.0              39.0             58.0             42.0
+3        40       26          14   65.0        17.7         8.3         54.0              64.0             75.0             64.0
+4        40       23          18   57.0        15.6         8.3         78.0              78.0             72.0             83.0
+5        40       17          17   42.0        11.6         8.3        100.0              11.0              0.0             17.0
+6        40       16           4   40.0        10.9         8.3         25.0              94.0             83.0             97.0
+7        40        8           8   20.0         5.4         8.3        100.0              86.0             78.0             86.0
+8        40        0           0    0.0         0.0         8.3          NaN              89.0             89.0             89.0
+9        40        4           0   10.0         2.7         8.3          0.0              86.0             86.0             97.0
+10       40        2           2    5.0         1.4         8.3        100.0              58.0             44.0             64.0
+11       40        6           6   15.0         4.1         8.3        100.0              83.0             42.0             86.0
+12       40       17           0   42.0        11.6         8.3          0.0              97.0            100.0            100.0
+  text-only b2 acc: mean over ALL-480 position mix 67.5%   over the SELECTED mix 63.5%
+  conv matching acc: mean over ALL-480 position mix 61.7%   over the SELECTED mix 60.9%
+
+===== qwen2.5-vl-7b: both-hands-described-correct = 250 of 480; wrong = 8 (3.2%) =====
+     all480  both_ok  wrong|both  %incl  share_sel%  share_all%  wrong_rate%  textonly_b2_acc%  conv_match_acc%  conv_blank_acc%
+pos                                                                                                                             
+1        40       40           7  100.0        16.0         8.3         18.0             100.0            100.0            100.0
+2        40       31           0   78.0        12.4         8.3          0.0              94.0            100.0            100.0
+3        40       33           0   82.0        13.2         8.3          0.0              97.0            100.0            100.0
+4        40       30           0   75.0        12.0         8.3          0.0              94.0            100.0            100.0
+5        40       25           0   62.0        10.0         8.3          0.0              94.0             92.0            100.0
+6        40        4           1   10.0         1.6         8.3         25.0             100.0            100.0            100.0
+7        40       15           0   38.0         6.0         8.3          0.0              97.0            100.0            100.0
+8        40       18           0   45.0         7.2         8.3          0.0              97.0            100.0            100.0
+9        40        4           0   10.0         1.6         8.3          0.0              97.0            100.0            100.0
+10       40       10           0   25.0         4.0         8.3          0.0              94.0            100.0            100.0
+11       40        2           0    5.0         0.8         8.3          0.0              97.0            100.0            100.0
+12       40       38           0   95.0        15.2         8.3          0.0             100.0            100.0            100.0
+  text-only b2 acc: mean over ALL-480 position mix 96.7%   over the SELECTED mix 96.8%
+  conv matching acc: mean over ALL-480 position mix 99.3%   over the SELECTED mix 99.2%
+
+===== internvl3-2b: both-hands-described-correct = 161 of 480; wrong = 14 (8.7%) =====
+     all480  both_ok  wrong|both  %incl  share_sel%  share_all%  wrong_rate%  textonly_b2_acc%  conv_match_acc%  conv_blank_acc%
+pos                                                                                                                             
+1        40        8           8   20.0         5.0         8.3        100.0              28.0             36.0             25.0
+2        40       35           0   88.0        21.7         8.3          0.0              33.0             92.0             31.0
+3        40       36           0   90.0        22.4         8.3          0.0              78.0             94.0             78.0
+4        40       22           0   55.0        13.7         8.3          0.0              58.0             86.0             47.0
+5        40       14           0   35.0         8.7         8.3          0.0              44.0             56.0             33.0
+6        40        4           0   10.0         2.5         8.3          0.0              64.0             83.0             56.0
+7        40        6           1   15.0         3.7         8.3         17.0              19.0             69.0             31.0
+8        40        6           0   15.0         3.7         8.3          0.0              50.0             94.0             56.0
+9        40        4           0   10.0         2.5         8.3          0.0              78.0             92.0             72.0
+10       40        4           0   10.0         2.5         8.3          0.0              28.0             50.0             11.0
+11       40        5           5   12.0         3.1         8.3        100.0              44.0             19.0             25.0
+12       40       17           0   42.0        10.6         8.3          0.0              72.0             89.0             83.0
+  text-only b2 acc: mean over ALL-480 position mix 49.7%   over the SELECTED mix 53.5%
+  conv matching acc: mean over ALL-480 position mix 71.7%   over the SELECTED mix 81.1%
+
+===== internvl3-8b: both-hands-described-correct = 272 of 480; wrong = 72 (26.5%) =====
+     all480  both_ok  wrong|both  %incl  share_sel%  share_all%  wrong_rate%  textonly_b2_acc%  conv_match_acc%  conv_blank_acc%
+pos                                                                                                                             
+1        40       30          25   75.0        11.0         8.3         83.0             100.0            100.0            100.0
+2        40       35           0   88.0        12.9         8.3          0.0             100.0            100.0            100.0
+3        40       25           0   62.0         9.2         8.3          0.0             100.0            100.0            100.0
+4        40       37           0   92.0        13.6         8.3          0.0             100.0            100.0            100.0
+5        40       36           2   90.0        13.2         8.3          6.0              86.0            100.0            100.0
+6        40       14           0   35.0         5.1         8.3          0.0             100.0            100.0            100.0
+7        40       26          23   65.0         9.6         8.3         88.0             100.0            100.0            100.0
+8        40       32           2   80.0        11.8         8.3          6.0             100.0            100.0            100.0
+9        40       15           0   38.0         5.5         8.3          0.0             100.0            100.0            100.0
+10       40       12          12   30.0         4.4         8.3        100.0              97.0            100.0             94.0
+11       40        0           0    0.0         0.0         8.3          NaN              97.0            100.0            100.0
+12       40       10           8   25.0         3.7         8.3         80.0              94.0            100.0             92.0
+  text-only b2 acc: mean over ALL-480 position mix 97.8%   over the SELECTED mix 97.8%
+  conv matching acc: mean over ALL-480 position mix 100.0%   over the SELECTED mix 100.0%
+
+===== wrong-given-both rate of ROW model re-weighted to COLUMN model's selected-position mix (%) =====
+               own_mix  qwen2.5-vl-3b  qwen2.5-vl-7b  internvl3-2b  internvl3-8b
+qwen2.5-vl-3b     66.0           66.0           71.2          70.7          77.0
+qwen2.5-vl-7b      3.2            4.4            3.3           1.5           3.3
+internvl3-2b       8.7           14.5           17.8           8.7          12.7
+internvl3-8b      26.5           25.0           36.0          19.7          26.4
+
+===== same-position comparison: wrong/selected for each model, positions with >=3 selected cases in ALL models =====
+common positions: [1, 2, 3, 4, 5, 6, 7, 9, 12]
+    qwen2.5-vl-3b qwen2.5-vl-7b internvl3-2b internvl3-8b
+pos                                                      
+1           14/14          7/40          8/8        25/30
+2           14/14          0/31         0/35         0/35
+3           14/26          0/33         0/36         0/25
+4           18/23          0/30         0/22         0/37
+5           17/17          0/25         0/14         2/36
+6            4/16           1/4          0/4         0/14
+7             8/8          0/15          1/6        23/26
+9             0/4           0/4          0/4         0/15
+12           0/17          0/38         0/17         8/10
+  qwen2.5-vl-3b: 89/139 = 64.0% on the common positions
+  qwen2.5-vl-7b: 8/220 = 3.6% on the common positions
+  internvl3-2b: 9/146 = 6.2% on the common positions
+  internvl3-8b: 58/228 = 25.4% on the common positions
+
+#################### B. PER-POSITION text_only vs matching vs blank (McNemar, Holm) ####################
+
+===== qwen2.5-vl-3b: per-position minute accuracy (n=36 each) + paired McNemar (Holm over 12) =====
+ pos  text_only%  matching%  blank%  p_holm_matching_clock onlyT/onlyI_matching_clock  p_holm_blank onlyT/onlyI_blank
+   1          25         14      39                 1.0000                        9/5          0.75               0/5
+   2          39         58      42                 1.0000                       6/13          1.00               2/3
+   3          64         75      64                 1.0000                        3/7          1.00               1/1
+   4          78         72      83                 1.0000                        4/2          1.00               0/2
+   5          11          0      17                 1.0000                        4/0          1.00               0/2
+   6          94         83      97                 1.0000                        4/0          1.00               0/1
+   7          86         78      86                 1.0000                        6/3          1.00               0/0
+   8          89         89      89                 1.0000                        2/2          1.00               0/0
+   9          86         86      97                 1.0000                        3/3          1.00               0/4
+  10          58         44      64                 1.0000                       10/5          1.00               2/4
+  11          83         42      86                 0.0007                       15/0          1.00               2/3
+  12          97        100     100                 1.0000                        0/1          1.00               0/1
+
+===== qwen2.5-vl-7b: per-position minute accuracy (n=36 each) + paired McNemar (Holm over 12) =====
+ pos  text_only%  matching%  blank%  p_holm_matching_clock onlyT/onlyI_matching_clock  p_holm_blank onlyT/onlyI_blank
+   1         100        100     100                    1.0                        0/0           1.0               0/0
+   2          94        100     100                    1.0                        0/2           1.0               0/2
+   3          97        100     100                    1.0                        0/1           1.0               0/1
+   4          94        100     100                    1.0                        0/2           1.0               0/2
+   5          94         92     100                    1.0                        2/1           1.0               0/2
+   6         100        100     100                    1.0                        0/0           1.0               0/0
+   7          97        100     100                    1.0                        0/1           1.0               0/1
+   8          97        100     100                    1.0                        0/1           1.0               0/1
+   9          97        100     100                    1.0                        0/1           1.0               0/1
+  10          94        100     100                    1.0                        0/2           1.0               0/2
+  11          97        100     100                    1.0                        0/1           1.0               0/1
+  12         100        100     100                    1.0                        0/0           1.0               0/0
+
+===== internvl3-2b: per-position minute accuracy (n=36 each) + paired McNemar (Holm over 12) =====
+ pos  text_only%  matching%  blank%  p_holm_matching_clock onlyT/onlyI_matching_clock  p_holm_blank onlyT/onlyI_blank
+   1          28         36      25                 0.7754                        3/6        1.0000               2/1
+   2          33         92      31                 0.0000                       0/21        1.0000               2/1
+   3          78         94      78                 0.3926                        1/7        1.0000               2/2
+   4          58         86      47                 0.1914                       3/13        1.0000               6/2
+   5          44         56      33                 0.7754                        4/8        1.0000               5/1
+   6          64         83      56                 0.3926                        2/9        1.0000               4/1
+   7          19         69      31                 0.0004                       1/19        1.0000               3/7
+   8          50         94      56                 0.0003                       0/16        1.0000               2/4
+   9          78         92      72                 0.5391                        2/7        1.0000               4/2
+  10          28         50      11                 0.1914                        1/9        0.3750               6/0
+  11          44         19      25                 0.1914                       11/2        0.7197               9/2
+  12          72         89      83                 0.3926                        1/7        1.0000               3/7
+
+===== internvl3-8b: per-position minute accuracy (n=36 each) + paired McNemar (Holm over 12) =====
+ pos  text_only%  matching%  blank%  p_holm_matching_clock onlyT/onlyI_matching_clock  p_holm_blank onlyT/onlyI_blank
+   1         100        100     100                   1.00                        0/0          1.00               0/0
+   2         100        100     100                   1.00                        0/0          1.00               0/0
+   3         100        100     100                   1.00                        0/0          1.00               0/0
+   4         100        100     100                   1.00                        0/0          1.00               0/0
+   5          86        100     100                   0.75                        0/5          0.75               0/5
+   6         100        100     100                   1.00                        0/0          1.00               0/0
+   7         100        100     100                   1.00                        0/0          1.00               0/0
+   8         100        100     100                   1.00                        0/0          1.00               0/0
+   9         100        100     100                   1.00                        0/0          1.00               0/0
+  10          97        100      94                   1.00                        0/1          1.00               2/1
+  11          97        100     100                   1.00                        0/1          1.00               0/1
+  12          94        100      92                   1.00                        0/2          1.00               2/1
+
+#################### C. TRUNCATION / PARSE-FAILURE SENSITIVITY (conversion test) ####################
+
+===== qwen2.5-vl-3b: unparsed trials per condition (of 432 each): blank=0, matching_clock=0, mismatched_clock=0, text_only=0 =====
+  [all trials (432 per condition)] minute acc %: {'text_only': np.float64(67.6), 'matching_clock': np.float64(61.8), 'blank': np.float64(72.0), 'mismatched_clock': np.float64(66.7)}
+                   comparison   n  only_text_correct  only_image_correct  p_value
+  text_only_vs_matching_clock 432                 66                  41 0.019900
+           text_only_vs_blank 432                  7                  26 0.001319
+text_only_vs_mismatched_clock 432                 54                  50 0.768792
+  [drop keys with any unparsed condition (432 per condition)] minute acc %: {'text_only': np.float64(67.6), 'matching_clock': np.float64(61.8), 'blank': np.float64(72.0), 'mismatched_clock': np.float64(66.7)}
+                   comparison   n  only_text_correct  only_image_correct  p_value
+  text_only_vs_matching_clock 432                 66                  41 0.019900
+           text_only_vs_blank 432                  7                  26 0.001319
+text_only_vs_mismatched_clock 432                 54                  50 0.768792
+  [lead-ins 0 and 2 only (288 per condition)] minute acc %: {'text_only': np.float64(68.1), 'matching_clock': np.float64(55.9), 'blank': np.float64(74.0), 'mismatched_clock': np.float64(60.8)}
+                   comparison   n  only_text_correct  only_image_correct  p_value
+  text_only_vs_matching_clock 288                 58                  23 0.000127
+           text_only_vs_blank 288                  5                  22 0.001514
+text_only_vs_mismatched_clock 288                 49                  28 0.022033
+
+===== qwen2.5-vl-7b: unparsed trials per condition (of 432 each): blank=0, matching_clock=0, mismatched_clock=0, text_only=0 =====
+  [all trials (432 per condition)] minute acc %: {'text_only': np.float64(97.0), 'matching_clock': np.float64(99.3), 'blank': np.float64(100.0), 'mismatched_clock': np.float64(99.8)}
+                   comparison   n  only_text_correct  only_image_correct  p_value
+  text_only_vs_matching_clock 432                  2                  12 0.012939
+           text_only_vs_blank 432                  0                  13 0.000244
+text_only_vs_mismatched_clock 432                  0                  12 0.000488
+  [drop keys with any unparsed condition (432 per condition)] minute acc %: {'text_only': np.float64(97.0), 'matching_clock': np.float64(99.3), 'blank': np.float64(100.0), 'mismatched_clock': np.float64(99.8)}
+                   comparison   n  only_text_correct  only_image_correct  p_value
+  text_only_vs_matching_clock 432                  2                  12 0.012939
+           text_only_vs_blank 432                  0                  13 0.000244
+text_only_vs_mismatched_clock 432                  0                  12 0.000488
+  [lead-ins 0 and 2 only (288 per condition)] minute acc %: {'text_only': np.float64(95.5), 'matching_clock': np.float64(99.3), 'blank': np.float64(100.0), 'mismatched_clock': np.float64(99.7)}
+                   comparison   n  only_text_correct  only_image_correct  p_value
+  text_only_vs_matching_clock 288                  1                  12 0.003418
+           text_only_vs_blank 288                  0                  13 0.000244
+text_only_vs_mismatched_clock 288                  0                  12 0.000488
+
+===== internvl3-2b: unparsed trials per condition (of 432 each): blank=0, matching_clock=0, mismatched_clock=3, text_only=0 =====
+  [all trials (432 per condition)] minute acc %: {'text_only': np.float64(49.8), 'matching_clock': np.float64(71.8), 'blank': np.float64(45.6), 'mismatched_clock': np.float64(43.8)}
+                   comparison   n  only_text_correct  only_image_correct      p_value
+  text_only_vs_matching_clock 432                 29                 124 3.423512e-15
+           text_only_vs_blank 432                 48                  30 5.354439e-02
+text_only_vs_mismatched_clock 432                 93                  67 4.776700e-02
+  [drop keys with any unparsed condition (429 per condition)] minute acc %: {'text_only': np.float64(49.7), 'matching_clock': np.float64(72.0), 'blank': np.float64(45.7), 'mismatched_clock': np.float64(44.1)}
+                   comparison   n  only_text_correct  only_image_correct      p_value
+  text_only_vs_matching_clock 429                 28                 124 1.284705e-15
+           text_only_vs_blank 429                 47                  30 6.754925e-02
+text_only_vs_mismatched_clock 429                 91                  67 6.694264e-02
+  [lead-ins 0 and 2 only (288 per condition)] minute acc %: {'text_only': np.float64(37.5), 'matching_clock': np.float64(70.1), 'blank': np.float64(42.7), 'mismatched_clock': np.float64(44.8)}
+                   comparison   n  only_text_correct  only_image_correct      p_value
+  text_only_vs_matching_clock 288                 10                 104 7.235209e-21
+           text_only_vs_blank 288                 10                  25 1.667385e-02
+text_only_vs_mismatched_clock 288                 40                  61 4.604407e-02
+
+===== internvl3-8b: unparsed trials per condition (of 432 each): blank=0, matching_clock=0, mismatched_clock=0, text_only=0 =====
+  [all trials (432 per condition)] minute acc %: {'text_only': np.float64(97.9), 'matching_clock': np.float64(100.0), 'blank': np.float64(98.8), 'mismatched_clock': np.float64(96.3)}
+                   comparison   n  only_text_correct  only_image_correct  p_value
+  text_only_vs_matching_clock 432                  0                   9 0.003906
+           text_only_vs_blank 432                  4                   8 0.387695
+text_only_vs_mismatched_clock 432                 15                   8 0.210040
+  [drop keys with any unparsed condition (432 per condition)] minute acc %: {'text_only': np.float64(97.9), 'matching_clock': np.float64(100.0), 'blank': np.float64(98.8), 'mismatched_clock': np.float64(96.3)}
+                   comparison   n  only_text_correct  only_image_correct  p_value
+  text_only_vs_matching_clock 432                  0                   9 0.003906
+           text_only_vs_blank 432                  4                   8 0.387695
+text_only_vs_mismatched_clock 432                 15                   8 0.210040
+  [lead-ins 0 and 2 only (288 per condition)] minute acc %: {'text_only': np.float64(96.9), 'matching_clock': np.float64(100.0), 'blank': np.float64(98.3), 'mismatched_clock': np.float64(95.1)}
+                   comparison   n  only_text_correct  only_image_correct  p_value
+  text_only_vs_matching_clock 288                  0                   9 0.003906
+           text_only_vs_blank 288                  4                   8 0.387695
+text_only_vs_mismatched_clock 288                 13                   8 0.383310
+
+#################### D. WHAT ARE THE 'WRONG GIVEN BOTH DESCRIBED RIGHT' CASES? ####################
+minute_desc_ok accepts a described number within +/-1 of the truth. 'off_by_one_desc' = the model said a minute
+number != the true one (accepted only by the tolerance); 'follows_own_desc' = its final minute equals (said number*5) mod 60.
+        model  wrong_given_both  off_by_one_desc  exact_desc_but_wrong  follows_own_desc  exact_desc_wrong_AND_not_following  hour_wrong
+qwen2.5-vl-3b                97               36                    61                36                                  61           0
+qwen2.5-vl-7b                 8                8                     0                 8                                   0           0
+ internvl3-2b                14               13                     1                13                                   1           0
+ internvl3-8b                72               56                    16                56                                  16           0

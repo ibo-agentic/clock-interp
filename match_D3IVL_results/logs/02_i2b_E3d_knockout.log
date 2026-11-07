@@ -1,0 +1,43 @@
+Loading OpenGVLab/InternVL3-2B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+mech_e3: model=internvl3-2b layers=28 parts=['d'] smoke=False rep_penalty=None  [all timings in the log are measurements of THIS run; planning numbers elsewhere are guesses]
+
+===== part d =====
+  E3d cell 1/17 intact: acc 0.498  elapsed 149s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (432 rows)
+  E3d cell 2/17 H_all: acc 0.722  elapsed 302s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (864 rows)
+  E3d cell 3/17 random_all: acc 0.528  elapsed 455s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (1296 rows)
+  E3d cell 4/17 N_all: acc 0.072  elapsed 607s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (1728 rows)
+  E3d cell 5/17 H_win0-4: acc 0.498  elapsed 754s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (2160 rows)
+  E3d cell 6/17 H_win4-8: acc 0.498  elapsed 902s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (2592 rows)
+  E3d cell 7/17 H_win8-12: acc 0.495  elapsed 1050s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (3024 rows)
+  E3d cell 8/17 H_win12-16: acc 0.493  elapsed 1197s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (3456 rows)
+  E3d cell 9/17 H_win16-20: acc 0.574  elapsed 1346s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (3888 rows)
+  E3d cell 10/17 H_win20-24: acc 0.694  elapsed 1493s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (4320 rows)
+  E3d cell 11/17 H_win24-28: acc 0.498  elapsed 1639s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (4752 rows)
+  E3d cell 12/17 H_cum4-end: acc 0.722  elapsed 1791s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (5184 rows)
+  E3d cell 13/17 H_cum8-end: acc 0.722  elapsed 1942s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (5616 rows)
+  E3d cell 14/17 H_cum12-end: acc 0.720  elapsed 2092s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (6048 rows)
+  E3d cell 15/17 H_cum16-end: acc 0.722  elapsed 2241s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (6480 rows)
+  E3d cell 16/17 H_cum20-end: acc 0.690  elapsed 2390s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (6912 rows)
+  E3d cell 17/17 H_cum24-end: acc 0.498  elapsed 2538s
+  wrote results/mech_e3/internvl3-2b/e3d_knockout.csv (7344 rows)
+  wrote results/mech_e3/internvl3-2b/e3d_summary.csv (17 rows)
+  E3d verdict: {'model': 'internvl3-2b', 'leak_intact': 117, 'leak_blocked': 28, 'leak_rel_drop': np.float64(0.7606837606837606), 'acc_diff_points': np.float64(22.453703703703702), 'acc_ci_points': [np.float64(17.36111111111111), np.float64(27.546296296296298)], 'leak_ci_excludes0': True, 'acc_ci_excludes0': True, 'random_span_acc_diff_points': np.float64(3.009259259259259), 'M_bind_supported': False, 'weak_conversion_account': False}
+part d took 42.3 min
