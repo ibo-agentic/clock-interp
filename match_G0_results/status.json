@@ -1,0 +1,26 @@
+[
+ {
+  "step": "01_gemma4b_smoke",
+  "status": "FAILED rc=1",
+  "returncode": 1,
+  "minutes": 2.5
+ },
+ {
+  "step": "02_purge_4b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "03_gemma12b_smoke",
+  "status": "FAILED rc=1",
+  "returncode": 1,
+  "minutes": 5.6
+ },
+ {
+  "step": "04_purge_12b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]

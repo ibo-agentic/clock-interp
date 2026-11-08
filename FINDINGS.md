@@ -52,9 +52,25 @@
 - Not flagged: image behaviour (exact 1.8/12.6), describe hour/minute rates, conversion follows-image rates.
 
 ## 5. Status and next
-Done: E0, E3a-f, text-light pilot, InternVL3-8B 128-token re-run, Qwen at rp 1.0 (notebook Q), D3-IVL, D3-Q, E1 for InternVL3-2B and Qwen-3B. Open: E1 for Qwen-7B and InternVL3-8B (verify gate G5 failed; probable cause, not yet confirmed: both models are near ceiling without the image, so a block changes few generations; fix proposed, not applied). Built, not yet run: E2 as F1a (InternVL3-2B standard + text-light, confirmatory, run first), F1b (Qwen-7B, descriptive), F2 (InternVL3-8B, descriptive); Qwen-3B dropped from E2 (fails the 0.15 floor; deviations log 2026-11-08 second entry); V3 informational for 7B/8B. E1 for 7B/8B not re-run (H-E1-3 7B/8B part not evaluated). Gemma 3 adapter (4B, 12B) built and offline-tested; notebook G0 (real-weight smoke) not yet run. Analysis scripts ready: analysis/analyze_E1.py, analyze_E2.py.
+Done: E0, E3a-f, text-light pilot, InternVL3-8B 128-token re-run, Qwen at rp 1.0 (notebook Q), D3-IVL, D3-Q, E1 for InternVL3-2B and Qwen-3B. Open: E1 for Qwen-7B and InternVL3-8B (verify gate G5 failed; probable cause, not yet confirmed: both models are near ceiling without the image, so a block changes few generations; fix proposed, not applied). Built, not yet run: E2 as F1a (InternVL3-2B standard + text-light, confirmatory, run first), F1b (Qwen-7B, descriptive), F2 (InternVL3-8B, descriptive); Qwen-3B dropped from E2 (fails the 0.15 floor; deviations log 2026-11-08 second entry); V3 informational for 7B/8B. E1 for 7B/8B not re-run (H-E1-3 7B/8B part not evaluated). Gemma 3 adapter (4B, 12B) built and offline-tested; G0 real-weight smoke FAILED in fp16 for both (non-finite logits, empty answers; section 6); Gemma runs on hold pending a fix decision. Analysis scripts ready: analysis/analyze_E1.py, analyze_E2.py.
+
+## 6. Gemma 3 smoke test (notebook G0, 2026-11-08; fp16, T4 x2, transformers 5.20.2)
+| | gemma-3-4b-it | gemma-3-12b-it |
+|---|---|---|
+| Verdict | **FAIL** | **FAIL** |
+| Image tokens / pixel_values | 256 / (1,3,896,896) OK | 256 / (1,3,896,896) OK |
+| Single BOS, token_type_ids consistent (adapter checks) | no problem reported | no problem reported |
+| Logits finite | **NO**, for all 3 image prompts AND all 3 text-only prompts | **NO**, same |
+| Raw answers | all empty (''), 11/11 prompts | all empty, 11/11 |
+| Describe-regex parse | 0/5 (empty replies) | 0/5 |
+| Peak GPU memory (cuda:0 / cuda:1) | 5.9 / 2.7 GiB | 13.6 / 9.7 GiB (fits, ~1.4 GiB headroom on cuda:0) |
+| Step wall time incl. download + 11 generations | 2.5 min | 5.6 min |
+Reading: non-finite logits already on text-only prompts, so the problem is in the language model path, not the vision tower. The cause (true fp16 activation overflow vs an attention-implementation / masking NaN) is NOT yet diagnosed. No Gemma behaviour numbers exist. Decision (2026-11-08): test bf16 (4B, 12B) and fp32 (4B only) plus an fp16 diagnostic in notebook G0b before choosing; Gemma would run in native bf16 while Qwen/InternVL stay fp16 (deviations log, third entry of 2026-11-08).
+**Paper note:** InternVL3-2B/8B-hf use a Qwen2 language backbone (config: model_type qwen2, 28 layers, hidden 1536 / 3584 = Qwen2.5-1.5B / 7B), so three of the four current models share the Qwen2.5 LLM lineage; Gemma 3 (independent LLM) is the real cross-family generality test.
 
 ## Update log
+- 2026-11-08: notebook G0b (Gemma precision: fp16 diagnostic, bf16 4B/12B, fp32 4B) and `gemma_diag.py` built; `CLOCK_DTYPE` for Gemma adapters; no results yet.
+- 2026-11-08: G0 Gemma smoke: both models fail in fp16 (non-finite logits).
 - 2026-11-08: E2 split into F1a/F1b/F2, Qwen-3B dropped, V3 informational for 7B/8B (deviations log); Gemma 3 adapter built, notebook G0 added (no results).
 - 2026-11-08: D3-Q (E3d Qwen-3B supported; 7B control) and E (E1: 2B machinery check invalid; 7B/8B gate failed) incorporated.
 - 2026-11-07: created; D2'', Q and D3-IVL incorporated.

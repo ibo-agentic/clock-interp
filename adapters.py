@@ -339,6 +339,17 @@ class Qwen7BAdapter(QwenVLAdapter):
 # gated-repo access).
 # ---------------------------------------------------------------------------
 
+def _gemma_dtype():
+    """dtype for the Gemma adapters only, from env CLOCK_DTYPE (float16 default; bfloat16; float32). Returns (torch dtype, name)."""
+    name = os.environ.get("CLOCK_DTYPE", "float16").lower()
+    table = {"float16": (torch.float16, "float16"), "fp16": (torch.float16, "float16"), "half": (torch.float16, "float16"),
+             "bfloat16": (torch.bfloat16, "bfloat16"), "bf16": (torch.bfloat16, "bfloat16"),
+             "float32": (torch.float32, "float32"), "fp32": (torch.float32, "float32")}
+    if name not in table:
+        raise ValueError(f"CLOCK_DTYPE must be float16, bfloat16 or float32 for Gemma (got '{name}')")
+    return table[name]
+
+
 class Gemma3Adapter(ModelAdapter):
     short_name = "gemma-3-4b-it"
     default_model_id = "google/gemma-3-4b-it"
@@ -351,12 +362,13 @@ class Gemma3Adapter(ModelAdapter):
     def load(self, model_id=None):
         from transformers import AutoProcessor, Gemma3ForConditionalGeneration
         model_id = model_id or self.default_model_id
-        print(f"Loading {model_id} in float16 ...")
-        print("NOTE: google/gemma-3-4b-it is a GATED HF repo -- this call will fail with a 401 "
+        self.torch_dtype, self.dtype_name = _gemma_dtype()
+        print(f"Loading {model_id} in {self.dtype_name} (CLOCK_DTYPE={os.environ.get('CLOCK_DTYPE', '<unset>')}) ...")
+        print(f"NOTE: {model_id} is a GATED HF repo -- this call will fail with a 401 "
               "unless HF_TOKEN is set (env var or `huggingface-cli login`) AND access has been "
-              "granted at https://huggingface.co/google/gemma-3-4b-it.")
+              f"granted at https://huggingface.co/{model_id}.")
         self.model = Gemma3ForConditionalGeneration.from_pretrained(
-            model_id, dtype=torch.float16, device_map="auto")
+            model_id, dtype=self.torch_dtype, device_map="auto")
         self.processor = AutoProcessor.from_pretrained(model_id)
         self.model.eval()
         return self.model, self.processor
@@ -368,7 +380,7 @@ class Gemma3Adapter(ModelAdapter):
         return {"chat_template": "Gemma3 turn format; <bos> comes from the template (tokenised via apply_chat_template, so no double BOS); no system prompt injected",
                 "image": "one image = 256 soft tokens (processor default, do_pan_and_scan False); processor also returns token_type_ids (1 = image) used for the bidirectional image-block mask in prefill",
                 "decoding": "greedy (do_sample=False), checkpoint sampling defaults top_k/top_p cleared, no repetition penalty (the checkpoint ships none)",
-                "dtype": "float16 (T4 has no native bf16); Gemma 3 is known to overflow in fp16 -> the smoke/gate finite-logit checks decide"}
+                "dtype": f"{getattr(self, 'dtype_name', 'float16')} (default float16; env CLOCK_DTYPE=bfloat16|float32). Measured in notebook G0: float16 gives non-finite logits for gemma-3-4b-it and -12b-it on T4"}
 
     def smoke_checks(self, inputs):
         """Gemma-only extra smoke checks (run_smoke calls this only if the attribute exists). Returns a list of problem strings."""

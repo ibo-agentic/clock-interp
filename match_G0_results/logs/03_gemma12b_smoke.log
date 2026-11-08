@@ -1,0 +1,54 @@
+Loading google/gemma-3-12b-it in float16 ...
+NOTE: google/gemma-3-4b-it is a GATED HF repo -- this call will fail with a 401 unless HF_TOKEN is set (env var or `huggingface-cli login`) AND access has been granted at https://huggingface.co/google/gemma-3-4b-it.
+
+=== SMOKE: gemma-3-12b-it  (Gemma3_12BAdapter) ===
+dtype: float16 (Qwen/Gemma adapters hardcode it)   torch 2.11.0+cu130
+transformers 5.20.2
+device map (module groups per device): {'0': 29, '1': 25}
+  [chat_template] Gemma3 turn format; <bos> comes from the template (tokenised via apply_chat_template, so no double BOS); no system prompt injected
+  [image] one image = 256 soft tokens (processor default, do_pan_and_scan False); processor also returns token_type_ids (1 = image) used for the bidirectional image-block mask in prefill
+  [decoding] greedy (do_sample=False), checkpoint sampling defaults top_k/top_p cleared, no repetition penalty (the checkpoint ships none)
+  [dtype] float16 (T4 has no native bf16); Gemma 3 is known to overflow in fp16 -> the smoke/gate finite-logit checks decide
+
+--- 3 prompts WITH an image (eval_behavior.py prompt) ---
+[10:10] image_tokens=256 pixel_values=(1, 3, 896, 896) logits_finite=False
+    raw: ''
+[3:45] image_tokens=256 pixel_values=(1, 3, 896, 896) logits_finite=False
+    raw: ''
+[7:20] image_tokens=256 pixel_values=(1, 3, 896, 896) logits_finite=False
+    raw: ''
+
+--- 3 prompts WITHOUT an image ---
+image_tokens=0 logits_finite=False
+    prompt: 'The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. What time does the clock show? Answer only in HH:MM format.'
+    raw: ''
+image_tokens=0 logits_finite=False
+    prompt: 'The long minute hand is pointing at the number 7. How many minutes past the hour does this represent? Answer with a number only.'
+    raw: ''
+image_tokens=0 logits_finite=False
+    prompt: 'What is 7 times 5? Answer with a number only.'
+    raw: ''
+
+--- 5 describe_check.py prompts (does the project's regex parsing fit this model's wording?) ---
+[10:10] parsed minute_number=None hour_number=None time=None (all three parsed: False)
+    raw: ''
+[3:45] parsed minute_number=None hour_number=None time=None (all three parsed: False)
+    raw: ''
+[7:20] parsed minute_number=None hour_number=None time=None (all three parsed: False)
+    raw: ''
+[12:00] parsed minute_number=None hour_number=None time=None (all three parsed: False)
+    raw: ''
+[5:35] parsed minute_number=None hour_number=None time=None (all three parsed: False)
+    raw: ''
+
+regex fit: 0/5 describe replies fully parsed by describe_check.py's regexes.
+  -> LOW FIT: describe_check's regexes were tuned on Qwen's wording. Do NOT trust minute_desc_ok/hour_desc_ok for this model yet; propose tolerant-parse columns (additive, original columns untouched) and get approval before changing describe_check.py.
+cuda:0 peak memory 13.6 GiB
+cuda:1 peak memory 9.7 GiB
+
+VERDICT: FAIL
+  - empty output on describe prompt
+  - empty output text-only
+  - empty output with image
+  - non-finite logits text-only
+  - non-finite logits with image

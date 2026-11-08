@@ -86,6 +86,60 @@ def main():
             check("generate_answer text-only runs", isinstance(ad.generate_answer(t, max_new_tokens=4), str))
             check("decoder_layers finds the 3 layers", len(ad.decoder_layers()) == 3 and ad.num_layers == 3, str(len(ad.decoder_layers())))
             check("run_config_notes has the expected keys", set(ad.run_config_notes()) >= {"chat_template", "image", "decoding", "dtype"})
+        # CLOCK_DTYPE (Gemma only) + the non-finite locator used by notebook G0b
+        saved = os.environ.get("CLOCK_DTYPE")
+        try:
+            os.environ.pop("CLOCK_DTYPE", None)
+            check("_gemma_dtype default float16", adapters._gemma_dtype() == (torch.float16, "float16"))
+            os.environ["CLOCK_DTYPE"] = "bf16"
+            check("_gemma_dtype bf16", adapters._gemma_dtype() == (torch.bfloat16, "bfloat16"))
+            os.environ["CLOCK_DTYPE"] = "float32"
+            check("_gemma_dtype float32", adapters._gemma_dtype() == (torch.float32, "float32"))
+            os.environ["CLOCK_DTYPE"] = "int8"
+            try:
+                adapters._gemma_dtype(); check("_gemma_dtype rejects unknown", False)
+            except ValueError:
+                check("_gemma_dtype rejects unknown", True)
+        finally:
+            if saved is None:
+                os.environ.pop("CLOCK_DTYPE", None)
+            else:
+                os.environ["CLOCK_DTYPE"] = saved
+        import gemma_diag
+        ad = adapters.Gemma3Adapter()
+        ad.model, ad.processor = model, proc
+        inp = ad.build_inputs(img_path, "what time does the clock show ?")
+        clean = gemma_diag.find_first_nonfinite(model, inp)
+        check("locator: clean model has no bad module", clean["first_bad"] is None and clean["logits_finite"] is True and len(clean["records"]) > 20, f"{len(clean['records'])} hooked modules")
+        lm = model.model.language_model if hasattr(model.model, "language_model") else model.language_model
+        with torch.no_grad():
+            lm.layers[1].mlp.down_proj.weight[0, 0] = float("nan")
+        bad = gemma_diag.find_first_nonfinite(model, inp)
+        check("locator: finds layers.1.mlp.down_proj as the creation point", bad["first_origin"] is not None and bad["first_origin"]["name"].endswith("layers.1.mlp.down_proj")
+              and bad["logits_finite"] is False, str(bad["first_origin"] and bad["first_origin"]["name"]))
+        # gemma_diag smoke mode end-to-end on the toy model (load stubbed): exercises timing, load-time, json writing
+        import types
+        def fake_load(self, model_id=None):
+            self.model, self.processor = model, proc
+            self.torch_dtype, self.dtype_name = adapters._gemma_dtype()
+            return model, proc
+        cls_ = adapters.Gemma3Adapter
+        saved_load, saved_exp = cls_.load, cls_.expected_image_tokens
+        cls_.load, cls_.expected_image_tokens = fake_load, N_TOK
+        cwd = os.getcwd()
+        env_saved = os.environ.get("CLOCK_DTYPE")
+        try:
+            os.chdir(tmp)
+            sys.path.insert(0, ROOT)
+            ns = types.SimpleNamespace(model_id="toy", adapter="gemma-3-4b-it", dtype="fp32", n_timing=2)
+            r = gemma_diag.mode_smoke(ns)
+            rec = __import__("json").load(open(os.path.join("results", "gemma", "gemma-3-4b-it_fp32", "smoke.json")))
+            check("gemma_diag smoke mode ran and wrote smoke.json with timing", set(rec["timing"]) == {"text_only", "with_image"} and rec["load_seconds"] >= 0 and rec["dtype"] == "float32",
+                  f"verdict={r}")
+        finally:
+            os.chdir(cwd)
+            (os.environ.pop("CLOCK_DTYPE", None) if env_saved is None else os.environ.__setitem__("CLOCK_DTYPE", env_saved))
+            cls_.load, cls_.expected_image_tokens = saved_load, saved_exp
         check("registry + hints", adapters._ADAPTERS["gemma-3-12b-it"] is adapters.Gemma3_12BAdapter
               and type(adapters.get_adapter(model_id="google/gemma-3-12b-it")).__name__ == "Gemma3_12BAdapter"
               and type(adapters.get_adapter(model_id="google/gemma-3-4b-it")).__name__ == "Gemma3Adapter")

@@ -1,0 +1,7 @@
+01_gemma4b_smoke                 FAILED rc=1                    2.5 min
+02_purge_4b_cache                OK                             0.0 min
+03_gemma12b_smoke                FAILED rc=1                    5.6 min
+04_purge_12b_cache               OK                             0.0 min
+
+total wall time: 0.14 h
+MISSING expected files: none
