@@ -356,10 +356,30 @@ class Gemma3Adapter(ModelAdapter):
               "unless HF_TOKEN is set (env var or `huggingface-cli login`) AND access has been "
               "granted at https://huggingface.co/google/gemma-3-4b-it.")
         self.model = Gemma3ForConditionalGeneration.from_pretrained(
-            model_id, torch_dtype=torch.float16, device_map="auto")
+            model_id, dtype=torch.float16, device_map="auto")
         self.processor = AutoProcessor.from_pretrained(model_id)
         self.model.eval()
         return self.model, self.processor
+
+    # Facts for the Method section / smoke output (checked against the installed transformers source, 5.17; Kaggle runs 5.20.2).
+    expected_image_tokens = 256        # mm_tokens_per_image (SigLIP 896 px -> 4096 patches -> 4x4 avg-pool -> 256); pan-and-scan is OFF by default in the processor
+
+    def run_config_notes(self):
+        return {"chat_template": "Gemma3 turn format; <bos> comes from the template (tokenised via apply_chat_template, so no double BOS); no system prompt injected",
+                "image": "one image = 256 soft tokens (processor default, do_pan_and_scan False); processor also returns token_type_ids (1 = image) used for the bidirectional image-block mask in prefill",
+                "decoding": "greedy (do_sample=False), checkpoint sampling defaults top_k/top_p cleared, no repetition penalty (the checkpoint ships none)",
+                "dtype": "float16 (T4 has no native bf16); Gemma 3 is known to overflow in fp16 -> the smoke/gate finite-logit checks decide"}
+
+    def smoke_checks(self, inputs):
+        """Gemma-only extra smoke checks (run_smoke calls this only if the attribute exists). Returns a list of problem strings."""
+        probs = []
+        ids = inputs["input_ids"][0]
+        bos = self.processor.tokenizer.bos_token_id
+        if bos is not None and int((ids[:2] == bos).sum()) != 1:
+            probs.append(f"BOS appears {int((ids[:2] == bos).sum())}x in the first two tokens (double BOS)")
+        if "token_type_ids" in inputs and int((inputs["token_type_ids"][0] == 1).sum()) != int(self.image_token_positions(inputs).sum()):
+            probs.append("token_type_ids image count differs from image-token count")
+        return probs
 
     def build_inputs(self, image, prompt):
         image = _open_image(image)
@@ -368,12 +388,13 @@ class Gemma3Adapter(ModelAdapter):
         else:
             content = [{"type": "text", "text": prompt}]
         messages = [{"role": "user", "content": content}]
-        chat_text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-        if image is not None:
-            inputs = self.processor(text=[chat_text], images=[image], return_tensors="pt")
-        else:
-            inputs = self.processor(text=[chat_text], return_tensors="pt")
-        return dict(inputs.to(self.model.device))
+        # tokenize=True via the template path: the template itself writes <bos>, and this route does not add a second one
+        inputs = self.processor.apply_chat_template(messages, tokenize=True, add_generation_prompt=True,
+                                                    return_dict=True, return_tensors="pt")
+        out = dict(inputs.to(self.model.device))
+        if "pixel_values" in out:
+            out["pixel_values"] = out["pixel_values"].to(self.model.dtype)
+        return out
 
     @torch.no_grad()
     def generate_answer(self, inputs, max_new_tokens=16, use_cache=True):
@@ -383,7 +404,7 @@ class Gemma3Adapter(ModelAdapter):
         # standard contract, which Gemma3ForConditionalGeneration doesn't
         # override), unlike InternVL below.
         generated_ids = self.model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False,
-                                             use_cache=use_cache)
+                                             top_k=None, top_p=None, use_cache=use_cache)
         trimmed = generated_ids[0][inputs["input_ids"].shape[1]:]
         return self.processor.decode(trimmed, skip_special_tokens=True).strip()
 
@@ -402,6 +423,12 @@ class Gemma3Adapter(ModelAdapter):
 
     def image_features_owners(self):
         return find_all_image_features_owners_generic(self.model, "get_image_features"), "get_image_features"
+
+
+class Gemma3_12BAdapter(Gemma3Adapter):
+    """Same code path as the 4B; only the id differs (48 decoder layers vs 34; ~24 GB in fp16, split over the two T4s by device_map='auto')."""
+    short_name = "gemma-3-12b-it"
+    default_model_id = "google/gemma-3-12b-it"
 
 
 # ---------------------------------------------------------------------------
@@ -538,6 +565,7 @@ _ADAPTERS = {
     "qwen2.5-vl-3b": QwenVLAdapter,
     "qwen2.5-vl-7b": Qwen7BAdapter,
     "gemma-3-4b-it": Gemma3Adapter,
+    "gemma-3-12b-it": Gemma3_12BAdapter,
     "internvl3-2b": InternVLAdapter,
     "internvl3-8b": InternVL3_8BAdapter,
 }
@@ -548,6 +576,7 @@ _MODEL_ID_HINTS = [
     ("qwen2.5-vl-7b", "qwen2.5-vl-7b"),
     ("qwen2.5-vl-3b", "qwen2.5-vl-3b"),
     ("gemma-3-4b-it", "gemma-3-4b-it"),
+    ("gemma-3-12b-it", "gemma-3-12b-it"),
     ("internvl3-8b", "internvl3-8b"),
     ("internvl3-2b", "internvl3-2b"),
 ]
@@ -661,6 +690,8 @@ def run_smoke(model_id=None, adapter_name=None, max_new_tokens=32, tmp_dir="adap
         n_img = int(adapter.image_token_positions(inputs).sum())
         fin = forward_is_finite(inputs)
         raw = adapter.generate_answer(inputs, max_new_tokens=max_new_tokens)
+        if hasattr(adapter, "smoke_checks"):
+            problems.extend(adapter.smoke_checks(inputs))
         shape = tuple(inputs["pixel_values"].shape) if "pixel_values" in inputs else None
         print(f"[{h}:{m:02d}] image_tokens={n_img} pixel_values={shape} logits_finite={fin}\n    raw: {raw!r}")
         exp = getattr(adapter, "expected_image_tokens", None)

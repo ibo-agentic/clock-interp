@@ -210,7 +210,7 @@ def part_verify(ctx):
             with ML.patch_hidden(ctx.layers, kmid, pos, store_b[kmid][0, pos]):
                 pat = ML.minute_logprob(ad, ins["A"], ids[0], ids[2]) - ML.minute_logprob(ad, ins["A"], ids[0], ids[1])
             moved += int(abs(pat - base) > 0.1); n3 += 1
-        check("V3_patch_moves_teacher_forced_logprob", moved / n3 >= 0.5 or ctx.smoke, moved=f"{moved}/{n3}",
+        check("V3_patch_moves_teacher_forced_logprob", moved / n3 >= 0.5 or ctx.smoke, gating=not ctx.args.v3_informational, moved=f"{moved}/{n3}",
               note="needs >= 50% of pairs with |change| > 0.1 nat (a no-op patch would make every cell null); smoke (random tiny model) only logs it")
     except Exception as e:  # noqa: BLE001
         check("V3_patch_moves_teacher_forced_logprob", False, error=E3._err(e))
@@ -310,6 +310,7 @@ def main():
     ap.add_argument("--max_new_tokens", type=int, default=8)
     ap.add_argument("--rep_penalty", type=float, default=None)
     ap.add_argument("--no_gate", action="store_true")
+    ap.add_argument("--v3_informational", action="store_true", help="V3 logged but non-gating (descriptive near-ceiling models; deviations log 2026-11-08)")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
     parts = [p.strip() for p in args.parts.split(",") if p.strip()]

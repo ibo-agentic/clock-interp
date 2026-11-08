@@ -1,0 +1,95 @@
+====================================================================================================
+D3-Q: Qwen E3a-d at repetition_penalty 1.0
+====================================================================================================
+01_q3b_verify_E3a                OK                            11.2 min
+02_q3b_E3d_knockout              OK                            52.9 min
+03_q3b_E3b_E3c_patching          OK                            94.1 min
+04_purge_3b_cache                OK                             0.0 min
+05_q7b_verify_E3a                OK                            20.2 min
+06_q7b_E3d_min                   OK                            11.6 min
+07_purge_7b_cache                OK                             0.0 min
+
+total wall time: 3.17 h
+MISSING expected files: none
+
+  qwen2.5-vl-3b: 18 checks, overall pass=True; failed: ['G2_gold_prefix_teacher_forced_vs_free_generation'] (failed AND gating: none)
+  qwen2.5-vl-7b: 18 checks, overall pass=True; failed: none (failed AND gating: none)
+  (Qwen-3B G2-gold, informational and non-gating, fails; G2-own, the gating version, passes.)
+
+--- E3d family (primary comparison: block answer->hour span at ALL layers vs intact; Holm over {Qwen-3B, InternVL3-2B, Qwen-7B})
+        model  leak_intact  leak_blocked  leak_rel_drop  acc_diff_pts  acc_ci_lo  acc_ci_hi  p_acc  p_leak  random_acc_pts  random_leaks  M_bind_supported  p_acc_holm  p_leak_holm
+qwen2.5-vl-3b           40            13         0.6750        9.2593     5.7870    12.9630 0.0001  0.0001         -0.9259            44              True      0.0003       0.0003
+ internvl3-2b          117            28         0.7607       22.4537    17.3611    27.5463 0.0001  0.0001          3.0093           113             False      0.0003       0.0003
+qwen2.5-vl-7b            6             2         0.6667        1.3889     0.4630     2.5463 0.0306  0.1221          0.0000             5             False      0.0306       0.1221
+  Holm-adjusted p do not change any verdict: the pre-registered decision depends on the effect-size thresholds, not on significance alone. 7B fails the >= 4 pts bar (ceiling), as expected for a specificity control; its leaks (6 -> 2) and +1.4 pts are small but their CI excludes 0.
+
+>>> E3d Qwen-3B (CONFIRMATORY; bar leaks 40 -> <= 28 and accuracy +4, CIs excl 0, random-span control < 2 pts): leaks 40 -> 13 (67.5% fewer, CI of per-trial change [-0.093, -0.035]); accuracy +9.3 pts CI [+5.8, +13.0]; random-span control -0.9 pts (leaks 44); destruction control accuracy 0.109 (intact 0.644) => M_bind_supported = True, weak_conversion_account = False
+
+--- Which layers carry the E3d effect (exploratory, relative depth)
+
+qwen2.5-vl-3b (36 layers), intact leaks 40, all-layer block removes 27
+      cell  rel_depth  leak_n  leaks_removed  acc_gain_pts
+  H_win0-4       0.06      40              0          0.00
+  H_win4-8       0.17      40              0          0.00
+ H_win8-12       0.28      40              0          0.00
+H_win12-16       0.39      39              1          0.23
+H_win16-20       0.50      39              1         -0.23
+H_win20-24       0.61      45             -5          1.62
+H_win24-28       0.72      16             24          6.25
+H_win28-32       0.83      34              6          1.16
+H_win32-36       0.94      39              1          0.69
+  cumulative-to-end: L4: 13; L8: 12; L12: 12; L16: 12; L20: 12; L24: 13; L28: 32; L32: 39
+  blocking only layers >= 24 (0.67 of depth) still removes >= 90% of the all-layer leak reduction
+  strongest single window: H_win24-28 (relative depth 0.72), removes 24 leaks
+
+internvl3-2b (28 layers), intact leaks 117, all-layer block removes 89
+      cell  rel_depth  leak_n  leaks_removed  acc_gain_pts
+  H_win0-4       0.07     117              0          0.00
+  H_win4-8       0.21     117              0          0.00
+ H_win8-12       0.36     117              0         -0.23
+H_win12-16       0.50     119             -2         -0.46
+H_win16-20       0.64      87             30          7.64
+H_win20-24       0.79      37             80         19.68
+H_win24-28       0.93     116              1          0.00
+  cumulative-to-end: L4: 28; L8: 28; L12: 28; L16: 29; L20: 37; L24: 116
+  blocking only layers >= 16 (0.57 of depth) still removes >= 90% of the all-layer leak reduction
+  strongest single window: H_win20-24 (relative depth 0.79), removes 80 leaks
+
+--- Qwen-7B specificity control (E3d, 'min' mode: only intact / H_all / random_all)
+      cell    acc  leak_n  acc_diff  acc_lo  acc_hi  leak_p
+    intact 0.9792       6       NaN     NaN     NaN     NaN
+     H_all 0.9931       2    0.0139  0.0046  0.0255  0.1221
+random_all 0.9792       5    0.0000 -0.0069  0.0069  1.0000
+
+------------------------------------------------------------------------------------------
+qwen2.5-vl-3b: E3a / E3b / E3c
+E3a logit lens (EXPLORATORY, no decision rule): gold-minus-leak log-odds at the final layer by group
+  right        n=263  final layer +6.94
+  wrong_leak   n=40  final layer +1.98
+  wrong_other  n=93  final layer +3.45
+  H12          n=33  final layer -0.04
+  H_not12      n=363  final layer +6.14
+  wrong_leak group favours the leak minute from layer 0 (0.00 of depth)
+E3b swap patching. Rule (pre-registered): N-span patch moves the answer toward the source minute, CI excl 0, exceeding every control by >= 1 nat at some layer.
+  span N       : supported at 11/12 tested layers; shift +0.00..+12.28 nats (max at layer 21)
+  span H       : supported at 0/12 tested layers; shift -0.71..+1.00 nats (max at layer 0)
+  span between : supported at 0/12 tested layers; shift -0.00..+0.42 nats (max at layer 21)
+  span last    : supported at 0/12 tested layers; shift -0.00..+0.00 nats (max at layer 24)
+  >>> E3b VERDICT (pre-registered, N-span): SUPPORTED at layers [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30]; best control |shift| 0.66 nats
+E3c restoration. Rule: >= 50% of wrong runs restored at a single layer-position cell AND >= 25 pts above the best control.
+ layer group  n  restored_rate_among_wrong  best_control_restored  PREREG_supported
+    21     H 85                      0.528                  0.167              True
+    18     H 85                      0.417                  0.167             False
+    24     H 85                      0.250                  0.167             False
+    30     H 85                      0.250                  0.167             False
+    27     H 85                      0.222                  0.167             False
+  >>> E3c VERDICT: supported cells 1/48 -> SUPPORTED
+
+------------------------------------------------------------------------------------------
+qwen2.5-vl-7b: E3a / E3b / E3c
+E3a logit lens (EXPLORATORY, no decision rule): gold-minus-leak log-odds at the final layer by group
+  right        n=388  final layer +8.33
+  wrong_leak   n=6  final layer +4.21
+  H12          n=33  final layer +4.19
+  H_not12      n=363  final layer +8.61
+  wrong_leak group favours the leak minute from layer 4 (0.14 of depth)

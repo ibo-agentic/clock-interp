@@ -1,0 +1,76 @@
+Loading OpenGVLab/InternVL3-2B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+mech_e1: model=internvl3-2b layers=28 parts=['verify', 'run', 'followup'] scope=full qsets=B,A smoke=False rep_penalty=None
+  [PASS] G1_image_mask_sane {'n_image_tokens': 256, 'prompt_len': 316, 'contiguous': True}
+  [PASS] G2_hook_reaches_every_layer_prefill_and_decode {'prefill_calls': 28, 'n_layers': 28, 'decode_calls': 112}
+  [PASS] G3_empty_block_set_reproduces_intact_generations {'matches': '10/10'}
+  [PASS] G4_eager_vs_default_finite_close_argmax {'finite': True, 'max_abs_logprob_diff': 0.1037, 'argmax_equal': '10/10', 'bound_nat': 0.5}
+  [PASS] G5_block_changes_generations_query_set_B {'changed': '8/12', 'note': 'needs >= 30% (a no-op block would silently make every window look null); smoke only logs it'}
+  [PASS] G5_block_changes_generations_query_set_A {'changed': '7/12', 'note': 'needs >= 30% (a no-op block would silently make every window look null); smoke only logs it'}
+E1 VERIFY GATE PASSED for internvl3-2b
+E1 run: 56 cells x 432 trials; 0 cells already done
+  [1/56] matching_clock    qset - cell intact       acc 0.718 follows_image 0.000  (192s; total 3.2 min)
+  >>> time per cell ~192s (first cell; blocked cells are slower). GUESS for all 56 cells: 4.2 h
+  [2/56] matching_clock    qset - cell intact_eager acc 0.720 follows_image 0.000  (233s; total 7.1 min)
+  [3/56] blank             qset - cell intact       acc 0.456 follows_image 0.000  (159s; total 9.7 min)
+  [4/56] mismatched_clock  qset - cell intact       acc 0.438 follows_image 0.125  (194s; total 13.0 min)
+  [5/56] matching_clock    qset B cell w0-4         acc 0.648 follows_image 0.000  (237s; total 16.9 min)
+  [6/56] matching_clock    qset B cell w4-8         acc 0.676 follows_image 0.000  (238s; total 20.9 min)
+  [7/56] matching_clock    qset B cell w8-12        acc 0.678 follows_image 0.000  (237s; total 24.8 min)
+  [8/56] matching_clock    qset B cell w12-16       acc 0.637 follows_image 0.000  (238s; total 28.8 min)
+  [9/56] matching_clock    qset B cell w16-20       acc 0.611 follows_image 0.000  (239s; total 32.8 min)
+  [10/56] matching_clock    qset B cell w20-24       acc 0.676 follows_image 0.000  (239s; total 36.7 min)
+  [11/56] matching_clock    qset B cell w24-28       acc 0.729 follows_image 0.000  (238s; total 40.7 min)
+  [12/56] matching_clock    qset B cell cum0-end     acc 0.431 follows_image 0.000  (265s; total 45.1 min)
+  [13/56] matching_clock    qset B cell cum4-end     acc 0.581 follows_image 0.000  (258s; total 49.4 min)
+  [14/56] matching_clock    qset B cell cum8-end     acc 0.662 follows_image 0.000  (253s; total 53.6 min)
+  [15/56] matching_clock    qset B cell cum12-end    acc 0.620 follows_image 0.000  (248s; total 57.8 min)
+  [16/56] matching_clock    qset B cell cum16-end    acc 0.632 follows_image 0.000  (243s; total 61.8 min)
+  [17/56] matching_clock    qset B cell cum20-end    acc 0.676 follows_image 0.000  (240s; total 65.8 min)
+  [18/56] matching_clock    qset B cell cum24-end    acc 0.729 follows_image 0.000  (235s; total 69.8 min)
+  [19/56] matching_clock    qset B cell all          acc 0.431 follows_image 0.000  (262s; total 74.1 min)
+  [20/56] matching_clock    qset B cell early        acc 0.410 follows_image 0.000  (249s; total 78.3 min)
+  [21/56] matching_clock    qset B cell late         acc 0.590 follows_image 0.000  (247s; total 82.4 min)
+  [22/56] matching_clock    qset B cell final4       acc 0.729 follows_image 0.000  (236s; total 86.3 min)
+  [23/56] blank             qset B cell all          acc 0.431 follows_image 0.000  (230s; total 90.1 min)
+  [24/56] blank             qset B cell early        acc 0.426 follows_image 0.000  (215s; total 93.7 min)
+  [25/56] blank             qset B cell late         acc 0.451 follows_image 0.000  (214s; total 97.3 min)
+  [26/56] blank             qset B cell final4       acc 0.456 follows_image 0.000  (203s; total 100.7 min)
+  [27/56] mismatched_clock  qset B cell all          acc 0.431 follows_image 0.019  (263s; total 105.1 min)
+  [28/56] mismatched_clock  qset B cell early        acc 0.215 follows_image 0.130  (258s; total 109.4 min)
+  [29/56] mismatched_clock  qset B cell late         acc 0.637 follows_image 0.019  (247s; total 113.5 min)
+  [30/56] mismatched_clock  qset B cell final4       acc 0.456 follows_image 0.116  (237s; total 117.4 min)
+  [31/56] matching_clock    qset A cell w0-4         acc 0.711 follows_image 0.000  (236s; total 121.4 min)
+  [32/56] matching_clock    qset A cell w4-8         acc 0.720 follows_image 0.000  (236s; total 125.3 min)
+  [33/56] matching_clock    qset A cell w8-12        acc 0.711 follows_image 0.000  (236s; total 129.2 min)
+  [34/56] matching_clock    qset A cell w12-16       acc 0.711 follows_image 0.000  (236s; total 133.2 min)
+  [35/56] matching_clock    qset A cell w16-20       acc 0.699 follows_image 0.000  (235s; total 137.1 min)
+  [36/56] matching_clock    qset A cell w20-24       acc 0.692 follows_image 0.000  (236s; total 141.0 min)
+  [37/56] matching_clock    qset A cell w24-28       acc 0.729 follows_image 0.000  (235s; total 144.9 min)
+  [38/56] matching_clock    qset A cell cum0-end     acc 0.623 follows_image 0.000  (259s; total 149.3 min)
+  [39/56] matching_clock    qset A cell cum4-end     acc 0.630 follows_image 0.000  (256s; total 153.5 min)
+  [40/56] matching_clock    qset A cell cum8-end     acc 0.632 follows_image 0.000  (253s; total 157.7 min)
+  [41/56] matching_clock    qset A cell cum12-end    acc 0.632 follows_image 0.000  (248s; total 161.9 min)
+  [42/56] matching_clock    qset A cell cum16-end    acc 0.630 follows_image 0.000  (245s; total 166.0 min)
+  [43/56] matching_clock    qset A cell cum20-end    acc 0.688 follows_image 0.000  (241s; total 170.0 min)
+  [44/56] matching_clock    qset A cell cum24-end    acc 0.729 follows_image 0.000  (235s; total 173.9 min)
+  [45/56] matching_clock    qset A cell all          acc 0.623 follows_image 0.000  (258s; total 178.2 min)
+  [46/56] matching_clock    qset A cell early        acc 0.669 follows_image 0.000  (244s; total 182.2 min)
+  [47/56] matching_clock    qset A cell late         acc 0.627 follows_image 0.000  (246s; total 186.3 min)
+  [48/56] matching_clock    qset A cell final4       acc 0.729 follows_image 0.000  (235s; total 190.3 min)
+  [49/56] blank             qset A cell all          acc 0.451 follows_image 0.000  (227s; total 194.0 min)
+  [50/56] blank             qset A cell early        acc 0.451 follows_image 0.000  (213s; total 197.6 min)
+  [51/56] blank             qset A cell late         acc 0.451 follows_image 0.000  (213s; total 201.1 min)
+  [52/56] blank             qset A cell final4       acc 0.456 follows_image 0.000  (203s; total 204.5 min)
+  [53/56] mismatched_clock  qset A cell all          acc 0.590 follows_image 0.009  (259s; total 208.8 min)
+  [54/56] mismatched_clock  qset A cell early        acc 0.456 follows_image 0.095  (246s; total 213.0 min)
+  [55/56] mismatched_clock  qset A cell late         acc 0.634 follows_image 0.014  (246s; total 217.1 min)
+  [56/56] mismatched_clock  qset A cell final4       acc 0.454 follows_image 0.116  (236s; total 221.0 min)
+  wrote results/mech_e1/internvl3-2b/e1_cell_summary.csv (56 rows)
+  machinery check (blocked-all vs text-only, tolerance 5 pts): {'A': {'n': 432, 'blocked_all_matching_acc': 0.6226851851851852, 'text_only_acc': 0.4976851851851852, 'abs_diff_points': 12.500000000000005, 'knockout_valid': False}, 'B': {'n': 432, 'blocked_all_matching_acc': 0.4305555555555556, 'text_only_acc': 0.4976851851851852, 'abs_diff_points': 6.712962962962959, 'knockout_valid': False}}
+  follow-up qset A: best matching window w20-24 (drop 2.5 pts) -> mismatched_clock follows_image 0.012
+  follow-up qset B: best matching window w16-20 (drop 10.6 pts) -> mismatched_clock follows_image 0.083
+  wrote results/mech_e1/internvl3-2b/e1_cell_summary.csv (58 rows)
+  machinery check (blocked-all vs text-only, tolerance 5 pts): {'A': {'n': 432, 'blocked_all_matching_acc': 0.6226851851851852, 'text_only_acc': 0.4976851851851852, 'abs_diff_points': 12.500000000000005, 'knockout_valid': False}, 'B': {'n': 432, 'blocked_all_matching_acc': 0.4305555555555556, 'text_only_acc': 0.4976851851851852, 'abs_diff_points': 6.712962962962959, 'knockout_valid': False}}

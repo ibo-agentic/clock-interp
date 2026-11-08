@@ -1,0 +1,166 @@
+{
+ "model": "qwen2.5-vl-7b",
+ "n_layers": 28,
+ "checks": {
+  "G1_tokens_and_spans": {
+   "pass": true,
+   "gating": true
+  },
+  "G2_gold_prefix_teacher_forced_vs_free_generation": {
+   "pass": true,
+   "gating": false,
+   "agreement": 0.99,
+   "tf_acc": 1.0,
+   "free_acc": 0.99,
+   "n": 100,
+   "note": "informational unless --g2_gate gold (see PREREG deviations log)"
+  },
+  "G2_own_prefix_teacher_forced_vs_free_generation": {
+   "pass": true,
+   "gating": true,
+   "agreement": 1.0,
+   "tf_acc": 0.99,
+   "free_acc": 0.99,
+   "n_usable": 100,
+   "token_level_exact_match": 1.0,
+   "note": "threshold 0.95; the machinery check",
+   "nocache_loop_eq_cached_free": 1.0,
+   "own_agree_vs_nocache_loop": 1.0,
+   "disagreements": null,
+   "disagreements_by_prefix_class": null
+  },
+  "G3_identity_patch_no_change": {
+   "pass": true,
+   "gating": true,
+   "max_abs_diff_nats": 0.0
+  },
+  "G4_logit_lens_final_layer_matches_model": {
+   "pass": true,
+   "gating": true,
+   "max_abs_diff_nats": 3.2708048820495605e-06
+  },
+  "G8a_eager_forced_on_every_attention_layer": {
+   "pass": true,
+   "gating": true,
+   "default": {
+    "sdpa": 28
+   },
+   "inside_eager": {
+    "eager": 28
+   }
+  },
+  "G8c_eager_logits_finite_and_close_to_default": {
+   "pass": true,
+   "gating": true,
+   "finite_default": true,
+   "finite_eager": true,
+   "max_abs_logprob_diff": 0.0469,
+   "argmax_equal": "10/10"
+  },
+  "G10_cached_decode_vs_nocache_forward_logits": {
+   "pass": true,
+   "gating": false,
+   "max_abs_logit_diff": 0.047,
+   "min_argmax_agree": 1.0,
+   "all_finite": true,
+   "n": 8,
+   "note": "large diffs with finite logits would point at a position/cache bug (e.g. stale rope_deltas); small ones = fp16 noise"
+  },
+  "G11_penalty_free_generation_consistency": {
+   "pass": true,
+   "gating": false,
+   "checkpoint_repetition_penalty": 1.05,
+   "nocache_eq_generate_with_penalty": 0.97,
+   "nocache_eq_generate_penalty_1_0": 1.0,
+   "own_prefix_TF_agree_penalty_1_0": 1.0,
+   "minute_acc_with_penalty": 0.99,
+   "minute_acc_penalty_1_0": 0.99,
+   "n": 100,
+   "note": "if the penalty-free columns reach >= 0.95 while the with-penalty one does not, the gate gap is the decoding config, not the machinery"
+  },
+  "G5_empty_block_equals_no_hook": {
+   "pass": true,
+   "gating": true,
+   "matches": "50/50"
+  },
+  "G8_eager_vs_default_attention_agree": {
+   "pass": true,
+   "gating": true,
+   "agreement": 1.0
+  },
+  "G8b_nocache_loop_vs_adapter_generate_agree": {
+   "pass": true,
+   "gating": true,
+   "agreement": 1.0,
+   "note": "parsed HH:MM equality; fp16 + different code path, so a small disagreement is expected"
+  },
+  "G6_guard_rejects_full_prompt_block": {
+   "pass": true,
+   "gating": true
+  },
+  "G7d_blocked_and_baseline_logprobs_finite": {
+   "pass": true,
+   "gating": true,
+   "nonfinite_forwards": 0
+  },
+  "G7_hooks_fire_on_every_layer": {
+   "pass": true,
+   "gating": true,
+   "max_calls_per_forward": 28,
+   "n_layers": 28
+  },
+  "G7b_blocking_N_span_changes_logprobs": {
+   "pass": true,
+   "gating": true,
+   "changed": "20/20"
+  },
+  "G7c_empty_block_changes_nothing": {
+   "pass": true,
+   "gating": true,
+   "max_abs_diff_nats": 0.0
+  },
+  "G9_block_activates_during_generation": {
+   "pass": true,
+   "gating": true,
+   "activated": "20/20",
+   "note": "needs >=90% (a model that never writes ':' would silently get no knockout); smoke only logs it"
+  }
+ },
+ "rep_penalty_arg": 1.0,
+ "checkpoint_default_repetition_penalty": 1.05,
+ "g2_breakdown": [
+  {
+   "prefix_class": "exact_match",
+   "n": 95,
+   "free_acc": 1.0,
+   "gold_tf_acc": 1.0,
+   "gold_agree": 1.0,
+   "own_agree": 1.0
+  },
+  {
+   "prefix_class": "same_hour_other_padding",
+   "n": 3,
+   "free_acc": 1.0,
+   "gold_tf_acc": 1.0,
+   "gold_agree": 1.0,
+   "own_agree": 1.0
+  },
+  {
+   "prefix_class": "wrong_hour_padded",
+   "n": 2,
+   "free_acc": 0.5,
+   "gold_tf_acc": 1.0,
+   "gold_agree": 0.5,
+   "own_agree": 1.0
+  }
+ ],
+ "attn_impl": {
+  "default": {
+   "sdpa": 28
+  },
+  "inside_eager_context": {
+   "eager": 28
+  }
+ },
+ "pass": true
+}

@@ -1,0 +1,10 @@
+01_q3b_verify_E3a                OK                            11.2 min
+02_q3b_E3d_knockout              OK                            52.9 min
+03_q3b_E3b_E3c_patching          OK                            94.1 min
+04_purge_3b_cache                OK                             0.0 min
+05_q7b_verify_E3a                OK                            20.2 min
+06_q7b_E3d_min                   OK                            11.6 min
+07_purge_7b_cache                OK                             0.0 min
+
+total wall time: 3.17 h
+MISSING expected files: none

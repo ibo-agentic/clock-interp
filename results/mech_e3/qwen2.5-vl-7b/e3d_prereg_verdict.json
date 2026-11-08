@@ -1,0 +1,16 @@
+{
+ "model": "qwen2.5-vl-7b",
+ "leak_intact": 6,
+ "leak_blocked": 2,
+ "leak_rel_drop": 0.6666666666666666,
+ "acc_diff_points": 1.3888888888888888,
+ "acc_ci_points": [
+  0.4629629629629629,
+  2.5462962962962963
+ ],
+ "leak_ci_excludes0": true,
+ "acc_ci_excludes0": true,
+ "random_span_acc_diff_points": 0.0,
+ "M_bind_supported": false,
+ "weak_conversion_account": false
+}

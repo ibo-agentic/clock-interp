@@ -1,0 +1,50 @@
+[
+ {
+  "step": "01_i2b_E1_full",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 230.4
+ },
+ {
+  "step": "02_purge_2b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "03_q7b_E1_all_only",
+  "status": "FAILED rc=3",
+  "returncode": 3,
+  "minutes": 4.1
+ },
+ {
+  "step": "04_purge_7b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "05_i8b_E1_all_only",
+  "status": "FAILED rc=3",
+  "returncode": 3,
+  "minutes": 4.2
+ },
+ {
+  "step": "06_purge_8b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "07_q3b_E1_full_expl",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 441.1
+ },
+ {
+  "step": "08_purge_3b_cache",
+  "status": "SKIPPED (time budget)",
+  "returncode": null,
+  "minutes": 0.0
+ }
+]

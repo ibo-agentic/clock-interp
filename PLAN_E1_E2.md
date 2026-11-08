@@ -1,6 +1,6 @@
 # Plan: E1 (windowed image knockout) and E2 (cross-clock image-token patching)
 
-Status: BUILT 2026-11-07 (mech_e1.py, mech_e2.py, notebooks E/F1/F2, analysis/analyze_E1.py + analyze_E2.py); decisions D1-D4 resolved and logged (deviations log 2026-11-07 third + fourth entries). Not yet run on real weights. Pre-registration = `PREREG_MECHANISM.md` Sections 5-6; anything below that differs from it goes into the deviations log BEFORE the run.
+Status (2026-11-08 update): E1 RUN (2B, 3B; 7B/8B gate failed, not re-run). E2 split into notebooks F1a (2B standard + text_light, confirmatory), F1b (Qwen-7B), F2 (InternVL3-8B); Qwen-3B DROPPED; V3 informational for 7B/8B (see deviations log 2026-11-08 second entry). Original status: BUILT 2026-11-07 (mech_e1.py, mech_e2.py, notebooks E/F1/F2, analysis/analyze_E1.py + analyze_E2.py); decisions D1-D4 resolved and logged (deviations log 2026-11-07 third + fourth entries). Not yet run on real weights. Pre-registration = `PREREG_MECHANISM.md` Sections 5-6; anything below that differs from it goes into the deviations log BEFORE the run.
 Headline decoding = greedy, `repetition_penalty 1.0` (Qwen: `--rep_penalty 1.0` / `CLOCK_REP_PENALTY=1.0`). Run times are guesses.
 
 ## 0. Models and roles (after your decision)

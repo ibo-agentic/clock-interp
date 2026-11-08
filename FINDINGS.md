@@ -1,6 +1,6 @@
 # FINDINGS (living summary; paper numbers come from here)
 
-**Last updated:** 2026-11-07 (after D2'', notebook Q, D3-IVL). **Update rule:** after every run, edit the tables and the "Status" block, add one line to the update log, and never change a number without its source file.
+**Last updated:** 2026-11-08 (after D3-Q and notebook E). **Update rule:** after every run, edit the tables and the "Status" block, add one line to the update log, and never change a number without its source file.
 **Headline decoding:** plain greedy, `repetition_penalty = 1.0`, all four models (decided 2026-11-06; deviations log). Qwen checkpoints ship 1.05; the old Qwen results are the *sensitivity* set (`*_rp105*`).
 **Provenance:** tables = `results/comparison/four_model_table.md`; sensitivity = `results/comparison/sensitivity_rp1.0_vs_rp1.05.csv`; mechanism = `results/mech_e3/Q_D3IVL_report.txt`, `D2prime_D4_report.txt`. Pre-registration + deviations log: `PREREG_MECHANISM.md`.
 
@@ -23,11 +23,17 @@
 |---|---|---|
 | **E3e Qwen-3B** (verbatim description, no image) | 122 clocks; wrong w/o image **57.4%**, with image 70.5%; paired diff -13.1 pts, CI [-23.8, -3.3] | **MIXED** (>=40% wrong, but CI not inside +/-15 pts; >25%, so not image-interference). Sensitivity rp 1.05: 111 clocks, 54.1% vs 55.0%, diff -0.9 [-10.8, +9.0] -> *language-side* |
 | **E3d InternVL3-2B** (block answer->hour-token, all layers) | leaks 117 -> 28 (-76%); accuracy +22.5 pts CI [+17.4, +27.5]; random-span control accuracy **+3.0** [+1.2, +5.1], leaks 113 | **NOT SUPPORTED** (`M_bind_supported=false`): thresholds (>=30%, >=4 pts, CIs) met, control clause (< 2 pts) violated |
-| E3d Qwen-3B (bar: leaks 40 -> <= 28, acc +4) | pending (notebook D3-Q) | - |
-| E3d Qwen-7B (specificity control, `min` mode) | pending | - |
+| **E3d Qwen-3B** (bar: leaks 40 -> <= 28, acc +4; random-span < 2 pts) | leaks 40 -> 13 (-67.5%); accuracy +9.3 pts CI [+5.8, +13.0]; random-span control -0.9 pts (leaks 44); destruction control 10.9% accuracy | **SUPPORTED** (`M_bind_supported=true`) |
+| E3d Qwen-7B (specificity control, `min` mode) | leaks 6 -> 2; accuracy +1.4 pts CI [+0.5, +2.5]; random-span 0.0 | not supported (below the 4-pt bar; ceiling model, tiny but non-zero effect) |
+| E3d family, Holm over {3B, 2B, 7B} | adjusted p (accuracy) 0.0003 / 0.0003 / 0.031; (leaks) 0.0003 / 0.0003 / 0.12 | no verdict changes |
+| E3b N-span, Qwen-3B | supported at 11/12 layers, shift up to +12.3 nats (layer 21); H-span 0/12 | SUPPORTED (about the N token, not the leak) |
+| E3c restoration, Qwen-3B | 1 of 48 cells: layer 21, hour token, 52.8% of 85 wrong runs vs best control 16.7% | SUPPORTED (single cell; the 2B is not supported) |
 | E3b N-span (minute formed from the N token), InternVL3-2B | shift +11 to +13 nats at 8/9 layers; controls <= 1.9 | SUPPORTED (statement about the N token, not the leak) |
 | E3c restoration, InternVL3-2B | best cell 48.8% (layer 15, hour token) vs control 23.8% | NOT SUPPORTED (below 50% bar; exploratory) |
-| E1 (windowed knockout, 2B), E2 (patching) | not run | - |
+| **E1 InternVL3-2B**, machinery check | blocked-all vs text-only: query set B 6.7 pts, A 12.5 pts (both > 5) | **INVALID** => every 2B E1 result is EXPLORATORY ONLY |
+| E1 H-E1-1 / H-E1-2 / H-E1-3 (2B, exploratory status) | best window w16-20: drop 10.6 pts (48% of T=22.0), below the 11 pts / 50% line => evidence distributed; mismatched follow-image 54 -> 36 (-33%) => not met; final-4 window -1.2 pts => within 3 | not supported / not supported / within 3 pts (all exploratory) |
+| E1 Qwen-7B, InternVL3-8B (H-E1-3 specificity) | gate G5 failed (block changed 0/12 and 3-7/12 generations); no cells ran | not evaluated |
+| E2 (patching): F1a 2B, F1b Qwen-7B, F2 8B | not run | - |
 
 ## 3. Exploratory / descriptive
 - **E3d control-adjusted (2B, exploratory):** H-block minus random-span block = accuracy **+19.4 pts** (CI +14.4, +24.5), leak rate **-19.7 pts** of trials (CI -23.6, -16.0). Effect sits in layers 16-23 (windows 16-20: 87 leaks, 20-24: 37; cumulative-to-end 28). Blocking the N token collapses accuracy to 7%.
@@ -36,14 +42,20 @@
 - **E3f hour 12 (minute accuracy, H=12 vs H!=12 gap, numeral -> word form):** Qwen-3B 33.0 -> 37.6 pts (gap stays: "12 = 00"); Qwen-7B 21.6 -> **7.7** (numeral/tokenisation-form rule SUPPORTED at rp 1.0; at rp 1.05: 19.6 -> 13.2, not); InternVL3-2B 40.0 -> 23.4 (gap stays).
 - **Gates:** all pass. InternVL3-2B G2-own = 0.95 exactly (deterministic across two runs); Qwen at rp 1.0: 3B G2-own 0.97 / G8b 1.0, 7B 1.0 / 1.0. At rp 1.05 the Qwen gates failed (G8b 0.72 / 0.94) because `generate` applied the penalty and the no-cache loop did not.
 
+- **E3d depth profile (exploratory):** Qwen-3B leaks are removed by layers 24-28 of 36 (window removes 24 of 27 removable leaks; blocking only layers 24-36 gives the same 13 leaks as blocking all 36), relative depth 0.67-0.78. InternVL3-2B: layers 16-24 of 28 (relative depth 0.57-0.86; window 20-24 alone removes 80 of 89). Both are late-middle layers; the 3B window is narrower. 3B control-adjusted (H_all - random_all): accuracy +10.2 pts [+6.9, +13.4], leak rate -7.2 pts of trials [-10.2, -4.4]. 7B: +1.4 [+0.5, +2.5].
+- **E3a Qwen-3B (descriptive):** final-layer gold-minus-leak log-odds right +6.9, leak-error +2.0 (still favours gold on average; the 2B is -2.7), other-wrong +3.5, hour 12 -0.04 (vs +6.1 for other hours).
+- **E1 (all exploratory/descriptive; see the machinery caveat above).** InternVL3-2B, query set B: intact 71.8%, text-only 49.8%, blank 45.6%. Drop by 4-layer window: 0-4 6.9, 4-8 4.2, 8-12 3.9, 12-16 8.1, **16-20 10.6**, 20-24 4.2 (n.s.), 24-28 -1.2 pts; blocking the last 4 layers does nothing. Late half (14-28) 12.7 pts, early half 30.8. With B the all-layer block gives identical correctness for matching, blank and mismatched images (432/432), so the 6.7-pt gap to text-only is not leftover image content. With query set A the question tokens still read the image, so A cannot match text-only by construction. E1 w16-20 overlaps the E3d hour-token layers (16-23) but E3d is strongest at 20-24, where the E1 window is not significant. Qwen-3B (machinery valid): the image lowers accuracy (54.2% vs 64.4%); blocking layers 16-20 / 24-28 raises it by 6.7 / 5.8 pts, blocking layers 0-4 lowers it 5.3 pts; the 24-28 window coincides with the E3d hour-token window.
+
 ## 4. rp 1.0 vs rp 1.05 sensitivity (Qwen); flagged = changes > 3 pts or flips significance
 - Qwen-3B: wrong-given-both-exact **70.5% vs 55.0%** (set 122 vs 111); text-only 64.4 vs 67.6; matching clock 54.2 vs 61.8; blank 66.2 vs 72.0; mismatched 56.0 vs 66.7. McNemar vs text-only: blank p=0.23 (was 0.001), mismatched p=0.001 (was 0.77) - both **flip**. E3e verdict flips language-side -> mixed. H=12 collapse is much weaker at 1.0 (accuracy 39% vs 19%). Leaks 40 (was 46).
 - Qwen-7B: all behaviour numbers within 1 pt; matching-clock McNemar p=0.065 vs 0.013 (11 discordant trials); E3f word-form verdict flips (above).
 - Not flagged: image behaviour (exact 1.8/12.6), describe hour/minute rates, conversion follows-image rates.
 
 ## 5. Status and next
-Done: E0, E3a-f, text-light pilot, InternVL3-8B 128-token re-run, Qwen at rp 1.0 (notebook Q), D3-IVL. Built, not yet run: D3-Q (Qwen E3a-d), E (E1: InternVL3-2B confirmatory; 7B/8B all-layers specificity; 3B exploratory), F1/F2 (E2: 2B confirmatory, 7B/8B descriptive, 3B exploratory - fails the 0.15 floor). Analysis scripts ready: analysis/analyze_E1.py, analyze_E2.py.
+Done: E0, E3a-f, text-light pilot, InternVL3-8B 128-token re-run, Qwen at rp 1.0 (notebook Q), D3-IVL, D3-Q, E1 for InternVL3-2B and Qwen-3B. Open: E1 for Qwen-7B and InternVL3-8B (verify gate G5 failed; probable cause, not yet confirmed: both models are near ceiling without the image, so a block changes few generations; fix proposed, not applied). Built, not yet run: E2 as F1a (InternVL3-2B standard + text-light, confirmatory, run first), F1b (Qwen-7B, descriptive), F2 (InternVL3-8B, descriptive); Qwen-3B dropped from E2 (fails the 0.15 floor; deviations log 2026-11-08 second entry); V3 informational for 7B/8B. E1 for 7B/8B not re-run (H-E1-3 7B/8B part not evaluated). Gemma 3 adapter (4B, 12B) built and offline-tested; notebook G0 (real-weight smoke) not yet run. Analysis scripts ready: analysis/analyze_E1.py, analyze_E2.py.
 
 ## Update log
+- 2026-11-08: E2 split into F1a/F1b/F2, Qwen-3B dropped, V3 informational for 7B/8B (deviations log); Gemma 3 adapter built, notebook G0 added (no results).
+- 2026-11-08: D3-Q (E3d Qwen-3B supported; 7B control) and E (E1: 2B machinery check invalid; 7B/8B gate failed) incorporated.
 - 2026-11-07: created; D2'', Q and D3-IVL incorporated.
 - 2026-11-07: E1/E2 code, notebooks and analysis scripts built (no results yet).

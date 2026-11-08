@@ -1,0 +1,14 @@
+{
+ "A": {
+  "window": "w20-24",
+  "matching_drop": 0.02546296296296291,
+  "start": 20,
+  "end": 24
+ },
+ "B": {
+  "window": "w0-4",
+  "matching_drop": 0.0532407407407407,
+  "start": 0,
+  "end": 4
+ }
+}

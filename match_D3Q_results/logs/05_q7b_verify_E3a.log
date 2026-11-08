@@ -1,0 +1,41 @@
+Loading Qwen/Qwen2.5-VL-7B-Instruct in float16 ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+mech_e3: model=qwen2.5-vl-7b layers=28 parts=['verify', 'a'] smoke=False rep_penalty=1.0  [all timings in the log are measurements of THIS run; planning numbers elsewhere are guesses]
+  [PASS] G1_tokens_and_spans {}
+  wrote results/mech_e3/qwen2.5-vl-7b/verify_g2_trials.csv (100 rows)
+  G2 breakdown by how the model's own prefix relates to the forced gold prefix:
+           prefix_class  n  free_acc  gold_tf_acc  gold_agree  own_agree
+            exact_match 95       1.0          1.0         1.0        1.0
+same_hour_other_padding  3       1.0          1.0         1.0        1.0
+      wrong_hour_padded  2       0.5          1.0         0.5        1.0
+  [info:pass] G2_gold_prefix_teacher_forced_vs_free_generation {'agreement': 0.99, 'tf_acc': 1.0, 'free_acc': 0.99, 'n': 100, 'note': 'informational unless --g2_gate gold (see PREREG deviations log)'}
+  [PASS] G2_own_prefix_teacher_forced_vs_free_generation {'agreement': 1.0, 'tf_acc': 0.99, 'free_acc': 0.99, 'n_usable': 100, 'token_level_exact_match': 1.0, 'note': 'threshold 0.95; the machinery check', 'nocache_loop_eq_cached_free': 1.0, 'own_agree_vs_nocache_loop': 1.0, 'disagreements': None, 'disagreements_by_prefix_class': None}
+  [PASS] G3_identity_patch_no_change {'max_abs_diff_nats': 0.0}
+  [PASS] G4_logit_lens_final_layer_matches_model {'max_abs_diff_nats': 3.2708048820495605e-06}
+  [PASS] G8a_eager_forced_on_every_attention_layer {'default': {'sdpa': 28}, 'inside_eager': {'eager': 28}}
+/kaggle/working/run/mech_e3.py:349: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  worst = max(worst, float((torch.log_softmax(ld, -1) - torch.log_softmax(le, -1)).abs().max()))
+  [PASS] G8c_eager_logits_finite_and_close_to_default {'finite_default': True, 'finite_eager': True, 'max_abs_logprob_diff': 0.0469, 'argmax_equal': '10/10'}
+  [info:pass] G10_cached_decode_vs_nocache_forward_logits {'max_abs_logit_diff': 0.047, 'min_argmax_agree': 1.0, 'all_finite': True, 'n': 8, 'note': 'large diffs with finite logits would point at a position/cache bug (e.g. stale rope_deltas); small ones = fp16 noise'}
+  [info:pass] G11_penalty_free_generation_consistency {'checkpoint_repetition_penalty': 1.05, 'nocache_eq_generate_with_penalty': 0.97, 'nocache_eq_generate_penalty_1_0': 1.0, 'own_prefix_TF_agree_penalty_1_0': 1.0, 'minute_acc_with_penalty': 0.99, 'minute_acc_penalty_1_0': 0.99, 'n': 100, 'note': 'if the penalty-free columns reach >= 0.95 while the with-penalty one does not, the gate gap is the decoding config, not the machinery'}
+  [PASS] G5_empty_block_equals_no_hook {'matches': '50/50'}
+  [PASS] G8_eager_vs_default_attention_agree {'agreement': 1.0}
+  [PASS] G8b_nocache_loop_vs_adapter_generate_agree {'agreement': 1.0, 'note': 'parsed HH:MM equality; fp16 + different code path, so a small disagreement is expected'}
+  [PASS] G6_guard_rejects_full_prompt_block {}
+  [PASS] G7d_blocked_and_baseline_logprobs_finite {'nonfinite_forwards': 0}
+  [PASS] G7_hooks_fire_on_every_layer {'max_calls_per_forward': 28, 'n_layers': 28}
+  [PASS] G7b_blocking_N_span_changes_logprobs {'changed': '20/20'}
+  [PASS] G7c_empty_block_changes_nothing {'max_abs_diff_nats': 0.0}
+  [PASS] G9_block_activates_during_generation {'activated': '20/20', 'note': "needs >=90% (a model that never writes ':' would silently get no knockout); smoke only logs it"}
+VERIFY GATE PASSED for qwen2.5-vl-7b
+verify took 594s
+
+===== part a =====
+  E3a 100/432  104s
+  E3a 200/432  212s
+  E3a 300/432  323s
+  E3a 400/432  434s
+  wrote results/mech_e3/qwen2.5-vl-7b/e3a_lens.csv (432 rows)
+  wrote results/mech_e3/qwen2.5-vl-7b/e3a_summary.csv (196 rows)
+part a took 7.9 min

@@ -1,0 +1,11 @@
+01_i2b_E1_full                   OK                           230.4 min
+02_purge_2b_cache                OK                             0.0 min
+03_q7b_E1_all_only               FAILED rc=3                    4.1 min
+04_purge_7b_cache                OK                             0.0 min
+05_i8b_E1_all_only               FAILED rc=3                    4.2 min
+06_purge_8b_cache                OK                             0.0 min
+07_q3b_E1_full_expl              OK                           441.1 min
+08_purge_3b_cache                SKIPPED (time budget)          0.0 min
+
+total wall time: 11.34 h
+MISSING expected files: results/mech_e1/qwen2.5-vl-7b/e1_trials.csv, results/mech_e1/qwen2.5-vl-7b/e1_cell_summary.csv, results/mech_e1/qwen2.5-vl-7b/e1_machinery.json, results/mech_e1/qwen2.5-vl-7b/e1_followup.json, results/mech_e1/internvl3-8b/e1_trials.csv, results/mech_e1/internvl3-8b/e1_cell_summary.csv, results/mech_e1/internvl3-8b/e1_machinery.json, results/mech_e1/internvl3-8b/e1_followup.json

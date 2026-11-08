@@ -1,0 +1,3 @@
+parts=['verify', 'a'] rep_penalty_arg=1.0 checkpoint_default=1.05
+parts=['d'] rep_penalty_arg=1.0 checkpoint_default=1.05
+parts=['b', 'c'] rep_penalty_arg=1.0 checkpoint_default=1.05

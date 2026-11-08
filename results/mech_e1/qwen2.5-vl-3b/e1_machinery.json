@@ -1,0 +1,16 @@
+{
+ "A": {
+  "n": 432,
+  "blocked_all_matching_acc": 0.6365740740740741,
+  "text_only_acc": 0.6435185185185185,
+  "abs_diff_points": 0.694444444444442,
+  "knockout_valid": true
+ },
+ "B": {
+  "n": 432,
+  "blocked_all_matching_acc": 0.6782407407407407,
+  "text_only_acc": 0.6435185185185185,
+  "abs_diff_points": 3.472222222222221,
+  "knockout_valid": true
+ }
+}

@@ -1,0 +1,48 @@
+{
+ "model": "internvl3-2b",
+ "n_layers": 28,
+ "checks": {
+  "G1_image_mask_sane": {
+   "pass": true,
+   "gating": true,
+   "n_image_tokens": 256,
+   "prompt_len": 316,
+   "contiguous": true
+  },
+  "G2_hook_reaches_every_layer_prefill_and_decode": {
+   "pass": true,
+   "gating": true,
+   "prefill_calls": 28,
+   "n_layers": 28,
+   "decode_calls": 112
+  },
+  "G3_empty_block_set_reproduces_intact_generations": {
+   "pass": true,
+   "gating": true,
+   "matches": "10/10"
+  },
+  "G4_eager_vs_default_finite_close_argmax": {
+   "pass": true,
+   "gating": true,
+   "finite": true,
+   "max_abs_logprob_diff": 0.1037,
+   "argmax_equal": "10/10",
+   "bound_nat": 0.5
+  },
+  "G5_block_changes_generations_query_set_B": {
+   "pass": true,
+   "gating": true,
+   "changed": "8/12",
+   "note": "needs >= 30% (a no-op block would silently make every window look null); smoke only logs it"
+  },
+  "G5_block_changes_generations_query_set_A": {
+   "pass": true,
+   "gating": true,
+   "changed": "7/12",
+   "note": "needs >= 30% (a no-op block would silently make every window look null); smoke only logs it"
+  }
+ },
+ "rep_penalty_arg": null,
+ "checkpoint_default_repetition_penalty": null,
+ "pass": true
+}
