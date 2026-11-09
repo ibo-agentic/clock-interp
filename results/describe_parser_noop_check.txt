@@ -1,0 +1,97 @@
+DESCRIBE PARSER SWITCH CHECK: strict (MIN_RE/HOUR_RE) vs tolerant (MIN_RE_TOL/HOUR_RE_TOL, original tried first)
+
+results\_sens_rp105\internvl3-2b\describe.csv: n=480  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 0, 'said_hour_number': 0, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 0, 'hour_desc_ok': 0, 'answer_ok': 0}
+   minute_desc_ok: strict 0.5979  tolerant 0.5979
+   hour_desc_ok: strict 0.5271  tolerant 0.5271
+   answer_ok: strict 0.3354  tolerant 0.3354
+   minute parse failures: strict 0  tolerant 0; hour parse failures: strict 0  tolerant 0
+
+results\_sens_rp105\internvl3-8b\describe.csv: n=480  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 0, 'said_hour_number': 20, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 0, 'hour_desc_ok': 18, 'answer_ok': 0}
+   minute_desc_ok: strict 0.8417  tolerant 0.8417
+   hour_desc_ok: strict 0.6687  tolerant 0.7063
+   answer_ok: strict 0.4604  tolerant 0.4604
+   minute parse failures: strict 0  tolerant 0; hour parse failures: strict 20  tolerant 0
+   e.g. row 20: strict (1,nan) tolerant (1,12) :: "The long minute hand is pointing at 1, which represents 5 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock"
+   e.g. row 31: strict (1,nan) tolerant (1,12) :: "The long minute hand is pointing at 1, which represents 5 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock"
+   e.g. row 84: strict (3,nan) tolerant (3,12) :: "The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 12, which represents 12 o'cloc"
+
+results\_sens_rp105\qwen2.5-vl-3b\describe.csv: n=480  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 0, 'said_hour_number': 0, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 0, 'hour_desc_ok': 0, 'answer_ok': 0}
+   minute_desc_ok: strict 0.8229  tolerant 0.8229
+   hour_desc_ok: strict 0.3125  tolerant 0.3125
+   answer_ok: strict 0.1042  tolerant 0.1042
+   minute parse failures: strict 0  tolerant 0; hour parse failures: strict 0  tolerant 0
+
+results\_sens_rp105\qwen2.5-vl-7b\describe.csv: n=480  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 2, 'said_hour_number': 6, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 2, 'hour_desc_ok': 2, 'answer_ok': 0}
+   minute_desc_ok: strict 0.8542  tolerant 0.8583
+   hour_desc_ok: strict 0.5938  tolerant 0.5979
+   answer_ok: strict 0.5083  tolerant 0.5083
+   minute parse failures: strict 2  tolerant 0; hour parse failures: strict 6  tolerant 0
+   e.g. row 164: strict (5.0,nan) tolerant (5,11) :: 'The long minute hand is pointing at 5, which represents 25 minutes past the hour.\nThe short hour hand is pointing just past the 11, indicati'
+   e.g. row 181: strict (5.0,nan) tolerant (5,11) :: 'The long minute hand is pointing at 5, which represents 25 minutes past the hour.\nThe short hour hand is pointing just past the 11, indicati'
+   e.g. row 302: strict (8.0,nan) tolerant (8,1) :: 'The long minute hand is pointing at 8, which means it is 40 minutes past the hour.\n\nThe short hour hand is pointing just past the 1, indicat'
+
+results\describe.csv: n=500  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 0, 'said_hour_number': 0, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 0, 'hour_desc_ok': 0, 'answer_ok': 0}
+   minute_desc_ok: strict 0.7740  tolerant 0.7740
+   hour_desc_ok: strict 0.3300  tolerant 0.3300
+   answer_ok: strict 0.0220  tolerant 0.0220
+   minute parse failures: strict 0  tolerant 0; hour parse failures: strict 0  tolerant 0
+
+results\describe20.csv: n=20  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 0, 'said_hour_number': 0, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 0, 'hour_desc_ok': 0, 'answer_ok': 0}
+   minute_desc_ok: strict 0.8500  tolerant 0.8500
+   hour_desc_ok: strict 0.4500  tolerant 0.4500
+   answer_ok: strict 0.0000  tolerant 0.0000
+   minute parse failures: strict 0  tolerant 0; hour parse failures: strict 0  tolerant 0
+
+results\describe_positions.csv: n=480  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 0, 'said_hour_number': 0, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 0, 'hour_desc_ok': 0, 'answer_ok': 0}
+   minute_desc_ok: strict 0.8229  tolerant 0.8229
+   hour_desc_ok: strict 0.3125  tolerant 0.3125
+   answer_ok: strict 0.1042  tolerant 0.1042
+   minute parse failures: strict 0  tolerant 0; hour parse failures: strict 0  tolerant 0
+
+results\internvl3-2b\describe.csv: n=480  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 0, 'said_hour_number': 0, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 0, 'hour_desc_ok': 0, 'answer_ok': 0}
+   minute_desc_ok: strict 0.5979  tolerant 0.5979
+   hour_desc_ok: strict 0.5271  tolerant 0.5271
+   answer_ok: strict 0.3354  tolerant 0.3354
+   minute parse failures: strict 0  tolerant 0; hour parse failures: strict 0  tolerant 0
+
+results\internvl3-8b\describe.csv: n=480  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 0, 'said_hour_number': 20, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 0, 'hour_desc_ok': 18, 'answer_ok': 0}
+   minute_desc_ok: strict 0.8417  tolerant 0.8417
+   hour_desc_ok: strict 0.6687  tolerant 0.7063
+   answer_ok: strict 0.4604  tolerant 0.4604
+   minute parse failures: strict 0  tolerant 0; hour parse failures: strict 20  tolerant 0
+   e.g. row 20: strict (1,nan) tolerant (1,12) :: "The long minute hand is pointing at 1, which represents 5 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock"
+   e.g. row 31: strict (1,nan) tolerant (1,12) :: "The long minute hand is pointing at 1, which represents 5 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock"
+   e.g. row 84: strict (3,nan) tolerant (3,12) :: "The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 12, which represents 12 o'cloc"
+
+results\qwen2.5-vl-3b\describe.csv: n=480  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 0, 'said_hour_number': 0, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 0, 'hour_desc_ok': 0, 'answer_ok': 0}
+   minute_desc_ok: strict 0.7917  tolerant 0.7917
+   hour_desc_ok: strict 0.3125  tolerant 0.3125
+   answer_ok: strict 0.0750  tolerant 0.0750
+   minute parse failures: strict 0  tolerant 0; hour parse failures: strict 0  tolerant 0
+
+results\qwen2.5-vl-3b\describe_rp105.csv: n=480  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 0, 'said_hour_number': 0, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 0, 'hour_desc_ok': 0, 'answer_ok': 0}
+   minute_desc_ok: strict 0.8229  tolerant 0.8229
+   hour_desc_ok: strict 0.3125  tolerant 0.3125
+   answer_ok: strict 0.1042  tolerant 0.1042
+   minute parse failures: strict 0  tolerant 0; hour parse failures: strict 0  tolerant 0
+
+results\qwen2.5-vl-7b\describe.csv: n=480  strict recompute vs stored: 0 cell mismatches
+   strict vs tolerant differences per column: {'said_minute_number': 0, 'said_hour_number': 0, 'pred_hour': 0, 'pred_minute': 0, 'minute_desc_ok': 0, 'hour_desc_ok': 0, 'answer_ok': 0}
+   minute_desc_ok: strict 0.8583  tolerant 0.8583
+   hour_desc_ok: strict 0.5979  tolerant 0.5979
+   answer_ok: strict 0.5062  tolerant 0.5062
+   minute parse failures: strict 0  tolerant 0; hour parse failures: strict 0  tolerant 0
+
+TOTAL: strict-recompute mismatches vs stored 0; strict-vs-tolerant cell differences 88
+RESULT: NOT A NO-OP -- see differences above

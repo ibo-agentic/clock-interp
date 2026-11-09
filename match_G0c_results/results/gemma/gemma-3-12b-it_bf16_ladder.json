@@ -1,0 +1,25 @@
+{
+ "model_id": "google/gemma-3-12b-it",
+ "dtype": "bf16",
+ "winner_try": 0,
+ "winner_max_memory": "0:9.5GiB,1:13.5GiB",
+ "tries": [
+  {
+   "try": 0,
+   "max_memory": "0:9.5GiB,1:13.5GiB",
+   "returncode": 0,
+   "pass": true,
+   "oom": false,
+   "minutes": 7.2,
+   "smoke_json": "results/gemma/gemma-3-12b-it_bf16_cap0/smoke.json",
+   "tail": [
+    "load time: 198 s   dtype: bfloat16",
+    "timing [text_only]: {'seconds_per_generation_mean': 2.0577789147694907, 'seconds_min': 2.024639129638672, 'seconds_max': 2.0857696533203125, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 0.7675845623016357, 'answer': '04:35', 'answers_identical': True, 'prompt_tokens': 49}",
+    "timing [with_image]: {'seconds_per_generation_mean': 7.873432477315267, 'seconds_min': 7.83842658996582, 'seconds_max': 7.892071723937988, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 6.844090938568115, 'answer': '06:00', 'answers_identical': True, 'prompt_tokens': 283}",
+    "",
+    "wrote results/gemma/gemma-3-12b-it_bf16_cap0/smoke.json",
+    "SMOKE PASS"
+   ]
+  }
+ ]
+}

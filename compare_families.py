@@ -6,8 +6,9 @@ Metrics (rows) x models (columns):
   behavior (eval_behavior.py, data/, n=500):   exact / hour / minute accuracy, parse rate
         -- same definitions as analyze.py: accuracies over PARSED replies
   describe (describe_check.py, data_positions/, n=480):
-        PRIMARY = EXACT description (said minute number == true number, hour exact): minute-exact, both-exact,
-        wrong-given-both-exact.  SECONDARY = the original +/-1-minute-number tolerance versions.
+        PRIMARY = EXACT description (said minute number == true number, hour exact), parsed with the TOLERANT parse (all models):
+        minute-exact, both-exact, wrong-given-both-exact.  SECONDARY = the +/-1-minute-number tolerance versions.
+        SENSITIVITY = the same rows with the original strict regexes (rows marked "strict").
         Plus the parse rate of the description
   text-only gate (text_only_v2.py): b2 minute accuracy (headline phrasing)
   conversion test (conversion_test.py, n=432 per condition):
@@ -79,44 +80,36 @@ def behavior_metrics(df, src):
 
 
 def describe_metrics(df, src):
-    """PRIMARY = EXACT description: the minute-hand number the model said equals the true one AND the
-    hour-hand number is right (hour_desc_ok is already exact).  SECONDARY = the original +/-1-number
-    tolerance (minute_desc_ok), which also accepts a neighbouring number.  wrong-given-both is reported
-    under both definitions. The ORIGINAL regexes are the primary result for every model; the 'tolerant hour parse' rows (describe_check.HOUR_RE_TOL, also matches e.g. 'pointing just past 12') are a robustness check, recomputed from the saved raw answers; 'answer_ok' is the full final HH:MM."""
+    """PRIMARY (from 2026-11-09, deviations log fifth/sixth entries) = the TOLERANT parse for ALL models: said_minute_number_tolerant /
+    said_hour_number_tolerant (describe_check.MIN_RE_TOL / HOUR_RE_TOL, original regex tried first), recomputed from the saved raw answers.
+    Exact description = said minute number == true number AND said hour number == true hour number; the +/-1-minute-number version is secondary.
+    The ORIGINAL strict regex columns (minute_desc_ok / hour_desc_ok / said_*_number) are reported beside it as a SENSITIVITY table (keys *_strict).
+    'answer_ok' is the full final HH:MM (identical under both parses)."""
     from describe_check import add_tolerant_columns
-    if "hour_desc_ok_tolerant" not in df.columns:      # older CSVs: recompute from the saved raw answers (no model run)
-        df = add_tolerant_columns(df)
+    if not {"hour_desc_ok_tolerant", "minute_desc_ok_tolerant", "said_minute_number_tolerant"} <= set(df.columns):   # older CSVs / G1 CSVs: from raw answers
+        df = add_tolerant_columns(df[[c for c in df.columns if not c.endswith("_tolerant")]])
     n = len(df)
-    mo, ho, ao = df["minute_desc_ok"].astype(bool), df["hour_desc_ok"].astype(bool), df["answer_ok"].astype(bool)
-    mx = (df["said_minute_number"] == df["true_minute_number"]).fillna(False).astype(bool)   # exact (NaN -> False)
-    both, both_x = mo & ho, mx & ho
-    parsed = df["said_minute_number"].notna() & df["said_hour_number"].notna() & df["pred_hour"].notna()
-    hot = df["hour_desc_ok_tolerant"].astype(bool)               # ROBUSTNESS: tolerant hour-hand parse
-    both_t, both_xt = mo & hot, mx & hot
-    parsed_t = df["said_minute_number"].notna() & df["said_hour_number_tolerant"].notna() & df["pred_hour"].notna()
-    tol = {
-        "describe_hour_ok_tol": rate(hot.sum(), n, source=src),
-        "describe_both_exact_tol": rate(both_xt.sum(), n, source=src),
-        "describe_wrong_given_both_exact_tol": rate((both_xt & ~ao).sum(), both_xt.sum(),
-                                                    extra=f"{int(both_xt.sum())} of {n} (tolerant hour parse)", source=src),
-        "describe_wrong_given_both_ok_tol": rate((both_t & ~ao).sum(), both_t.sum(),
-                                                 extra=f"{int(both_t.sum())} of {n} (tolerant hour parse, +/-1 minute number)", source=src),
-        "describe_parse_rate_tol": rate(parsed_t.sum(), n, source=src),
-    }
-    return {
-        **tol,
-        "describe_minute_exact": rate(mx.sum(), n, source=src),
-        "describe_both_exact": rate(both_x.sum(), n, source=src),
-        "describe_wrong_given_both_exact": rate((both_x & ~ao).sum(), both_x.sum(),
-                                                extra=f"{int(both_x.sum())} of {n} images had both hands described EXACTLY right",
-                                                source=src),
-        "describe_minute_ok": rate(mo.sum(), n, source=src),
-        "describe_hour_ok": rate(ho.sum(), n, source=src),
-        "describe_wrong_given_both_ok": rate((both & ~ao).sum(), both.sum(),
-                                             extra=f"{int(both.sum())} of {n} images had both hands described right (+/-1 minute number)",
-                                             source=src),
-        "describe_parse_rate": rate(parsed.sum(), n, source=src),
-    }
+    ao = df["answer_ok"].astype(bool)
+
+    def block(mn, hn, mo, ho, sfx, tag):
+        mx = (mn == df["true_minute_number"]).fillna(False).astype(bool)          # exact (NaN -> False)
+        mo, ho = mo.astype(bool), ho.astype(bool)
+        both, both_x = mo & ho, mx & ho
+        parsed = mn.notna() & hn.notna() & df["pred_hour"].notna()
+        return {
+            f"describe_minute_exact{sfx}": rate(mx.sum(), n, source=src),
+            f"describe_hour_ok{sfx}": rate(ho.sum(), n, source=src),
+            f"describe_both_exact{sfx}": rate(both_x.sum(), n, source=src),
+            f"describe_wrong_given_both_exact{sfx}": rate((both_x & ~ao).sum(), both_x.sum(),
+                                                          extra=f"{int(both_x.sum())} of {n} images had both hands described EXACTLY right ({tag})", source=src),
+            f"describe_minute_ok{sfx}": rate(mo.sum(), n, source=src),
+            f"describe_wrong_given_both_ok{sfx}": rate((both & ~ao).sum(), both.sum(),
+                                                       extra=f"{int(both.sum())} of {n} images had both hands described right (+/-1 minute number, {tag})", source=src),
+            f"describe_parse_rate{sfx}": rate(parsed.sum(), n, source=src),
+        }
+    out = block(df["said_minute_number_tolerant"], df["said_hour_number_tolerant"], df["minute_desc_ok_tolerant"], df["hour_desc_ok_tolerant"], "", "tolerant parse")
+    out.update(block(df["said_minute_number"], df["said_hour_number"], df["minute_desc_ok"], df["hour_desc_ok"], "_strict", "strict original regexes"))
+    return out
 
 
 def text_only_metrics(df, src):
@@ -159,18 +152,20 @@ ROWS = [  # (key, display label, kind)
     ("behavior_hour", "Behavior: hour accuracy", "pct"),
     ("behavior_minute", "Behavior: minute accuracy", "pct"),
     ("behavior_parse_rate", "Behavior: parse rate", "pct"),
-    ("describe_minute_exact", "Describe [PRIMARY]: minute hand described EXACTLY right", "pct"),
-    ("describe_hour_ok", "Describe [PRIMARY]: hour hand described right (exact)", "pct"),
-    ("describe_both_exact", "Describe [PRIMARY]: BOTH hands described exactly right", "pct"),
-    ("describe_wrong_given_both_exact", "Describe [PRIMARY]: final answer WRONG given both hands described EXACTLY right", "pct"),
-    ("describe_minute_ok", "Describe [secondary]: minute hand described right (+/-1 number)", "pct"),
-    ("describe_wrong_given_both_ok", "Describe [secondary]: final answer WRONG given both hands described right (+/-1 number)", "pct"),
-    ("describe_parse_rate", "Describe: reply fully parsed (parse-fit check, original regexes)", "pct"),
-    ("describe_hour_ok_tol", "Describe [robustness: tolerant hour parse]: hour hand described right", "pct"),
-    ("describe_both_exact_tol", "Describe [robustness: tolerant hour parse]: BOTH hands exactly right", "pct"),
-    ("describe_wrong_given_both_exact_tol", "Describe [robustness: tolerant hour parse]: final answer WRONG given both hands EXACTLY right", "pct"),
-    ("describe_wrong_given_both_ok_tol", "Describe [robustness: tolerant hour parse]: WRONG given both right (+/-1 number)", "pct"),
-    ("describe_parse_rate_tol", "Describe [robustness: tolerant hour parse]: reply fully parsed", "pct"),
+    ("describe_minute_exact", "Describe [PRIMARY, tolerant parse]: minute hand described EXACTLY right", "pct"),
+    ("describe_hour_ok", "Describe [PRIMARY, tolerant parse]: hour hand described right (exact)", "pct"),
+    ("describe_both_exact", "Describe [PRIMARY, tolerant parse]: BOTH hands described exactly right", "pct"),
+    ("describe_wrong_given_both_exact", "Describe [PRIMARY, tolerant parse]: final answer WRONG given both hands described EXACTLY right", "pct"),
+    ("describe_minute_ok", "Describe [secondary, tolerant parse]: minute hand described right (+/-1 number)", "pct"),
+    ("describe_wrong_given_both_ok", "Describe [secondary, tolerant parse]: final answer WRONG given both hands described right (+/-1 number)", "pct"),
+    ("describe_parse_rate", "Describe [tolerant parse]: reply fully parsed (parse-fit check)", "pct"),
+    ("describe_minute_exact_strict", "Describe [SENSITIVITY, strict original regexes]: minute hand described EXACTLY right", "pct"),
+    ("describe_hour_ok_strict", "Describe [SENSITIVITY, strict]: hour hand described right (exact)", "pct"),
+    ("describe_both_exact_strict", "Describe [SENSITIVITY, strict]: BOTH hands described exactly right", "pct"),
+    ("describe_wrong_given_both_exact_strict", "Describe [SENSITIVITY, strict]: final answer WRONG given both hands described EXACTLY right", "pct"),
+    ("describe_minute_ok_strict", "Describe [SENSITIVITY, strict]: minute hand described right (+/-1 number)", "pct"),
+    ("describe_wrong_given_both_ok_strict", "Describe [SENSITIVITY, strict]: final answer WRONG given both hands described right (+/-1 number)", "pct"),
+    ("describe_parse_rate_strict", "Describe [SENSITIVITY, strict]: reply fully parsed (original regexes)", "pct"),
     ("textonly_b2_minute", "Text-only gate: b2 minute accuracy (no image)", "pct"),
     ("conv_text_only_minute", "Conversion: minute acc., no image (re-run of text-only)", "pct"),
     ("conv_matching_clock_minute", "Conversion: minute acc., matching clock", "pct"),
@@ -235,8 +230,9 @@ def build(models, roots, out_dir):
         "every model EXCEPT any run whose run_config.json says otherwise (InternVL3-8B was re-run at 64 after 32 cut "
         "off replies; no Qwen or InternVL3-2B reply reached 32 tokens, so those results are unaffected); dtype is "
         "float16 for all four (see each run_config.json).",
-        "Describe rows: the +/-1-number tolerance and the regex parsing are Qwen-tuned (describe_check.py); see the "
-        "'reply fully parsed' row for how well they fit each model's wording.",
+        "Describe rows: from 2026-11-09 the PRIMARY parse is the tolerant one for every model (it also reads e.g. 'pointing just past 12' and "
+        "'Minute hand: The long hand is pointing at ...'); the original strict regexes are kept as a SENSITIVITY block (rows marked strict). "
+        "The two differ only for InternVL3-8B among the original four models (hour parse: 66.9% -> 70.6% hour right). The +/-1-number tolerance is unchanged.",
     ]
     if notes:
         foot += ["", "Source notes:"] + [f"- {n}" for n in notes]

@@ -78,7 +78,22 @@ Reading: non-finite logits already on text-only prompts, so the problem is in th
 - 4B bf16 PASS, 4B fp32 PASS (table in `results/gemma/G0b_report.txt`): bf16 7.8/2.7 GiB, 0.77 s text-only, 4.69 s with image; fp32 11.5/5.4 GiB, 0.72 s, 3.53 s. bf16 is emulated on the T4 and slower for the image prefill. 12B bf16: CUDA OOM in the SigLIP vision tower on GPU 0 (no result).
 - describe_check.py regexes parse 1/5 (bf16) or 2/5 (fp32) Gemma replies (markdown bold); tolerant-parse columns need approval.
 
+### 6c. G0c result (2026-11-09; zip `mech_G0c_results.zip`, unzipped to `match_G0c_results/`)
+- gemma-3-12b-it bf16 PASSED on the FIRST cap, `0:9.5GiB,1:13.5GiB` (ladder tries 2 and 3 were not needed). Runtime 7.2 min (guess was 15-40); load 198 s (includes the first download).
+- Device map: {GPU0: 19 module groups, GPU1: 32, **disk: 3**}. Three module groups were offloaded to DISK ("Some parameters are on the meta device because they were offloaded to the disk"). The log records only counts, not which modules. Peak memory: cuda:0 11.3 GiB, cuda:1 13.5 GiB (= the cap).
+- All logits finite (3 image prompts, 3 text-only prompts). Raw answers: image prompts `10:10`->'10:10', `3:45`->'09:20', `7:20`->'07:20'; text-only: '09:20', '35', '35' (7x5). Smoke clocks at 6 timings: text-only '04:35', with image '06:00' (identical across repeats).
+- Seconds per generation (5 new tokens, 3 repeats): text-only 2.06 s (prefill 0.77 s), with image 7.87 s (prefill 6.84 s). 4B bf16 for comparison (G0b): 0.77 s and 4.69 s.
+- Parsing: the 5 describe replies are markdown-formatted ("Minute hand:** The long hand is pointing at the number 10"). Re-parsed with the current repo parser (markdown normalization on): time 5/5, hour (tolerant) 5/5, but strict `parse_reply` minute/hour numbers only 1/5 (12:00). Cause: the strict regexes need "minute hand is pointing at", Gemma writes "Minute hand: The long hand is pointing at ...". The markdown stripping does NOT fix this wording mismatch; the log line "1/5 fully parsed" was printed by the zip's `gemma_diag.py` and is the same with the normalizer on. No tolerant MINUTE parse exists yet (only the hour one). Not changed; needs a decision.
+
+### 6d. Describe parser (2026-11-09)
+- Added a tolerant minute-hand parse (`parse_minute_tolerant`, columns `said_minute_number_tolerant`, `minute_desc_ok_tolerant`) beside the tolerant hour columns; strict columns unchanged and still primary.
+- Switching all models to the tolerant parser is NOT a no-op (`results/describe_parser_noop_check.txt`): 88 cell differences over 12 saved describe CSVs, all hour parses ("pointing just past 12"); headline file affected: InternVL3-8B hour_desc_ok 66.9% -> 70.6%. Qwen-3B/7B and InternVL3-2B headline files identical. **Decision (2026-11-09, project owner): tolerant parse = PRIMARY for all six models, strict = sensitivity table** (deviations log, sixth entry; made before any Gemma describe result was seen). `compare_families.py` updated; InternVL3-8B: hour right 66.9% -> 70.6%, wrong-given-both-exact 7.4% -> 6.8%; other three headline files identical. E3 clock-set selection and its scripts stay on the strict columns. 20 recovered InternVL3-8B replies: `results/describe_recovered_internvl3-8b.txt` (18/20 hour numbers correct).
+- G2a/G2b notebooks (12B) built, not run; launch after G1's gate and first steps. Disk-offload device map goes to run_config.json.
+
 ## Update log
+- 2026-11-09: tolerant describe parse made PRIMARY for all six models (sixth deviations entry); compare_families.py updated (strict = sensitivity rows); --recompute_tolerant covers minute columns.
+- 2026-11-09: tolerant minute parse added (additive); parser-switch no-op check = NOT a no-op (section 6d); G2a/G2b built; fifth deviations entry written before any G1 describe result.
+- 2026-11-09: G0c incorporated (12B bf16 passes at cap 0:9.5GiB,1:13.5GiB with 3 module groups on disk); section 6c added. G2 plan drafted, not built.
 - 2026-11-08: decisions logged (E2 verdicts as computed; Gemma bf16 + 4B fp32 cross-check; markdown-stripping parse step for all models, verified a no-op on 54,810 stored replies; G0c and G1 built, not run; priority G0c, G1 before F1b, F2).
 - 2026-11-08: F1a (E2, InternVL3-2B) and G0b (Gemma precision) incorporated; sections 5a and 6b added.
 - 2026-11-08: notebook G0b (Gemma precision: fp16 diagnostic, bf16 4B/12B, fp32 4B) and `gemma_diag.py` built; `CLOCK_DTYPE` for Gemma adapters; no results yet.

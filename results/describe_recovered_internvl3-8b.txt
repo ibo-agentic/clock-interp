@@ -1,0 +1,141 @@
+results/internvl3-8b/describe.csv: 20 of 480 replies where the tolerant parse differs from the strict parse
+====================================================================================================
+[row 20] bal_0020.png  true time 12:05  -> true minute-hand number 1, true hour-hand number 12
+REPLY: The long minute hand is pointing at 1, which represents 5 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock.
+       
+       So, the time is 12:05.
+PARSED  strict: minute=1 hour=None   |   tolerant: minute=1 hour=12   |   stored final answer 12:5  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 31] bal_0031.png  true time 12:05  -> true minute-hand number 1, true hour-hand number 12
+REPLY: The long minute hand is pointing at 1, which represents 5 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock.
+       
+       So, the time is 12:05.
+PARSED  strict: minute=1 hour=None   |   tolerant: minute=1 hour=12   |   stored final answer 12:5  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 84] bal_0084.png  true time 12:15  -> true minute-hand number 3, true hour-hand number 12
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock.
+       
+       So, the time is 12:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=12   |   stored final answer 12:15  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 85] bal_0085.png  true time 11:15  -> true minute-hand number 3, true hour-hand number 11
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 11, which represents 11 o'clock. 
+       
+       So, the time is 11:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=11   |   stored final answer 11:15  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 86] bal_0086.png  true time 01:15  -> true minute-hand number 3, true hour-hand number 1
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock.
+       
+       So, the time is 12:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=12   |   stored final answer 12:15  answer_ok=False
+        tolerant hour matches truth: False
+====================================================================================================
+[row 87] bal_0087.png  true time 12:15  -> true minute-hand number 3, true hour-hand number 12
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock.
+       
+       So, the time is 12:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=12   |   stored final answer 12:15  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 93] bal_0093.png  true time 12:15  -> true minute-hand number 3, true hour-hand number 12
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock.
+       
+       So, the time is 12:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=12   |   stored final answer 12:15  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 95] bal_0095.png  true time 01:15  -> true minute-hand number 3, true hour-hand number 1
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock.
+       
+       So, the time is 12:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=12   |   stored final answer 12:15  answer_ok=False
+        tolerant hour matches truth: False
+====================================================================================================
+[row 97] bal_0097.png  true time 12:15  -> true minute-hand number 3, true hour-hand number 12
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock.
+       
+       So, the time is 12:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=12   |   stored final answer 12:15  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 99] bal_0099.png  true time 11:15  -> true minute-hand number 3, true hour-hand number 11
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 11, which represents 11 o'clock. 
+       
+       So, the time is 11:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=11   |   stored final answer 11:15  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 100] bal_0100.png  true time 11:15  -> true minute-hand number 3, true hour-hand number 11
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 11, which represents 11 o'clock. 
+       
+       So, the time is 11:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=11   |   stored final answer 11:15  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 102] bal_0102.png  true time 12:15  -> true minute-hand number 3, true hour-hand number 12
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock.
+       
+       So, the time is 12:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=12   |   stored final answer 12:15  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 113] bal_0113.png  true time 12:15  -> true minute-hand number 3, true hour-hand number 12
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 12, which represents 12 o'clock.
+       
+       So, the time is 12:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=12   |   stored final answer 12:15  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 116] bal_0116.png  true time 11:15  -> true minute-hand number 3, true hour-hand number 11
+REPLY: The long minute hand is pointing at 3, which represents 15 minutes. The short hour hand is pointing just past 11, which represents 11 o'clock. 
+       
+       So, the time is 11:15.
+PARSED  strict: minute=3 hour=None   |   tolerant: minute=3 hour=11   |   stored final answer 11:15  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 202] bal_0202.png  true time 11:30  -> true minute-hand number 6, true hour-hand number 11
+REPLY: The long minute hand is pointing at 6, which represents 30 minutes. The short hour hand is pointing just past 11. 
+       
+       So, the time is 11:30.
+PARSED  strict: minute=6 hour=None   |   tolerant: minute=6 hour=11   |   stored final answer 11:30  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 203] bal_0203.png  true time 11:30  -> true minute-hand number 6, true hour-hand number 11
+REPLY: The long minute hand is pointing at 6, which represents 30 minutes. The short hour hand is pointing just past 11. 
+       
+       So, the time is 11:30.
+PARSED  strict: minute=6 hour=None   |   tolerant: minute=6 hour=11   |   stored final answer 11:30  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 205] bal_0205.png  true time 11:30  -> true minute-hand number 6, true hour-hand number 11
+REPLY: The long minute hand is pointing at 6, which represents 30 minutes. The short hour hand is pointing just past 11. 
+       
+       So, the time is 11:30.
+PARSED  strict: minute=6 hour=None   |   tolerant: minute=6 hour=11   |   stored final answer 11:30  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 214] bal_0214.png  true time 11:30  -> true minute-hand number 6, true hour-hand number 11
+REPLY: The long minute hand is pointing at 6, which represents 30 minutes. The short hour hand is pointing just past 11. 
+       
+       So, the time is 11:30.
+PARSED  strict: minute=6 hour=None   |   tolerant: minute=6 hour=11   |   stored final answer 11:30  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 232] bal_0232.png  true time 11:30  -> true minute-hand number 6, true hour-hand number 11
+REPLY: The long minute hand is pointing at 6, which represents 30 minutes. The short hour hand is pointing just past 11. 
+       
+       So, the time is 11:30.
+PARSED  strict: minute=6 hour=None   |   tolerant: minute=6 hour=11   |   stored final answer 11:30  answer_ok=True
+        tolerant hour matches truth: True
+====================================================================================================
+[row 239] bal_0239.png  true time 11:30  -> true minute-hand number 6, true hour-hand number 11
+REPLY: The long minute hand is pointing at 6, which represents 30 minutes. The short hour hand is pointing just past 11. 
+       
+       So, the time is 11:30.
+PARSED  strict: minute=6 hour=None   |   tolerant: minute=6 hour=11   |   stored final answer 11:30  answer_ok=True
+        tolerant hour matches truth: True

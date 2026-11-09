@@ -4,18 +4,20 @@
 | Behavior: hour accuracy | 26.2% [22.5%, 30.2%] n=500 | 69.4% [65.2%, 73.3%] n=500 | 58.0% [53.7%, 62.3%] n=498 | 63.2% [58.9%, 67.3%] n=500 |
 | Behavior: minute accuracy | 2.4% [1.4%, 4.1%] n=500 | 16.2% [13.2%, 19.7%] n=500 | 11.4% [8.9%, 14.5%] n=498 | 11.2% [8.7%, 14.3%] n=500 |
 | Behavior: parse rate | 100.0% [99.2%, 100.0%] n=500 | 100.0% [99.2%, 100.0%] n=500 | 99.6% [98.6%, 99.9%] n=500 | 100.0% [99.2%, 100.0%] n=500 |
-| Describe [PRIMARY]: minute hand described EXACTLY right | 59.6% [55.1%, 63.9%] n=480 | 84.4% [80.9%, 87.3%] n=480 | 52.3% [47.8%, 56.7%] n=480 | 69.8% [65.5%, 73.7%] n=480 |
-| Describe [PRIMARY]: hour hand described right (exact) | 31.2% [27.3%, 35.5%] n=480 | 59.8% [55.3%, 64.1%] n=480 | 52.7% [48.2%, 57.1%] n=480 | 66.9% [62.5%, 70.9%] n=480 |
-| Describe [PRIMARY]: BOTH hands described exactly right | 25.4% [21.7%, 29.5%] n=480 | 50.6% [46.2%, 55.1%] n=480 | 30.0% [26.1%, 34.2%] n=480 | 45.0% [40.6%, 49.5%] n=480 |
-| Describe [PRIMARY]: final answer WRONG given both hands described EXACTLY right | 70.5% [61.9%, 77.9%] n=122 | 0.0% [0.0%, 1.6%] n=243 | 0.7% [0.1%, 3.8%] n=144 | 7.4% [4.6%, 11.7%] n=216 |
-| Describe [secondary]: minute hand described right (+/-1 number) | 79.2% [75.3%, 82.6%] n=480 | 85.8% [82.4%, 88.7%] n=480 | 59.8% [55.3%, 64.1%] n=480 | 84.2% [80.6%, 87.2%] n=480 |
-| Describe [secondary]: final answer WRONG given both hands described right (+/-1 number) | 74.3% [66.5%, 80.8%] n=140 | 2.8% [1.4%, 5.7%] n=250 | 8.7% [5.3%, 14.1%] n=161 | 26.5% [21.6%, 32.0%] n=272 |
-| Describe: reply fully parsed (parse-fit check, original regexes) | 100.0% [99.2%, 100.0%] n=480 | 100.0% [99.2%, 100.0%] n=480 | 100.0% [99.2%, 100.0%] n=480 | 95.8% [93.7%, 97.3%] n=480 |
-| Describe [robustness: tolerant hour parse]: hour hand described right | 31.2% [27.3%, 35.5%] n=480 | 59.8% [55.3%, 64.1%] n=480 | 52.7% [48.2%, 57.1%] n=480 | 70.6% [66.4%, 74.5%] n=480 |
-| Describe [robustness: tolerant hour parse]: BOTH hands exactly right | 25.4% [21.7%, 29.5%] n=480 | 50.6% [46.2%, 55.1%] n=480 | 30.0% [26.1%, 34.2%] n=480 | 48.8% [44.3%, 53.2%] n=480 |
-| Describe [robustness: tolerant hour parse]: final answer WRONG given both hands EXACTLY right | 70.5% [61.9%, 77.9%] n=122 | 0.0% [0.0%, 1.6%] n=243 | 0.7% [0.1%, 3.8%] n=144 | 6.8% [4.3%, 10.8%] n=234 |
-| Describe [robustness: tolerant hour parse]: WRONG given both right (+/-1 number) | 74.3% [66.5%, 80.8%] n=140 | 2.8% [1.4%, 5.7%] n=250 | 8.7% [5.3%, 14.1%] n=161 | 24.8% [20.2%, 30.1%] n=290 |
-| Describe [robustness: tolerant hour parse]: reply fully parsed | 100.0% [99.2%, 100.0%] n=480 | 100.0% [99.2%, 100.0%] n=480 | 100.0% [99.2%, 100.0%] n=480 | 100.0% [99.2%, 100.0%] n=480 |
+| Describe [PRIMARY, tolerant parse]: minute hand described EXACTLY right | 59.6% [55.1%, 63.9%] n=480 | 84.4% [80.9%, 87.3%] n=480 | 52.3% [47.8%, 56.7%] n=480 | 69.8% [65.5%, 73.7%] n=480 |
+| Describe [PRIMARY, tolerant parse]: hour hand described right (exact) | 31.2% [27.3%, 35.5%] n=480 | 59.8% [55.3%, 64.1%] n=480 | 52.7% [48.2%, 57.1%] n=480 | 70.6% [66.4%, 74.5%] n=480 |
+| Describe [PRIMARY, tolerant parse]: BOTH hands described exactly right | 25.4% [21.7%, 29.5%] n=480 | 50.6% [46.2%, 55.1%] n=480 | 30.0% [26.1%, 34.2%] n=480 | 48.8% [44.3%, 53.2%] n=480 |
+| Describe [PRIMARY, tolerant parse]: final answer WRONG given both hands described EXACTLY right | 70.5% [61.9%, 77.9%] n=122 | 0.0% [0.0%, 1.6%] n=243 | 0.7% [0.1%, 3.8%] n=144 | 6.8% [4.3%, 10.8%] n=234 |
+| Describe [secondary, tolerant parse]: minute hand described right (+/-1 number) | 79.2% [75.3%, 82.6%] n=480 | 85.8% [82.4%, 88.7%] n=480 | 59.8% [55.3%, 64.1%] n=480 | 84.2% [80.6%, 87.2%] n=480 |
+| Describe [secondary, tolerant parse]: final answer WRONG given both hands described right (+/-1 number) | 74.3% [66.5%, 80.8%] n=140 | 2.8% [1.4%, 5.7%] n=250 | 8.7% [5.3%, 14.1%] n=161 | 24.8% [20.2%, 30.1%] n=290 |
+| Describe [tolerant parse]: reply fully parsed (parse-fit check) | 100.0% [99.2%, 100.0%] n=480 | 100.0% [99.2%, 100.0%] n=480 | 100.0% [99.2%, 100.0%] n=480 | 100.0% [99.2%, 100.0%] n=480 |
+| Describe [SENSITIVITY, strict original regexes]: minute hand described EXACTLY right | 59.6% [55.1%, 63.9%] n=480 | 84.4% [80.9%, 87.3%] n=480 | 52.3% [47.8%, 56.7%] n=480 | 69.8% [65.5%, 73.7%] n=480 |
+| Describe [SENSITIVITY, strict]: hour hand described right (exact) | 31.2% [27.3%, 35.5%] n=480 | 59.8% [55.3%, 64.1%] n=480 | 52.7% [48.2%, 57.1%] n=480 | 66.9% [62.5%, 70.9%] n=480 |
+| Describe [SENSITIVITY, strict]: BOTH hands described exactly right | 25.4% [21.7%, 29.5%] n=480 | 50.6% [46.2%, 55.1%] n=480 | 30.0% [26.1%, 34.2%] n=480 | 45.0% [40.6%, 49.5%] n=480 |
+| Describe [SENSITIVITY, strict]: final answer WRONG given both hands described EXACTLY right | 70.5% [61.9%, 77.9%] n=122 | 0.0% [0.0%, 1.6%] n=243 | 0.7% [0.1%, 3.8%] n=144 | 7.4% [4.6%, 11.7%] n=216 |
+| Describe [SENSITIVITY, strict]: minute hand described right (+/-1 number) | 79.2% [75.3%, 82.6%] n=480 | 85.8% [82.4%, 88.7%] n=480 | 59.8% [55.3%, 64.1%] n=480 | 84.2% [80.6%, 87.2%] n=480 |
+| Describe [SENSITIVITY, strict]: final answer WRONG given both hands described right (+/-1 number) | 74.3% [66.5%, 80.8%] n=140 | 2.8% [1.4%, 5.7%] n=250 | 8.7% [5.3%, 14.1%] n=161 | 26.5% [21.6%, 32.0%] n=272 |
+| Describe [SENSITIVITY, strict]: reply fully parsed (original regexes) | 100.0% [99.2%, 100.0%] n=480 | 100.0% [99.2%, 100.0%] n=480 | 100.0% [99.2%, 100.0%] n=480 | 95.8% [93.7%, 97.3%] n=480 |
 | Text-only gate: b2 minute accuracy (no image) | 64.4% [59.7%, 68.7%] n=432 | 97.9% [96.1%, 98.9%] n=432 | 49.8% [45.1%, 54.5%] n=432 | 97.9% [96.1%, 98.9%] n=432 |
 | Conversion: minute acc., no image (re-run of text-only) | 64.4% [59.7%, 68.7%] n=432 | 97.9% [96.1%, 98.9%] n=432 | 49.8% [45.1%, 54.5%] n=432 | 97.9% [96.1%, 98.9%] n=432 |
 | Conversion: minute acc., matching clock | 54.2% [49.5%, 58.8%] n=432 | 99.5% [98.3%, 99.9%] n=432 | 71.8% [67.3%, 75.8%] n=432 | 100.0% [99.1%, 100.0%] n=432 |
@@ -31,4 +33,4 @@
 Rates are shown as value [95% Wilson CI] n=count. Wilson CIs treat trials as independent; in the conversion and text-only tests the prompts are crossed (hours x lead-ins), so those CIs are somewhat optimistic.
 
 Known protocol differences (not hidden): InternVL3's chat template injects NO default system prompt while Qwen2.5-VL's does; InternVL images are one 448x448 tile = 256 tokens, Qwen's 512x512 clocks use ~324 tokens; max_new_tokens is 16 (behavior) and 120 (describe) for every model; for text-only / conversion it is 32 for every model EXCEPT any run whose run_config.json says otherwise (InternVL3-8B was re-run at 64 after 32 cut off replies; no Qwen or InternVL3-2B reply reached 32 tokens, so those results are unaffected); dtype is float16 for all four (see each run_config.json).
-Describe rows: the +/-1-number tolerance and the regex parsing are Qwen-tuned (describe_check.py); see the 'reply fully parsed' row for how well they fit each model's wording.
+Describe rows: from 2026-11-09 the PRIMARY parse is the tolerant one for every model (it also reads e.g. 'pointing just past 12' and 'Minute hand: The long hand is pointing at ...'); the original strict regexes are kept as a SENSITIVITY block (rows marked strict). The two differ only for InternVL3-8B among the original four models (hour parse: 66.9% -> 70.6% hour right). The +/-1-number tolerance is unchanged.

@@ -36,6 +36,16 @@ def main():
           "*   **Short hour hand:** The short hour hand is pointing at the number **9**.\n\nTherefore, the time is **9:30**.")
     check("describe parse on markdown reply", DC.parse_reply(r1) == (3, 9, (9, 30)), str(DC.parse_reply(r1)))
     check("tolerant hour parse on markdown reply", DC.parse_hour_tolerant(r1) == 9)
+    g = ("Here's the breakdown of the clock:" + chr(10)*2 + "*   **Minute hand:** The long hand is pointing at the number 10." + chr(10)
+         + "*   **Hour hand:** The short hand is pointing at the number 2." + chr(10)*2 + "Therefore, the time is **02:10**.")
+    check("Gemma layout: strict minute/hour miss (documented), tolerant minute+hour parse", DC.parse_reply(g) == (None, None, (2, 10))
+          and DC.parse_minute_tolerant(g) == 10 and DC.parse_hour_tolerant(g) == 2, str(DC.parse_reply(g)))
+    check("tolerant minute parse reproduces strict where strict matches", DC.parse_minute_tolerant(r1) == DC.parse_reply(r1)[0] == 3
+          and DC.parse_minute_tolerant("The long minute hand is pointing at 12, and") == 12 and DC.parse_minute_tolerant(None) is None)
+    _df = pd.DataFrame({"raw_answer": [g], "true_minute_number": [2], "true_hour_number": [2]})
+    _o = DC.add_tolerant_columns(_df)
+    check("add_tolerant_columns adds minute columns, originals untouched", list(_o.columns[:3]) == list(_df.columns) and bool(_o["minute_desc_ok_tolerant"][0]) is False
+          and int(_o["said_minute_number_tolerant"][0]) == 10 and bool(_o["hour_desc_ok_tolerant"][0]), str(_o.iloc[0].to_dict())[:200])
     check("time parse on **9:30**", EB.parse_time_answer("**9:30**") == (9, 30, True))
     check("normalize is identity without markdown", normalize_reply("The time is 9:30.") == "The time is 9:30." and normalize_reply(None) is None)
 
@@ -58,6 +68,13 @@ def main():
         os.environ.pop("CLOCK_DTYPE", None)
         try:
             os.chdir(tmp)
+            _rcn = adapters.Gemma3Adapter().run_config_notes()
+            check("run_config_notes without a model has no device map (no crash)", "device_map" not in _rcn)
+            _a = adapters.Gemma3Adapter(); _a.model = model; _a.dtype_name = "bfloat16"; model.hf_device_map = {"a": 0, "b": 1, "c": "disk"}
+            _rec = _a.run_config_notes()
+            check("run_config_notes records full device map, counts and disk note", _rec["device_map"] == {"a": "0", "b": "1", "c": "disk"}
+                  and _rec["device_map_counts"] == {"0": 1, "1": 1, "disk": 1} and "disk" in _rec["disk_offload_note"])
+            del model.hf_device_map
             import text_only_v2 as T2
             import conversion_test as CT
             import probe as P

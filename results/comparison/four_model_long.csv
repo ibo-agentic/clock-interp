@@ -6,15 +6,17 @@ qwen2.5-vl-3b,behavior_parse_rate,1.0,0.9923753814690964,0.9999999999999999,500,
 qwen2.5-vl-3b,describe_minute_exact,0.5958333333333333,0.5513390759294168,0.6388057979301274,286,480,,results\qwen2.5-vl-3b\describe.csv
 qwen2.5-vl-3b,describe_hour_ok,0.3125,0.27266038826543604,0.3553170324441516,150,480,,results\qwen2.5-vl-3b\describe.csv
 qwen2.5-vl-3b,describe_both_exact,0.25416666666666665,0.21727366665916786,0.2949633960489581,122,480,,results\qwen2.5-vl-3b\describe.csv
-qwen2.5-vl-3b,describe_wrong_given_both_exact,0.7049180327868853,0.6187308107303047,0.7785940802437452,86,122,122 of 480 images had both hands described EXACTLY right,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_wrong_given_both_exact,0.7049180327868853,0.6187308107303047,0.7785940802437452,86,122,122 of 480 images had both hands described EXACTLY right (tolerant parse),results\qwen2.5-vl-3b\describe.csv
 qwen2.5-vl-3b,describe_minute_ok,0.7916666666666666,0.7530896686536218,0.8256121213536863,380,480,,results\qwen2.5-vl-3b\describe.csv
-qwen2.5-vl-3b,describe_wrong_given_both_ok,0.7428571428571429,0.664651664004354,0.8080905746804214,104,140,140 of 480 images had both hands described right (+/-1 minute number),results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_wrong_given_both_ok,0.7428571428571429,0.664651664004354,0.8080905746804214,104,140,"140 of 480 images had both hands described right (+/-1 minute number, tolerant parse)",results\qwen2.5-vl-3b\describe.csv
 qwen2.5-vl-3b,describe_parse_rate,1.0,0.9920602114410997,1.0,480,480,,results\qwen2.5-vl-3b\describe.csv
-qwen2.5-vl-3b,describe_hour_ok_tol,0.3125,0.27266038826543604,0.3553170324441516,150,480,,results\qwen2.5-vl-3b\describe.csv
-qwen2.5-vl-3b,describe_both_exact_tol,0.25416666666666665,0.21727366665916786,0.2949633960489581,122,480,,results\qwen2.5-vl-3b\describe.csv
-qwen2.5-vl-3b,describe_wrong_given_both_exact_tol,0.7049180327868853,0.6187308107303047,0.7785940802437452,86,122,122 of 480 (tolerant hour parse),results\qwen2.5-vl-3b\describe.csv
-qwen2.5-vl-3b,describe_wrong_given_both_ok_tol,0.7428571428571429,0.664651664004354,0.8080905746804214,104,140,"140 of 480 (tolerant hour parse, +/-1 minute number)",results\qwen2.5-vl-3b\describe.csv
-qwen2.5-vl-3b,describe_parse_rate_tol,1.0,0.9920602114410997,1.0,480,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_minute_exact_strict,0.5958333333333333,0.5513390759294168,0.6388057979301274,286,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_hour_ok_strict,0.3125,0.27266038826543604,0.3553170324441516,150,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_both_exact_strict,0.25416666666666665,0.21727366665916786,0.2949633960489581,122,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_wrong_given_both_exact_strict,0.7049180327868853,0.6187308107303047,0.7785940802437452,86,122,122 of 480 images had both hands described EXACTLY right (strict original regexes),results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_minute_ok_strict,0.7916666666666666,0.7530896686536218,0.8256121213536863,380,480,,results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_wrong_given_both_ok_strict,0.7428571428571429,0.664651664004354,0.8080905746804214,104,140,"140 of 480 images had both hands described right (+/-1 minute number, strict original regexes)",results\qwen2.5-vl-3b\describe.csv
+qwen2.5-vl-3b,describe_parse_rate_strict,1.0,0.9920602114410997,1.0,480,480,,results\qwen2.5-vl-3b\describe.csv
 qwen2.5-vl-3b,textonly_b2_minute,0.6435185185185185,0.5972690543254014,0.6872379775871097,278,432,,results\qwen2.5-vl-3b\text_only_v2.csv
 qwen2.5-vl-3b,conv_text_only_minute,0.6435185185185185,0.5972690543254014,0.6872379775871097,278,432,,results\qwen2.5-vl-3b\conversion_test.csv
 qwen2.5-vl-3b,conv_matching_clock_minute,0.5416666666666666,0.4945192274495118,0.5880795882670236,234,432,,results\qwen2.5-vl-3b\conversion_test.csv
@@ -33,15 +35,17 @@ qwen2.5-vl-7b,behavior_parse_rate,1.0,0.9923753814690964,0.9999999999999999,500,
 qwen2.5-vl-7b,describe_minute_exact,0.84375,0.8085522736473225,0.8734891217184335,405,480,,results\qwen2.5-vl-7b\describe.csv
 qwen2.5-vl-7b,describe_hour_ok,0.5979166666666667,0.5534422331705291,0.6408362249033528,287,480,,results\qwen2.5-vl-7b\describe.csv
 qwen2.5-vl-7b,describe_both_exact,0.50625,0.4616510839113691,0.5507496687316445,243,480,,results\qwen2.5-vl-7b\describe.csv
-qwen2.5-vl-7b,describe_wrong_given_both_exact,0.0,0.0,0.015563016930695634,0,243,243 of 480 images had both hands described EXACTLY right,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_wrong_given_both_exact,0.0,0.0,0.015563016930695634,0,243,243 of 480 images had both hands described EXACTLY right (tolerant parse),results\qwen2.5-vl-7b\describe.csv
 qwen2.5-vl-7b,describe_minute_ok,0.8583333333333333,0.8242864672267544,0.886690017639367,412,480,,results\qwen2.5-vl-7b\describe.csv
-qwen2.5-vl-7b,describe_wrong_given_both_ok,0.028,0.013627884857773491,0.056658466945870976,7,250,250 of 480 images had both hands described right (+/-1 minute number),results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_wrong_given_both_ok,0.028,0.013627884857773491,0.056658466945870976,7,250,"250 of 480 images had both hands described right (+/-1 minute number, tolerant parse)",results\qwen2.5-vl-7b\describe.csv
 qwen2.5-vl-7b,describe_parse_rate,1.0,0.9920602114410997,1.0,480,480,,results\qwen2.5-vl-7b\describe.csv
-qwen2.5-vl-7b,describe_hour_ok_tol,0.5979166666666667,0.5534422331705291,0.6408362249033528,287,480,,results\qwen2.5-vl-7b\describe.csv
-qwen2.5-vl-7b,describe_both_exact_tol,0.50625,0.4616510839113691,0.5507496687316445,243,480,,results\qwen2.5-vl-7b\describe.csv
-qwen2.5-vl-7b,describe_wrong_given_both_exact_tol,0.0,0.0,0.015563016930695634,0,243,243 of 480 (tolerant hour parse),results\qwen2.5-vl-7b\describe.csv
-qwen2.5-vl-7b,describe_wrong_given_both_ok_tol,0.028,0.013627884857773491,0.056658466945870976,7,250,"250 of 480 (tolerant hour parse, +/-1 minute number)",results\qwen2.5-vl-7b\describe.csv
-qwen2.5-vl-7b,describe_parse_rate_tol,1.0,0.9920602114410997,1.0,480,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_minute_exact_strict,0.84375,0.8085522736473225,0.8734891217184335,405,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_hour_ok_strict,0.5979166666666667,0.5534422331705291,0.6408362249033528,287,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_both_exact_strict,0.50625,0.4616510839113691,0.5507496687316445,243,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_wrong_given_both_exact_strict,0.0,0.0,0.015563016930695634,0,243,243 of 480 images had both hands described EXACTLY right (strict original regexes),results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_minute_ok_strict,0.8583333333333333,0.8242864672267544,0.886690017639367,412,480,,results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_wrong_given_both_ok_strict,0.028,0.013627884857773491,0.056658466945870976,7,250,"250 of 480 images had both hands described right (+/-1 minute number, strict original regexes)",results\qwen2.5-vl-7b\describe.csv
+qwen2.5-vl-7b,describe_parse_rate_strict,1.0,0.9920602114410997,1.0,480,480,,results\qwen2.5-vl-7b\describe.csv
 qwen2.5-vl-7b,textonly_b2_minute,0.9791666666666666,0.9608846860527704,0.9890016946873883,423,432,,results\qwen2.5-vl-7b\text_only_v2.csv
 qwen2.5-vl-7b,conv_text_only_minute,0.9791666666666666,0.9608846860527704,0.9890016946873883,423,432,,results\qwen2.5-vl-7b\conversion_test.csv
 qwen2.5-vl-7b,conv_matching_clock_minute,0.9953703703703703,0.9832786467146731,0.9987294956930272,430,432,,results\qwen2.5-vl-7b\conversion_test.csv
@@ -60,15 +64,17 @@ internvl3-2b,behavior_parse_rate,0.996,0.9855339859585811,0.9989023924587627,498
 internvl3-2b,describe_minute_exact,0.5229166666666667,0.47822841610341255,0.5672410102543046,251,480,,results\internvl3-2b\describe.csv
 internvl3-2b,describe_hour_ok,0.5270833333333333,0.4823804396100301,0.571356155176363,253,480,,results\internvl3-2b\describe.csv
 internvl3-2b,describe_both_exact,0.3,0.26072382665453797,0.3424520887690221,144,480,,results\internvl3-2b\describe.csv
-internvl3-2b,describe_wrong_given_both_exact,0.006944444444444444,0.001226887030401979,0.03828567235748344,1,144,144 of 480 images had both hands described EXACTLY right,results\internvl3-2b\describe.csv
+internvl3-2b,describe_wrong_given_both_exact,0.006944444444444444,0.001226887030401979,0.03828567235748344,1,144,144 of 480 images had both hands described EXACTLY right (tolerant parse),results\internvl3-2b\describe.csv
 internvl3-2b,describe_minute_ok,0.5979166666666667,0.5534422331705291,0.6408362249033528,287,480,,results\internvl3-2b\describe.csv
-internvl3-2b,describe_wrong_given_both_ok,0.08695652173913043,0.0525035756984701,0.14066125647981498,14,161,161 of 480 images had both hands described right (+/-1 minute number),results\internvl3-2b\describe.csv
+internvl3-2b,describe_wrong_given_both_ok,0.08695652173913043,0.0525035756984701,0.14066125647981498,14,161,"161 of 480 images had both hands described right (+/-1 minute number, tolerant parse)",results\internvl3-2b\describe.csv
 internvl3-2b,describe_parse_rate,1.0,0.9920602114410997,1.0,480,480,,results\internvl3-2b\describe.csv
-internvl3-2b,describe_hour_ok_tol,0.5270833333333333,0.4823804396100301,0.571356155176363,253,480,,results\internvl3-2b\describe.csv
-internvl3-2b,describe_both_exact_tol,0.3,0.26072382665453797,0.3424520887690221,144,480,,results\internvl3-2b\describe.csv
-internvl3-2b,describe_wrong_given_both_exact_tol,0.006944444444444444,0.001226887030401979,0.03828567235748344,1,144,144 of 480 (tolerant hour parse),results\internvl3-2b\describe.csv
-internvl3-2b,describe_wrong_given_both_ok_tol,0.08695652173913043,0.0525035756984701,0.14066125647981498,14,161,"161 of 480 (tolerant hour parse, +/-1 minute number)",results\internvl3-2b\describe.csv
-internvl3-2b,describe_parse_rate_tol,1.0,0.9920602114410997,1.0,480,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_minute_exact_strict,0.5229166666666667,0.47822841610341255,0.5672410102543046,251,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_hour_ok_strict,0.5270833333333333,0.4823804396100301,0.571356155176363,253,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_both_exact_strict,0.3,0.26072382665453797,0.3424520887690221,144,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_wrong_given_both_exact_strict,0.006944444444444444,0.001226887030401979,0.03828567235748344,1,144,144 of 480 images had both hands described EXACTLY right (strict original regexes),results\internvl3-2b\describe.csv
+internvl3-2b,describe_minute_ok_strict,0.5979166666666667,0.5534422331705291,0.6408362249033528,287,480,,results\internvl3-2b\describe.csv
+internvl3-2b,describe_wrong_given_both_ok_strict,0.08695652173913043,0.0525035756984701,0.14066125647981498,14,161,"161 of 480 images had both hands described right (+/-1 minute number, strict original regexes)",results\internvl3-2b\describe.csv
+internvl3-2b,describe_parse_rate_strict,1.0,0.9920602114410997,1.0,480,480,,results\internvl3-2b\describe.csv
 internvl3-2b,textonly_b2_minute,0.4976851851851852,0.4507640712537698,0.5446471056508669,215,432,,results\internvl3-2b\text_only_v2.csv
 internvl3-2b,conv_text_only_minute,0.4976851851851852,0.4507640712537698,0.5446471056508669,215,432,,results\internvl3-2b\conversion_test.csv
 internvl3-2b,conv_matching_clock_minute,0.7175925925925926,0.673367371249813,0.757981999714317,310,432,,results\internvl3-2b\conversion_test.csv
@@ -85,17 +91,19 @@ internvl3-8b,behavior_hour,0.632,0.5888709172413829,0.6731161834664587,316,500,,
 internvl3-8b,behavior_minute,0.112,0.0872623972834597,0.14265430669652132,56,500,,results\internvl3-8b\results.csv
 internvl3-8b,behavior_parse_rate,1.0,0.9923753814690964,0.9999999999999999,500,500,,results\internvl3-8b\results.csv
 internvl3-8b,describe_minute_exact,0.6979166666666666,0.6554013009734058,0.7372891993886962,335,480,,results\internvl3-8b\describe.csv
-internvl3-8b,describe_hour_ok,0.66875,0.6254501270296939,0.709370194331677,321,480,,results\internvl3-8b\describe.csv
-internvl3-8b,describe_both_exact,0.45,0.406065789704345,0.4947281891515451,216,480,,results\internvl3-8b\describe.csv
-internvl3-8b,describe_wrong_given_both_exact,0.07407407407407407,0.046106229076395056,0.11692751885848168,16,216,216 of 480 images had both hands described EXACTLY right,results\internvl3-8b\describe.csv
+internvl3-8b,describe_hour_ok,0.70625,0.663993732629122,0.7452311045903318,339,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_both_exact,0.4875,0.44306031609678864,0.5321381786171838,234,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_wrong_given_both_exact,0.06837606837606838,0.04252243854921824,0.10817281408951274,16,234,234 of 480 images had both hands described EXACTLY right (tolerant parse),results\internvl3-8b\describe.csv
 internvl3-8b,describe_minute_ok,0.8416666666666667,0.8063127326027417,0.8715950785486763,404,480,,results\internvl3-8b\describe.csv
-internvl3-8b,describe_wrong_given_both_ok,0.2647058823529412,0.21581564263636144,0.3201499260088321,72,272,272 of 480 images had both hands described right (+/-1 minute number),results\internvl3-8b\describe.csv
-internvl3-8b,describe_parse_rate,0.9583333333333334,0.9365205738901328,0.9728679532642086,460,480,,results\internvl3-8b\describe.csv
-internvl3-8b,describe_hour_ok_tol,0.70625,0.663993732629122,0.7452311045903318,339,480,,results\internvl3-8b\describe.csv
-internvl3-8b,describe_both_exact_tol,0.4875,0.44306031609678864,0.5321381786171838,234,480,,results\internvl3-8b\describe.csv
-internvl3-8b,describe_wrong_given_both_exact_tol,0.06837606837606838,0.04252243854921824,0.10817281408951274,16,234,234 of 480 (tolerant hour parse),results\internvl3-8b\describe.csv
-internvl3-8b,describe_wrong_given_both_ok_tol,0.2482758620689655,0.2020608523238211,0.3010728088051682,72,290,"290 of 480 (tolerant hour parse, +/-1 minute number)",results\internvl3-8b\describe.csv
-internvl3-8b,describe_parse_rate_tol,1.0,0.9920602114410997,1.0,480,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_wrong_given_both_ok,0.2482758620689655,0.2020608523238211,0.3010728088051682,72,290,"290 of 480 images had both hands described right (+/-1 minute number, tolerant parse)",results\internvl3-8b\describe.csv
+internvl3-8b,describe_parse_rate,1.0,0.9920602114410997,1.0,480,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_minute_exact_strict,0.6979166666666666,0.6554013009734058,0.7372891993886962,335,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_hour_ok_strict,0.66875,0.6254501270296939,0.709370194331677,321,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_both_exact_strict,0.45,0.406065789704345,0.4947281891515451,216,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_wrong_given_both_exact_strict,0.07407407407407407,0.046106229076395056,0.11692751885848168,16,216,216 of 480 images had both hands described EXACTLY right (strict original regexes),results\internvl3-8b\describe.csv
+internvl3-8b,describe_minute_ok_strict,0.8416666666666667,0.8063127326027417,0.8715950785486763,404,480,,results\internvl3-8b\describe.csv
+internvl3-8b,describe_wrong_given_both_ok_strict,0.2647058823529412,0.21581564263636144,0.3201499260088321,72,272,"272 of 480 images had both hands described right (+/-1 minute number, strict original regexes)",results\internvl3-8b\describe.csv
+internvl3-8b,describe_parse_rate_strict,0.9583333333333334,0.9365205738901328,0.9728679532642086,460,480,,results\internvl3-8b\describe.csv
 internvl3-8b,textonly_b2_minute,0.9791666666666666,0.9608846860527704,0.9890016946873883,423,432,,results\internvl3-8b\text_only_v2.csv
 internvl3-8b,conv_text_only_minute,0.9791666666666666,0.9608846860527704,0.9890016946873883,423,432,,results\internvl3-8b\conversion_test.csv
 internvl3-8b,conv_matching_clock_minute,1.0,0.9911857885984265,1.0,432,432,,results\internvl3-8b\conversion_test.csv

@@ -29,6 +29,18 @@ HOUR_RE_TOL = re.compile(
     r"hour hand[^.\d]{0,40}?(?:at|to|on|near|around|toward|towards|past|after|before|between)\s+"
     r"(?:the\s+)?(?:number\s+)?(\d{1,2})", re.I)
 
+# TOLERANT minute-hand parse, same construction as HOUR_RE_TOL: handles layouts such as "Minute hand: The long hand is pointing at the
+# number 10" (label, colon, then a sentence whose subject is "the long hand"). Original MIN_RE matches are always reproduced.
+MIN_RE_TOL = re.compile(
+    r"minute hand[^.\d]{0,40}?(?:at|to|on|near|around|toward|towards|past|after|before|between)\s+"
+    r"(?:the\s+)?(?:number\s+)?(\d{1,2})", re.I)
+
+def parse_minute_tolerant(text):
+    """Minute-hand number: original MIN_RE first (identical behaviour), else the tolerant pattern, else None."""
+    text = normalize_reply(text if isinstance(text, str) else "")
+    m = MIN_RE.search(text) or MIN_RE_TOL.search(text)
+    return int(m.group(1)) if m else None
+
 def parse_hour_tolerant(text):
     """Hour-hand number: original HOUR_RE first (identical behaviour), else the tolerant pattern, else None."""
     text = normalize_reply(text if isinstance(text, str) else "")
@@ -43,6 +55,11 @@ def add_tolerant_columns(df):
     df["hour_desc_ok_tolerant"] = [bool(pd.notna(s) and int(s) == int(t))
                                    for s, t in zip(df["said_hour_number_tolerant"], df["true_hour_number"])]
     df["said_hour_number_tolerant"] = df["said_hour_number_tolerant"].astype("Int64")
+    # tolerant MINUTE parse (added 2026-11-09, for Gemma's "Minute hand: The long hand is pointing at ..." layout); same +/-1 rule as minute_desc_ok
+    df["said_minute_number_tolerant"] = df["raw_answer"].map(parse_minute_tolerant)
+    df["minute_desc_ok_tolerant"] = [bool(pd.notna(s) and min((int(s) - int(t)) % 12, (int(t) - int(s)) % 12) <= 1)
+                                     for s, t in zip(df["said_minute_number_tolerant"], df["true_minute_number"])]
+    df["said_minute_number_tolerant"] = df["said_minute_number_tolerant"].astype("Int64")
     return df
 
 def true_minute_number(minute):
@@ -129,19 +146,22 @@ if __name__ == "__main__":
     p.add_argument("--model_id", type=str, default=None)
     p.add_argument("--adapter", type=str, default=None)
     p.add_argument("--recompute_tolerant", nargs="+", default=None, metavar="DESCRIBE_CSV",
-                   help="CPU only: add said_hour_number_tolerant / hour_desc_ok_tolerant to existing describe CSVs "
+                   help="CPU only: add said_hour_number_tolerant / hour_desc_ok_tolerant and said_minute_number_tolerant / minute_desc_ok_tolerant to existing describe CSVs "
                         "in place, from their saved raw_answer (no model run); original columns are verified unchanged")
     a = p.parse_args()
     if a.recompute_tolerant:
         for path in a.recompute_tolerant:
             old = pd.read_csv(path)
-            old = old[[c for c in old.columns if c not in ("said_hour_number_tolerant", "hour_desc_ok_tolerant")]]
+            old = old[[c for c in old.columns if c not in ("said_hour_number_tolerant", "hour_desc_ok_tolerant", "said_minute_number_tolerant", "minute_desc_ok_tolerant")]]
             new = add_tolerant_columns(old)
             assert new[list(old.columns)].equals(old), "original columns changed -- refusing to write"
             new.to_csv(path, index=False)
             ch = new["said_hour_number"].isna() & new["said_hour_number_tolerant"].notna()
             print(f"{path}: original hour parse missed {int(new['said_hour_number'].isna().sum())}, tolerant parse recovers {int(ch.sum())}; "
                   f"hour_desc_ok {old['hour_desc_ok'].mean():.1%} -> tolerant {new['hour_desc_ok_tolerant'].mean():.1%}")
+            cm = new["said_minute_number"].isna() & new["said_minute_number_tolerant"].notna()
+            print(f"{' ' * len(path)}  original minute parse missed {int(new['said_minute_number'].isna().sum())}, tolerant parse recovers {int(cm.sum())}; "
+                  f"minute_desc_ok {old['minute_desc_ok'].mean():.1%} -> tolerant {new['minute_desc_ok_tolerant'].mean():.1%}")
         raise SystemExit(0)
     main(data_csv=a.data_csv, images_dir=a.images_dir, model_id=a.model_id, adapter_name=a.adapter,
          max_images=a.max_images, out_csv=a.out_csv)

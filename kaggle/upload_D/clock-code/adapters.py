@@ -393,8 +393,17 @@ class Gemma3Adapter(ModelAdapter):
     # Facts for the Method section / smoke output (checked against the installed transformers source, 5.17; Kaggle runs 5.20.2).
     expected_image_tokens = 256        # mm_tokens_per_image (SigLIP 896 px -> 4096 patches -> 4x4 avg-pool -> 256); pan-and-scan is OFF by default in the processor
 
+    def device_map_record(self):
+        """Full module->device map (accelerate hf_device_map), counts per device and the max_memory cap in force; for run_config.json."""
+        dmap = getattr(self.model, "hf_device_map", None) or {}
+        return {"device_map": {str(k): str(v) for k, v in dmap.items()},
+                "device_map_counts": {str(d): sum(1 for v in dmap.values() if v == d) for d in set(dmap.values())},
+                "max_memory": {str(k): v for k, v in (_gemma_max_memory() or {}).items()} or None,
+                "disk_offload_note": "modules mapped to 'disk' are offloaded by accelerate and streamed in per forward pass; identical arithmetic, only slower"}
+
     def run_config_notes(self):
-        return {"chat_template": "Gemma3 turn format; <bos> comes from the template (tokenised via apply_chat_template, so no double BOS); no system prompt injected",
+        return {**(self.device_map_record() if self.model is not None else {}),
+                "chat_template": "Gemma3 turn format; <bos> comes from the template (tokenised via apply_chat_template, so no double BOS); no system prompt injected",
                 "image": "one image = 256 soft tokens (processor default, do_pan_and_scan False); processor also returns token_type_ids (1 = image) used for the bidirectional image-block mask in prefill",
                 "decoding": "greedy (do_sample=False), checkpoint sampling defaults top_k/top_p cleared, no repetition penalty (the checkpoint ships none)",
                 "dtype": f"{getattr(self, 'dtype_name', 'float16')} (default float16; env CLOCK_DTYPE=bfloat16|float32). Measured in notebook G0: float16 gives non-finite logits for gemma-3-4b-it and -12b-it on T4"}

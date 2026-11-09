@@ -1,0 +1,14 @@
+[
+ {
+  "step": "01_12b_bf16_cap_ladder",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 7.2
+ },
+ {
+  "step": "02_purge_12b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]

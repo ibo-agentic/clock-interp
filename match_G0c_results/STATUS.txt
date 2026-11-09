@@ -1,0 +1,5 @@
+01_12b_bf16_cap_ladder           OK                             7.2 min
+02_purge_12b_cache               OK                             0.0 min
+
+total wall time: 0.13 h
+MISSING expected files: none

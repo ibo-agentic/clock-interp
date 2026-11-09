@@ -169,7 +169,11 @@ def mode_smoke(args):
     mem = {f"cuda:{d}": torch.cuda.max_memory_allocated(d) / 2**30 for d in range(torch.cuda.device_count())} if torch.cuda.is_available() else {}
     rec = {"model_id": args.model_id, "dtype": ad.dtype_name, "smoke_pass": bool(ok), "load_seconds": load_s["seconds"], "peak_memory_gib": mem, "timing": timing,
            "device_map": {str(d): sum(1 for v in getattr(ad.model, "hf_device_map", {}).values() if v == d) for d in set(getattr(ad.model, "hf_device_map", {}).values())}}
+    rec["device_map_full"] = ad.device_map_record() if hasattr(ad, "device_map_record") else None
     json.dump(rec, open(os.path.join(out_dir, "smoke.json"), "w"), indent=1, default=str)
+    json.dump({"model_id": args.model_id, "adapter": args.adapter, "dtype": ad.dtype_name, "max_memory_env": os.environ.get("CLOCK_MAX_MEMORY"),
+               "transformers": __import__("transformers").__version__, "torch": torch.__version__, "peak_memory_gib": mem, "load_seconds": load_s["seconds"],
+               **(rec["device_map_full"] or {})}, open(os.path.join(out_dir, "run_config.json"), "w"), indent=1, default=str)
     print("\nwrote", os.path.join(out_dir, "smoke.json"), "\nSMOKE", "PASS" if ok else "FAIL")
     return ok
 
