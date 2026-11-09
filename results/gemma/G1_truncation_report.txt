@@ -1,0 +1,35 @@
+=== 1. REPLIES AT THE 32-TOKEN CAP (Gemma-3-4B-it, bf16, greedy) ===
+text_only_v2.csv overall: 53 of 2016 hit the cap; unparsed 48; hit-but-parsed 5
+task        a              b              c          
+phrasing   a1   a2   a3   b1   b2   b3   c1   c2   c3
+n         120  120  120  432  432  432  120  120  120
+hit_cap     0    5    0    0   48    0    0    0    0
+unparsed    0    0    0    0   48    0    0    0    0
+
+conversion_test.csv by condition:
+                    n  hit_cap  unparsed  mean_chars  max_chars
+condition                                                      
+blank             432        0         0         5.0          5
+matching_clock    432        0         0         4.9          5
+mismatched_clock  432        0         0         4.9          5
+text_only         432       48        48        18.3        133
+
+conversion text_only hits by minute-hand number: 1:0 2:2 3:5 4:7 5:5 6:7 7:7 8:7 9:8 10:0 11:0 12:0
+conversion text_only hits by lead_in_id: 0:0 1:48 2:0
+
+=== 2. COMPARISON ON TRIALS PARSED IN ALL FOUR CONDITIONS (and with no cap hit in any) ===
+duplicate keys per condition: {'blank': 0, 'matching_clock': 0, 'mismatched_clock': 0, 'text_only': 0}
+
+--- parsed in ALL four conditions: 384 of 432 keys kept (48 dropped) ---
+minute accuracy: text_only 36.5%  matching_clock 44.3%  blank 45.8%  mismatched_clock 43.8%
+  text_only vs matching_clock    only-text-correct  46  only-image-correct  76  both  94  neither 168   McNemar exact p = 0.00838  Holm p = 0.0168
+  text_only vs blank             only-text-correct  31  only-image-correct  67  both 109  neither 177   McNemar exact p = 0.000355  Holm p = 0.00106
+  text_only vs mismatched_clock  only-text-correct  48  only-image-correct  76  both  92  neither 168   McNemar exact p = 0.015  Holm p = 0.0168
+  matching vs blank: only-matching 66, only-blank 72  p = 0.671
+
+--- no cap hit in ANY condition: 384 of 432 keys kept (48 dropped) ---
+minute accuracy: text_only 36.5%  matching_clock 44.3%  blank 45.8%  mismatched_clock 43.8%
+  text_only vs matching_clock    only-text-correct  46  only-image-correct  76  both  94  neither 168   McNemar exact p = 0.00838  Holm p = 0.0168
+  text_only vs blank             only-text-correct  31  only-image-correct  67  both 109  neither 177   McNemar exact p = 0.000355  Holm p = 0.00106
+  text_only vs mismatched_clock  only-text-correct  48  only-image-correct  76  both  92  neither 168   McNemar exact p = 0.015  Holm p = 0.0168
+  matching vs blank: only-matching 66, only-blank 72  p = 0.671

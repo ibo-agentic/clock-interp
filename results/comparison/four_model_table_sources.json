@@ -15,7 +15,11 @@
     "internvl3-8b/results.csv": "results\\internvl3-8b\\results.csv",
     "internvl3-8b/describe.csv": "results\\internvl3-8b\\describe.csv",
     "internvl3-8b/text_only_v2.csv": "results\\internvl3-8b\\text_only_v2.csv",
-    "internvl3-8b/conversion_test.csv": "results\\internvl3-8b\\conversion_test.csv"
+    "internvl3-8b/conversion_test.csv": "results\\internvl3-8b\\conversion_test.csv",
+    "gemma-3-4b-it/results.csv": "results\\gemma-3-4b-it\\results.csv",
+    "gemma-3-4b-it/describe.csv": "results\\gemma-3-4b-it\\describe.csv",
+    "gemma-3-4b-it/text_only_v2.csv": "results\\gemma-3-4b-it\\text_only_v2.csv",
+    "gemma-3-4b-it/conversion_test.csv": "results\\gemma-3-4b-it\\conversion_test.csv"
   },
   "notes": [],
   "roots": [

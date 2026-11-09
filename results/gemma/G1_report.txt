@@ -1,0 +1,102 @@
+=== 1. G1 STEPS (zip STATUS) vs the guesses written in the notebook ===
+  00_gate_4b_bf16                    OK      2.8 min   guess    8
+  01_text_only_v2                    OK     23.1 min   guess   35
+  02_conversion_test                 OK    113.0 min   guess  115
+  03_aggregate_text_only             OK      0.0 min   guess    2
+  04_aggregate_conversion            OK      0.0 min   guess    2
+  05_cap_check                       OK      0.2 min   guess    3
+  06_describe_check                  OK     80.1 min   guess   90
+  07_eval_behavior_bf16              OK     40.4 min   guess   42
+  08_eval_behavior_fp32_crosscheck   OK     28.9 min   guess   35
+  09_probe_gemma4b                   OK    120.0 min   guess   60
+  10_purge_4b_cache                  OK      0.0 min   guess    1
+  total 6.81 h (guess 6.5 h); gate: OK
+  gate smoke: finite logits + 256 image tokens + one BOS passed (smoke_pass=True); peak memory {'cuda:0': 7.760635852813721, 'cuda:1': 2.6870269775390625}; device map {'0': 23, '1': 17}
+
+=== 2. TEXT-ONLY two-hand conversion (conversion_test, condition text_only, n=432): label of every answer (same label_answer as E3d/E1) ===
+        model   n  minute_correct  leak(hour*5)               leak%  adjacent  default_0_30  other  unparsed
+qwen2.5-vl-3b 432             278            40   9.3% [6.9%,12.4%]        48            22     44         0
+qwen2.5-vl-7b 432             423             6    1.4% [0.6%,3.0%]         2             1      0         0
+ internvl3-2b 432             215           117 27.1% [23.1%,31.5%]        24            32     44         0
+ internvl3-8b 432             423             2    0.5% [0.1%,1.7%]         4             0      3         0
+gemma-3-4b-it 432             140           132 30.6% [26.4%,35.1%]        20            12     80        48
+
+Gemma-4B text-only by hour (H=12 -> leak minute 0):          n  leak  correct | H12                       | False  396   112      130 | True    36    20       10
+Gemma-4B text-only by minute-hand number (position): 1:7/36(leak 11) 2:5/36(leak 18) 3:15/36(leak 12) 4:14/36(leak 11) 5:6/36(leak 8) 6:15/36(leak 9) 7:11/36(leak 11) 8:10/36(leak 13) 9:13/36(leak 9) 10:1/36(leak 19) 11:17/36(leak 8) 12:26/36(leak 3)
+
+=== 3. WHAT THE IMAGE DOES (Gemma-4B, conversion conditions, n=432 each) ===
+       condition   n  minute_correct minute_acc  leak  follows_image  unparsed
+           blank 432             207      47.9%    88              0         0
+  matching_clock 432             199      46.1%    77              0         0
+mismatched_clock 432             194      44.9%    85              8         0
+       text_only 432             140      32.4%   132              0        48
+        model                    comparison position   n  both_correct  only_text_correct  only_image_correct  both_wrong      p_value       p_holm
+gemma-3-4b-it   text_only_vs_matching_clock      all 432            94                 46                 105         187 1.765219e-06 1.765219e-06
+gemma-3-4b-it   text_only_vs_matching_clock        1  36             5                  2                   9          20 6.542969e-02 4.580078e-01
+gemma-3-4b-it   text_only_vs_matching_clock        2  36             1                  4                   2          29 6.875000e-01 1.000000e+00
+gemma-3-4b-it   text_only_vs_matching_clock        3  36            14                  1                  12           9 3.417969e-03 3.417969e-02
+gemma-3-4b-it   text_only_vs_matching_clock        4  36             9                  5                  13           9 9.625244e-02 4.812622e-01
+gemma-3-4b-it   text_only_vs_matching_clock        5  36             3                  3                   5          25 7.265625e-01 1.000000e+00
+gemma-3-4b-it   text_only_vs_matching_clock        6  36            11                  4                  14           7 3.088379e-02 2.779541e-01
+gemma-3-4b-it   text_only_vs_matching_clock        7  36             9                  2                   9          16 6.542969e-02 4.580078e-01
+gemma-3-4b-it   text_only_vs_matching_clock        8  36            10                  0                  14          12 1.220703e-04 1.464844e-03
+gemma-3-4b-it   text_only_vs_matching_clock        9  36            10                  3                  12          11 3.515625e-02 2.812500e-01
+gemma-3-4b-it   text_only_vs_matching_clock       10  36             1                  0                   3          32 2.500000e-01 1.000000e+00
+gemma-3-4b-it   text_only_vs_matching_clock       11  36            11                  6                  11           8 3.323059e-01 1.000000e+00
+gemma-3-4b-it   text_only_vs_matching_clock       12  36            10                 16                   1           9 2.746582e-04 3.021240e-03
+gemma-3-4b-it            text_only_vs_blank      all 432           109                 31                  98         194 2.723291e-09 2.723291e-09
+gemma-3-4b-it            text_only_vs_blank        1  36             0                  7                   4          25 5.488281e-01 1.000000e+00
+gemma-3-4b-it            text_only_vs_blank        2  36             4                  1                  10          21 1.171875e-02 1.054688e-01
+gemma-3-4b-it            text_only_vs_blank        3  36            13                  2                   7          14 1.796875e-01 1.000000e+00
+gemma-3-4b-it            text_only_vs_blank        4  36            14                  0                   8          14 7.812500e-03 7.812500e-02
+gemma-3-4b-it            text_only_vs_blank        5  36             2                  4                   3          27 1.000000e+00 1.000000e+00
+gemma-3-4b-it            text_only_vs_blank        6  36            12                  3                   8          13 2.265625e-01 1.000000e+00
+gemma-3-4b-it            text_only_vs_blank        7  36             8                  3                   5          20 7.265625e-01 1.000000e+00
+gemma-3-4b-it            text_only_vs_blank        8  36             9                  1                   9          17 2.148438e-02 1.718750e-01
+gemma-3-4b-it            text_only_vs_blank        9  36             9                  4                   9          14 2.668457e-01 1.000000e+00
+gemma-3-4b-it            text_only_vs_blank       10  36             1                  0                  19          16 3.814697e-06 4.577637e-05
+gemma-3-4b-it            text_only_vs_blank       11  36            14                  3                  16           3 4.425049e-03 4.867554e-02
+gemma-3-4b-it            text_only_vs_blank       12  36            23                  3                   0          10 2.500000e-01 1.000000e+00
+gemma-3-4b-it text_only_vs_mismatched_clock      all 432            92                 48                 102         190 1.230557e-05 1.230557e-05
+gemma-3-4b-it text_only_vs_mismatched_clock        1  36             3                  4                  10          19 1.795654e-01 8.978271e-01
+gemma-3-4b-it text_only_vs_mismatched_clock        2  36             2                  3                   4          27 1.000000e+00 1.000000e+00
+gemma-3-4b-it text_only_vs_mismatched_clock        3  36            10                  5                  11          10 2.101135e-01 8.978271e-01
+gemma-3-4b-it text_only_vs_mismatched_clock        4  36             8                  6                   7          15 1.000000e+00 1.000000e+00
+gemma-3-4b-it text_only_vs_mismatched_clock        5  36             2                  4                   1          29 3.750000e-01 1.000000e+00
+gemma-3-4b-it text_only_vs_mismatched_clock        6  36            12                  3                  10          11 9.228516e-02 6.459961e-01
+gemma-3-4b-it text_only_vs_mismatched_clock        7  36             8                  3                   9          16 1.459961e-01 8.759766e-01
+gemma-3-4b-it text_only_vs_mismatched_clock        8  36             9                  1                  12          14 3.417969e-03 3.076172e-02
+gemma-3-4b-it text_only_vs_mismatched_clock        9  36            12                  1                  14           9 9.765625e-04 9.765625e-03
+gemma-3-4b-it text_only_vs_mismatched_clock       10  36             1                  0                  13          22 2.441406e-04 2.685547e-03
+gemma-3-4b-it text_only_vs_mismatched_clock       11  36            14                  3                  11           8 5.737305e-02 4.589844e-01
+gemma-3-4b-it text_only_vs_mismatched_clock       12  36            11                 15                   0          10 6.103516e-05 7.324219e-04
+
+=== 4. BEHAVIOUR (data/, 500 clocks): bf16 vs fp32 cross-check ===
+  bf16: exact 0.4% (2/500)  hour 22.4%  minute 2.2%  parse 100.0%
+  fp32: exact 0.6% (3/500)  hour 23.0%  minute 2.6%  parse 100.0%
+  per-image agreement: identical raw reply 340/500 (68.0%); identical parsed time 343/500 (68.6%)
+  exact-match paired: bf16-only 0, fp32-only 1, both 2; exact binomial p = 1
+  minute-correct paired: bf16-only 2, fp32-only 4; p = 0.688
+
+=== 5. 32-token cap (cap_check) ===
+                                     file  cap    n  max_tokens  p99  hit_cap  within_1_of_cap  unparsed
+   results/gemma-3-4b-it/text_only_v2.csv   32 2016          32   32       53               53        48
+results/gemma-3-4b-it/conversion_test.csv   32 1728          32   32       48               48        48
+
+=== 6. PROBE (data_balanced/, 480 clocks) Gemma-4B vs the existing Qwen-3B probe (probe_output/probe_results/summary.txt) ===
+Gemma-4B (columns: representation hand layer [data] n_all n_corr n_wrong R2_all R2_corr R2_wrong R2_shuf acc_all acc_corr acc_wrong acc_shuf acc_majrty; acc = 12-way classifier accuracy):
+  representation   hand     layer      data  n_all n_corr n_wrong  R2_all  R2_corr  R2_wrong  R2_shuf  acc_all  acc_corr  acc_wrong  acc_shuf acc_majrty
+  hidden_last      minute      15        ok    480     19     461    0.81     0.78      0.81    -0.15    88.5%     94.7%      88.3%      7.3%       8.3%
+  hidden_last      hour        17        ok    480     88     392    0.79     0.72      0.79    -0.25    88.3%     88.6%      88.3%      8.8%      10.4%
+  hidden_meanpool  minute       1        ok    480     19     461    0.96     0.96      0.96    -0.28    96.7%    100.0%      96.5%      9.4%       8.3%
+  hidden_meanpool  hour         1        ok    480     88     392    0.92     0.86      0.93    -0.33    94.2%     92.0%      94.6%      8.3%      10.4%
+  vision_encoder   minute       0        ok    480     19     461    0.96     0.96      0.96    -0.26    95.0%    100.0%      94.8%      8.8%       8.3%
+  vision_encoder   hour         0        ok    480     88     392    0.93     0.87      0.94    -0.33    93.1%     87.5%      94.4%      8.5%      10.4%
+Qwen-3B (existing probe, same script; its R2_corr column overflowed for 12 correct images):
+  representation   hand     layer  n_all n_corr n_wrong  R2_all  R2_corr  R2_wrong  R2_shuf  acc_all  acc_corr  acc_wrong  acc_shuf acc_majrty
+  hidden_last      minute      21    480     12     468    0.94-6302039347187078228075842895872.00      0.94    -0.19    95.2%    100.0%      95.1%      7.3%       8.3%
+  hidden_last      hour        21    480    134     346    0.91     0.89      0.91    -0.31    91.5%     86.6%      93.4%      8.3%      10.4%
+  hidden_meanpool  minute      11    480     12     468    0.97-2559446124640890072478653612032.00      0.97    -0.22    95.8%    100.0%      95.7%      7.5%       8.3%
+  hidden_meanpool  hour        20    480    134     346    0.95     0.94      0.95    -0.27    96.2%     96.3%      96.2%      9.0%      10.4%
+  vision_encoder   minute       0    480     12     468    0.96-2277565579506592773316250959872.00      0.96    -0.22    96.0%    100.0%      95.9%      7.9%       8.3%
+  vision_encoder   hour         0    480    134     346    0.92     0.90      0.92    -0.31    95.0%     94.0%      95.4%      8.1%      10.4%

@@ -1,4 +1,8 @@
 model,condition,n,parse_ok
+gemma-3-4b-it,blank,432,1.0
+gemma-3-4b-it,matching_clock,432,1.0
+gemma-3-4b-it,mismatched_clock,432,1.0
+gemma-3-4b-it,text_only,432,0.8888888888888888
 internvl3-2b,blank,432,1.0
 internvl3-2b,matching_clock,432,1.0
 internvl3-2b,mismatched_clock,432,0.9930555555555556

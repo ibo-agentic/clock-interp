@@ -1,0 +1,68 @@
+[
+ {
+  "step": "00_gate_4b_bf16",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 2.8
+ },
+ {
+  "step": "01_text_only_v2",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 23.1
+ },
+ {
+  "step": "02_conversion_test",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 113.0
+ },
+ {
+  "step": "03_aggregate_text_only",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "04_aggregate_conversion",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "05_cap_check",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.2
+ },
+ {
+  "step": "06_describe_check",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 80.1
+ },
+ {
+  "step": "07_eval_behavior_bf16",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 40.4
+ },
+ {
+  "step": "08_eval_behavior_fp32_crosscheck",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 28.9
+ },
+ {
+  "step": "09_probe_gemma4b",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 120.0
+ },
+ {
+  "step": "10_purge_4b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]

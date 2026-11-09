@@ -115,3 +115,32 @@ internvl3-8b,conv_parse_rate,1.0,0.9977817832762536,1.0,1728,1728,,results\inter
 internvl3-8b,conv_mcnemar_matching_clock,0.00390625,,,9,432,"only-text-correct=0, only-image-correct=9, both=423, neither=0",results\internvl3-8b\conversion_test.csv
 internvl3-8b,conv_mcnemar_blank,0.3876953125,,,8,432,"only-text-correct=4, only-image-correct=8, both=419, neither=1",results\internvl3-8b\conversion_test.csv
 internvl3-8b,conv_mcnemar_mismatched_clock,0.21003961563110352,,,8,432,"only-text-correct=15, only-image-correct=8, both=408, neither=1",results\internvl3-8b\conversion_test.csv
+gemma-3-4b-it,behavior_exact,0.004,0.0010976075412372681,0.014466014041418871,2,500,,results\gemma-3-4b-it\results.csv
+gemma-3-4b-it,behavior_hour,0.224,0.18963838082995066,0.262570408599108,112,500,,results\gemma-3-4b-it\results.csv
+gemma-3-4b-it,behavior_minute,0.022,0.01232788016714588,0.03896125514839773,11,500,,results\gemma-3-4b-it\results.csv
+gemma-3-4b-it,behavior_parse_rate,1.0,0.9923753814690964,0.9999999999999999,500,500,,results\gemma-3-4b-it\results.csv
+gemma-3-4b-it,describe_minute_exact,0.48541666666666666,0.4409985135511896,0.530066396948445,233,480,,results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_hour_ok,0.12916666666666668,0.10208172759166079,0.16214028225619026,62,480,,results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_both_exact,0.05625,0.03894290360982089,0.0806036587362031,27,480,,results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_wrong_given_both_exact,0.6296296296296297,0.442289046234463,0.7846771293206314,17,27,27 of 480 images had both hands described EXACTLY right (tolerant parse),results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_minute_ok,0.6395833333333333,0.5956792716294282,0.681270870731212,307,480,,results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_wrong_given_both_ok,0.75,0.598057409330299,0.8581303210445048,30,40,"40 of 480 images had both hands described right (+/-1 minute number, tolerant parse)",results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_parse_rate,0.9854166666666667,0.9702067637564066,0.9929183581843278,473,480,,results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_minute_exact_strict,0.48541666666666666,0.4409985135511896,0.530066396948445,233,480,,results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_hour_ok_strict,0.12916666666666668,0.10208172759166079,0.16214028225619026,62,480,,results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_both_exact_strict,0.05625,0.03894290360982089,0.0806036587362031,27,480,,results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_wrong_given_both_exact_strict,0.6296296296296297,0.442289046234463,0.7846771293206314,17,27,27 of 480 images had both hands described EXACTLY right (strict original regexes),results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_minute_ok_strict,0.6395833333333333,0.5956792716294282,0.681270870731212,307,480,,results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_wrong_given_both_ok_strict,0.75,0.598057409330299,0.8581303210445048,30,40,"40 of 480 images had both hands described right (+/-1 minute number, strict original regexes)",results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,describe_parse_rate_strict,0.9854166666666667,0.9702067637564066,0.9929183581843278,473,480,,results\gemma-3-4b-it\describe.csv
+gemma-3-4b-it,textonly_b2_minute,0.32407407407407407,0.28165702830188494,0.3695924164505205,140,432,,results\gemma-3-4b-it\text_only_v2.csv
+gemma-3-4b-it,conv_text_only_minute,0.32407407407407407,0.28165702830188494,0.3695924164505205,140,432,,results\gemma-3-4b-it\conversion_test.csv
+gemma-3-4b-it,conv_matching_clock_minute,0.46064814814814814,0.4141973140959521,0.5077926932828752,199,432,,results\gemma-3-4b-it\conversion_test.csv
+gemma-3-4b-it,conv_blank_minute,0.4791666666666667,0.4324486867427849,0.5262519053989473,207,432,,results\gemma-3-4b-it\conversion_test.csv
+gemma-3-4b-it,conv_mismatched_clock_minute,0.44907407407407407,0.40282289112876424,0.49622300077324777,194,432,,results\gemma-3-4b-it\conversion_test.csv
+gemma-3-4b-it,conv_mismatched_follows_image_minute,0.06018518518518518,0.04139937448964769,0.08672423739136595,26,432,,results\gemma-3-4b-it\conversion_test.csv
+gemma-3-4b-it,conv_mismatched_follows_image_hour,0.013888888888888888,0.006380447094039031,0.029966702879712898,6,432,,results\gemma-3-4b-it\conversion_test.csv
+gemma-3-4b-it,conv_parse_rate,0.9722222222222222,0.9633643032110076,0.9789851587721207,1680,1728,,results\gemma-3-4b-it\conversion_test.csv
+gemma-3-4b-it,conv_mcnemar_matching_clock,1.7652188292896824e-06,,,105,432,"only-text-correct=46, only-image-correct=105, both=94, neither=187",results\gemma-3-4b-it\conversion_test.csv
+gemma-3-4b-it,conv_mcnemar_blank,2.723291354494315e-09,,,98,432,"only-text-correct=31, only-image-correct=98, both=109, neither=194",results\gemma-3-4b-it\conversion_test.csv
+gemma-3-4b-it,conv_mcnemar_mismatched_clock,1.2305573559865738e-05,,,102,432,"only-text-correct=48, only-image-correct=102, both=92, neither=190",results\gemma-3-4b-it\conversion_test.csv

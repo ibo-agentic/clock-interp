@@ -43,8 +43,16 @@ def find(model, fname):
     raise FileNotFoundError(f"{model}/{fname} not found under {ROOTS}")
 
 
+PARSE = "tolerant"      # set from --parse; tolerant = PRIMARY describe parse for all models (deviations log, sixth entry); strict = original regexes (sensitivity)
+
+
 def load(m):
     d = pd.read_csv(find(m, "describe.csv"))
+    if PARSE == "tolerant":
+        from describe_check import add_tolerant_columns
+        d = add_tolerant_columns(d[[c for c in d.columns if not c.endswith("_tolerant")]])
+        for k in ("said_minute_number", "said_hour_number", "minute_desc_ok", "hour_desc_ok"):
+            d[k] = d[k + "_tolerant"]
     for k in ("minute_desc_ok", "hour_desc_ok", "answer_ok"):
         d[k] = d[k].astype(bool)
     t = pd.read_csv(find(m, "text_only_v2.csv"))
@@ -131,7 +139,11 @@ def truncation_sensitivity(m):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--models", default=",".join(MODELS))
-    models = [x.strip() for x in ap.parse_args().models.split(",")]
+    ap.add_argument("--parse", choices=["tolerant", "strict"], default="tolerant")
+    _a = ap.parse_args()
+    models = [x.strip() for x in _a.models.split(",")]
+    PARSE = _a.parse
+    print(f"describe parse: {PARSE}")
 
     print("#################### A. SELECTION BIAS (describe_check) ####################")
     tabs = {m: selection_table(m) for m in models}

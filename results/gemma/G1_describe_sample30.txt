@@ -1,0 +1,236 @@
+results/gemma-3-4b-it/describe.csv: 480 replies; showing 30 random (seed 0).  STRICT = original regexes, TOL = tolerant parse; truth numbers are the clock numbers 1-12 nearest each hand
+
+====================================================================================================
+[row 15] bal_0015.png  true time 07:05  -> true minute-hand number 1, true hour-hand number 7
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number 12.
+       *   **Short hour hand:** The short hour hand is pointing at the number 3.
+       
+       Therefore, the time is **3:00**.
+PARSED  strict: minute=12 hour=3 time=(3, 0)   |   TOL: minute=12 hour=3
+====================================================================================================
+[row 21] bal_0021.png  true time 08:05  -> true minute-hand number 1, true hour-hand number 8
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number 11.
+       *   **Short hour hand:** The short hour hand is pointing at the number 9.
+       
+       Therefore, the time is **9:55**.
+PARSED  strict: minute=11 hour=9 time=(9, 55)   |   TOL: minute=11 hour=9
+====================================================================================================
+[row 37] bal_0037.png  true time 05:05  -> true minute-hand number 1, true hour-hand number 5
+REPLY: Here's the breakdown:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number 3.
+       *   **Short hour hand:** The short hour hand is pointing at the number 12.
+       *   **Time:** The time is 1:00.
+PARSED  strict: minute=3 hour=12 time=(1, 0)   |   TOL: minute=3 hour=12
+====================================================================================================
+[row 75] bal_0075.png  true time 10:10  -> true minute-hand number 2, true hour-hand number 10
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number **3**.
+       *   **Short hour hand:** The short hour hand is pointing at the number **9**.
+       
+       Therefore, the time is **9:30**.
+PARSED  strict: minute=3 hour=9 time=(9, 30)   |   TOL: minute=3 hour=9
+====================================================================================================
+[row 100] bal_0100.png  true time 11:15  -> true minute-hand number 3, true hour-hand number 11
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number **11**.
+       *   **Short hour hand:** The short hour hand is pointing at the number **3**.
+       
+       Therefore, the time is **3:11**.
+PARSED  strict: minute=11 hour=3 time=(3, 11)   |   TOL: minute=11 hour=3
+====================================================================================================
+[row 102] bal_0102.png  true time 12:15  -> true minute-hand number 3, true hour-hand number 12
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number **8**.
+       *   **Short hour hand:** The short hour hand is pointing at the number **3**.
+       
+       Therefore, the time is **3:40**.
+PARSED  strict: minute=8 hour=3 time=(3, 40)   |   TOL: minute=8 hour=3
+====================================================================================================
+[row 113] bal_0113.png  true time 12:15  -> true minute-hand number 3, true hour-hand number 12
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number **8**.
+       *   **Short hour hand:** The short hour hand is pointing at the number **3**.
+       
+       Therefore, the time is **3:40**.
+PARSED  strict: minute=8 hour=3 time=(3, 40)   |   TOL: minute=8 hour=3
+====================================================================================================
+[row 118] bal_0118.png  true time 05:15  -> true minute-hand number 3, true hour-hand number 5
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Minute hand:** The long minute hand is pointing at the number **3**.
+       *   **Hour hand:** The short hour hand is pointing at the number **1**.
+       
+       Therefore, the time is **1:15**.
+PARSED  strict: minute=3 hour=1 time=(1, 15)   |   TOL: minute=3 hour=1
+====================================================================================================
+[row 124] bal_0124.png  true time 07:20  -> true minute-hand number 4, true hour-hand number 7
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number **4**.
+       *   **Short hour hand:** The short hour hand is pointing at the number **5**.
+       
+       Therefore, the time is **5:20**.
+PARSED  strict: minute=4 hour=5 time=(5, 20)   |   TOL: minute=4 hour=5
+====================================================================================================
+[row 141] bal_0141.png  true time 07:20  -> true minute-hand number 4, true hour-hand number 7
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number **4**.
+       *   **Short hour hand:** The short hour hand is pointing at the number **5**.
+       
+       Therefore, the time is **5:20**.
+PARSED  strict: minute=4 hour=5 time=(5, 20)   |   TOL: minute=4 hour=5
+====================================================================================================
+[row 142] bal_0142.png  true time 06:20  -> true minute-hand number 4, true hour-hand number 6
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number 4.
+       *   **Short hour hand:** The short hour hand is pointing at the number 9.
+       
+       Therefore, the time is 9:20.
+PARSED  strict: minute=4 hour=9 time=(9, 20)   |   TOL: minute=4 hour=9
+====================================================================================================
+[row 170] bal_0170.png  true time 01:25  -> true minute-hand number 5, true hour-hand number 1
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number **2**.
+       *   **Short hour hand:** The short hour hand is pointing at the number **9**.
+       
+       Therefore, the time is **9:20**.
+PARSED  strict: minute=2 hour=9 time=(9, 20)   |   TOL: minute=2 hour=9
+====================================================================================================
+[row 219] bal_0219.png  true time 08:30  -> true minute-hand number 6, true hour-hand number 8
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Minute hand:** The long minute hand is pointing at the number **7**.
+       *   **Hour hand:** The short hour hand is pointing at the number **8**.
+       
+       Therefore, the time is **8:40**.
+PARSED  strict: minute=7 hour=8 time=(8, 40)   |   TOL: minute=7 hour=8
+====================================================================================================
+[row 225] bal_0225.png  true time 01:30  -> true minute-hand number 6, true hour-hand number 1
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number **2**.
+       *   **Short hour hand:** The short hour hand is pointing at the number **1**.
+       
+       Therefore, the time is **1:20**.
+PARSED  strict: minute=2 hour=1 time=(1, 20)   |   TOL: minute=2 hour=1
+====================================================================================================
+[row 245] bal_0245.png  true time 01:35  -> true minute-hand number 7, true hour-hand number 1
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number **2**.
+       *   **Short hour hand:** The short hour hand is pointing at the number **1**.
+       
+       Therefore, the time is **1:20**.
+PARSED  strict: minute=2 hour=1 time=(1, 20)   |   TOL: minute=2 hour=1
+====================================================================================================
+[row 250] bal_0250.png  true time 08:35  -> true minute-hand number 7, true hour-hand number 8
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number 7.
+       *   **Short hour hand:** The short hour hand is pointing at the number 9.
+       
+       Therefore, the time is 9:37.
+PARSED  strict: minute=7 hour=9 time=(9, 37)   |   TOL: minute=7 hour=9
+====================================================================================================
+[row 263] bal_0263.png  true time 02:35  -> true minute-hand number 7, true hour-hand number 2
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number 3.
+       *   **Short hour hand:** The short hour hand is pointing at the number 7.
+       
+       Therefore, the time is 07:30.
+PARSED  strict: minute=3 hour=7 time=(7, 30)   |   TOL: minute=3 hour=7
+====================================================================================================
+[row 310] bal_0310.png  true time 08:40  -> true minute-hand number 8, true hour-hand number 8
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Minute hand:** The long minute hand is pointing at the number **8**.
+       *   **Hour hand:** The short hour hand is pointing at the number **8**.
+       
+       Therefore, the time is **08:08**.
+PARSED  strict: minute=8 hour=8 time=(8, 8)   |   TOL: minute=8 hour=8
+====================================================================================================
+[row 319] bal_0319.png  true time 01:40  -> true minute-hand number 8, true hour-hand number 1
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Minute hand:** The long minute hand is pointing at the number **2**.
+       *   **Hour hand:** The short hour hand is pointing at the number **8**.
+       
+       Therefore, the time is **8:20**.
+PARSED  strict: minute=2 hour=8 time=(8, 20)   |   TOL: minute=2 hour=8
+====================================================================================================
+[row 327] bal_0327.png  true time 06:45  -> true minute-hand number 9, true hour-hand number 6
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Minute hand:** The long minute hand is pointing at the number **7**.
+       *   **Hour hand:** The short hour hand is pointing at the number **8**.
+       
+       Therefore, the time is **8:07**.
+PARSED  strict: minute=7 hour=8 time=(8, 7)   |   TOL: minute=7 hour=8
+====================================================================================================
+[row 344] bal_0344.png  true time 02:45  -> true minute-hand number 9, true hour-hand number 2
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Minute hand:** The long minute hand is pointing at the number **3**.
+       *   **Hour hand:** The short hour hand is pointing at the number **9**.
+       
+       Therefore, the time is **9:15**.
+PARSED  strict: minute=3 hour=9 time=(9, 15)   |   TOL: minute=3 hour=9
+====================================================================================================
+[row 348] bal_0348.png  true time 03:45  -> true minute-hand number 9, true hour-hand number 3
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Minute hand:** The long minute hand is pointing at the number **9**.
+       *   **Hour hand:** The short hour hand is pointing at the number **4**.
+       
+       Therefore, the time is **4:29**.
+PARSED  strict: minute=9 hour=4 time=(4, 29)   |   TOL: minute=9 hour=4
+====================================================================================================
+[row 355] bal_0355.png  true time 09:45  -> true minute-hand number 9, true hour-hand number 9
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number **9**.
+       *   **Short hour hand:** The short hour hand is pointing at the number **3**.
+       
+       Therefore, the time is **3:09**.
+PARSED  strict: minute=9 hour=3 time=(3, 9)   |   TOL: minute=9 hour=3
+====================================================================================================
+[row 390] bal_0390.png  true time 07:50  -> true minute-hand number 10, true hour-hand number 7
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number 10.
+       *   **Short hour hand:** The short hour hand is pointing at the number 8.
+       
+       Therefore, the time is **8:50**.
+PARSED  strict: minute=10 hour=8 time=(8, 50)   |   TOL: minute=10 hour=8
+====================================================================================================
+[row 399] bal_0399.png  true time 06:50  -> true minute-hand number 10, true hour-hand number 6
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number 10.
+       *   **Short hour hand:** The short hour hand is pointing at the number 9.
+       
+       Therefore, the time is **9:50**.
+PARSED  strict: minute=10 hour=9 time=(9, 50)   |   TOL: minute=10 hour=9
+====================================================================================================
+[row 429] bal_0429.png  true time 11:55  -> true minute-hand number 11, true hour-hand number 11
+REPLY: Here's the breakdown of the clock:
+       
+       *   **Long minute hand:** The long minute hand is pointing at the number **11**.
+       *   **Short hour hand:** The short hour hand is pointing at the number **1**.
+       
+       Therefore, the time is **11:55**.
+PARSED  strict: minute=11 hour=1 time=(11, 55)   |   TOL: minute=11 hour=1
+=============================================================================

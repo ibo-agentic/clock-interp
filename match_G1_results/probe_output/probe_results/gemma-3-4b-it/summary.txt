@@ -1,0 +1,20 @@
+=== PROBE SUMMARY (best layer per representation x hand) ===
+n images: 480   minute read correctly in final answer: 4.0%   hour read correctly: 18.3%
+R^2 = 0 is what always predicting the mean angle would score, so it's already
+its own baseline. 'shuffled' re-runs the same probe with labels randomly
+permuted across images, to check the probe isn't just fitting noise.
+'data' flags whether the best layer's numbers came from clean activations
+('ok'), activations with NaN/Inf repaired ('REPAIRED' -- treat with extra
+caution), or found no usable layer at all ('NONE USABLE').
+
+representation   hand     layer      data  n_all n_corr n_wrong  R2_all  R2_corr  R2_wrong  R2_shuf  acc_all  acc_corr  acc_wrong  acc_shuf acc_majrty
+hidden_last      minute      15        ok    480     19     461    0.81     0.78      0.81    -0.15    88.5%     94.7%      88.3%      7.3%       8.3%
+hidden_last      hour        17        ok    480     88     392    0.79     0.72      0.79    -0.25    88.3%     88.6%      88.3%      8.8%      10.4%
+hidden_meanpool  minute       1        ok    480     19     461    0.96     0.96      0.96    -0.28    96.7%    100.0%      96.5%      9.4%       8.3%
+hidden_meanpool  hour         1        ok    480     88     392    0.92     0.86      0.93    -0.33    94.2%     92.0%      94.6%      8.3%      10.4%
+vision_encoder   minute       0        ok    480     19     461    0.96     0.96      0.96    -0.26    95.0%    100.0%      94.8%      8.8%       8.3%
+vision_encoder   hour         0        ok    480     88     392    0.93     0.87      0.94    -0.33    93.1%     87.5%      94.4%      8.5%      10.4%
+
+  NOTE: hidden_last/minute has only 19 'correct' images -- its correct-group number is high-variance, interpret with caution.
+  NOTE: hidden_meanpool/minute has only 19 'correct' images -- its correct-group number is high-variance, interpret with caution.
+  NOTE: vision_encoder/minute has only 19 'correct' images -- its correct-group number is high-variance, interpret with caution.

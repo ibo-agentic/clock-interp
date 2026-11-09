@@ -1,0 +1,36 @@
+{
+ "model_id": "google/gemma-3-4b-it",
+ "dtype": "bfloat16",
+ "smoke_pass": true,
+ "load_seconds": 51.682859897613525,
+ "peak_memory_gib": {
+  "cuda:0": 7.760635852813721,
+  "cuda:1": 2.6870269775390625
+ },
+ "timing": {
+  "text_only": {
+   "seconds_per_generation_mean": 0.7871785958607992,
+   "seconds_min": 0.763803243637085,
+   "seconds_max": 0.7996013164520264,
+   "new_tokens_in_first_output": 5,
+   "prefill_forward_seconds": 0.23077869415283203,
+   "answer": "07:24",
+   "answers_identical": true,
+   "prompt_tokens": 49
+  },
+  "with_image": {
+   "seconds_per_generation_mean": 4.828726053237915,
+   "seconds_min": 4.814217805862427,
+   "seconds_max": 4.841935634613037,
+   "new_tokens_in_first_output": 5,
+   "prefill_forward_seconds": 4.544594764709473,
+   "answer": "10:30",
+   "answers_identical": true,
+   "prompt_tokens": 283
+  }
+ },
+ "device_map": {
+  "0": 23,
+  "1": 17
+ }
+}

@@ -1,0 +1,182 @@
+Loading google/gemma-3-4b-it in bfloat16 (CLOCK_DTYPE=bfloat16) ...
+NOTE: google/gemma-3-4b-it is a GATED HF repo -- this call will fail with a 401 unless HF_TOKEN is set (env var or `huggingface-cli login`) AND access has been granted at https://huggingface.co/google/gemma-3-4b-it.
+
+Extracting activations:   0%|          | 0/480 [00:00<?, ?it/s]
+Extracting activations:   1%|▏         | 7/480 [01:07<1:16:32,  9.71s/it]
+Extracting activations:   1%|▏         | 7/480 [01:20<1:16:32,  9.71s/it]
+Extracting activations:   3%|▎         | 14/480 [02:13<1:13:31,  9.47s/it]
+Extracting activations:   3%|▎         | 14/480 [02:30<1:13:31,  9.47s/it]
+Extracting activations:   4%|▍         | 21/480 [03:17<1:11:43,  9.38s/it]
+Extracting activations:   4%|▍         | 21/480 [03:30<1:11:43,  9.38s/it]
+Extracting activations:   6%|▌         | 28/480 [04:23<1:10:38,  9.38s/it]
+Extracting activations:   6%|▌         | 28/480 [04:40<1:10:38,  9.38s/it]
+Extracting activations:   7%|▋         | 35/480 [05:28<1:09:24,  9.36s/it]
+Extracting activations:   7%|▋         | 35/480 [05:40<1:09:24,  9.36s/it]
+Extracting activations:   9%|▉         | 42/480 [06:34<1:08:22,  9.37s/it]
+Extracting activations:   9%|▉         | 42/480 [06:50<1:08:22,  9.37s/it]
+Extracting activations:  10%|█         | 49/480 [07:40<1:07:25,  9.39s/it]
+Extracting activations:  10%|█         | 49/480 [08:00<1:07:25,  9.39s/it]
+Extracting activations:  12%|█▏        | 56/480 [08:46<1:06:26,  9.40s/it]
+Extracting activations:  12%|█▏        | 56/480 [09:00<1:06:26,  9.40s/it]
+Extracting activations:  13%|█▎        | 63/480 [09:52<1:05:21,  9.41s/it]
+Extracting activations:  13%|█▎        | 63/480 [10:10<1:05:21,  9.41s/it]
+Extracting activations:  15%|█▍        | 70/480 [10:58<1:04:12,  9.40s/it]
+Extracting activations:  15%|█▍        | 70/480 [11:10<1:04:12,  9.40s/it]
+Extracting activations:  16%|█▌        | 77/480 [12:04<1:03:09,  9.40s/it]
+Extracting activations:  16%|█▌        | 77/480 [12:20<1:03:09,  9.40s/it]
+Extracting activations:  18%|█▊        | 84/480 [13:09<1:02:05,  9.41s/it]
+Extracting activations:  18%|█▊        | 84/480 [13:20<1:02:05,  9.41s/it]
+Extracting activations:  19%|█▉        | 91/480 [14:15<1:01:00,  9.41s/it]
+Extracting activations:  19%|█▉        | 91/480 [14:30<1:01:00,  9.41s/it]
+Extracting activations:  20%|██        | 98/480 [15:21<59:58,  9.42s/it]  
+Extracting activations:  20%|██        | 98/480 [15:40<59:58,  9.42s/it]
+Extracting activations:  22%|██▏       | 105/480 [16:27<58:51,  9.42s/it]
+Extracting activations:  22%|██▏       | 105/480 [16:40<58:51,  9.42s/it]
+Extracting activations:  23%|██▎       | 112/480 [17:33<57:44,  9.41s/it]
+Extracting activations:  23%|██▎       | 112/480 [17:50<57:44,  9.41s/it]
+Extracting activations:  25%|██▍       | 119/480 [18:39<56:38,  9.41s/it]
+Extracting activations:  25%|██▍       | 119/480 [18:50<56:38,  9.41s/it]
+Extracting activations:  26%|██▋       | 126/480 [19:45<55:26,  9.40s/it]
+Extracting activations:  26%|██▋       | 126/480 [20:00<55:26,  9.40s/it]
+Extracting activations:  28%|██▊       | 133/480 [20:50<54:22,  9.40s/it]
+Extracting activations:  28%|██▊       | 133/480 [21:10<54:22,  9.40s/it]
+Extracting activations:  29%|██▉       | 140/480 [21:56<53:07,  9.37s/it]
+Extracting activations:  29%|██▉       | 140/480 [22:10<53:07,  9.37s/it]
+Extracting activations:  31%|███       | 147/480 [23:01<52:00,  9.37s/it]
+Extracting activations:  31%|███       | 147/480 [23:20<52:00,  9.37s/it]
+Extracting activations:  32%|███▏      | 154/480 [24:07<50:59,  9.39s/it]
+Extracting activations:  32%|███▏      | 154/480 [24:20<50:59,  9.39s/it]
+Extracting activations:  34%|███▎      | 161/480 [25:13<49:55,  9.39s/it]
+Extracting activations:  34%|███▎      | 161/480 [25:30<49:55,  9.39s/it]
+Extracting activations:  35%|███▌      | 168/480 [26:18<48:47,  9.38s/it]
+Extracting activations:  35%|███▌      | 168/480 [26:30<48:47,  9.38s/it]
+Extracting activations:  36%|███▋      | 175/480 [27:24<47:44,  9.39s/it]
+Extracting activations:  36%|███▋      | 175/480 [27:40<47:44,  9.39s/it]
+Extracting activations:  38%|███▊      | 182/480 [28:30<46:42,  9.40s/it]
+Extracting activations:  38%|███▊      | 182/480 [28:50<46:42,  9.40s/it]
+Extracting activations:  39%|███▉      | 189/480 [29:36<45:37,  9.41s/it]
+Extracting activations:  39%|███▉      | 189/480 [29:50<45:37,  9.41s/it]
+Extracting activations:  41%|████      | 196/480 [30:42<44:29,  9.40s/it]
+Extracting activations:  41%|████      | 196/480 [31:00<44:29,  9.40s/it]
+Extracting activations:  42%|████▏     | 203/480 [31:48<43:26,  9.41s/it]
+Extracting activations:  42%|████▏     | 203/480 [32:00<43:26,  9.41s/it]
+Extracting activations:  44%|████▍     | 210/480 [32:54<42:21,  9.41s/it]
+Extracting activations:  44%|████▍     | 210/480 [33:10<42:21,  9.41s/it]
+Extracting activations:  45%|████▌     | 217/480 [34:00<41:17,  9.42s/it]
+Extracting activations:  45%|████▌     | 217/480 [34:20<41:17,  9.42s/it]
+Extracting activations:  47%|████▋     | 224/480 [35:05<40:06,  9.40s/it]
+Extracting activations:  47%|████▋     | 224/480 [35:20<40:06,  9.40s/it]
+Extracting activations:  48%|████▊     | 231/480 [36:11<39:02,  9.41s/it]
+Extracting activations:  48%|████▊     | 231/480 [36:30<39:02,  9.41s/it]
+Extracting activations:  50%|████▉     | 238/480 [37:17<37:54,  9.40s/it]
+Extracting activations:  50%|████▉     | 238/480 [37:30<37:54,  9.40s/it]
+Extracting activations:  51%|█████     | 245/480 [38:23<36:49,  9.40s/it]
+Extracting activations:  51%|█████     | 245/480 [38:40<36:49,  9.40s/it]
+Extracting activations:  52%|█████▎    | 252/480 [39:29<35:44,  9.40s/it]
+Extracting activations:  52%|█████▎    | 252/480 [39:40<35:44,  9.40s/it]
+Extracting activations:  54%|█████▍    | 259/480 [40:34<34:37,  9.40s/it]
+Extracting activations:  54%|█████▍    | 259/480 [40:50<34:37,  9.40s/it]
+Extracting activations:  55%|█████▌    | 266/480 [41:40<33:31,  9.40s/it]
+Extracting activations:  55%|█████▌    | 266/480 [42:00<33:31,  9.40s/it]
+Extracting activations:  57%|█████▋    | 273/480 [42:46<32:24,  9.40s/it]
+Extracting activations:  57%|█████▋    | 273/480 [43:00<32:24,  9.40s/it]
+Extracting activations:  58%|█████▊    | 280/480 [43:52<31:18,  9.39s/it]
+Extracting activations:  58%|█████▊    | 280/480 [44:10<31:18,  9.39s/it]
+Extracting activations:  60%|█████▉    | 287/480 [44:57<30:13,  9.39s/it]
+Extracting activations:  60%|█████▉    | 287/480 [45:10<30:13,  9.39s/it]
+Extracting activations:  61%|██████▏   | 294/480 [46:04<29:09,  9.41s/it]
+Extracting activations:  61%|██████▏   | 294/480 [46:20<29:09,  9.41s/it]
+Extracting activations:  63%|██████▎   | 301/480 [47:09<28:03,  9.40s/it]
+Extracting activations:  63%|██████▎   | 301/480 [47:20<28:03,  9.40s/it]
+Extracting activations:  64%|██████▍   | 308/480 [48:15<26:56,  9.40s/it]
+Extracting activations:  64%|██████▍   | 308/480 [48:30<26:56,  9.40s/it]
+Extracting activations:  66%|██████▌   | 315/480 [49:21<25:49,  9.39s/it]
+Extracting activations:  66%|██████▌   | 315/480 [49:40<25:49,  9.39s/it]
+Extracting activations:  67%|██████▋   | 322/480 [50:26<24:43,  9.39s/it]
+Extracting activations:  67%|██████▋   | 322/480 [50:40<24:43,  9.39s/it]
+Extracting activations:  69%|██████▊   | 329/480 [51:32<23:38,  9.40s/it]
+Extracting activations:  69%|██████▊   | 329/480 [51:50<23:38,  9.40s/it]
+Extracting activations:  70%|███████   | 336/480 [52:38<22:33,  9.40s/it]
+Extracting activations:  70%|███████   | 336/480 [52:50<22:33,  9.40s/it]
+Extracting activations:  71%|███████▏  | 343/480 [53:43<21:25,  9.38s/it]
+Extracting activations:  71%|███████▏  | 343/480 [54:00<21:25,  9.38s/it]
+Extracting activations:  73%|███████▎  | 350/480 [54:50<20:22,  9.41s/it]
+Extracting activations:  73%|███████▎  | 350/480 [55:10<20:22,  9.41s/it]
+Extracting activations:  74%|███████▍  | 357/480 [55:56<19:17,  9.41s/it]
+Extracting activations:  74%|███████▍  | 357/480 [56:10<19:17,  9.41s/it]
+Extracting activations:  76%|███████▌  | 364/480 [57:01<18:10,  9.40s/it]
+Extracting activations:  76%|███████▌  | 364/480 [57:20<18:10,  9.40s/it]
+Extracting activations:  77%|███████▋  | 371/480 [58:07<17:04,  9.40s/it]
+Extracting activations:  77%|███████▋  | 371/480 [58:20<17:04,  9.40s/it]
+Extracting activations:  79%|███████▉  | 378/480 [59:13<15:58,  9.40s/it]
+Extracting activations:  79%|███████▉  | 378/480 [59:30<15:58,  9.40s/it]
+Extracting activations:  80%|████████  | 385/480 [1:00:18<14:51,  9.39s/it]
+Extracting activations:  80%|████████  | 385/480 [1:00:30<14:51,  9.39s/it]
+Extracting activations:  82%|████████▏ | 392/480 [1:01:25<13:48,  9.41s/it]
+Extracting activations:  82%|████████▏ | 392/480 [1:01:40<13:48,  9.41s/it]
+Extracting activations:  83%|████████▎ | 399/480 [1:02:30<12:40,  9.39s/it]
+Extracting activations:  83%|████████▎ | 399/480 [1:02:50<12:40,  9.39s/it]
+Extracting activations:  85%|████████▍ | 406/480 [1:03:36<11:36,  9.41s/it]
+Extracting activations:  85%|████████▍ | 406/480 [1:03:50<11:36,  9.41s/it]
+Extracting activations:  86%|████████▌ | 413/480 [1:04:42<10:30,  9.41s/it]
+Extracting activations:  86%|████████▌ | 413/480 [1:05:00<10:30,  9.41s/it]
+Extracting activations:  88%|████████▊ | 420/480 [1:05:48<09:25,  9.42s/it]
+Extracting activations:  88%|████████▊ | 420/480 [1:06:00<09:25,  9.42s/it]
+Extracting activations:  89%|████████▉ | 427/480 [1:06:54<08:18,  9.41s/it]
+Extracting activations:  89%|████████▉ | 427/480 [1:07:10<08:18,  9.41s/it]
+Extracting activations:  90%|█████████ | 434/480 [1:08:00<07:12,  9.41s/it]
+Extracting activations:  90%|█████████ | 434/480 [1:08:20<07:12,  9.41s/it]
+Extracting activations:  92%|█████████▏| 441/480 [1:09:06<06:06,  9.40s/it]
+Extracting activations:  92%|█████████▏| 441/480 [1:09:20<06:06,  9.40s/it]
+Extracting activations:  93%|█████████▎| 448/480 [1:10:11<05:00,  9.39s/it]
+Extracting activations:  93%|█████████▎| 448/480 [1:10:30<05:00,  9.39s/it]
+Extracting activations:  95%|█████████▍| 455/480 [1:11:17<03:54,  9.39s/it]
+Extracting activations:  95%|█████████▍| 455/480 [1:11:30<03:54,  9.39s/it]
+Extracting activations:  96%|█████████▋| 462/480 [1:12:22<02:48,  9.37s/it]
+Extracting activations:  96%|█████████▋| 462/480 [1:12:40<02:48,  9.37s/it]
+Extracting activations:  98%|█████████▊| 469/480 [1:13:28<01:43,  9.38s/it]
+Extracting activations:  98%|█████████▊| 469/480 [1:13:40<01:43,  9.38s/it]
+Extracting activations:  99%|█████████▉| 476/480 [1:14:34<00:37,  9.39s/it]
+Extracting activations:  99%|█████████▉| 476/480 [1:14:50<00:37,  9.39s/it]
+Extracting activations: 100%|██████████| 480/480 [1:15:11<00:00,  9.40s/it]
+
+Saved activations for 480 images to 'probe_output/activations/gemma-3-4b-it/':
+  hidden_last.npy:     (480, 35, 2560)
+  hidden_meanpool.npy: (480, 35, 2560)
+  vision_meanpool.npy: (480, 1152)
+  exact accuracy on this set:  0.6%
+  minute read correctly:       4.0%
+  hour read correctly:         18.3%
+Cleaning hidden_last (35 layer(s)) ...
+  -> hidden_last: 0 layer(s) repaired, 1 layer(s) skipped (of 35 total)
+Cleaning hidden_meanpool (35 layer(s)) ...
+Cleaning vision_encoder (1 layer(s)) ...
+Probing hidden_last / minute hand (35 layer(s)) ...
+Probing hidden_last / hour hand (35 layer(s)) ...
+Probing hidden_meanpool / minute hand (35 layer(s)) ...
+Probing hidden_meanpool / hour hand (35 layer(s)) ...
+Probing vision_encoder / minute hand (1 layer(s)) ...
+Probing vision_encoder / hour hand (1 layer(s)) ...
+
+=== PROBE SUMMARY (best layer per representation x hand) ===
+n images: 480   minute read correctly in final answer: 4.0%   hour read correctly: 18.3%
+R^2 = 0 is what always predicting the mean angle would score, so it's already
+its own baseline. 'shuffled' re-runs the same probe with labels randomly
+permuted across images, to check the probe isn't just fitting noise.
+'data' flags whether the best layer's numbers came from clean activations
+('ok'), activations with NaN/Inf repaired ('REPAIRED' -- treat with extra
+caution), or found no usable layer at all ('NONE USABLE').
+
+representation   hand     layer      data  n_all n_corr n_wrong  R2_all  R2_corr  R2_wrong  R2_shuf  acc_all  acc_corr  acc_wrong  acc_shuf acc_majrty
+hidden_last      minute      15        ok    480     19     461    0.81     0.78      0.81    -0.15    88.5%     94.7%      88.3%      7.3%       8.3%
+hidden_last      hour        17        ok    480     88     392    0.79     0.72      0.79    -0.25    88.3%     88.6%      88.3%      8.8%      10.4%
+hidden_meanpool  minute       1        ok    480     19     461    0.96     0.96      0.96    -0.28    96.7%    100.0%      96.5%      9.4%       8.3%
+hidden_meanpool  hour         1        ok    480     88     392    0.92     0.86      0.93    -0.33    94.2%     92.0%      94.6%      8.3%      10.4%
+vision_encoder   minute       0        ok    480     19     461    0.96     0.96      0.96    -0.26    95.0%    100.0%      94.8%      8.8%       8.3%
+vision_encoder   hour         0        ok    480     88     392    0.93     0.87      0.94    -0.33    93.1%     87.5%      94.4%      8.5%      10.4%
+
+  NOTE: hidden_last/minute has only 19 'correct' images -- its correct-group number is high-variance, interpret with caution.
+  NOTE: hidden_meanpool/minute has only 19 'correct' images -- its correct-group number is high-variance, interpret with caution.
+  NOTE: vision_encoder/minute has only 19 'correct' images -- its correct-group number is high-variance, interpret with caution.
+
+Full per-layer results, plots, and summary written to 'probe_output/probe_results/gemma-3-4b-it/'.

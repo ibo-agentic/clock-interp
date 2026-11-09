@@ -1,6 +1,8 @@
 # Large / regenerable activation dumps (~150MB+ of .npy, over GitHub's 100MB
 # per-file limit). Regenerate with: python probe.py --stage extract
 probe_output/activations/
+**/probe_output/activations/
+match_*/**/*.npy
 
 # Generated clock images -- regenerable from clocks.py, not source data.
 #   data/            -> python clocks.py --n 500 --seed 42

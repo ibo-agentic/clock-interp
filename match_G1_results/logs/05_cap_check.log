@@ -1,0 +1,4 @@
+{'file': 'results/gemma-3-4b-it/text_only_v2.csv', 'cap': 32, 'n': 2016, 'max_tokens': 32, 'p99': 32, 'hit_cap': 53, 'within_1_of_cap': 53, 'unparsed': 48}
+{'file': 'results/gemma-3-4b-it/conversion_test.csv', 'cap': 32, 'n': 1728, 'max_tokens': 32, 'p99': 32, 'hit_cap': 48, 'within_1_of_cap': 48, 'unparsed': 48}
+wrote results/gemma-3-4b-it/cap_check_32.csv
+WARNING: some replies still hit the cap -- consider a larger --max_new_tokens.
