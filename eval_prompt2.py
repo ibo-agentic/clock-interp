@@ -34,6 +34,7 @@ SEED = 0
 
 # Matches things like "3:45", "03:45", "12:05" anywhere in the model's reply.
 TIME_RE = re.compile(r"(\d{1,2}):(\d{2})")
+from textnorm import normalize_reply  # noqa: E402
 
 
 def parse_time_answer(text):
@@ -42,7 +43,7 @@ def parse_time_answer(text):
     Returns (hour, minute, success). success=False (hour/minute=None) if no
     HH:MM pattern was found, or if the numbers are out of a valid clock range.
     """
-    match = TIME_RE.search(text)
+    match = TIME_RE.search(normalize_reply(text))
     if not match:
         return None, None, False
 

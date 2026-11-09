@@ -1,0 +1,6 @@
+01_i2b_E2_standard               OK                            85.5 min
+02_i2b_E2_text_light             OK                            81.4 min
+03_purge_2b_cache                OK                             0.0 min
+
+total wall time: 2.79 h
+MISSING expected files: none

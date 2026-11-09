@@ -140,6 +140,31 @@ def main():
             os.chdir(cwd)
             (os.environ.pop("CLOCK_DTYPE", None) if env_saved is None else os.environ.__setitem__("CLOCK_DTYPE", env_saved))
             cls_.load, cls_.expected_image_tokens = saved_load, saved_exp
+        # CLOCK_MAX_MEMORY (Gemma only) and the G0c ladder driver (subprocess mocked)
+        saved_mm = os.environ.get("CLOCK_MAX_MEMORY")
+        try:
+            os.environ.pop("CLOCK_MAX_MEMORY", None)
+            check("_gemma_max_memory unset -> None (default load call unchanged)", adapters._gemma_max_memory() is None)
+            os.environ["CLOCK_MAX_MEMORY"] = "0:9.5GiB,1:13.5GiB"
+            check("_gemma_max_memory parses", adapters._gemma_max_memory() == {0: "9.5GiB", 1: "13.5GiB"}, str(adapters._gemma_max_memory()))
+        finally:
+            (os.environ.pop("CLOCK_MAX_MEMORY", None) if saved_mm is None else os.environ.__setitem__("CLOCK_MAX_MEMORY", saved_mm))
+        import subprocess as _sp
+        class FakeProc:
+            def __init__(self, rc, text): self.stdout, self._rc = iter(text.splitlines(True)), rc
+            def wait(self): return self._rc
+        rcs = iter([(1, "x" + chr(10) + "torch.OutOfMemoryError: CUDA out of memory" + chr(10)), (0, "SMOKE PASS" + chr(10))])
+        real_popen = _sp.Popen
+        _sp.Popen = lambda *a, **k: FakeProc(*next(rcs))
+        cwd2 = os.getcwd()
+        try:
+            os.chdir(tmp)
+            r = gemma_diag.mode_ladder(types.SimpleNamespace(model_id="m", adapter="gemma-3-12b-it", dtype="bf16", n_timing=1, caps="0:9GiB,1:13GiB;0:10GiB,1:13GiB;0:11GiB,1:12GiB"))
+            lad = __import__("json").load(open(os.path.join("results", "gemma", "gemma-3-12b-it_bf16_ladder.json")))
+            check("ladder: stops at first PASS, records the OOM of try 0", r is True and lad["winner_try"] == 1 and lad["tries"][0]["oom"] and len(lad["tries"]) == 2, str(lad["winner_max_memory"]))
+        finally:
+            _sp.Popen = real_popen
+            os.chdir(cwd2)
         check("registry + hints", adapters._ADAPTERS["gemma-3-12b-it"] is adapters.Gemma3_12BAdapter
               and type(adapters.get_adapter(model_id="google/gemma-3-12b-it")).__name__ == "Gemma3_12BAdapter"
               and type(adapters.get_adapter(model_id="google/gemma-3-4b-it")).__name__ == "Gemma3Adapter")

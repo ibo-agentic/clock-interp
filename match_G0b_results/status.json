@@ -1,0 +1,38 @@
+[
+ {
+  "step": "01_diag_4b_fp16",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 1.4
+ },
+ {
+  "step": "02_smoke_4b_bf16",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 2.2
+ },
+ {
+  "step": "03_smoke_4b_fp32",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 1.9
+ },
+ {
+  "step": "04_purge_4b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "05_smoke_12b_bf16",
+  "status": "FAILED rc=1",
+  "returncode": 1,
+  "minutes": 3.6
+ },
+ {
+  "step": "06_purge_12b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]

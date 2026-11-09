@@ -11,6 +11,7 @@ wrong time. This measures, over many images, how often:
 import argparse, os, re
 import pandas as pd
 from tqdm import tqdm
+from textnorm import normalize_reply   # markdown stripped before parsing, all models
 
 MODEL_ID = "Qwen/Qwen2.5-VL-3B-Instruct"   # this project's original model -- see adapters.py for others
 PROMPT = ("Look at the clock. Which number is the long minute hand pointing at? "
@@ -30,7 +31,7 @@ HOUR_RE_TOL = re.compile(
 
 def parse_hour_tolerant(text):
     """Hour-hand number: original HOUR_RE first (identical behaviour), else the tolerant pattern, else None."""
-    text = text if isinstance(text, str) else ""
+    text = normalize_reply(text if isinstance(text, str) else "")
     m = HOUR_RE.search(text) or HOUR_RE_TOL.search(text)
     return int(m.group(1)) if m else None
 
@@ -53,6 +54,7 @@ def true_hour_number(hour):
     return hour % 12 if hour % 12 != 0 else 12
 
 def parse_reply(text):
+    text = normalize_reply(text)
     m = MIN_RE.search(text); h = HOUR_RE.search(text); t = TIME_RE.search(text)
     return (int(m.group(1)) if m else None,
             int(h.group(1)) if h else None,

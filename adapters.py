@@ -350,6 +350,19 @@ def _gemma_dtype():
     return table[name]
 
 
+def _gemma_max_memory():
+    """Optional per-GPU weight cap for the Gemma adapters only, from env CLOCK_MAX_MEMORY, e.g. '0:9.5GiB,1:13.5GiB' (None when unset = unchanged behaviour).
+    Leaves headroom on GPU 0 for the SigLIP vision tower's activations (notebook G0c)."""
+    raw = os.environ.get("CLOCK_MAX_MEMORY", "").strip()
+    if not raw:
+        return None
+    out = {}
+    for part in raw.split(","):
+        k, v = part.split(":", 1)
+        out[int(k)] = v.strip()
+    return out
+
+
 class Gemma3Adapter(ModelAdapter):
     short_name = "gemma-3-4b-it"
     default_model_id = "google/gemma-3-4b-it"
@@ -367,8 +380,12 @@ class Gemma3Adapter(ModelAdapter):
         print(f"NOTE: {model_id} is a GATED HF repo -- this call will fail with a 401 "
               "unless HF_TOKEN is set (env var or `huggingface-cli login`) AND access has been "
               f"granted at https://huggingface.co/{model_id}.")
+        mm = _gemma_max_memory()
+        extra = {"max_memory": mm} if mm else {}
+        if mm:
+            print(f"max_memory (CLOCK_MAX_MEMORY): {mm}")
         self.model = Gemma3ForConditionalGeneration.from_pretrained(
-            model_id, dtype=self.torch_dtype, device_map="auto")
+            model_id, dtype=self.torch_dtype, device_map="auto", **extra)
         self.processor = AutoProcessor.from_pretrained(model_id)
         self.model.eval()
         return self.model, self.processor

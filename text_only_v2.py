@@ -47,6 +47,7 @@ import sys
 import pandas as pd
 
 from eval_behavior import parse_time_answer   # same parser as the image runs
+from textnorm import normalize_reply            # markdown stripped before parsing (format_ok deliberately stays on the raw reply)
 
 SEED = 0
 MAX_NEW_TOKENS = 32   # NOT eval_behavior.py's 16: chosen for this script AND the later image runs
@@ -134,7 +135,7 @@ def score(trial, raw):
         out["format_ok"] = bool(re.fullmatch(r"\d{1,2}:\d{2}", raw.strip().rstrip(".")))
     else:
         stripped = raw.strip().rstrip(".")
-        m = INT_RE.search(raw)
+        m = INT_RE.search(normalize_reply(raw))
         out["format_ok"] = bool(re.fullmatch(r"-?\d+", stripped))
         if m:
             out["parse_ok"] = True

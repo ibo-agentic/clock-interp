@@ -1,0 +1,16 @@
+=== fp16 diagnostic, gemma-3-4b-it (forward hooks on every language-model / vision / projector module)
+sdpa/text_only   logits_finite=False  first non-finite output: model.language_model.layers.5 (nan=0, inf=1, finite max|x|=5836); bad modules 478
+sdpa/with_image  logits_finite=False  first non-finite output: model.language_model.layers.5 (nan=0, inf=1, finite max|x|=48256); bad modules 478
+eager/text_only  logits_finite=False  first non-finite output: model.language_model.layers.5 (nan=0, inf=1, finite max|x|=5840); bad modules 478
+eager/with_image logits_finite=False  first non-finite output: model.language_model.layers.5 (nan=0, inf=1, finite max|x|=48256); bad modules 478
+largest finite activations (fp16 max = 65504):
+   model.language_model.layers.4                              51392
+   model.language_model.layers.3                              25200
+   model.language_model.layers.4.post_feedforward_layernorm   25120
+   model.language_model.layers.5.post_feedforward_layernorm   21568
+   model.language_model.layers.2                              20080
+
+=== smoke + timing
+gemma-3-4b-it_bf16: pass=True load 6s peak GiB {'cuda:0': 7.8, 'cuda:1': 2.7} device_map {'0': 23, '1': 17}  text-only 0.77s/gen, with-image 4.69s/gen (prefill 4.60s, 283 tokens)
+gemma-3-4b-it_fp32: pass=True load 10s peak GiB {'cuda:0': 11.5, 'cuda:1': 5.4} device_map {'0': 23, '1': 17}  text-only 0.72s/gen, with-image 3.53s/gen (prefill 3.23s, 283 tokens)
+gemma-3-12b-it_bf16: NO smoke.json (CUDA OOM in the SigLIP vision tower on GPU 0 at the first image forward; see logs/05_smoke_12b_bf16.log)

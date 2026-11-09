@@ -1,6 +1,7 @@
 """Gemma 3 precision diagnostics and smoke tests (notebook G0b).  Read-only with respect to the model: only forward hooks, nothing is patched.
 
   python gemma_diag.py --mode diag  --model_id google/gemma-3-4b-it --adapter gemma-3-4b-it            # fp16: where do values first go non-finite? sdpa vs eager
+  python gemma_diag.py --mode ladder --model_id google/gemma-3-12b-it --adapter gemma-3-12b-it --dtype bf16   # G0c: max_memory caps, first PASS wins
   python gemma_diag.py --mode smoke --model_id google/gemma-3-12b-it --adapter gemma-3-12b-it --dtype bf16   # adapters.run_smoke + timing + load time + memory
 
 Outputs: results/gemma/<short>_<dtype>/diag.json | smoke.json  (+ everything printed to stdout)."""
@@ -114,11 +115,13 @@ def mode_diag(args):
 # ---------------------------------------------------------------------------------------------------- smoke + timing
 def mode_smoke(args):
     os.environ["CLOCK_DTYPE"] = {"bf16": "bfloat16", "fp32": "float32", "fp16": "float16"}[args.dtype]
+    if getattr(args, "max_memory", None):
+        os.environ["CLOCK_MAX_MEMORY"] = args.max_memory
     import adapters
     from clocks import generate_clock_image
     from eval_behavior import PROMPT as READ_PROMPT
     short = args.adapter
-    out_dir = os.path.join("results", "gemma", f"{short}_{args.dtype}")
+    out_dir = os.path.join("results", "gemma", f"{short}_{args.dtype}{getattr(args, 'tag', '') or ''}")
     os.makedirs(out_dir, exist_ok=True)
     if torch.cuda.is_available():
         print("bf16 supported (incl. emulation):", torch.cuda.is_bf16_supported(including_emulation=True),
@@ -171,13 +174,51 @@ def mode_smoke(args):
     return ok
 
 
+# ---------------------------------------------------------------------------------------------------- memory ladder (notebook G0c)
+def mode_ladder(args):
+    """Try max_memory caps one after another, each in its own process (an OOM cannot poison the next try); stop at the first smoke PASS.
+    Caps leave headroom on GPU 0 for the SigLIP vision tower: weights are pushed to GPU 1. Writes results/gemma/<adapter>_<dtype>_ladder.json."""
+    import subprocess
+    caps = [c for c in args.caps.split(";") if c]
+    rows, winner = [], None
+    for i, cap in enumerate(caps):
+        tag = f"_cap{i}"
+        cmd = [sys.executable, os.path.join(HERE, "gemma_diag.py"), "--mode", "smoke", "--model_id", args.model_id, "--adapter", args.adapter, "--dtype", args.dtype,
+               "--max_memory", cap, "--tag", tag, "--n_timing", str(args.n_timing)]
+        env = dict(os.environ, PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True")
+        print("=" * 90 + f"\nLADDER try {i}: max_memory={cap}\n" + "=" * 90, flush=True)
+        t0 = time.time()
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace", bufsize=1, env=env)
+        tail = []
+        for line in proc.stdout:
+            print(line, end="", flush=True)
+            tail.append(line.rstrip())
+            tail = tail[-25:]
+        rc = proc.wait()
+        oom = any("OutOfMemoryError" in t for t in tail)
+        rows.append({"try": i, "max_memory": cap, "returncode": rc, "pass": rc == 0, "oom": oom, "minutes": round((time.time() - t0) / 60, 1),
+                     "smoke_json": os.path.join("results", "gemma", f"{args.adapter}_{args.dtype}{tag}", "smoke.json") if rc == 0 else None,
+                     "tail": tail[-6:]})
+        if rc == 0:
+            winner = i
+            break
+    out = {"model_id": args.model_id, "dtype": args.dtype, "winner_try": winner, "winner_max_memory": caps[winner] if winner is not None else None, "tries": rows}
+    os.makedirs(os.path.join("results", "gemma"), exist_ok=True)
+    json.dump(out, open(os.path.join("results", "gemma", f"{args.adapter}_{args.dtype}_ladder.json"), "w"), indent=1)
+    print("LADDER RESULT:", "no cap worked" if winner is None else f"try {winner} works: max_memory={caps[winner]}")
+    return winner is not None
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--mode", required=True, choices=["diag", "smoke"])
+    ap.add_argument("--mode", required=True, choices=["diag", "smoke", "ladder"])
     ap.add_argument("--model_id", required=True)
     ap.add_argument("--adapter", required=True)
     ap.add_argument("--dtype", default="bf16", choices=["fp16", "bf16", "fp32"])
     ap.add_argument("--impls", default="sdpa,eager")
     ap.add_argument("--n_timing", type=int, default=5)
+    ap.add_argument("--max_memory", default=None, help="smoke: per-GPU weight cap, e.g. '0:9.5GiB,1:13.5GiB' (sets CLOCK_MAX_MEMORY; Gemma adapters only)")
+    ap.add_argument("--tag", default="", help="smoke: suffix for the output folder")
+    ap.add_argument("--caps", default="0:9.5GiB,1:13.5GiB;0:10.5GiB,1:13GiB;0:11GiB,1:12.5GiB", help="ladder: ';'-separated max_memory strings, tried in order")
     a = ap.parse_args()
-    sys.exit(0 if (mode_diag(a) if a.mode == "diag" else mode_smoke(a)) else 1)
+    sys.exit(0 if {"diag": mode_diag, "smoke": mode_smoke, "ladder": mode_ladder}[a.mode](a) else 1)

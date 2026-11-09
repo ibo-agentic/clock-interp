@@ -1,0 +1,69 @@
+{
+ "model": "internvl3-2b",
+ "n_layers": 28,
+ "checks": {
+  "V1_identity_patch_changes_no_generation": {
+   "pass": true,
+   "gating": true,
+   "changed": "0/100"
+  },
+  "V2_embedding_all_token_patch_equals_showing_image_B": {
+   "pass": true,
+   "gating": true,
+   "follow_B_direct": 0.18,
+   "follow_B_patched": 0.18,
+   "identical_parsed_answers": "100/100",
+   "bound_points": 3
+  },
+  "V3_patch_moves_teacher_forced_logprob": {
+   "pass": true,
+   "gating": true,
+   "moved": "30/30",
+   "note": "needs >= 50% of pairs with |change| > 0.1 nat (a no-op patch would make every cell null); smoke (random tiny model) only logs it"
+  },
+  "V4_region_masks_nonempty_and_small": {
+   "pass": true,
+   "gating": true,
+   "example_sizes": [
+    {
+     "all": 256,
+     "minute_hand": 13,
+     "hour_hand": 9,
+     "other": 237
+    },
+    {
+     "all": 256,
+     "minute_hand": 16,
+     "hour_hand": 8,
+     "other": 235
+    },
+    {
+     "all": 256,
+     "minute_hand": 12,
+     "hour_hand": 8,
+     "other": 238
+    }
+   ],
+   "grid": 16
+  },
+  "V4b_overlays_written_MANUAL_INSPECTION_REQUIRED": {
+   "pass": true,
+   "gating": false,
+   "folder": "results/mech_e2/internvl3-2b/overlays",
+   "note": "red = minute-hand tokens, blue = hour-hand tokens (A and B drawn strokes); look at them before trusting any region result"
+  }
+ },
+ "rep_penalty_arg": null,
+ "checkpoint_default_repetition_penalty": null,
+ "layers": [
+  0,
+  3,
+  7,
+  10,
+  14,
+  17,
+  21,
+  24
+ ],
+ "pass": true
+}

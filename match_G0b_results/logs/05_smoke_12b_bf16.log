@@ -1,0 +1,132 @@
+bf16 supported (incl. emulation): True | native: False | capability (7, 5)
+Loading google/gemma-3-12b-it in bfloat16 (CLOCK_DTYPE=bfloat16) ...
+NOTE: google/gemma-3-12b-it is a GATED HF repo -- this call will fail with a 401 unless HF_TOKEN is set (env var or `huggingface-cli login`) AND access has been granted at https://huggingface.co/google/gemma-3-12b-it.
+
+=== SMOKE: gemma-3-12b-it  (Gemma3_12BAdapter) ===
+dtype: bfloat16   torch 2.11.0+cu130
+transformers 5.20.2
+device map (module groups per device): {'0': 29, '1': 25}
+  [chat_template] Gemma3 turn format; <bos> comes from the template (tokenised via apply_chat_template, so no double BOS); no system prompt injected
+  [image] one image = 256 soft tokens (processor default, do_pan_and_scan False); processor also returns token_type_ids (1 = image) used for the bidirectional image-block mask in prefill
+  [decoding] greedy (do_sample=False), checkpoint sampling defaults top_k/top_p cleared, no repetition penalty (the checkpoint ships none)
+  [dtype] bfloat16 (default float16; env CLOCK_DTYPE=bfloat16|float32). Measured in notebook G0: float16 gives non-finite logits for gemma-3-4b-it and -12b-it on T4
+
+--- 3 prompts WITH an image (eval_behavior.py prompt) ---
+Traceback (most recent call last):
+  File "/kaggle/working/run/gemma_diag.py", line 183, in <module>
+    sys.exit(0 if (mode_diag(a) if a.mode == "diag" else mode_smoke(a)) else 1)
+                                                         ~~~~~~~~~~^^^
+  File "/kaggle/working/run/gemma_diag.py", line 137, in mode_smoke
+    ok = adapters.run_smoke(args.model_id, args.adapter, max_new_tokens=32, tmp_dir=os.path.join(out_dir, "smoke_images"))
+  File "/kaggle/working/run/adapters.py", line 703, in run_smoke
+    fin = forward_is_finite(inputs)
+  File "/kaggle/working/run/adapters.py", line 696, in forward_is_finite
+    logits = adapter.model(**inputs).logits
+             ~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/accelerate/hooks.py", line 192, in new_forward
+    output = module._old_forward(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py", line 943, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/models/gemma3/modeling_gemma3.py", line 998, in forward
+    outputs = self.model(
+        input_ids=input_ids,
+    ...<10 lines>...
+        **kwargs,
+    )
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py", line 943, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/models/gemma3/modeling_gemma3.py", line 870, in forward
+    mm_encoder_outputs["image"] = self.get_image_features(pixel_values, return_dict=True)
+                                  ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py", line 943, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/models/gemma3/modeling_gemma3.py", line 780, in get_image_features
+    vision_outputs = self.vision_tower(pixel_values=pixel_values, return_dict=True, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/accelerate/hooks.py", line 192, in new_forward
+    output = module._old_forward(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py", line 1081, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/utils/output_capturing.py", line 287, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/models/siglip/modeling_siglip.py", line 606, in forward
+    encoder_outputs: BaseModelOutput = self.encoder(
+                                       ~~~~~~~~~~~~^
+        inputs_embeds=hidden_states,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/accelerate/hooks.py", line 192, in new_forward
+    output = module._old_forward(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/models/siglip/modeling_siglip.py", line 457, in forward
+    hidden_states = encoder_layer(
+        hidden_states,
+        attention_mask,
+        **kwargs,
+    )
+  File "/usr/local/lib/python3.13/dist-packages/transformers/modeling_layers.py", line 111, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/accelerate/hooks.py", line 192, in new_forward
+    output = module._old_forward(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/models/siglip/modeling_siglip.py", line 344, in forward
+    hidden_states, _ = self.self_attn(
+                       ~~~~~~~~~~~~~~^
+        hidden_states=hidden_states,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        attention_mask=attention_mask,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/accelerate/hooks.py", line 192, in new_forward
+    output = module._old_forward(*args, **kwargs)
+  File "/usr/local/lib/python3.13/dist-packages/transformers/models/siglip/modeling_siglip.py", line 292, in forward
+    attn_output, attn_weights = attention_interface(
+                                ~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<6 lines>...
+        dropout=0.0 if not self.training else self.dropout,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/lib/python3.13/dist-packages/transformers/integrations/sdpa_attention.py", line 170, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+        query,
+    ...<6 lines>...
+        **sdpa_kwargs,
+    )
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1024.00 MiB. GPU 0 has a total capacity of 14.56 GiB of which 188.81 MiB is free. Including non-PyTorch memory, this process has 14.38 GiB memory in use. Of the allocated memory 14.23 GiB is allocated by PyTorch, and 22.65 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

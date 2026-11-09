@@ -1,0 +1,57 @@
+bf16 supported (incl. emulation): True | native: False | capability (7, 5)
+Loading google/gemma-3-4b-it in bfloat16 (CLOCK_DTYPE=bfloat16) ...
+NOTE: google/gemma-3-4b-it is a GATED HF repo -- this call will fail with a 401 unless HF_TOKEN is set (env var or `huggingface-cli login`) AND access has been granted at https://huggingface.co/google/gemma-3-4b-it.
+
+=== SMOKE: gemma-3-4b-it  (Gemma3Adapter) ===
+dtype: bfloat16   torch 2.11.0+cu130
+transformers 5.20.2
+device map (module groups per device): {'0': 23, '1': 17}
+  [chat_template] Gemma3 turn format; <bos> comes from the template (tokenised via apply_chat_template, so no double BOS); no system prompt injected
+  [image] one image = 256 soft tokens (processor default, do_pan_and_scan False); processor also returns token_type_ids (1 = image) used for the bidirectional image-block mask in prefill
+  [decoding] greedy (do_sample=False), checkpoint sampling defaults top_k/top_p cleared, no repetition penalty (the checkpoint ships none)
+  [dtype] bfloat16 (default float16; env CLOCK_DTYPE=bfloat16|float32). Measured in notebook G0: float16 gives non-finite logits for gemma-3-4b-it and -12b-it on T4
+
+--- 3 prompts WITH an image (eval_behavior.py prompt) ---
+[10:10] image_tokens=256 pixel_values=(1, 3, 896, 896) logits_finite=True
+    raw: '10:27'
+[3:45] image_tokens=256 pixel_values=(1, 3, 896, 896) logits_finite=True
+    raw: '09:45'
+[7:20] image_tokens=256 pixel_values=(1, 3, 896, 896) logits_finite=True
+    raw: '4:00'
+
+--- 3 prompts WITHOUT an image ---
+image_tokens=0 logits_finite=True
+    prompt: 'The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. What time does the clock show? Answer only in HH:MM format.'
+    raw: '04:45'
+image_tokens=0 logits_finite=True
+    prompt: 'The long minute hand is pointing at the number 7. How many minutes past the hour does this represent? Answer with a number only.'
+    raw: '35'
+image_tokens=0 logits_finite=True
+    prompt: 'What is 7 times 5? Answer with a number only.'
+    raw: '35'
+
+--- 5 describe_check.py prompts (does the project's regex parsing fit this model's wording?) ---
+[10:10] parsed minute_number=None hour_number=None time=(9, 30) (all three parsed: False)
+    raw: "Here's the breakdown of the clock:\n\n*   **Long minute hand:** The long minute hand is pointing at the number **3**.\n*   **Short hour hand:** The short hour hand is pointing at the number **9**.\n\nTherefore, the time is **9:30**."
+[3:45] parsed minute_number=None hour_number=None time=(4, 29) (all three parsed: False)
+    raw: "Here's the breakdown of the clock:\n\n*   **Minute hand:** The long minute hand is pointing at the number **9**.\n*   **Hour hand:** The short hour hand is pointing at the number **4**.\n\nTherefore, the time is **4:29**."
+[7:20] parsed minute_number=None hour_number=None time=(5, 20) (all three parsed: False)
+    raw: "Here's the breakdown of the clock:\n\n*   **Long minute hand:** The long minute hand is pointing at the number **4**.\n*   **Short hour hand:** The short hour hand is pointing at the number **5**.\n\nTherefore, the time is **5:20**."
+[12:00] parsed minute_number=None hour_number=None time=(1, 0) (all three parsed: False)
+    raw: "Here's the breakdown of the clock:\n\n*   **Minute hand:** The minute hand is pointing at the number **12**.\n*   **Hour hand:** The hour hand is pointing at the number **1**.\n\nTherefore, the time is **1:00**."
+[5:35] parsed minute_number=7 hour_number=11 time=(11, 7) (all three parsed: True)
+    raw: "Here's the breakdown of the clock:\n\n*   **Long minute hand:** The long minute hand is pointing at the number 7.\n*   **Short hour hand:** The short hour hand is pointing at the number 11.\n\nTherefore, the time is 11:07."
+
+regex fit: 1/5 describe replies fully parsed by describe_check.py's regexes.
+  -> LOW FIT: describe_check's regexes were tuned on Qwen's wording. Do NOT trust minute_desc_ok/hour_desc_ok for this model yet; propose tolerant-parse columns (additive, original columns untouched) and get approval before changing describe_check.py.
+cuda:0 peak memory 7.8 GiB
+cuda:1 peak memory 2.7 GiB
+
+VERDICT: PASS
+
+load time: 6 s   dtype: bfloat16
+timing [text_only]: {'seconds_per_generation_mean': 0.7714092254638671, 'seconds_min': 0.7383556365966797, 'seconds_max': 0.8408842086791992, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 0.21654915809631348, 'answer': '07:24', 'answers_identical': True, 'prompt_tokens': 49}
+timing [with_image]: {'seconds_per_generation_mean': 4.688576507568359, 'seconds_min': 4.626645803451538, 'seconds_max': 4.741655588150024, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 4.604166746139526, 'answer': '10:30', 'answers_identical': True, 'prompt_tokens': 283}
+
+wrote results/gemma/gemma-3-4b-it_bf16/smoke.json 
+SMOKE PASS

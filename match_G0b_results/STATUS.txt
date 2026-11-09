@@ -1,0 +1,9 @@
+01_diag_4b_fp16                  OK                             1.4 min
+02_smoke_4b_bf16                 OK                             2.2 min
+03_smoke_4b_fp32                 OK                             1.9 min
+04_purge_4b_cache                OK                             0.0 min
+05_smoke_12b_bf16                FAILED rc=1                    3.6 min
+06_purge_12b_cache               OK                             0.0 min
+
+total wall time: 0.16 h
+MISSING expected files: none

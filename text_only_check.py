@@ -12,6 +12,7 @@ import re
 
 TIME_RE = re.compile(r"(\d{1,2}):(\d{2})")
 NUM_RE = re.compile(r"(\d{1,2})")
+from textnorm import normalize_reply  # noqa: E402
 
 # (minute-hand number, hour-hand number, correct answer)
 CASES = [
@@ -51,7 +52,7 @@ def run(model_id=None, adapter_name=None, out_csv=None, seed=0):
              f"and the short hour hand is pointing at the {h_num}. "
              f"What time is it? Answer only in H:MM format.")
         reply = ask_text(p)
-        m = TIME_RE.search(reply)
+        m = TIME_RE.search(normalize_reply(reply))
         correct_h, correct_m = (int(x) for x in correct.split(":"))
         got_ok = bool(m) and int(m.group(1)) % 12 == correct_h % 12 and int(m.group(2)) == correct_m
         rows.append({"case": "hand_to_time", "minute_hand_num": m_num, "hour_hand_num": h_num,

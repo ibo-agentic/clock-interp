@@ -506,7 +506,8 @@ def holm(pvals):
 # ----------------------------------------------------------------------------------------------------------
 
 def parse_hhmm(text):
-    m = TIME_RE.search(text or "")
+    from textnorm import normalize_reply
+    m = TIME_RE.search(normalize_reply(text or ""))
     return (int(m.group(1)), int(m.group(2))) if m else (None, None)
 
 

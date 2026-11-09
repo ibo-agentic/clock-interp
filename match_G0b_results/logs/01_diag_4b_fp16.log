@@ -1,0 +1,90 @@
+
+==========================================================================================
+Loading google/gemma-3-4b-it float16 attn_implementation=sdpa ...
+loaded in 50s; attn impl on text config: sdpa
+
+--- fp16 / sdpa / text_only: logits_finite=False error=None bad_modules=478/582
+  first non-finite output: {'order': 104, 'name': 'model.language_model.layers.5', 'cls': 'Gemma3DecoderLayer', 'nan': 0, 'inf': 1, 'maxabs': 5836.0, 'in_bad': 0}
+  first non-finite whose INPUT was finite (where it is created): {'order': 104, 'name': 'model.language_model.layers.5', 'cls': 'Gemma3DecoderLayer', 'nan': 0, 'inf': 1, 'maxabs': 5836.0, 'in_bad': 0}
+  -> created as inf (overflow-type) in model.language_model.layers.5 (Gemma3DecoderLayer)
+  largest finite |activation| at decoder-layer outputs (fp16 max is 65504):
+     model.language_model.layers.4                           max|x|=51392.0
+     model.language_model.layers.3                           max|x|=25200.0
+     model.language_model.layers.2                           max|x|=20080.0
+     model.language_model.layers.1                           max|x|=14632.0
+     model.language_model.layers.0                           max|x|=13120.0
+  largest finite |activation| at any hooked module:
+     model.language_model.layers.4                           Gemma3DecoderLayer       max|x|=51392.0
+     model.language_model.layers.3                           Gemma3DecoderLayer       max|x|=25200.0
+     model.language_model.layers.4.post_feedforward_layernorm Gemma3RMSNorm            max|x|=25120.0
+     model.language_model.layers.5.post_feedforward_layernorm Gemma3RMSNorm            max|x|=21568.0
+     model.language_model.layers.2                           Gemma3DecoderLayer       max|x|=20080.0
+     model.language_model.layers.1                           Gemma3DecoderLayer       max|x|=14632.0
+     model.language_model.layers.0                           Gemma3DecoderLayer       max|x|=13120.0
+     model.language_model.layers.0.post_feedforward_layernorm Gemma3RMSNorm            max|x|=12584.0
+
+--- fp16 / sdpa / with_image: logits_finite=False error=None bad_modules=478/913
+  first non-finite output: {'order': 435, 'name': 'model.language_model.layers.5', 'cls': 'Gemma3DecoderLayer', 'nan': 0, 'inf': 1, 'maxabs': 48256.0, 'in_bad': 0}
+  first non-finite whose INPUT was finite (where it is created): {'order': 435, 'name': 'model.language_model.layers.5', 'cls': 'Gemma3DecoderLayer', 'nan': 0, 'inf': 1, 'maxabs': 48256.0, 'in_bad': 0}
+  -> created as inf (overflow-type) in model.language_model.layers.5 (Gemma3DecoderLayer)
+  largest finite |activation| at decoder-layer outputs (fp16 max is 65504):
+     model.language_model.layers.4                           max|x|=51392.0
+     model.language_model.layers.3                           max|x|=25200.0
+     model.language_model.layers.2                           max|x|=20080.0
+     model.language_model.layers.1                           max|x|=14632.0
+     model.language_model.layers.0                           max|x|=13120.0
+  largest finite |activation| at any hooked module:
+     model.language_model.layers.4                           Gemma3DecoderLayer       max|x|=51392.0
+     model.language_model.layers.3                           Gemma3DecoderLayer       max|x|=25200.0
+     model.language_model.layers.4.post_feedforward_layernorm Gemma3RMSNorm            max|x|=25120.0
+     model.language_model.layers.5.post_feedforward_layernorm Gemma3RMSNorm            max|x|=21568.0
+     model.language_model.layers.2                           Gemma3DecoderLayer       max|x|=20080.0
+     model.language_model.layers.1                           Gemma3DecoderLayer       max|x|=14632.0
+     model.language_model.layers.0                           Gemma3DecoderLayer       max|x|=13120.0
+     model.language_model.layers.0.post_feedforward_layernorm Gemma3RMSNorm            max|x|=12584.0
+
+==========================================================================================
+Loading google/gemma-3-4b-it float16 attn_implementation=eager ...
+loaded in 6s; attn impl on text config: eager
+
+--- fp16 / eager / text_only: logits_finite=False error=None bad_modules=478/582
+  first non-finite output: {'order': 104, 'name': 'model.language_model.layers.5', 'cls': 'Gemma3DecoderLayer', 'nan': 0, 'inf': 1, 'maxabs': 5840.0, 'in_bad': 0}
+  first non-finite whose INPUT was finite (where it is created): {'order': 104, 'name': 'model.language_model.layers.5', 'cls': 'Gemma3DecoderLayer', 'nan': 0, 'inf': 1, 'maxabs': 5840.0, 'in_bad': 0}
+  -> created as inf (overflow-type) in model.language_model.layers.5 (Gemma3DecoderLayer)
+  largest finite |activation| at decoder-layer outputs (fp16 max is 65504):
+     model.language_model.layers.4                           max|x|=51392.0
+     model.language_model.layers.3                           max|x|=25200.0
+     model.language_model.layers.2                           max|x|=20080.0
+     model.language_model.layers.1                           max|x|=14632.0
+     model.language_model.layers.0                           max|x|=13120.0
+  largest finite |activation| at any hooked module:
+     model.language_model.layers.4                           Gemma3DecoderLayer       max|x|=51392.0
+     model.language_model.layers.3                           Gemma3DecoderLayer       max|x|=25200.0
+     model.language_model.layers.4.post_feedforward_layernorm Gemma3RMSNorm            max|x|=25120.0
+     model.language_model.layers.5.post_feedforward_layernorm Gemma3RMSNorm            max|x|=21568.0
+     model.language_model.layers.2                           Gemma3DecoderLayer       max|x|=20080.0
+     model.language_model.layers.1                           Gemma3DecoderLayer       max|x|=14632.0
+     model.language_model.layers.0                           Gemma3DecoderLayer       max|x|=13120.0
+     model.language_model.layers.0.post_feedforward_layernorm Gemma3RMSNorm            max|x|=12584.0
+
+--- fp16 / eager / with_image: logits_finite=False error=None bad_modules=478/913
+  first non-finite output: {'order': 435, 'name': 'model.language_model.layers.5', 'cls': 'Gemma3DecoderLayer', 'nan': 0, 'inf': 1, 'maxabs': 48256.0, 'in_bad': 0}
+  first non-finite whose INPUT was finite (where it is created): {'order': 435, 'name': 'model.language_model.layers.5', 'cls': 'Gemma3DecoderLayer', 'nan': 0, 'inf': 1, 'maxabs': 48256.0, 'in_bad': 0}
+  -> created as inf (overflow-type) in model.language_model.layers.5 (Gemma3DecoderLayer)
+  largest finite |activation| at decoder-layer outputs (fp16 max is 65504):
+     model.language_model.layers.4                           max|x|=51392.0
+     model.language_model.layers.3                           max|x|=25200.0
+     model.language_model.layers.2                           max|x|=20080.0
+     model.language_model.layers.1                           max|x|=14632.0
+     model.language_model.layers.0                           max|x|=13120.0
+  largest finite |activation| at any hooked module:
+     model.language_model.layers.4                           Gemma3DecoderLayer       max|x|=51392.0
+     model.language_model.layers.3                           Gemma3DecoderLayer       max|x|=25200.0
+     model.language_model.layers.4.post_feedforward_layernorm Gemma3RMSNorm            max|x|=25120.0
+     model.language_model.layers.5.post_feedforward_layernorm Gemma3RMSNorm            max|x|=21568.0
+     model.language_model.layers.2                           Gemma3DecoderLayer       max|x|=20080.0
+     model.language_model.layers.1                           Gemma3DecoderLayer       max|x|=14632.0
+     model.language_model.layers.0                           Gemma3DecoderLayer       max|x|=13120.0
+     model.language_model.layers.0.post_feedforward_layernorm Gemma3RMSNorm            max|x|=12584.0
+
+wrote results/gemma/gemma-3-4b-it_fp16_diag/diag.json

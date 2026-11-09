@@ -1,0 +1,392 @@
+{
+ "model_id": "google/gemma-3-4b-it",
+ "torch": "2.11.0+cu130",
+ "sdpa/text_only": {
+  "first_bad": {
+   "order": 104,
+   "name": "model.language_model.layers.5",
+   "cls": "Gemma3DecoderLayer",
+   "nan": 0,
+   "inf": 1,
+   "maxabs": 5836.0,
+   "in_bad": 0
+  },
+  "first_origin": {
+   "order": 104,
+   "name": "model.language_model.layers.5",
+   "cls": "Gemma3DecoderLayer",
+   "nan": 0,
+   "inf": 1,
+   "maxabs": 5836.0,
+   "in_bad": 0
+  },
+  "n_bad_modules": 478,
+  "logits_finite": false,
+  "error": null,
+  "top_finite": [
+   {
+    "order": 87,
+    "name": "model.language_model.layers.4",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 51392.0,
+    "in_bad": 0
+   },
+   {
+    "order": 70,
+    "name": "model.language_model.layers.3",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 25200.0,
+    "in_bad": 0
+   },
+   {
+    "order": 86,
+    "name": "model.language_model.layers.4.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 25120.0,
+    "in_bad": 0
+   },
+   {
+    "order": 103,
+    "name": "model.language_model.layers.5.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 21568.0,
+    "in_bad": 0
+   },
+   {
+    "order": 53,
+    "name": "model.language_model.layers.2",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 20080.0,
+    "in_bad": 0
+   },
+   {
+    "order": 36,
+    "name": "model.language_model.layers.1",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 14632.0,
+    "in_bad": 0
+   },
+   {
+    "order": 19,
+    "name": "model.language_model.layers.0",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 13120.0,
+    "in_bad": 0
+   },
+   {
+    "order": 18,
+    "name": "model.language_model.layers.0.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 12584.0,
+    "in_bad": 0
+   }
+  ]
+ },
+ "sdpa/with_image": {
+  "first_bad": {
+   "order": 435,
+   "name": "model.language_model.layers.5",
+   "cls": "Gemma3DecoderLayer",
+   "nan": 0,
+   "inf": 1,
+   "maxabs": 48256.0,
+   "in_bad": 0
+  },
+  "first_origin": {
+   "order": 435,
+   "name": "model.language_model.layers.5",
+   "cls": "Gemma3DecoderLayer",
+   "nan": 0,
+   "inf": 1,
+   "maxabs": 48256.0,
+   "in_bad": 0
+  },
+  "n_bad_modules": 478,
+  "logits_finite": false,
+  "error": null,
+  "top_finite": [
+   {
+    "order": 418,
+    "name": "model.language_model.layers.4",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 51392.0,
+    "in_bad": 0
+   },
+   {
+    "order": 401,
+    "name": "model.language_model.layers.3",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 25200.0,
+    "in_bad": 0
+   },
+   {
+    "order": 417,
+    "name": "model.language_model.layers.4.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 25120.0,
+    "in_bad": 0
+   },
+   {
+    "order": 434,
+    "name": "model.language_model.layers.5.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 21568.0,
+    "in_bad": 0
+   },
+   {
+    "order": 384,
+    "name": "model.language_model.layers.2",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 20080.0,
+    "in_bad": 0
+   },
+   {
+    "order": 367,
+    "name": "model.language_model.layers.1",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 14632.0,
+    "in_bad": 0
+   },
+   {
+    "order": 350,
+    "name": "model.language_model.layers.0",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 13120.0,
+    "in_bad": 0
+   },
+   {
+    "order": 349,
+    "name": "model.language_model.layers.0.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 12584.0,
+    "in_bad": 0
+   }
+  ]
+ },
+ "eager/text_only": {
+  "first_bad": {
+   "order": 104,
+   "name": "model.language_model.layers.5",
+   "cls": "Gemma3DecoderLayer",
+   "nan": 0,
+   "inf": 1,
+   "maxabs": 5840.0,
+   "in_bad": 0
+  },
+  "first_origin": {
+   "order": 104,
+   "name": "model.language_model.layers.5",
+   "cls": "Gemma3DecoderLayer",
+   "nan": 0,
+   "inf": 1,
+   "maxabs": 5840.0,
+   "in_bad": 0
+  },
+  "n_bad_modules": 478,
+  "logits_finite": false,
+  "error": null,
+  "top_finite": [
+   {
+    "order": 87,
+    "name": "model.language_model.layers.4",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 51392.0,
+    "in_bad": 0
+   },
+   {
+    "order": 70,
+    "name": "model.language_model.layers.3",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 25200.0,
+    "in_bad": 0
+   },
+   {
+    "order": 86,
+    "name": "model.language_model.layers.4.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 25120.0,
+    "in_bad": 0
+   },
+   {
+    "order": 103,
+    "name": "model.language_model.layers.5.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 21568.0,
+    "in_bad": 0
+   },
+   {
+    "order": 53,
+    "name": "model.language_model.layers.2",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 20080.0,
+    "in_bad": 0
+   },
+   {
+    "order": 36,
+    "name": "model.language_model.layers.1",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 14632.0,
+    "in_bad": 0
+   },
+   {
+    "order": 19,
+    "name": "model.language_model.layers.0",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 13120.0,
+    "in_bad": 0
+   },
+   {
+    "order": 18,
+    "name": "model.language_model.layers.0.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 12584.0,
+    "in_bad": 0
+   }
+  ]
+ },
+ "eager/with_image": {
+  "first_bad": {
+   "order": 435,
+   "name": "model.language_model.layers.5",
+   "cls": "Gemma3DecoderLayer",
+   "nan": 0,
+   "inf": 1,
+   "maxabs": 48256.0,
+   "in_bad": 0
+  },
+  "first_origin": {
+   "order": 435,
+   "name": "model.language_model.layers.5",
+   "cls": "Gemma3DecoderLayer",
+   "nan": 0,
+   "inf": 1,
+   "maxabs": 48256.0,
+   "in_bad": 0
+  },
+  "n_bad_modules": 478,
+  "logits_finite": false,
+  "error": null,
+  "top_finite": [
+   {
+    "order": 418,
+    "name": "model.language_model.layers.4",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 51392.0,
+    "in_bad": 0
+   },
+   {
+    "order": 401,
+    "name": "model.language_model.layers.3",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 25200.0,
+    "in_bad": 0
+   },
+   {
+    "order": 417,
+    "name": "model.language_model.layers.4.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 25120.0,
+    "in_bad": 0
+   },
+   {
+    "order": 434,
+    "name": "model.language_model.layers.5.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 21568.0,
+    "in_bad": 0
+   },
+   {
+    "order": 384,
+    "name": "model.language_model.layers.2",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 20080.0,
+    "in_bad": 0
+   },
+   {
+    "order": 367,
+    "name": "model.language_model.layers.1",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 14632.0,
+    "in_bad": 0
+   },
+   {
+    "order": 350,
+    "name": "model.language_model.layers.0",
+    "cls": "Gemma3DecoderLayer",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 13120.0,
+    "in_bad": 0
+   },
+   {
+    "order": 349,
+    "name": "model.language_model.layers.0.post_feedforward_layernorm",
+    "cls": "Gemma3RMSNorm",
+    "nan": 0,
+    "inf": 0,
+    "maxabs": 12584.0,
+    "in_bad": 0
+   }
+  ]
+ }
+}

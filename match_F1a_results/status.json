@@ -1,0 +1,20 @@
+[
+ {
+  "step": "01_i2b_E2_standard",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 85.5
+ },
+ {
+  "step": "02_i2b_E2_text_light",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 81.4
+ },
+ {
+  "step": "03_purge_2b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]
