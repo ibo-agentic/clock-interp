@@ -112,12 +112,15 @@ def full_manifest(images_dir, image_seed=IMAGE_SEED):
     return pd.DataFrame(rows)
 
 
-def render_image(path, hour, minute):
-    from clocks import generate_clock_image
-    generate_clock_image(hour, minute, path)    # defaults == original dataset style, 512x512
+def render_image(path, hour, minute, style="default"):
+    from clocks import generate_clock_image, style_kwargs
+    if style == "default":
+        generate_clock_image(hour, minute, path)    # defaults == original dataset style, 512x512 (call unchanged)
+    else:
+        generate_clock_image(hour, minute, path, **style_kwargs(style))
 
 
-def ensure_image(condition, n, h, images_dir, image_seed=IMAGE_SEED):
+def ensure_image(condition, n, h, images_dir, image_seed=IMAGE_SEED, style="default"):
     path, ih, im = image_spec(condition, n, h, images_dir, image_seed)
     if path is None:
         return path, ih, im
@@ -126,7 +129,7 @@ def ensure_image(condition, n, h, images_dir, image_seed=IMAGE_SEED):
             from PIL import Image
             Image.new("RGB", (IMAGE_SIZE, IMAGE_SIZE), "white").save(path)
     else:
-        render_image(path, ih, im)
+        render_image(path, ih, im, style)
     return path, ih, im
 
 
@@ -177,7 +180,8 @@ def reproduction_check(df, short_name, ref_dir="results"):
 
 
 def run(model_id=None, adapter_name=None, seed=SEED, smoke=False, max_new_tokens=MAX_NEW_TOKENS,
-        image_seed=IMAGE_SEED, results_dir="results", images_dir=None, text_only_dir=None):
+        image_seed=IMAGE_SEED, results_dir="results", images_dir=None, text_only_dir=None,
+        style="default", conditions=None):
     import torch
     import transformers
     from tqdm import tqdm
@@ -189,10 +193,18 @@ def run(model_id=None, adapter_name=None, seed=SEED, smoke=False, max_new_tokens
     adapter.load(model_id)
     resolved_model_id = model_id or adapter.default_model_id
     out_base = output_dir_for(results_dir, adapter)
+    conds = list(conditions) if conditions else list(CONDITIONS)
+    bad = [c for c in conds if c not in CONDITIONS]
+    if bad:
+        raise ValueError(f"unknown conditions {bad} (known: {CONDITIONS})")
     suffix = "_smoke" if smoke else ""
+    if style != "default":
+        suffix += f"_{style}"                       # styled runs never share a file name with the standard run
+    elif conds != CONDITIONS:
+        suffix += "_cond-" + "+".join(conds)
     out_csv = os.path.join(out_base, f"conversion_test{suffix}.csv")
     cfg_path = os.path.join(out_base, f"conversion_test_run_config{suffix}.json")
-    images_dir = images_dir or ("conversion_images_smoke" if smoke else "conversion_images")
+    images_dir = images_dir or (("conversion_images_smoke" if smoke else "conversion_images") + ("" if style == "default" else f"_{style}"))
     os.makedirs(images_dir, exist_ok=True)
     os.makedirs(out_base, exist_ok=True)
 
@@ -207,13 +219,13 @@ def run(model_id=None, adapter_name=None, seed=SEED, smoke=False, max_new_tokens
         groups = groups[::step][:5]
 
     rows, text_only_raw = [], {}
-    total = len(groups) * len(CONDITIONS)
+    total = len(groups) * len(conds)
     pbar = tqdm(total=total, desc=f"conversion test [{adapter.short_name}]")
     for lead, n, h in groups:
         prompt = prompt_for(lead, n, h)
         trial = {"task": "b", "hour": h, "truth_minute": truth_minute("b", n)}
-        for cond in CONDITIONS:
-            path, ih, im = ensure_image(cond, n, h, images_dir, image_seed)
+        for cond in conds:
+            path, ih, im = ensure_image(cond, n, h, images_dir, image_seed, style)
             inputs = adapter.build_inputs(path, prompt)          # path=None -> text-only; else image first, then text
             raw = adapter.generate_answer(inputs, max_new_tokens=max_new_tokens)
             row = {"model": adapter.short_name, "condition": cond, "position": n, "hour": h,
@@ -224,7 +236,7 @@ def run(model_id=None, adapter_name=None, seed=SEED, smoke=False, max_new_tokens
                 text_only_raw[(lead, n, h)] = raw
                 row["changed_vs_text_only"] = None
             else:
-                row["changed_vs_text_only"] = raw != text_only_raw[(lead, n, h)]
+                row["changed_vs_text_only"] = (raw != text_only_raw[(lead, n, h)]) if (lead, n, h) in text_only_raw else None
             rows.append(add_image_metrics(row, cond, ih, im))
             pbar.update(1)
             if len(rows) % 200 == 0:
@@ -233,7 +245,8 @@ def run(model_id=None, adapter_name=None, seed=SEED, smoke=False, max_new_tokens
 
     df = pd.DataFrame(rows)
     df.to_csv(out_csv, index=False)
-    repro = reproduction_check(df, adapter.short_name, text_only_dir or results_dir)
+    repro = (reproduction_check(df, adapter.short_name, text_only_dir or results_dir) if "text_only" in conds
+             else {"status": "NOT CHECKED", "reason": "text_only condition not run"})
 
     config = {
         "script": "conversion_test.py", "model_id": resolved_model_id, "adapter": type(adapter).__name__,
@@ -263,6 +276,10 @@ def run(model_id=None, adapter_name=None, seed=SEED, smoke=False, max_new_tokens
                      "identical call to eval_behavior.py (image first, then text)",
         "text_only_reproduction_vs_text_only_v2": repro,
     }
+    if style != "default" or conds != CONDITIONS:          # keys added ONLY for non-default runs (standard config unchanged)
+        from clocks import style_kwargs
+        config["style"] = {"name": style, "overrides": style_kwargs(style)}
+        config["conditions_run"] = conds
     notes = getattr(adapter, "run_config_notes", None)    # only families that define it (InternVL); Qwen configs unchanged
     if callable(notes):
         config["adapter_notes"] = notes()
@@ -476,6 +493,8 @@ if __name__ == "__main__":
     ap.add_argument("--models", type=str, default="qwen2.5-vl-3b,qwen2.5-vl-7b,internvl3-2b,internvl3-8b")
     ap.add_argument("--results_dir", type=str, default="results")
     ap.add_argument("--images_dir", type=str, default=None)
+    ap.add_argument("--style", type=str, default="default", help="clock style for matching/mismatched images (clocks.STYLES); default = original style")
+    ap.add_argument("--conditions", type=str, default=None, help="comma list subset of text_only,matching_clock,blank,mismatched_clock (default all four)")
     ap.add_argument("--text_only_dir", type=str, default=None,
                     help="folder holding <model_short>/text_only_v2.csv for the reproduction check "
                          "(default: --results_dir)")
@@ -485,4 +504,5 @@ if __name__ == "__main__":
     else:
         run(model_id=args.model_id, adapter_name=args.adapter, seed=args.seed, smoke=args.smoke,
             max_new_tokens=args.max_new_tokens, image_seed=args.image_seed, results_dir=args.results_dir,
-            images_dir=args.images_dir, text_only_dir=args.text_only_dir)
+            images_dir=args.images_dir, text_only_dir=args.text_only_dir, style=args.style,
+            conditions=[c.strip() for c in args.conditions.split(",")] if args.conditions else None)

@@ -102,6 +102,7 @@ Reading: non-finite logits already on text-only prompts, so the problem is in th
 - Selection-bias check (five models, `results/comparison/selection_bias_5models_{tolerant,strict}.txt`; script default now `--parse tolerant`) and the five-model `compare_families` table are regenerated; the table file names still say "four_model".
 
 ## Update log
+- 2026-11-10: experiment R (styled synthetic clocks, real photos) and the Gemma-4B E3d minimal run pre-registered (ninth, tenth, eleventh deviations entries) and built (notebooks R1, R2, R3, GE3d); nothing run yet.
 - 2026-11-10: G2a raised to max_new_tokens=256 (eighth deviations entry; 4B still hit the 128 cap in 6/2016 and 6/1728); Gemma-4B outcome kept as logged (32 tokens headline, 128 sensitivity).
 - 2026-11-10: G1b (Gemma-4B at 128 tokens) incorporated as a sensitivity (success rule not met, nothing swapped); headline table gets a Gemma-3-4B column (32-token primary) and the tolerant-parse describe values for InternVL3-8B.
 - 2026-11-09: Gemma-4B truncation check (cap hits only in text-only lead-in 1; all-conditions-parsed re-analysis); seventh deviations entry (4B 128-token re-run proposed, G2a at 128); G2a rebuilt.

@@ -157,6 +157,23 @@ def generate_clock_image(
 # Dataset generation
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Named styles for the clock-robustness experiment R (PREREG_MECHANISM.md, ninth entry). "default" = the original dataset
+# style (generate_clock_image called with NO style arguments); the others only override the listed parameters.
+# ---------------------------------------------------------------------------------------------------------------------
+STYLES = {
+    "default": {},
+    "s1_thin": {"hour_hand_thickness": 3, "minute_hand_thickness": 1.5},     # thin hands (defaults 9 and 4); numerals and ticks kept
+    "s2_ticks": {"show_numbers": False},                                      # ticks only, no numerals; everything else default
+}
+
+
+def style_kwargs(name):
+    if name not in STYLES:
+        raise ValueError(f"unknown clock style '{name}' (known: {sorted(STYLES)})")
+    return dict(STYLES[name])
+
+
 def _draw_and_record(hour, minute, filename, out_dir, style):
     """Draw one clock into `out_dir`, and return the metadata row for it.
     Shared by `generate_dataset` and `generate_balanced_dataset` so both

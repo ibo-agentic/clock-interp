@@ -419,6 +419,46 @@ def block_attention(adapter, layer_range, state):
                 h.remove()
 
 
+def sliding_layer_info(adapter):
+    """Gemma-3 style local (sliding-window) / global attention layout read from the model config (None-safe for other models):
+    {"window": int|None, "layer_types": [...], "n_layers_cfg": int, "n_local": int, "n_global": int}."""
+    cfg = adapter.model.config
+    tc = getattr(cfg, "text_config", None) or cfg
+    types = [str(t) for t in (getattr(tc, "layer_types", None) or [])]
+    return {"window": getattr(tc, "sliding_window", None), "layer_types": types, "n_layers_cfg": getattr(tc, "num_hidden_layers", None),
+            "n_local": sum(t == "sliding_attention" for t in types), "n_global": sum(t == "full_attention" for t in types)}
+
+
+@torch.no_grad()
+def capture_visible_sets(adapter, ids):
+    """One eager no-cache forward over `ids` (1,T); returns, for every decoder attention module, the boolean (T, S) matrix of keys each query may attend to
+    (additive mask == 0; a None mask means plain causal). Used by the Gemma gate G12 to compare what local and global layers see."""
+    attn = find_attention_modules(adapter.decoder_layers())
+    caps, handles = [None] * len(attn), []
+
+    def mk(i):
+        def hook(_m, args, kwargs):
+            mask, _ = _extract_mask(args, kwargs)
+            if mask is None:
+                T = ids.shape[1]
+                caps[i] = torch.ones(T, T, dtype=torch.bool).tril()
+            elif mask.dtype == torch.bool:
+                caps[i] = mask[0, 0].detach().cpu()
+            else:
+                caps[i] = (mask[0, 0] == 0).detach().cpu()
+            return None
+        return hook
+    with eager_attention(adapter):
+        for i, a in enumerate(attn):
+            handles.append(a.register_forward_pre_hook(mk(i), with_kwargs=True))
+        try:
+            adapter.model(input_ids=ids, attention_mask=torch.ones_like(ids), use_cache=False)
+        finally:
+            for h in handles:
+                h.remove()
+    return caps
+
+
 def guard_block(key_pos, prompt_len):
     """Pre-registered guard: refuse a block that removes (almost) the whole prompt."""
     if len(set(int(k) for k in key_pos)) > 0.5 * prompt_len:

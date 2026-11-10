@@ -36,3 +36,13 @@ env/
 .claude/
 
 conversion_images/
+
+# Experiment R: real photos are evaluation-only, NEVER redistributed (PREREG_MECHANISM.md ninth entry); styled sets are regenerable (make_styled_set.py)
+data_photos*/
+**/data_photos*/
+data_s1_thin/
+data_s2_ticks/
+data_positions_s1_thin/
+data_positions_s2_ticks/
+conversion_images_s1_thin/
+conversion_images_s2_ticks/

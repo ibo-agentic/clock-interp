@@ -486,6 +486,31 @@ def part_verify(ctx):
     except Exception as e:  # noqa: BLE001
         check("G9_block_activates_during_generation", False, error=_err(e))
 
+    # G12 / G13 (only adapters with local sliding-window + global layers, i.e. Gemma-3; PREREG_MECHANISM.md tenth entry)
+    if getattr(ad, "has_sliding_layers", False):
+        try:
+            info = ML.sliding_layer_info(ad)
+            all_trials = ctx.trials()
+            max_new_d = 6 if ctx.smoke else 24
+            maxP = max(ctx.prompt(*t).P for t in all_trials)
+            win = info["window"]
+            check("G12a_sliding_layout_read_from_config", win is not None and len(info["layer_types"]) == L and info["n_local"] + info["n_global"] == L,
+                  window=win, n_local=info["n_local"], n_global=info["n_global"], n_layers=L, layer_types="".join("L" if t == "sliding_attention" else "G" for t in info["layer_types"]))
+            check("G12b_all_prompts_shorter_than_sliding_window", win is not None and maxP + max_new_d < win, max_prompt_tokens=maxP, plus_new_tokens=max_new_d, window=win,
+                  n_prompts=len(all_trials), note="prompt + generated tokens re-fed by the no-cache loop must also stay inside the window")
+            caps = ML.capture_visible_sets(ad, ctx.prompt(*pick[0]).ids)
+            ref = caps[0]
+            diff_layers = [i for i, c in enumerate(caps) if c is None or c.shape != ref.shape or not bool((c == ref).all())]
+            check("G12c_local_and_global_layers_see_identical_keys", len(diff_layers) == 0, layers_with_different_visible_keys=diff_layers[:12], n_different=len(diff_layers))
+            tp = ctx.prompt(*pick[0])
+            st13 = ML.BlockState()
+            st13.q_start, st13.key_pos = tp.P - 3, torch.as_tensor(tp.spans["H"], dtype=torch.long)
+            with ML.block_attention(ad, (0, L), st13):
+                ML.forward_logits(ad, tp.ids)
+            check("G13_blocking_hook_fires_on_every_layer_once", st13.calls == L and st13.seen == L, calls=st13.calls, seen=st13.seen, n_layers=L)
+        except Exception as e:  # noqa: BLE001
+            check("G12_G13_sliding_window_gate", False, error=_err(e))
+
     res["pass"] = all(c["pass"] for c in res["checks"].values() if c.get("gating", True))
     with open(os.path.join(ctx.out, "verify.json"), "w") as f:
         json.dump(res, f, indent=1)
@@ -838,11 +863,20 @@ def part_d(ctx):
 
 
 def summarize_d(ctx):
+    _summarize_d(ctx, parsed_intact_only=False)
+    if getattr(ctx.args, "d_intact_parsed", False):      # Gemma-4B (tenth entry): primary = keys whose INTACT reply parsed; the all-key summary above is the sensitivity
+        _summarize_d(ctx, parsed_intact_only=True)
+
+
+def _summarize_d(ctx, parsed_intact_only=False):
     p = os.path.join(ctx.out, "e3d_knockout.csv")
     if not os.path.exists(p):
         return
     d = pd.read_csv(p)
     key = ["lead", "N", "H"]
+    sfx = "_intactparsed" if parsed_intact_only else ""
+    if parsed_intact_only:
+        d = d.merge(d[(d.cell == "intact") & (d.label != "unparsed")][key].drop_duplicates(), on=key)
     intact = d[d.cell == "intact"][key + ["minute_correct", "label"]].rename(
         columns={"minute_correct": "mc0", "label": "lab0"})
     nb = 2000 if ctx.smoke else 10000
@@ -862,7 +896,7 @@ def summarize_d(ctx):
                         "leak_p": ML.sign_flip_p(leak_d, cl, n_perm=nb)})
         out.append(row)
     s = pd.DataFrame(out)
-    ctx.save(s, "e3d_summary.csv")
+    ctx.save(s, f"e3d_summary{sfx}.csv")
     # PREREG rule (all layers, H-span): leak count down >=30% relative AND accuracy up >=4 points, both CIs exclude 0,
     # random-span control changes accuracy by <2 points. 'weak conversion' = leaks fall but accuracy gain < half the leak drop.
     try:
@@ -876,7 +910,9 @@ def summarize_d(ctx):
         v["M_bind_supported"] = bool(rel >= 0.30 and 100 * h.acc_diff >= 4 and h.acc_lo > 0 and h.leak_hi < 0
                                      and abs(100 * r.acc_diff) < 2)
         v["weak_conversion_account"] = bool((not v["M_bind_supported"]) and rel > 0 and h.acc_diff < 0.5 * leak_drop_frac)
-        with open(os.path.join(ctx.out, "e3d_prereg_verdict.json"), "w") as f:
+        if parsed_intact_only:                                   # key added ONLY for the extra summary (the standard verdict file stays byte-identical)
+            v["subset"] = "keys whose intact reply parsed"
+        with open(os.path.join(ctx.out, f"e3d_prereg_verdict{sfx}.json"), "w") as f:
             json.dump(v, f, indent=1)
         print("  E3d verdict:", v)
     except Exception as e:  # noqa: BLE001
@@ -1073,6 +1109,8 @@ def main():
     ap.add_argument("--g2_gate", default="own", choices=["own", "gold"],
                     help="which G2 variant gates: own = teacher-force the model's own free-generation prefix; "
                          "gold = the forced zero-padded gold prefix. The other one is logged as informational.")
+    ap.add_argument("--d_intact_parsed", action="store_true",
+                    help="E3d: ALSO summarise on the keys whose intact reply parsed (files *_intactparsed.*); the all-key summary is always written (Gemma-4B primary, tenth entry)")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
     parts = [p.strip() for p in args.parts.split(",") if p.strip()]

@@ -367,6 +367,7 @@ class Gemma3Adapter(ModelAdapter):
     short_name = "gemma-3-4b-it"
     default_model_id = "google/gemma-3-4b-it"
     supports_get_image_features = True
+    has_sliding_layers = True      # local sliding-window + global attention layers (mech_e3.py gate G12/G13 run only for adapters with this flag)
 
     def __init__(self):
         self.model = None
