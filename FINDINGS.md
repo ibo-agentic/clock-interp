@@ -5,18 +5,18 @@
 **Provenance:** tables = `results/comparison/four_model_table.md`; sensitivity = `results/comparison/sensitivity_rp1.0_vs_rp1.05.csv`; mechanism = `results/mech_e3/Q_D3IVL_report.txt`, `D2prime_D4_report.txt`. Pre-registration + deviations log: `PREREG_MECHANISM.md`.
 
 ## 1. Behaviour at greedy decoding (rp 1.0; n = 432 text/conversion trials, 480 describe images, 500 behaviour images)
-| | Qwen-3B | Qwen-7B | InternVL3-2B | InternVL3-8B |
-|---|---|---|---|---|
-| Image behaviour: exact HH:MM | 1.8% | 12.6% | 8.8% | 9.8% |
-| Describe: both hands exactly right | 25.4% | 50.6% | 30.0% | 45.0% |
-| Final answer wrong given both hands exactly right | **70.5%** (n=122) | 0.0% (n=243) | 0.7% (n=144) | 7.4% (n=216) |
-| Minute acc.: text only (no image) | 64.4% | 97.9% | 49.8% | 97.9% |
-| ... matching clock | 54.2% | 99.5% | 71.8% | 100.0% |
-| ... blank image | 66.2% | 100.0% | 45.6% | 98.8% |
-| ... mismatched clock, follows text / follows image (minute) | 56.0% / 3.9% | 100% / 0.0% | 43.8% / 15.3% | 96.3% / 2.5% |
-| Hour->minute leaks in text-only (of 432) | 40 | 6 | 117 | 2 |
-| McNemar, text-only vs matching clock (only-text-right / only-image-right) | p=4.6e-5 (79/35, image hurts) | p=0.065 (2/9) | p=3e-15 (29/124, image helps) | p=0.004 (0/9) |
-| Text-light pilot (E2 floor >= 0.15) | **0.093 (fails)** | 0.637 | 0.500 | 0.750 |
+| | Qwen-3B | Qwen-7B | InternVL3-2B | InternVL3-8B | Gemma-3-4B (bf16; 32-token text/conversion = primary, see 7) |
+|---|---|---|---|---|---|
+| Image behaviour: exact HH:MM | 1.8% | 12.6% | 8.8% | 9.8% | 0.4% |
+| Describe (tolerant parse = primary; strict InternVL3-8B 45.0%): both hands exactly right | 25.4% | 50.6% | 30.0% | 48.8% | 5.6% |
+| Final answer wrong given both hands exactly right (tolerant parse; strict InternVL3-8B 7.4%, n=216) | **70.5%** (n=122) | 0.0% (n=243) | 0.7% (n=144) | 6.8% (n=234) | 63.0% (n=27) |
+| Minute acc.: text only (no image) | 64.4% | 97.9% | 49.8% | 97.9% | 32.4% (39.4% at 128 tokens; 36.5% on keys parsed in all conditions) |
+| ... matching clock | 54.2% | 99.5% | 71.8% | 100.0% | 46.1% |
+| ... blank image | 66.2% | 100.0% | 45.6% | 98.8% | 47.9% |
+| ... mismatched clock, follows text / follows image (minute) | 56.0% / 3.9% | 100% / 0.0% | 43.8% / 15.3% | 96.3% / 2.5% | 44.9% / 6.0% |
+| Hour->minute leaks in text-only (of 432) | 40 | 6 | 117 | 2 | 132 (133 at 128 tokens) |
+| McNemar, text-only vs matching clock (only-text-right / only-image-right) | p=4.6e-5 (79/35, image hurts) | p=0.065 (2/9) | p=3e-15 (29/124, image helps) | p=0.004 (0/9) | p=1.8e-6 (46/105, image helps; at 128 tokens p=0.017, 55/84) |
+| Text-light pilot (E2 floor >= 0.15) | **0.093 (fails)** | 0.637 | 0.500 | 0.750 | not run |
 
 ## 2. Confirmatory results, exactly as pre-registered
 | Test | Result | Pre-registered verdict |
@@ -97,10 +97,13 @@ Reading: non-finite logits already on text-only prompts, so the problem is in th
 - Image: minute correct 46.1% with the matching clock, 47.9% with a BLANK image, 44.9% mismatched clock (text-only 32.4%; McNemar vs text-only p = 1.8e-6 / 2.7e-9 / 1.2e-5). A blank image helps as much as the right clock; mismatched-clock answers follow the image minute in 6.0% (26/432, 8 by the strict label). Leaks remain with an image (blank 88, matching 77, mismatched 85 of 432).
 - Describe (480): both hands exactly right 5.6% (hour hand right only 12.9%, minute hand exactly 48.5%); tolerant = strict parse for this model (0 replies recovered; the 4B replies echo the prompt's wording). Of the 40 clocks with both hands right (+/-1 number) 75% still get a wrong final answer (small n). The 30-reply sample is in the sample file for hand-checking.
 - Truncation check (2026-11-09, `results/gemma/G1_truncation_report.txt`): all 53 (text_only_v2) / 48 (conversion) cap hits are text-only trials; in conversion they are all lead-in 1 and all unparsed; no image trial is truncated. On the 384 keys parsed in all four conditions: text-only 36.5%, matching 44.3%, blank 45.8%, mismatched 43.8% (Holm p: 0.017 / 0.0011 / 0.017 vs text-only; matching vs blank p = 0.67). So truncation explains part of the image gain (text-only vs blank gap 15.5 -> 9.3 points) but not all; blank still equals the matching clock, i.e. the image's presence, not its content, changes the answers. Re-run at 128 tokens proposed for 4B; G2a runs at 128 from the start (seventh deviations entry). The 4B text-only/conversion numbers above are the 32-token ones.
+- G1b, 128-token re-run of text_only_v2 + conversion_test (2026-11-10; zip unzipped to `match_G1b_results/`, NOT merged into `results/`; report `results/gemma/G1b_report.txt`): gate OK, all 7 steps OK, 2.49 h. **Pre-registered success rule NOT MET:** `cap_check` at 128 = 6 hits in text_only_v2 (rule <= 5) and 6 in conversion_test (rule 0). So, as logged, the 32-token numbers stay primary and the 128-token run is a sensitivity (no files renamed or swapped). Facts at 128: trials already finished at 32 tokens are byte-identical (1963/1963 and 1680/1680); all 53 / 48 truncated replies changed (they are long chain-of-thought answers, some ending "Final Answer: ... boxed{"); 0 unparsed; text-only minute accuracy 39.4% [34.9, 44.0] (32 tokens: 32.4%), of the 48 formerly truncated trials 30 are correct and 1 is a leak; hour->minute leaks 133 (32 tokens: 132); the 6 remaining cap hits are all parsed (3/6 correct; hit marker = reply length >= 430 characters, a proxy). Text-only vs images at 128 (n = 432 keys, exact McNemar, Holm over 3): matching 46.1% p = 0.017 (Holm 0.035), blank 47.9% p = 0.00098 (Holm 0.0030), mismatched 44.9% p = 0.052 (Holm 0.052); matching vs blank p = 0.58. So with nothing cut off the image benefit shrinks (text-only vs blank gap 8.5 points) but "any image helps, even a blank one, as much as the matching clock" still holds; the mismatched-clock comparison is no longer significant.
 - Probe (data_balanced/, 480): minute-hand position is linearly decodable (12-way) at 88.5% from the last-token state (layer 15, R2 0.81; shuffled-label 7.3%, majority 8.3%), 96.7% from mean-pooled image-token states (layer 1) and 95.0% from the vision encoder, although only 4.0% of final answers have the right minute (19 correct images, high variance). Qwen-3B (same script): 95.2% last-token (layer 21). Reading: the minute hand is represented, the failure is downstream of the vision encoder; no causal claim.
 - Selection-bias check (five models, `results/comparison/selection_bias_5models_{tolerant,strict}.txt`; script default now `--parse tolerant`) and the five-model `compare_families` table are regenerated; the table file names still say "four_model".
 
 ## Update log
+- 2026-11-10: G2a raised to max_new_tokens=256 (eighth deviations entry; 4B still hit the 128 cap in 6/2016 and 6/1728); Gemma-4B outcome kept as logged (32 tokens headline, 128 sensitivity).
+- 2026-11-10: G1b (Gemma-4B at 128 tokens) incorporated as a sensitivity (success rule not met, nothing swapped); headline table gets a Gemma-3-4B column (32-token primary) and the tolerant-parse describe values for InternVL3-8B.
 - 2026-11-09: Gemma-4B truncation check (cap hits only in text-only lead-in 1; all-conditions-parsed re-analysis); seventh deviations entry (4B 128-token re-run proposed, G2a at 128); G2a rebuilt.
 - 2026-11-09: G1 (Gemma-3-4B) incorporated (section 7): merged, aggregates and compare_families re-run with five models, selection-bias check re-run, `analysis/analyze_G1.py` report.
 - 2026-11-09: tolerant describe parse made PRIMARY for all six models (sixth deviations entry); compare_families.py updated (strict = sensitivity rows); --recompute_tolerant covers minute columns.

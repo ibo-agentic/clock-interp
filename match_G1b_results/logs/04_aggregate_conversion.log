@@ -1,0 +1,22 @@
+Wrote summary.csv, paired_tests.csv, parse_rates.csv, minute_accuracy_vs_position.png to 'results/conversion_test'.
+
+=== OVERALL (n=432 per cell) ===
+gemma-3-4b-it   blank             changed_vs_text_only   53.7% [49.0%, 58.4%] (n=432)
+gemma-3-4b-it   matching_clock    changed_vs_text_only   73.4% [69.0%, 77.3%] (n=432)
+gemma-3-4b-it   mismatched_clock  changed_vs_text_only   76.9% [72.6%, 80.6%] (n=432)
+gemma-3-4b-it   blank             correct                45.6% [41.0%, 50.3%] (n=432)
+gemma-3-4b-it   matching_clock    correct                41.9% [37.3%, 46.6%] (n=432)
+gemma-3-4b-it   mismatched_clock  correct                39.4% [34.9%, 44.0%] (n=432)
+gemma-3-4b-it   text_only         correct                34.5% [30.2%, 39.1%] (n=432)
+gemma-3-4b-it   mismatched_clock  matches_image_full      0.0% [0.0%, 0.9%] (n=432)
+gemma-3-4b-it   mismatched_clock  matches_image_hour      1.4% [0.6%, 3.0%] (n=432)
+gemma-3-4b-it   mismatched_clock  matches_image_minute    6.0% [4.1%, 8.7%] (n=432)
+gemma-3-4b-it   blank             minute_correct         47.9% [43.2%, 52.6%] (n=432)
+gemma-3-4b-it   matching_clock    minute_correct         46.1% [41.4%, 50.8%] (n=432)
+gemma-3-4b-it   mismatched_clock  minute_correct         44.9% [40.3%, 49.6%] (n=432)
+gemma-3-4b-it   text_only         minute_correct         39.4% [34.9%, 44.0%] (n=432)
+
+=== PAIRED McNEMAR, text_only vs image condition, overall ===
+gemma-3-4b-it   text_only_vs_matching_clock      only_text= 55 only_image= 84 both_ok=115 both_wrong=178  p=0.01724
+gemma-3-4b-it   text_only_vs_blank               only_text= 42 only_image= 79 both_ok=128 both_wrong=183  p=0.000983
+gemma-3-4b-it   text_only_vs_mismatched_clock    only_text= 58 only_image= 82 both_ok=112 both_wrong=180  p=0.05152

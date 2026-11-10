@@ -1,0 +1,10 @@
+00_gate_4b_bf16                  OK                             2.8 min
+01_text_only_v2_128              OK                            27.2 min
+02_conversion_test_128           OK                           118.8 min
+03_aggregate_text_only           OK                             0.0 min
+04_aggregate_conversion          OK                             0.0 min
+05_cap_check_128                 OK                             0.2 min
+06_purge_4b_cache                OK                             0.0 min
+
+total wall time: 2.49 h
+MISSING expected files: none

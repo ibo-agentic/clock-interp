@@ -1,0 +1,43 @@
+=== 1. SUCCESS RULE (logged before the run): cap_check at 128 -> 0 hits in conversion_test AND <= 5 in text_only_v2 ===
+                                     file  cap    n  max_tokens  p99  hit_cap  within_1_of_cap  unparsed
+   results/gemma-3-4b-it/text_only_v2.csv  128 2016         128   70        6                7         0
+results/gemma-3-4b-it/conversion_test.csv  128 1728         128   71        6                7         0
+text_only_v2 hits 6 (rule <= 5): NOT MET;  conversion_test hits 6 (rule 0): NOT MET  ->  RULE NOT MET
+conversion_test: replies >= 200 characters (long chain-of-thought): 48 (condition: {'text_only': 48}; lead_in_id {1: 48}); unparsed 0
+the 6 cap hits (>= 430 characters, proxy; tokenizer not cached locally): all parsed = True; minute_correct among them 3/6
+
+=== 2. RULE CHECK: trials whose 32-token reply had already finished (< 100 chars) -- identical at 128? ===
+  text_only_v2: 2016 matched trials; finished at 32: 1963, identical reply at 128: 1963; truncated at 32: 53, of which now different: 53
+  conversion_test: 1728 matched trials; finished at 32: 1680, identical reply at 128: 1680; truncated at 32: 48, of which now different: 48
+
+=== 3. TEXT-ONLY two-hand conversion at 128 vs 32 (conversion_test, condition text_only, n=432) ===
+             run   n            minute_correct                     leaks  unparsed  adjacent  default_0_30  other
+  32 tokens (G1) 432 140 = 32.4% [28.2%,37.0%] 132 = 30.6% [26.4%,35.1%]        48        20            12     80
+128 tokens (G1b) 432 170 = 39.4% [34.9%,44.0%] 133 = 30.8% [26.6%,35.3%]         0        20            12     97
+  the 48 trials truncated at 32: minute correct at 128 = 30/48; hour->minute leaks at 128 = 1; the other 384: correct 140
+
+=== 4. TEXT-ONLY vs MATCHING vs BLANK vs MISMATCHED at 128 (exact McNemar; Holm over the 3 comparisons with text-only) ===
+
+--- ALL 432 keys (every trial parsed): 432 keys ---
+minute accuracy: text_only 39.4%  matching_clock 46.1%  blank 47.9%  mismatched_clock 44.9%
+  text_only vs matching_clock    only-text-correct  55  only-image-correct  84  both 115  neither 178   p = 0.0172  Holm p = 0.0345
+  text_only vs blank             only-text-correct  42  only-image-correct  79  both 128  neither 183   p = 0.000983  Holm p = 0.00295
+  text_only vs mismatched_clock  only-text-correct  58  only-image-correct  82  both 112  neither 180   p = 0.0515  Holm p = 0.0515
+  matching vs blank: only-matching 74, only-blank 82  p = 0.575
+
+--- excluding the 48 keys whose text-only reply is a long chain-of-thought (>= 200 chars; these are the keys truncated at 32): 384 keys ---
+minute accuracy: text_only 36.5%  matching_clock 44.3%  blank 45.8%  mismatched_clock 43.8%
+  text_only vs matching_clock    only-text-correct  46  only-image-correct  76  both  94  neither 168   p = 0.00838  Holm p = 0.0168
+  text_only vs blank             only-text-correct  31  only-image-correct  67  both 109  neither 177   p = 0.000355  Holm p = 0.00106
+  text_only vs mismatched_clock  only-text-correct  48  only-image-correct  76  both  92  neither 168   p = 0.015  Holm p = 0.0168
+  matching vs blank: only-matching 66, only-blank 72  p = 0.671
+
+--- excluding the 6 keys that still hit the 128 cap: 426 keys ---
+minute accuracy: text_only 39.2%  matching_clock 46.0%  blank 47.4%  mismatched_clock 45.1%
+  text_only vs matching_clock    only-text-correct  54  only-image-correct  83  both 113  neither 176   p = 0.0164  Holm p = 0.0329
+  text_only vs blank             only-text-correct  41  only-image-correct  76  both 126  neither 183   p = 0.00156  Holm p = 0.00467
+  text_only vs mismatched_clock  only-text-correct  57  only-image-correct  82  both 110  neither 177   p = 0.0414  Holm p = 0.0414
+  matching vs blank: only-matching 74, only-blank 80  p = 0.687
+
+leaks by condition at 128: blank 88, matching_clock 77, mismatched_clock 85, text_only 133
+leaks by condition at 32:  blank 88, matching_clock 77, mismatched_clock 85, text_only 132

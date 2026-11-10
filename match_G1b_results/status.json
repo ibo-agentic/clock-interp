@@ -1,0 +1,44 @@
+[
+ {
+  "step": "00_gate_4b_bf16",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 2.8
+ },
+ {
+  "step": "01_text_only_v2_128",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 27.2
+ },
+ {
+  "step": "02_conversion_test_128",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 118.8
+ },
+ {
+  "step": "03_aggregate_text_only",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "04_aggregate_conversion",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "05_cap_check_128",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.2
+ },
+ {
+  "step": "06_purge_4b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]
