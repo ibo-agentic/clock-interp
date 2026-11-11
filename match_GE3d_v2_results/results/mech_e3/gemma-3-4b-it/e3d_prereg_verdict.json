@@ -1,0 +1,16 @@
+{
+ "model": "gemma-3-4b-it",
+ "leak_intact": 131,
+ "leak_blocked": 25,
+ "leak_rel_drop": 0.8091603053435115,
+ "acc_diff_points": 21.296296296296298,
+ "acc_ci_points": [
+  15.972222222222221,
+  26.620370370370374
+ ],
+ "leak_ci_excludes0": true,
+ "acc_ci_excludes0": true,
+ "random_span_acc_diff_points": -1.3888888888888888,
+ "M_bind_supported": true,
+ "weak_conversion_account": false
+}

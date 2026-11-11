@@ -1,0 +1,229 @@
+{
+ "model": "gemma-3-4b-it",
+ "n_layers": 34,
+ "checks": {
+  "G1_tokens_and_spans": {
+   "pass": true,
+   "gating": true
+  },
+  "G2_gold_prefix_teacher_forced_vs_free_generation": {
+   "pass": false,
+   "gating": false,
+   "agreement": 0.66,
+   "tf_acc": 0.64,
+   "free_acc": 0.34,
+   "n": 100,
+   "note": "informational unless --g2_gate gold (see PREREG deviations log)"
+  },
+  "G2_own_prefix_teacher_forced_vs_free_generation": {
+   "pass": true,
+   "gating": true,
+   "agreement": 0.978,
+   "tf_acc": 0.404,
+   "free_acc": 0.34,
+   "n_usable": 89,
+   "token_level_exact_match": 0.978,
+   "note": "threshold 0.95; the machinery check",
+   "nocache_loop_eq_cached_free": 0.98,
+   "own_agree_vs_nocache_loop": 0.966,
+   "disagreements": {
+    "free_minute_off_the_12_candidate_grid": 2
+   },
+   "disagreements_by_prefix_class": {
+    "wrong_hour_padded": 1,
+    "exact_match": 1
+   }
+  },
+  "G3_identity_patch_no_change": {
+   "pass": true,
+   "gating": true,
+   "max_abs_diff_nats": 0.0
+  },
+  "G4_logit_lens_final_layer_matches_model": {
+   "pass": true,
+   "gating": true,
+   "max_abs_diff_nats": 0.0
+  },
+  "G8a_eager_forced_on_every_attention_layer": {
+   "pass": true,
+   "gating": true,
+   "default": {
+    "sdpa": 34
+   },
+   "inside_eager": {
+    "eager": 34
+   }
+  },
+  "G8c_eager_logits_finite_and_close_to_default": {
+   "pass": true,
+   "gating": true,
+   "finite_default": true,
+   "finite_eager": true,
+   "max_abs_logprob_diff": 0.0,
+   "argmax_equal": "10/10"
+  },
+  "G10_cached_decode_vs_nocache_forward_logits": {
+   "pass": false,
+   "gating": false,
+   "max_abs_logit_diff": 2.5,
+   "min_argmax_agree": 1.0,
+   "all_finite": true,
+   "n": 8,
+   "note": "large diffs with finite logits would point at a position/cache bug (e.g. stale rope_deltas); small ones = fp16 noise"
+  },
+  "G11_penalty_free_generation_consistency": {
+   "pass": true,
+   "gating": false,
+   "checkpoint_repetition_penalty": null,
+   "note": "no repetition penalty in this checkpoint's generation_config: nothing to test"
+  },
+  "G5_empty_block_equals_no_hook": {
+   "pass": true,
+   "gating": true,
+   "matches": "50/50"
+  },
+  "G8_eager_vs_default_attention_agree": {
+   "pass": true,
+   "gating": true,
+   "agreement": 1.0,
+   "usable": 40,
+   "n": 50,
+   "all_key_agreement": 0.8,
+   "note": "parsed-only (fourteenth entry): keys whose intact eager reply parses; needs >= 30 usable keys"
+  },
+  "G8b_nocache_loop_vs_adapter_generate_agree": {
+   "pass": true,
+   "gating": true,
+   "agreement": 0.975,
+   "usable": 40,
+   "n": 50,
+   "all_key_agreement": 0.78,
+   "note": "parsed-only (fourteenth entry): keys whose default no-cache reply parses; parsed HH:MM equality with the adapter generate"
+  },
+  "G6_guard_rejects_full_prompt_block": {
+   "pass": true,
+   "gating": true
+  },
+  "G7d_blocked_and_baseline_logprobs_finite": {
+   "pass": true,
+   "gating": true,
+   "nonfinite_forwards": 0
+  },
+  "G7_hooks_fire_on_every_layer": {
+   "pass": true,
+   "gating": true,
+   "max_calls_per_forward": 34,
+   "n_layers": 34
+  },
+  "G7b_blocking_N_span_changes_logprobs": {
+   "pass": true,
+   "gating": true,
+   "changed": "20/20"
+  },
+  "G7c_empty_block_changes_nothing": {
+   "pass": true,
+   "gating": true,
+   "max_abs_diff_nats": 0.0
+  },
+  "G9_block_activates_during_generation": {
+   "pass": true,
+   "gating": true,
+   "activated": "40/40",
+   "usable": 40,
+   "n": 50,
+   "note": "parsed-only (fourteenth entry): keys whose intact reply parses; needs >= 90% activation and >= 30 usable keys"
+  },
+  "G12a_sliding_layout_read_from_config": {
+   "pass": true,
+   "gating": true,
+   "window": 1024,
+   "n_local": 29,
+   "n_global": 5,
+   "n_layers": 34,
+   "layer_types": "LLLLLGLLLLLGLLLLLGLLLLLGLLLLLGLLLL"
+  },
+  "G12b_all_prompts_shorter_than_sliding_window": {
+   "pass": true,
+   "gating": true,
+   "max_prompt_tokens": 62,
+   "plus_new_tokens": 24,
+   "window": 1024,
+   "n_prompts": 432,
+   "note": "prompt + generated tokens re-fed by the no-cache loop must also stay inside the window"
+  },
+  "G12c_local_and_global_layers_see_identical_keys": {
+   "pass": true,
+   "gating": true,
+   "layers_with_different_visible_keys": [],
+   "n_different": 0
+  },
+  "G13_blocking_hook_fires_on_every_layer_once": {
+   "pass": true,
+   "gating": true,
+   "calls": 34,
+   "seen": 34,
+   "n_layers": 34
+  }
+ },
+ "rep_penalty_arg": null,
+ "checkpoint_default_repetition_penalty": null,
+ "g2_breakdown": [
+  {
+   "prefix_class": "exact_match",
+   "n": 41,
+   "free_acc": 0.634,
+   "gold_tf_acc": 0.659,
+   "gold_agree": 0.976,
+   "own_agree": 0.976
+  },
+  {
+   "prefix_class": "no_colon",
+   "n": 11,
+   "free_acc": 0.0,
+   "gold_tf_acc": 0.636,
+   "gold_agree": 0.364,
+   "own_agree": null
+  },
+  {
+   "prefix_class": "same_hour_other_padding",
+   "n": 1,
+   "free_acc": 1.0,
+   "gold_tf_acc": 0.0,
+   "gold_agree": 0.0,
+   "own_agree": 1.0
+  },
+  {
+   "prefix_class": "same_hour_unpadded",
+   "n": 4,
+   "free_acc": 0.75,
+   "gold_tf_acc": 0.75,
+   "gold_agree": 1.0,
+   "own_agree": 1.0
+  },
+  {
+   "prefix_class": "wrong_hour_padded",
+   "n": 38,
+   "free_acc": 0.105,
+   "gold_tf_acc": 0.605,
+   "gold_agree": 0.447,
+   "own_agree": 0.974
+  },
+  {
+   "prefix_class": "wrong_hour_unpadded",
+   "n": 5,
+   "free_acc": 0.0,
+   "gold_tf_acc": 0.8,
+   "gold_agree": 0.2,
+   "own_agree": 1.0
+  }
+ ],
+ "attn_impl": {
+  "default": {
+   "sdpa": 34
+  },
+  "inside_eager_context": {
+   "eager": 34
+  }
+ },
+ "pass": true
+}

@@ -1,0 +1,41 @@
+=== GE3d Gemma-4B: files ===
+  00_gate_4b_bf16        OK      2.7 min
+  01_verify_gates        OK     24.6 min
+  02_e3d_minimal         OK     40.0 min
+  03_purge_4b_cache      OK      0.0 min
+  total 1.12 h (guess 1.9 h)
+  verify pass = True; amended gates: G8 1.0 usable 40/50; G8b 0.975 usable 40/50; G9 40/40 usable 40/50
+
+=== Gemma-4B label counts per cell (432 trials; all keys) ===
+label       adjacent  correct  default_0_30  leak  other  unparsed
+cell                                                              
+H_all             31      231            15    25     82        48
+intact            21      139            11   131     82        48
+random_all        24      133            13   137     76        49
+
+intact-parsed keys: 384 of 432 (unparsed intact replies: 48)
+  H_all: unparsed 48 of 432 (on the 48 intact-unparsed keys: 48)
+  random_all: unparsed 49 of 432 (on the 48 intact-unparsed keys: 48)
+
+=== Pre-registered E3d rule, exactly as pre-registered (leaks down >= 30%, accuracy up >= 4 points with CI excluding 0, random-span |acc change| <= 2 points) ===
+model                           qwen2.5-vl-3b         internvl3-2b        gemma-3-4b-it
+n                                         432                  432                  432
+leaks intact                               40                  117                  131
+leaks H-blocked                            13                   28                   25
+leaks random                               44                  113                  137
+leak drop                               67.5%                76.1%                80.9%
+acc gain pts [CI]           +9.3 [+5.8,+13.0]  +22.5 [+17.4,+27.3]  +21.3 [+16.4,+26.4]
+random acc pts                           -0.9                 +3.0                 -1.4
+control-adj acc pts [CI]   +10.2 [+6.9,+13.4]  +19.4 [+14.4,+24.5]  +22.7 [+17.6,+28.0]
+control-adj leak pts [CI]   -7.2 [-10.2,-4.4]  -19.7 [-23.6,-16.0]  -25.9 [-30.6,-21.5]
+leak>=30%                                True                 True                 True
+acc>=4,CI>0                              True                 True                 True
+ctrl<=2                                  True                False                 True
+rule met (mine)                          True                False                 True
+M_bind_supported (json)                  True                False                 True
+
+=== Gemma-4B, PRIMARY = keys whose intact reply parsed (n=384); SENSITIVITY = all keys above ===
+  leaks intact 131, H-blocked 25, random 137; leak drop 80.9%
+  accuracy: intact 36.2% -> H-blocked 60.2%
+  acc gain +24.0 [+18.4,+29.7] pts; random-span -1.6; control-adjusted acc +25.5 [+19.8,+31.5]; control-adjusted leak -29.2 [-34.3,-24.2]
+  rule: leak>=30% True, acc>=4 & CI>0 True, random within 2 pts True -> met True; json verdict M_bind_supported=True

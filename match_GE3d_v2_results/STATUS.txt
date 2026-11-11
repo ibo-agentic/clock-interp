@@ -1,0 +1,7 @@
+00_gate_4b_bf16                  OK                             2.7 min
+01_verify_gates                  OK                            24.6 min
+02_e3d_minimal                   OK                            40.0 min
+03_purge_4b_cache                OK                             0.0 min
+
+total wall time: 1.13 h
+MISSING expected files: none

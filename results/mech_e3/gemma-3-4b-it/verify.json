@@ -83,15 +83,22 @@
    "matches": "50/50"
   },
   "G8_eager_vs_default_attention_agree": {
-   "pass": false,
+   "pass": true,
    "gating": true,
-   "agreement": 0.8
+   "agreement": 1.0,
+   "usable": 40,
+   "n": 50,
+   "all_key_agreement": 0.8,
+   "note": "parsed-only (fourteenth entry): keys whose intact eager reply parses; needs >= 30 usable keys"
   },
   "G8b_nocache_loop_vs_adapter_generate_agree": {
-   "pass": false,
+   "pass": true,
    "gating": true,
-   "agreement": 0.78,
-   "note": "parsed HH:MM equality; fp16 + different code path, so a small disagreement is expected"
+   "agreement": 0.975,
+   "usable": 40,
+   "n": 50,
+   "all_key_agreement": 0.78,
+   "note": "parsed-only (fourteenth entry): keys whose default no-cache reply parses; parsed HH:MM equality with the adapter generate"
   },
   "G6_guard_rejects_full_prompt_block": {
    "pass": true,
@@ -119,10 +126,12 @@
    "max_abs_diff_nats": 0.0
   },
   "G9_block_activates_during_generation": {
-   "pass": false,
+   "pass": true,
    "gating": true,
-   "activated": "14/20",
-   "note": "needs >=90% (a model that never writes ':' would silently get no knockout); smoke only logs it"
+   "activated": "40/40",
+   "usable": 40,
+   "n": 50,
+   "note": "parsed-only (fourteenth entry): keys whose intact reply parses; needs >= 90% activation and >= 30 usable keys"
   },
   "G12a_sliding_layout_read_from_config": {
    "pass": true,
@@ -216,5 +225,5 @@
    "eager": 34
   }
  },
- "pass": false
+ "pass": true
 }

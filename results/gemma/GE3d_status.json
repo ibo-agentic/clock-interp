@@ -3,24 +3,24 @@
   "step": "00_gate_4b_bf16",
   "status": "OK",
   "returncode": 0,
-  "minutes": 2.9
+  "minutes": 2.7
  },
  {
   "step": "01_verify_gates",
-  "status": "FAILED rc=3",
-  "returncode": 3,
-  "minutes": 25.1
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 24.6
  },
  {
   "step": "02_e3d_minimal",
-  "status": "SKIPPED (gate failed)",
-  "returncode": null,
-  "minutes": 0.0
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 40.0
  },
  {
   "step": "03_purge_4b_cache",
-  "status": "SKIPPED (gate failed)",
-  "returncode": null,
+  "status": "OK",
+  "returncode": 0,
   "minutes": 0.0
  }
 ]

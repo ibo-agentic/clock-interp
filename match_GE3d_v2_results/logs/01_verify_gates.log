@@ -1,0 +1,39 @@
+Loading google/gemma-3-4b-it in bfloat16 (CLOCK_DTYPE=bfloat16) ...
+NOTE: google/gemma-3-4b-it is a GATED HF repo -- this call will fail with a 401 unless HF_TOKEN is set (env var or `huggingface-cli login`) AND access has been granted at https://huggingface.co/google/gemma-3-4b-it.
+mech_e3: model=gemma-3-4b-it layers=34 parts=['verify'] smoke=False rep_penalty=None  [all timings in the log are measurements of THIS run; planning numbers elsewhere are guesses]
+  [PASS] G1_tokens_and_spans {}
+  wrote results/mech_e3/gemma-3-4b-it/verify_g2_trials.csv (100 rows)
+  G2 breakdown by how the model's own prefix relates to the forced gold prefix:
+           prefix_class  n  free_acc  gold_tf_acc  gold_agree  own_agree
+            exact_match 41     0.634        0.659       0.976      0.976
+               no_colon 11     0.000        0.636       0.364        NaN
+same_hour_other_padding  1     1.000        0.000       0.000      1.000
+     same_hour_unpadded  4     0.750        0.750       1.000      1.000
+      wrong_hour_padded 38     0.105        0.605       0.447      0.974
+    wrong_hour_unpadded  5     0.000        0.800       0.200      1.000
+  [info:FAIL] G2_gold_prefix_teacher_forced_vs_free_generation {'agreement': 0.66, 'tf_acc': 0.64, 'free_acc': 0.34, 'n': 100, 'note': 'informational unless --g2_gate gold (see PREREG deviations log)'}
+  [PASS] G2_own_prefix_teacher_forced_vs_free_generation {'agreement': 0.978, 'tf_acc': 0.404, 'free_acc': 0.34, 'n_usable': 89, 'token_level_exact_match': 0.978, 'note': 'threshold 0.95; the machinery check', 'nocache_loop_eq_cached_free': 0.98, 'own_agree_vs_nocache_loop': 0.966, 'disagreements': {'free_minute_off_the_12_candidate_grid': 2}, 'disagreements_by_prefix_class': {'wrong_hour_padded': 1, 'exact_match': 1}}
+  [PASS] G3_identity_patch_no_change {'max_abs_diff_nats': 0.0}
+  [PASS] G4_logit_lens_final_layer_matches_model {'max_abs_diff_nats': 0.0}
+  [PASS] G8a_eager_forced_on_every_attention_layer {'default': {'sdpa': 34}, 'inside_eager': {'eager': 34}}
+/kaggle/working/run/mech_e3.py:349: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  worst = max(worst, float((torch.log_softmax(ld, -1) - torch.log_softmax(le, -1)).abs().max()))
+  [PASS] G8c_eager_logits_finite_and_close_to_default {'finite_default': True, 'finite_eager': True, 'max_abs_logprob_diff': 0.0, 'argmax_equal': '10/10'}
+  [info:FAIL] G10_cached_decode_vs_nocache_forward_logits {'max_abs_logit_diff': 2.5, 'min_argmax_agree': 1.0, 'all_finite': True, 'n': 8, 'note': 'large diffs with finite logits would point at a position/cache bug (e.g. stale rope_deltas); small ones = fp16 noise'}
+  [info:pass] G11_penalty_free_generation_consistency {'checkpoint_repetition_penalty': None, 'note': "no repetition penalty in this checkpoint's generation_config: nothing to test"}
+  [PASS] G5_empty_block_equals_no_hook {'matches': '50/50'}
+  [PASS] G8_eager_vs_default_attention_agree {'agreement': 1.0, 'usable': 40, 'n': 50, 'all_key_agreement': 0.8, 'note': 'parsed-only (fourteenth entry): keys whose intact eager reply parses; needs >= 30 usable keys'}
+  [PASS] G8b_nocache_loop_vs_adapter_generate_agree {'agreement': 0.975, 'usable': 40, 'n': 50, 'all_key_agreement': 0.78, 'note': 'parsed-only (fourteenth entry): keys whose default no-cache reply parses; parsed HH:MM equality with the adapter generate'}
+  [PASS] G6_guard_rejects_full_prompt_block {}
+  [PASS] G7d_blocked_and_baseline_logprobs_finite {'nonfinite_forwards': 0}
+  [PASS] G7_hooks_fire_on_every_layer {'max_calls_per_forward': 34, 'n_layers': 34}
+  [PASS] G7b_blocking_N_span_changes_logprobs {'changed': '20/20'}
+  [PASS] G7c_empty_block_changes_nothing {'max_abs_diff_nats': 0.0}
+  [PASS] G9_block_activates_during_generation {'activated': '40/40', 'usable': 40, 'n': 50, 'note': 'parsed-only (fourteenth entry): keys whose intact reply parses; needs >= 90% activation and >= 30 usable keys'}
+  [PASS] G12a_sliding_layout_read_from_config {'window': 1024, 'n_local': 29, 'n_global': 5, 'n_layers': 34, 'layer_types': 'LLLLLGLLLLLGLLLLLGLLLLLGLLLLLGLLLL'}
+  [PASS] G12b_all_prompts_shorter_than_sliding_window {'max_prompt_tokens': 62, 'plus_new_tokens': 24, 'window': 1024, 'n_prompts': 432, 'note': 'prompt + generated tokens re-fed by the no-cache loop must also stay inside the window'}
+  [PASS] G12c_local_and_global_layers_see_identical_keys {'layers_with_different_visible_keys': [], 'n_different': 0}
+  [PASS] G13_blocking_hook_fires_on_every_layer_once {'calls': 34, 'seen': 34, 'n_layers': 34}
+VERIFY GATE PASSED for gemma-3-4b-it
+verify took 1462s

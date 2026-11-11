@@ -52,9 +52,9 @@ cuda:1 peak memory 2.7 GiB
 
 VERDICT: PASS
 
-load time: 52 s   dtype: bfloat16
-timing [text_only]: {'seconds_per_generation_mean': 0.7617176373799642, 'seconds_min': 0.7436838150024414, 'seconds_max': 0.7870864868164062, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 0.21578049659729004, 'answer': '07:24', 'answers_identical': True, 'prompt_tokens': 49}
-timing [with_image]: {'seconds_per_generation_mean': 5.203572193781535, 'seconds_min': 5.14865517616272, 'seconds_max': 5.235184192657471, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 4.9367148876190186, 'answer': '10:30', 'answers_identical': True, 'prompt_tokens': 283}
+load time: 51 s   dtype: bfloat16
+timing [text_only]: {'seconds_per_generation_mean': 0.7812369664510092, 'seconds_min': 0.7676198482513428, 'seconds_max': 0.8009316921234131, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 0.2177419662475586, 'answer': '07:24', 'answers_identical': True, 'prompt_tokens': 49}
+timing [with_image]: {'seconds_per_generation_mean': 4.210677623748779, 'seconds_min': 4.194186687469482, 'seconds_max': 4.221282005310059, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 3.941988706588745, 'answer': '10:30', 'answers_identical': True, 'prompt_tokens': 283}
 
 wrote results/gemma/gemma-3-4b-it_bf16/smoke.json 
 SMOKE PASS

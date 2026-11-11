@@ -1,0 +1,16 @@
+Loading google/gemma-3-4b-it in bfloat16 (CLOCK_DTYPE=bfloat16) ...
+NOTE: google/gemma-3-4b-it is a GATED HF repo -- this call will fail with a 401 unless HF_TOKEN is set (env var or `huggingface-cli login`) AND access has been granted at https://huggingface.co/google/gemma-3-4b-it.
+mech_e3: model=gemma-3-4b-it layers=34 parts=['d'] smoke=False rep_penalty=None  [all timings in the log are measurements of THIS run; planning numbers elsewhere are guesses]
+
+===== part d =====
+  E3d cell 1/3 intact: acc 0.322  elapsed 789s
+  wrote results/mech_e3/gemma-3-4b-it/e3d_knockout.csv (432 rows)
+  E3d cell 2/3 H_all: acc 0.535  elapsed 1582s
+  wrote results/mech_e3/gemma-3-4b-it/e3d_knockout.csv (864 rows)
+  E3d cell 3/3 random_all: acc 0.308  elapsed 2383s
+  wrote results/mech_e3/gemma-3-4b-it/e3d_knockout.csv (1296 rows)
+  wrote results/mech_e3/gemma-3-4b-it/e3d_summary.csv (3 rows)
+  E3d verdict: {'model': 'gemma-3-4b-it', 'leak_intact': 131, 'leak_blocked': 25, 'leak_rel_drop': np.float64(0.8091603053435115), 'acc_diff_points': np.float64(21.296296296296298), 'acc_ci_points': [np.float64(15.972222222222221), np.float64(26.620370370370374)], 'leak_ci_excludes0': True, 'acc_ci_excludes0': True, 'random_span_acc_diff_points': np.float64(-1.3888888888888888), 'M_bind_supported': True, 'weak_conversion_account': False}
+  wrote results/mech_e3/gemma-3-4b-it/e3d_summary_intactparsed.csv (3 rows)
+  E3d verdict: {'model': 'gemma-3-4b-it', 'leak_intact': 131, 'leak_blocked': 25, 'leak_rel_drop': np.float64(0.8091603053435115), 'acc_diff_points': np.float64(23.958333333333336), 'acc_ci_points': [np.float64(18.134715025906736), np.float64(29.765013054830288)], 'leak_ci_excludes0': True, 'acc_ci_excludes0': True, 'random_span_acc_diff_points': np.float64(-1.5625), 'M_bind_supported': True, 'weak_conversion_account': False, 'subset': 'keys whose intact reply parsed'}
+part d took 39.7 min

@@ -36,5 +36,6 @@
   "results/gemma/gemma-3-4b-it_bf16\\smoke_images\\smoke_2_0720.png",
   "results/gemma/gemma-3-4b-it_bf16\\smoke_images\\smoke_3_1200.png",
   "results/gemma/gemma-3-4b-it_bf16\\smoke_images\\smoke_4_0535.png"
- ]
+ ],
+ "note_2026-11-12": "GE3d run-1 files (failed verify) renamed with _run1 suffix before the run-2 merge; paths of the GE3d entries above refer to the names before renaming"
 }

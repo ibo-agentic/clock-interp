@@ -1,0 +1,17 @@
+{
+ "model": "gemma-3-4b-it",
+ "leak_intact": 131,
+ "leak_blocked": 25,
+ "leak_rel_drop": 0.8091603053435115,
+ "acc_diff_points": 23.958333333333336,
+ "acc_ci_points": [
+  18.134715025906736,
+  29.765013054830288
+ ],
+ "leak_ci_excludes0": true,
+ "acc_ci_excludes0": true,
+ "random_span_acc_diff_points": -1.5625,
+ "M_bind_supported": true,
+ "weak_conversion_account": false,
+ "subset": "keys whose intact reply parsed"
+}

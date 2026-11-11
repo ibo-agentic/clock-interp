@@ -9,7 +9,7 @@
   "cuda:0": 7.760635852813721,
   "cuda:1": 2.6870269775390625
  },
- "load_seconds": 51.60536479949951,
+ "load_seconds": 51.46579623222351,
  "device_map": {
   "model.vision_tower": "0",
   "model.multi_modal_projector": "0",
