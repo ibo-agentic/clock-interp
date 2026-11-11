@@ -1,0 +1,17 @@
+Loading Qwen/Qwen2.5-VL-3B-Instruct in float16 ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Evaluating clocks:   0%|          | 0/500 [00:00<?, ?it/s]
+Evaluating clocks:  17%|█▋        | 85/500 [01:00<04:54,  1.41it/s]
+Evaluating clocks:  17%|█▋        | 85/500 [01:15<04:54,  1.41it/s]
+Evaluating clocks:  36%|███▌      | 180/500 [02:01<03:33,  1.50it/s]
+Evaluating clocks:  36%|███▌      | 180/500 [02:15<03:33,  1.50it/s]
+Evaluating clocks:  55%|█████▍    | 273/500 [03:01<02:29,  1.52it/s]
+Evaluating clocks:  55%|█████▍    | 273/500 [03:15<02:29,  1.52it/s]
+Evaluating clocks:  73%|███████▎  | 366/500 [04:01<01:27,  1.53it/s]
+Evaluating clocks:  73%|███████▎  | 366/500 [04:15<01:27,  1.53it/s]
+Evaluating clocks:  92%|█████████▏| 459/500 [05:01<00:26,  1.54it/s]
+Evaluating clocks:  92%|█████████▏| 459/500 [05:15<00:26,  1.54it/s]
+Evaluating clocks: 100%|██████████| 500/500 [05:28<00:00,  1.52it/s]
+Done. 500 images evaluated, 0 parse failures (0.0%).
+Results saved to 'results/qwen2.5-vl-3b_s1_thin/results.csv', parse failures to 'results/qwen2.5-vl-3b_s1_thin/parse_failures.csv'.

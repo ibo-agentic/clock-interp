@@ -1,0 +1,3 @@
+default-style re-render vs data: {'n': 500, 'n_exact': 500, 'n_outside_diff_images': 0, 'mean_ring_diff_px': 0.0, 'max_ring_diff_px': 0, 'examples': []}
+default-style re-render vs data_positions: {'n': 480, 'n_exact': 480, 'n_outside_diff_images': 0, 'mean_ring_diff_px': 0.0, 'max_ring_diff_px': 0, 'examples': []}
+GATE: PASS (identical outside the numeral ring)

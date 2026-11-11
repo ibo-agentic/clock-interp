@@ -1,0 +1,57 @@
+Loading Qwen/Qwen2.5-VL-3B-Instruct in float16 ...
+
+Describing clocks:   0%|          | 0/480 [00:00<?, ?it/s]
+Describing clocks:   5%|▍         | 22/480 [01:02<21:35,  2.83s/it]
+Describing clocks:   5%|▍         | 22/480 [01:20<21:35,  2.83s/it]
+Describing clocks:   9%|▉         | 44/480 [02:03<20:18,  2.79s/it]
+Describing clocks:   9%|▉         | 44/480 [02:20<20:18,  2.79s/it]
+Describing clocks:  14%|█▍        | 66/480 [03:03<19:04,  2.76s/it]
+Describing clocks:  14%|█▍        | 66/480 [03:20<19:04,  2.76s/it]
+Describing clocks:  18%|█▊        | 88/480 [04:04<18:03,  2.76s/it]
+Describing clocks:  18%|█▊        | 88/480 [04:20<18:03,  2.76s/it]
+Describing clocks:  23%|██▎       | 111/480 [05:06<16:53,  2.75s/it]
+Describing clocks:  23%|██▎       | 111/480 [05:20<16:53,  2.75s/it]
+Describing clocks:  28%|██▊       | 134/480 [06:09<15:47,  2.74s/it]
+Describing clocks:  28%|██▊       | 134/480 [06:20<15:47,  2.74s/it]
+Describing clocks:  33%|███▎      | 157/480 [07:11<14:41,  2.73s/it]
+Describing clocks:  33%|███▎      | 157/480 [07:30<14:41,  2.73s/it]
+Describing clocks:  38%|███▊      | 180/480 [08:13<13:37,  2.73s/it]
+Describing clocks:  38%|███▊      | 180/480 [08:30<13:37,  2.73s/it]
+Describing clocks:  42%|████▏     | 202/480 [09:14<12:38,  2.73s/it]
+Describing clocks:  42%|████▏     | 202/480 [09:30<12:38,  2.73s/it]
+Describing clocks:  47%|████▋     | 225/480 [10:16<11:34,  2.72s/it]
+Describing clocks:  47%|████▋     | 225/480 [10:30<11:34,  2.72s/it]
+Describing clocks:  52%|█████▏    | 248/480 [11:18<10:31,  2.72s/it]
+Describing clocks:  52%|█████▏    | 248/480 [11:30<10:31,  2.72s/it]
+Describing clocks:  56%|█████▋    | 271/480 [12:21<09:28,  2.72s/it]
+Describing clocks:  56%|█████▋    | 271/480 [12:40<09:28,  2.72s/it]
+Describing clocks:  61%|██████▏   | 294/480 [13:23<08:24,  2.71s/it]
+Describing clocks:  61%|██████▏   | 294/480 [13:40<08:24,  2.71s/it]
+Describing clocks:  66%|██████▌   | 317/480 [14:24<07:20,  2.70s/it]
+Describing clocks:  66%|██████▌   | 317/480 [14:40<07:20,  2.70s/it]
+Describing clocks:  71%|███████   | 340/480 [15:26<06:17,  2.70s/it]
+Describing clocks:  71%|███████   | 340/480 [15:40<06:17,  2.70s/it]
+Describing clocks:  76%|███████▌  | 363/480 [16:29<05:16,  2.70s/it]
+Describing clocks:  76%|███████▌  | 363/480 [16:40<05:16,  2.70s/it]
+Describing clocks:  80%|████████  | 385/480 [17:29<04:17,  2.71s/it]
+Describing clocks:  80%|████████  | 385/480 [17:40<04:17,  2.71s/it]
+Describing clocks:  85%|████████▍ | 407/480 [18:30<03:19,  2.73s/it]
+Describing clocks:  85%|████████▍ | 407/480 [18:50<03:19,  2.73s/it]
+Describing clocks:  89%|████████▉ | 429/480 [19:31<02:19,  2.75s/it]
+Describing clocks:  89%|████████▉ | 429/480 [19:50<02:19,  2.75s/it]
+Describing clocks:  94%|█████████▍| 451/480 [20:31<01:19,  2.74s/it]
+Describing clocks:  94%|█████████▍| 451/480 [20:50<01:19,  2.74s/it]
+Describing clocks:  99%|█████████▊| 473/480 [21:32<00:19,  2.74s/it]
+Describing clocks:  99%|█████████▊| 473/480 [21:50<00:19,  2.74s/it]
+Describing clocks: 100%|██████████| 480/480 [21:51<00:00,  2.73s/it]
+
+=== DESCRIPTION vs ANSWER ===
+  n images:                              480
+  minute-hand number described right:    84.0%
+  hour-hand number described right:      24.8%
+  both described right:                  22.3%
+  final answer right:                    6.9%
+  >> described BOTH right but answered WRONG: 74/107 (69.2% of those)
+  parse failures (no numbers found):     0.0%
+
+Saved to results/qwen2.5-vl-3b_s1_thin/describe.csv

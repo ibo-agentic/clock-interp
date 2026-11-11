@@ -144,7 +144,34 @@ Both claims are descriptive comparisons of six models (three families, two sizes
 
 - **Caveats (facts):** Gemma-4B E3d is exploratory and outside the Holm family {3B, 2B, 7B} (not recomputed); the 4B's blocked cell reaches only 53.5% (60.2% on parsed keys), so blocking removes leaks but does not make it accurate; window-local layers are blocked on every layer (G13) but with prompts of at most 62 tokens inside a 1024 window the local layers see the whole prompt (G12c).
 
+## 12. Experiment R1: styled synthetic clocks (2026-11-12; zip `mech_R1_results.zip` unzipped to `match_R1_results/`, merged no-clobber with `analysis/merge_R1.py`; report `results/styles/R1_report.txt`)
+- **Run health:** all 19 steps OK, 2.87 h (guess ~3.5 h). Generator gate PASS: the default-style re-render is pixel-identical to `data/` (500/500) and `data_positions/` (480/480) on Kaggle (0 differing pixels, also inside the numeral ring). Styles: S1 thin hands (3 / 1.5), S2 ticks only (`show_numbers=False`). Qwen-3B and InternVL3-2B ran S1 + S2 (eval, describe, conversion matching/mismatched); Qwen-7B S2 (eval, describe). InternVL3-2B S1 has 27 of 500 behaviour replies that do not parse (standard 2; replies like "12:5", counted wrong).
+- **Pre-registered predictions covered by R1 (ninth entry):**
+  - **P1 (exact <= 20% in every cell): holds in all 5 R1 cells.** Qwen-3B S1 1.0% [0.4, 2.3], S2 0.6% [0.2, 1.7]; InternVL3-2B S1 5.4% [3.7, 7.7], S2 0.2% [0.0, 1.1]; Qwen-7B S2 0.6% [0.2, 1.7] (standard 1.8 / 8.8 / 12.6%). Gemma-4B S1/S2 wait for R2.
+  - **P2 (image-effect sign = standard sign): holds in all 4 R1 cells** (D = only-styled-matching-right minus only-text-right): Qwen-3B S1 -63 (standard -44), p = 1e-9; S2 -20, p = 0.04 (Holm over the 4: 0.04); InternVL3-2B S1 +113 (standard +95), p = 5e-21; S2 +37, p = 5e-4 (Holm 0.001). The pre-registered Holm is over 6 cells; the two Gemma cells wait for R2, so the Holm shown is over the 4.
+  - **P5 (styled-matching leaks >= 70% of the standard count): holds in all 4 R1 cells.** Qwen-3B S1 16, S2 25 (standard 15; bar 11); InternVL3-2B S1 43, S2 82 (standard 34; bar 24). Gemma-4B waits for R2.
+  - **P4 (exploratory; ticks-only describe minute-exact for Qwen-7B <= 74.4%): supported, far beyond the threshold:** 84.4% [80.9, 87.3] -> 19.2% [15.9, 22.9] (-65.2 points).
+  - P3 (Gemma) waits for R2, P6 (photos) for R3.
+- **Table (standard | S1 thin | S2 ticks):**
+
+| | Qwen-3B | InternVL3-2B | Qwen-7B |
+|---|---|---|---|
+| Behaviour exact (500) | 1.8 / 1.0 / 0.6% | 8.8 / 5.4 / 0.2% | 12.6 / not run / 0.6% |
+| Behaviour hour | 26.2 / 25.6 / 7.2% | 57.8 / 40.8 / 11.0% | 69.4 / - / 15.8% |
+| Behaviour minute | 2.4 / 2.0 / 2.2% | 11.4 / 11.0 / 2.2% | 16.2 / - / 2.4% |
+| Describe minute exact (tolerant, 480) | 59.6 / 64.0 / 13.1% | 52.3 / 65.0 / 10.8% | 84.4 / - / 19.2% |
+| Describe both hands exact | 25.4 / 17.3 / 3.5% | 30.0 / 40.0 / 1.0% | 50.6 / - / 2.9% |
+| Final answer wrong given both exact | 70.5% (86/122) / 60.2% (50/83) / 0/17 | 0.7% (1/144) / 13.0% (25/192) / 0/5 | 0.0% (0/243) / - / 0/14 |
+| Conversion matching minute acc. (text-only 64.4 / 49.8) | 54.2 / 49.8 / 59.7% | 71.8 / 75.9 / 58.3% | not run |
+| Conversion mismatched minute acc. | 56.0 / 56.2 / 59.0% | 43.8 / 58.6 / 56.2% | not run |
+| Mismatched answer follows the image minute (of 432) | 15 / 15 / 12 | 54 / 38 / 7 | not run |
+| Leaks in the matching condition (of 432) | 15 / 16 / 25 | 34 / 43 / 82 | not run |
+
+- **Reading (descriptive):** with thin hands (S1) nothing qualitative changes: behaviour stays at floor, the image effect keeps its model-specific direction (hurts Qwen-3B, helps InternVL3-2B), leaks persist. InternVL3-2B actually describes better with thin hands (both exact 30.0 -> 40.0%) and its wrong-given-both rises from 0.7% to 13.0% (25/192), an exploratory observation outside the pre-registered tests. With ticks only (S2) the models cannot read the clock at all: minute and hour accuracy fall to chance level (minute 2.2-2.4%, hour 7-16%) and number-based description collapses (10.8-19.2%). The image effect on the final answer shrinks but keeps its sign, and leaks do not go away; for InternVL3-2B they more than double (82 vs 34), consistent with the text pathway supplying the minute when the image gives none.
+- **Caveats (facts):** S2 conversion comparisons use the standard-style text-only column as the reference (style-independent by design); the blank condition was not rerun, so the Gemma P3 test and blank comparisons for these two models rely on the existing standard blank files. The P2 sign test says the direction of the paired difference is unchanged, not that the image is read in S2.
+
 ## Update log
+- 2026-11-12: R1 (styled clocks: Qwen-3B, InternVL3-2B S1+S2; Qwen-7B S2) incorporated (section 12): generator gate PASS; P1, P2, P5 hold on all R1 cells, P4 supported; merged no-clobber; `analysis/analyze_R1.py`, `analysis/merge_R1.py`.
 - 2026-11-12: GE3d run 2 incorporated (section 11): all gates pass with the amended G8/G8b/G9; E3d Gemma-4B rule met (leaks 131 -> 25, accuracy +21.3 pts, random-span -1.4); run-1 files renamed `*_run1`; `analysis/analyze_GE3d.py`, `analysis/merge_GE3d_v2.py`; section 9/10 updated.
 - 2026-11-12: GE3d gates G8/G8b/G9 amended pre-run to parsed-only (fourteenth deviations entry, flag `--gate_parsed_only`, default off); GE3d notebook rebuilt with the flag; section 10 records the two-claim paper framing.
 - 2026-11-12: G2b (Gemma-3-12B describe + behaviour) incorporated (section 9): six-model compare_families and selection-bias check re-run; headline table has the full Gemma-3-12B column. GE3d (Gemma-4B E3d minimal): verify gate FAILED (G8, G8b, G9), E3d not run, no verdict.

@@ -1,0 +1,16 @@
+Loading Qwen/Qwen2.5-VL-3B-Instruct in float16 ...
+
+Evaluating clocks:   0%|          | 0/500 [00:00<?, ?it/s]
+Evaluating clocks:  18%|█▊        | 91/500 [01:00<04:31,  1.51it/s]
+Evaluating clocks:  18%|█▊        | 91/500 [01:20<04:31,  1.51it/s]
+Evaluating clocks:  37%|███▋      | 183/500 [02:00<03:28,  1.52it/s]
+Evaluating clocks:  37%|███▋      | 183/500 [02:20<03:28,  1.52it/s]
+Evaluating clocks:  55%|█████▌    | 275/500 [03:00<02:27,  1.52it/s]
+Evaluating clocks:  55%|█████▌    | 275/500 [03:20<02:27,  1.52it/s]
+Evaluating clocks:  74%|███████▎  | 368/500 [04:01<01:26,  1.53it/s]
+Evaluating clocks:  74%|███████▎  | 368/500 [04:20<01:26,  1.53it/s]
+Evaluating clocks:  92%|█████████▏| 461/500 [05:01<00:25,  1.53it/s]
+Evaluating clocks:  92%|█████████▏| 461/500 [05:20<00:25,  1.53it/s]
+Evaluating clocks: 100%|██████████| 500/500 [05:27<00:00,  1.53it/s]
+Done. 500 images evaluated, 0 parse failures (0.0%).
+Results saved to 'results/qwen2.5-vl-3b_s2_ticks/results.csv', parse failures to 'results/qwen2.5-vl-3b_s2_ticks/parse_failures.csv'.

@@ -1,0 +1,23 @@
+Loading OpenGVLab/InternVL3-2B-hf in float16 (transformers-native InternVL, device_map='auto') ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+
+conversion test [internvl3-2b]:   0%|          | 0/864 [00:00<?, ?it/s]
+conversion test [internvl3-2b]:  16%|█▌        | 136/864 [01:00<05:22,  2.26it/s]
+conversion test [internvl3-2b]:  21%|██        | 180/864 [01:20<05:03,  2.26it/s]
+conversion test [internvl3-2b]:  32%|███▏      | 273/864 [02:00<04:20,  2.27it/s]
+conversion test [internvl3-2b]:  37%|███▋      | 317/864 [02:20<04:01,  2.27it/s]
+conversion test [internvl3-2b]:  48%|████▊     | 411/864 [03:00<03:18,  2.28it/s]
+conversion test [internvl3-2b]:  53%|█████▎    | 454/864 [03:20<03:00,  2.28it/s]
+conversion test [internvl3-2b]:  64%|██████▎   | 549/864 [04:01<02:18,  2.28it/s]
+conversion test [internvl3-2b]:  69%|██████▊   | 592/864 [04:20<01:59,  2.28it/s]
+conversion test [internvl3-2b]:  80%|███████▉  | 687/864 [05:01<01:17,  2.29it/s]
+conversion test [internvl3-2b]:  84%|████████▍ | 729/864 [05:20<00:59,  2.29it/s]
+conversion test [internvl3-2b]:  95%|█████████▌| 824/864 [06:01<00:17,  2.28it/s]
+conversion test [internvl3-2b]: 100%|██████████| 864/864 [06:19<00:00,  2.28it/s]
+
+Saved 864 generations to 'results/internvl3-2b/conversion_test_s1_thin.csv', config to 'results/internvl3-2b/conversion_test_run_config_s1_thin.json'.
+text_only reproduction vs text_only_v2: NOT CHECKED -- text_only condition not run
+parse_ok: 99.8%
+  matching_clock    minute_correct 75.9% (n=432)
+  mismatched_clock  minute_correct 58.6% (n=432)  matches_image_minute 11.6%

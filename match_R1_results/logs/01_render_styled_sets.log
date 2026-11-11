@@ -1,0 +1,4 @@
+rendered 500 images in style 's1_thin' ({'hour_hand_thickness': 3, 'minute_hand_thickness': 1.5}) -> data_s1_thin
+rendered 480 images in style 's1_thin' ({'hour_hand_thickness': 3, 'minute_hand_thickness': 1.5}) -> data_positions_s1_thin
+rendered 500 images in style 's2_ticks' ({'show_numbers': False}) -> data_s2_ticks
+rendered 480 images in style 's2_ticks' ({'show_numbers': False}) -> data_positions_s2_ticks

@@ -1,0 +1,22 @@
+00_style_check                   OK                             1.5 min
+01_render_styled_sets            OK                             2.1 min
+02_qwen2.5-vl-3b_s1_thin_eval    OK                             6.5 min
+02_qwen2.5-vl-3b_s1_thin_describe OK                            22.1 min
+02_qwen2.5-vl-3b_s1_thin_conversion OK                            11.2 min
+02_qwen2.5-vl-3b_s2_ticks_eval   OK                             5.7 min
+02_qwen2.5-vl-3b_s2_ticks_describe OK                            21.2 min
+02_qwen2.5-vl-3b_s2_ticks_conversion OK                            11.0 min
+02_purge_qwen3b_cache            OK                             0.0 min
+03_internvl3-2b_s1_thin_eval     OK                             3.8 min
+03_internvl3-2b_s1_thin_describe OK                            14.1 min
+03_internvl3-2b_s1_thin_conversion OK                             6.5 min
+03_internvl3-2b_s2_ticks_eval    OK                             3.4 min
+03_internvl3-2b_s2_ticks_describe OK                            14.0 min
+03_internvl3-2b_s2_ticks_conversion OK                             6.3 min
+03_purge_internvl2b_cache        OK                             0.0 min
+04_qwen2.5-vl-7b_s2_ticks_eval   OK                             9.4 min
+04_qwen2.5-vl-7b_s2_ticks_describe OK                            33.5 min
+04_purge_qwen7b_cache            OK                             0.0 min
+
+total wall time: 2.90 h
+MISSING expected files: none

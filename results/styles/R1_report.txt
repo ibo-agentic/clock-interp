@@ -1,0 +1,80 @@
+=== 1. STATUS and generator gate ===
+  00_style_check                           OK      1.5 min
+  01_render_styled_sets                    OK      2.1 min
+  02_qwen2.5-vl-3b_s1_thin_eval            OK      6.5 min
+  02_qwen2.5-vl-3b_s1_thin_describe        OK     22.1 min
+  02_qwen2.5-vl-3b_s1_thin_conversion      OK     11.2 min
+  02_qwen2.5-vl-3b_s2_ticks_eval           OK      5.7 min
+  02_qwen2.5-vl-3b_s2_ticks_describe       OK     21.2 min
+  02_qwen2.5-vl-3b_s2_ticks_conversion     OK     11.0 min
+  02_purge_qwen3b_cache                    OK      0.0 min
+  03_internvl3-2b_s1_thin_eval             OK      3.8 min
+  03_internvl3-2b_s1_thin_describe         OK     14.1 min
+  03_internvl3-2b_s1_thin_conversion       OK      6.5 min
+  03_internvl3-2b_s2_ticks_eval            OK      3.4 min
+  03_internvl3-2b_s2_ticks_describe        OK     14.0 min
+  03_internvl3-2b_s2_ticks_conversion      OK      6.3 min
+  03_purge_internvl2b_cache                OK      0.0 min
+  04_qwen2.5-vl-7b_s2_ticks_eval           OK      9.4 min
+  04_qwen2.5-vl-7b_s2_ticks_describe       OK     33.5 min
+  04_purge_qwen7b_cache                    OK      0.0 min
+  total 2.87 h (guess ~3.5 h)
+  generator gate (log 00_style_check): default-style re-render identical to data/ (500/500) and data_positions/ (480/480), 0 images differing outside the numeral ring, ring difference 0 px -> PASS
+
+=== 4a. BEHAVIOUR on the 500 clocks (exact HH:MM / hour / minute; over ALL 500, parse failure = wrong) ===
+        model    style                      exact                        hour                     minute  parsed
+qwen2.5-vl-3b standard     1.8% [0.9,3.4] (9/500) 26.2% [22.5,30.2] (131/500)    2.4% [1.4,4.1] (12/500) 500/500
+qwen2.5-vl-3b  s1_thin     1.0% [0.4,2.3] (5/500) 25.6% [22.0,29.6] (128/500)    2.0% [1.1,3.6] (10/500) 500/500
+qwen2.5-vl-3b s2_ticks     0.6% [0.2,1.7] (3/500)     7.2% [5.2,9.8] (36/500)    2.2% [1.2,3.9] (11/500) 500/500
+ internvl3-2b standard   8.8% [6.6,11.6] (44/500) 57.8% [53.4,62.1] (289/500)  11.4% [8.9,14.5] (57/500) 498/500
+ internvl3-2b  s1_thin    5.4% [3.7,7.7] (27/500) 40.8% [36.6,45.2] (204/500)  11.0% [8.5,14.0] (55/500) 473/500
+ internvl3-2b s2_ticks     0.2% [0.0,1.1] (1/500)   11.0% [8.5,14.0] (55/500)    2.2% [1.2,3.9] (11/500) 500/500
+qwen2.5-vl-7b standard 12.6% [10.0,15.8] (63/500) 69.4% [65.2,73.3] (347/500) 16.2% [13.2,19.7] (81/500) 500/500
+qwen2.5-vl-7b s2_ticks     0.6% [0.2,1.7] (3/500)  15.8% [12.9,19.3] (79/500)    2.4% [1.4,4.1] (12/500) 500/500
+
+=== 4b. DESCRIBE (tolerant parse = primary; 480 clocks) ===
+        model    style                minute exact                        hour                  both exact         wrong | both exact          final answer right
+qwen2.5-vl-3b standard 59.6% [55.1,63.9] (286/480) 31.2% [27.3,35.5] (150/480) 25.4% [21.7,29.5] (122/480) 70.5% [61.9,77.9] (86/122)    7.5% [5.5,10.2] (36/480)
+qwen2.5-vl-3b  s1_thin 64.0% [59.6,68.1] (307/480) 24.8% [21.1,28.8] (119/480)  17.3% [14.2,20.9] (83/480)  60.2% [49.5,70.1] (50/83)     6.9% [4.9,9.5] (33/480)
+qwen2.5-vl-3b s2_ticks  13.1% [10.4,16.4] (63/480)   10.8% [8.4,13.9] (52/480)     3.5% [2.2,5.6] (17/480)     0.0% [0.0,18.4] (0/17)     3.5% [2.2,5.6] (17/480)
+ internvl3-2b standard 52.3% [47.8,56.7] (251/480) 52.7% [48.2,57.1] (253/480) 30.0% [26.1,34.2] (144/480)     0.7% [0.1,3.8] (1/144) 33.5% [29.5,37.9] (161/480)
+ internvl3-2b  s1_thin 65.0% [60.6,69.1] (312/480) 52.7% [48.2,57.1] (253/480) 40.0% [35.7,44.4] (192/480)  13.0% [9.0,18.5] (25/192) 34.8% [30.7,39.2] (167/480)
+ internvl3-2b s2_ticks   10.8% [8.4,13.9] (52/480)   10.4% [8.0,13.5] (50/480)      1.0% [0.4,2.4] (5/480)      0.0% [0.0,43.4] (0/5)      1.0% [0.4,2.4] (5/480)
+qwen2.5-vl-7b standard 84.4% [80.9,87.3] (405/480) 59.8% [55.3,64.1] (287/480) 50.6% [46.2,55.1] (243/480)     0.0% [0.0,1.6] (0/243) 50.6% [46.2,55.1] (243/480)
+qwen2.5-vl-7b s2_ticks  19.2% [15.9,22.9] (92/480)  14.0% [11.1,17.3] (67/480)     2.9% [1.7,4.8] (14/480)     0.0% [0.0,21.5] (0/14)     2.9% [1.7,4.8] (14/480)
+
+=== 4c. CONVERSION (432 keys): minute accuracy matching / mismatched; leaks in the matching condition; D vs the standard-style text-only ===
+        model    style   text-only (standard, ref)                    matching                  mismatched mismatched follows image  leaks (matching) only-text / only-image   D exact McNemar p
+qwen2.5-vl-3b standard 64.4% [59.7,68.7] (278/432) 54.2% [49.5,58.8] (234/432) 56.0% [51.3,60.6] (242/432)                   15/432                15                79 / 35 -44         4.6e-05
+qwen2.5-vl-3b  s1_thin 64.4% [59.7,68.7] (278/432) 49.8% [45.1,54.5] (215/432) 56.2% [51.5,60.9] (243/432)                   15/432                16                86 / 23 -63         9.6e-10
+qwen2.5-vl-3b s2_ticks 64.4% [59.7,68.7] (278/432) 59.7% [55.0,64.2] (258/432) 59.0% [54.3,63.6] (255/432)                   12/432                25                53 / 33 -20            0.04
+ internvl3-2b standard 49.8% [45.1,54.5] (215/432) 71.8% [67.3,75.8] (310/432) 43.8% [39.1,48.5] (189/432)                   54/432                34               29 / 124  95         3.4e-15
+ internvl3-2b  s1_thin 49.8% [45.1,54.5] (215/432) 75.9% [71.7,79.7] (328/432) 58.6% [53.9,63.1] (253/432)                   38/432                43               22 / 135 113         5.1e-21
+ internvl3-2b s2_ticks 49.8% [45.1,54.5] (215/432) 58.3% [53.6,62.9] (252/432) 56.2% [51.5,60.9] (243/432)                    7/432                82                36 / 73  37         0.00051
+
+=== 3. PRE-REGISTERED PREDICTIONS covered by R1 (ninth entry) ===
+P1 (confirmatory): behaviour exact HH:MM <= 20% in every cell. R1 cells: Qwen-3B S1, S2; InternVL3-2B S1, S2; Qwen-7B S2 (5 of the 7; Gemma-4B S1/S2 wait for R2).
+   qwen2.5-vl-3b s1_thin: exact 1.0% [0.4,2.3] (5/500); threshold <= 20% (upper CI 2.3%) -> holds
+   qwen2.5-vl-3b s2_ticks: exact 0.6% [0.2,1.7] (3/500); threshold <= 20% (upper CI 1.7%) -> holds
+   internvl3-2b s1_thin: exact 5.4% [3.7,7.7] (27/500); threshold <= 20% (upper CI 7.7%) -> holds
+   internvl3-2b s2_ticks: exact 0.2% [0.0,1.1] (1/500); threshold <= 20% (upper CI 1.1%) -> holds
+   qwen2.5-vl-7b s2_ticks: exact 0.6% [0.2,1.7] (3/500); threshold <= 20% (upper CI 1.7%) -> holds
+   P1 on the 5 R1 cells: all hold
+
+P2 (confirmatory): D = (only styled matching clock right) - (only text-only right) has the standard sign (Qwen-3B D<0, InternVL3-2B D>0). R1 cells: 4 of 6; exact McNemar, Holm over these 4 (the pre-registered Holm over 6 needs the two Gemma cells from R2).
+   qwen2.5-vl-3b s1_thin: only-text 86, only-image 23, D = -63 (standard D = -44); p = 9.6e-10, Holm(4) = 2.9e-09 -> sign matches
+   qwen2.5-vl-3b s2_ticks: only-text 53, only-image 33, D = -20 (standard D = -44); p = 0.04, Holm(4) = 0.04 -> sign matches
+   internvl3-2b s1_thin: only-text 22, only-image 135, D = +113 (standard D = +95); p = 5.1e-21, Holm(4) = 2e-20 -> sign matches
+   internvl3-2b s2_ticks: only-text 36, only-image 73, D = +37 (standard D = +95); p = 0.00051, Holm(4) = 0.001 -> sign matches
+   P2 on the 4 R1 cells: all signs match
+
+P5 (confirmatory): styled-matching leak count >= 70% of the standard-style matching count (Qwen-3B >= 11 of 15; InternVL3-2B >= 24 of 34; Gemma-4B waits for R2).
+   qwen2.5-vl-3b s1_thin: leaks 16 (standard 15; threshold >= 11; ratio 107%) -> holds
+   qwen2.5-vl-3b s2_ticks: leaks 25 (standard 15; threshold >= 11; ratio 167%) -> holds
+   internvl3-2b s1_thin: leaks 43 (standard 34; threshold >= 24; ratio 126%) -> holds
+   internvl3-2b s2_ticks: leaks 82 (standard 34; threshold >= 24; ratio 241%) -> holds
+   P5 on the 4 R1 cells: all hold
+
+P4 (exploratory): ticks-only describe minute-exact for Qwen-7B <= standard minus 10 points (standard 84.4% -> threshold <= 74.4%).
+   Qwen-7B standard 84.4% [80.9,87.3] (405/480) -> S2 19.2% [15.9,22.9] (92/480): change -65.2 points -> supported (threshold 74.4%)
+   Descriptive, minute-exact standard -> S1 -> S2: qwen2.5-vl-3b: 59.6% -> 64.0% -> 13.1%; internvl3-2b: 52.3% -> 65.0% -> 10.8%; qwen2.5-vl-7b: 84.4% -> 19.2%
