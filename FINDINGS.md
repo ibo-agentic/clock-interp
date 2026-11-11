@@ -5,18 +5,18 @@
 **Provenance:** tables = `results/comparison/four_model_table.md`; sensitivity = `results/comparison/sensitivity_rp1.0_vs_rp1.05.csv`; mechanism = `results/mech_e3/Q_D3IVL_report.txt`, `D2prime_D4_report.txt`. Pre-registration + deviations log: `PREREG_MECHANISM.md`.
 
 ## 1. Behaviour at greedy decoding (rp 1.0; n = 432 text/conversion trials, 480 describe images, 500 behaviour images)
-| | Qwen-3B | Qwen-7B | InternVL3-2B | InternVL3-8B | Gemma-3-4B (bf16; 32-token text/conversion = primary, see 7) |
-|---|---|---|---|---|---|
-| Image behaviour: exact HH:MM | 1.8% | 12.6% | 8.8% | 9.8% | 0.4% |
-| Describe (tolerant parse = primary; strict InternVL3-8B 45.0%): both hands exactly right | 25.4% | 50.6% | 30.0% | 48.8% | 5.6% |
-| Final answer wrong given both hands exactly right (tolerant parse; strict InternVL3-8B 7.4%, n=216) | **70.5%** (n=122) | 0.0% (n=243) | 0.7% (n=144) | 6.8% (n=234) | 63.0% (n=27) |
-| Minute acc.: text only (no image) | 64.4% | 97.9% | 49.8% | 97.9% | 32.4% (39.4% at 128 tokens; 36.5% on keys parsed in all conditions) |
-| ... matching clock | 54.2% | 99.5% | 71.8% | 100.0% | 46.1% |
-| ... blank image | 66.2% | 100.0% | 45.6% | 98.8% | 47.9% |
-| ... mismatched clock, follows text / follows image (minute) | 56.0% / 3.9% | 100% / 0.0% | 43.8% / 15.3% | 96.3% / 2.5% | 44.9% / 6.0% |
-| Hour->minute leaks in text-only (of 432) | 40 | 6 | 117 | 2 | 132 (133 at 128 tokens) |
-| McNemar, text-only vs matching clock (only-text-right / only-image-right) | p=4.6e-5 (79/35, image hurts) | p=0.065 (2/9) | p=3e-15 (29/124, image helps) | p=0.004 (0/9) | p=1.8e-6 (46/105, image helps; at 128 tokens p=0.017, 55/84) |
-| Text-light pilot (E2 floor >= 0.15) | **0.093 (fails)** | 0.637 | 0.500 | 0.750 | not run |
+| | Qwen-3B | Qwen-7B | InternVL3-2B | InternVL3-8B | Gemma-3-4B (bf16; 32-token text/conversion = primary, see 7) | Gemma-3-12B (bf16, 256-token text/conversion; disk offload of 3 modules) |
+|---|---|---|---|---|---|---|
+| Image behaviour: exact HH:MM | 1.8% | 12.6% | 8.8% | 9.8% | 0.4% | 2.8% (hour 35.6%, minute 5.4%) |
+| Describe (tolerant parse = primary; strict InternVL3-8B 45.0%, strict Gemma-12B 4.8%): both hands exactly right | 25.4% | 50.6% | 30.0% | 48.8% | 5.6% | 23.1% |
+| Final answer wrong given both hands exactly right (tolerant parse; strict InternVL3-8B 7.4%, n=216) | **70.5%** (n=122) | 0.0% (n=243) | 0.7% (n=144) | 6.8% (n=234) | 63.0% (n=27) | 9.0% (n=111; strict parse 0/23) |
+| Minute acc.: text only (no image) | 64.4% | 97.9% | 49.8% | 97.9% | 32.4% (39.4% at 128 tokens; 36.5% on keys parsed in all conditions) | 92.4% |
+| ... matching clock | 54.2% | 99.5% | 71.8% | 100.0% | 46.1% | 88.7% |
+| ... blank image | 66.2% | 100.0% | 45.6% | 98.8% | 47.9% | 81.9% |
+| ... mismatched clock, follows text / follows image (minute) | 56.0% / 3.9% | 100% / 0.0% | 43.8% / 15.3% | 96.3% / 2.5% | 44.9% / 6.0% | 83.6% / 3.0% |
+| Hour->minute leaks in text-only (of 432) | 40 | 6 | 117 | 2 | 132 (133 at 128 tokens) | 16 (3.7%) |
+| McNemar, text-only vs matching clock (only-text-right / only-image-right) | p=4.6e-5 (79/35, image hurts) | p=0.065 (2/9) | p=3e-15 (29/124, image helps) | p=0.004 (0/9) | p=1.8e-6 (46/105, image helps; at 128 tokens p=0.017, 55/84) | p=0.048 (37/21; text-only better; vs blank p=2e-10, 50/5; vs mismatched p=3e-6, 52/14) |
+| Text-light pilot (E2 floor >= 0.15) | **0.093 (fails)** | 0.637 | 0.500 | 0.750 | not run | not run |
 
 ## 2. Confirmatory results, exactly as pre-registered
 | Test | Result | Pre-registered verdict |
@@ -101,7 +101,32 @@ Reading: non-finite logits already on text-only prompts, so the problem is in th
 - Probe (data_balanced/, 480): minute-hand position is linearly decodable (12-way) at 88.5% from the last-token state (layer 15, R2 0.81; shuffled-label 7.3%, majority 8.3%), 96.7% from mean-pooled image-token states (layer 1) and 95.0% from the vision encoder, although only 4.0% of final answers have the right minute (19 correct images, high variance). Qwen-3B (same script): 95.2% last-token (layer 21). Reading: the minute hand is represented, the failure is downstream of the vision encoder; no causal claim.
 - Selection-bias check (five models, `results/comparison/selection_bias_5models_{tolerant,strict}.txt`; script default now `--parse tolerant`) and the five-model `compare_families` table are regenerated; the table file names still say "four_model".
 
+## 8. Gemma-3-12B-it, G2a (2026-11-11; bf16, T4 x2, 3 of 54 module groups offloaded to disk; zip unzipped to `match_G2a_results/`, merged no-clobber; report `results/gemma/G2a_report.txt`)
+- Run: gate OK (7.1 min, guess 14), text_only_v2 65.1 min (guess 100), conversion_test 191.3 min (guess 240), 4.39 h total (guess ~6 h). Device map recorded in `run_config.json`: 19 groups on GPU0, 32 on GPU1, 3 on disk; peak 11.3 / 13.5 GiB; load 197 s.
+- Cap check at 256 tokens: **success rule met**, 0 cap hits in text_only_v2 (rule <= 5) and 0 in conversion_test (rule 0); longest reply 5 characters, 0 unparsed.
+- Text-only two-hand minute accuracy (conversion text_only = b2, n = 432): **92.4%** [89.5, 94.5] vs Gemma-4B 32.4% (39.4% at 128 tokens), Qwen-7B and InternVL3-8B 97.9%. Size pattern holds in a third family, but the 12B sits below the two big Qwen/InternVL models (399 vs 423 right). Weak spot: minute-hand number 10 (23/36 right, 7 leaks) and 11 (32/36).
+- Hour->minute leaks: 16/432 = 3.7% [2.3, 5.9] (Gemma-4B 132; Qwen-7B 6; InternVL3-8B 2). Between the 4B-scale models and the big ones; 12 of the 16 not at H=12.
+- Conversion test (minute correct): text-only 92.4%, matching clock 88.7%, blank 81.9%, mismatched clock 83.6%. Exact McNemar vs text-only: matching p = 0.048 (text-only better in 37, image better in 21), blank p = 2.1e-10 (50 / 5), mismatched p = 2.8e-6 (52 / 14). So the 12B is NOT image-robust in the way Qwen-7B / InternVL3-8B are (Qwen-7B: no image condition lowers accuracy; InternVL3-8B: none significantly, p >= 0.21); all three image conditions lower accuracy, the blank image most. The "any image helps" effect of the 4B is gone and reversed in sign. Blank-image errors are 37 default 0/30 answers and 32 leaks (text-only: 8 and 16).
+- Mismatched clock: answer follows the image's minute in 10/432 (2.3% by the E-label; 3.0% by the aggregate `matches_image_minute` definition), in line with Qwen-7B (0) and InternVL3-8B (1.6-2.5%); 83.6% follow the text.
+- Describe/behaviour for the 12B are in section 9 (G2b).
+
+## 9. G2b (Gemma-3-12B describe + behaviour) and GE3d (Gemma-4B E3d minimal) (zips of 2026-11-12, unzipped to `match_G2b_results/`, `match_GE3d_results/`, merged no-clobber with `analysis/merge_G2b_GE3d.py`)
+- **G2b run health:** gate OK (7.0 min), describe_check 179.7 min, eval_behavior 68.8 min, 4.29 h total, nothing failed or skipped. Describe replies are short (max 218 characters, no truncation at 120 tokens).
+- **Behaviour (data/, 500):** exact 2.8% (14/500) [1.7, 4.6], hour 35.6%, minute 5.4%, parse 100% (Gemma-4B 0.4% / 22.4% / 2.2%; Qwen-7B exact 12.6%, InternVL3-8B 9.8%). The 12B is better than the 4B on every metric but far below the big Qwen/InternVL models on exact time.
+- **Describe (480; tolerant parse = primary):** minute hand exactly right 42.5%, hour hand 35.6%, both exactly right 23.1% (Gemma-4B 5.6%; Qwen-7B 50.6%, InternVL3-8B 48.8%). **Final answer wrong given both hands exactly right: 9.0% (10/111) [5.0, 15.8]**, vs Gemma-4B 63.0% (n = 27), Qwen-3B 70.5%, InternVL3-2B 0.7%, Qwen-7B 0.0%, InternVL3-8B 6.8%. With the +/-1-number tolerance: 20.5% (n = 127). The strict original regexes parse only 7.7% of 12B replies (4.8% both-right, 0/23 wrong), so for this model the parser choice decides the describe result; tolerant is the pre-registered primary (sixth entry).
+- **Selection-bias check, six models (`results/comparison/selection_bias_6models_{tolerant,strict}.txt`):** 12B wrong-given-both 26/127 = 20.5% (+/-1 version), own position mix 20.5%, rates under other models' position mixes 16.9-33.3%.
+- **GE3d: gate FAILED, no E3d result exists.** Gate 00 OK (2.9 min); `verify` FAILED rc=3 after 25.1 min; steps 02 (E3d minimal) and 03 skipped. Failed gating checks: G8_eager_vs_default_attention_agree (agreement 0.80, needs 0.95), G8b_nocache_loop_vs_adapter_generate_agree (0.78) and G9_block_activates_during_generation (14/20, needs 0.9). Passed: G1, G2 (own-prefix, 0.978), G3, G4, G5, G6, G7/b/c/d, G8a, G8c (eager vs default log-probs max diff 0.0, argmax 10/10), **G12a/b/c (29 local + 5 global layers, window 1024, max prompt 62 tokens, local and global layers see identical keys) and G13 (hook fires once on each of the 34 layers)**. Non-gating fails (informational): G2 gold-prefix (0.66) and G10 cached vs no-cache logits (max 2.5 logits, argmax agreement 1.0).
+- **Why G8/G8b/G9 failed (diagnosis from the saved `verify_g2_trials.csv`, no re-run):** the 4B often answers in prose ("The long minute hand pointing at the 6 means it is 30 minutes past the hour.") and writes no HH:MM within the 24/32-token budget; 11 of the 100 free replies do not parse (10 of the first 50). G8 and G8b count an unparsed reply as a disagreement, and G9 needs a generated ':' to trigger the block. On the first 50 trials 40 replies parse (= G8 0.80), 39 of them have equal parsed time in the no-cache loop and the adapter generate (= G8b 0.78), and the reply TEXT is identical in 49/50 (98/100 over all 100 trials). So the gates fail on format, not on a visible numerical disagreement between attention paths; but G9 is a genuine property of the 4B (blocking never activates in free generation when no ':' is written).
+
+## 10. Paper framing: two separate claims (2026-11-12, decided with the six-model table; wording for the paper)
+1. **The binding weakness shrinks with size in all three families.** Text-only two-hand minute accuracy and hour->minute leaks: Qwen 64.4% / 40 leaks (3B) -> 97.9% / 6 (7B); InternVL3 49.8% / 117 (2B) -> 97.9% / 2 (8B); Gemma-3 32.4% / 132 (4B; 39.4% at 128 tokens) -> 92.4% / 16 (12B). Descriptive, one size step per family; the causal blocking test (E3d) exists for Qwen-3B and InternVL3-2B only (Gemma-4B pending, see section 9 and the fourteenth deviations entry).
+2. **Image effects are model-specific, not size-determined.** Matching clock vs text-only: image hurts Qwen-3B (p = 5e-5) and Gemma-12B (p = 0.048, text-only better 37 vs 21), helps InternVL3-2B (p = 3e-15) and Gemma-4B (p = 2e-6), does nothing significant for Qwen-7B (p = 0.065), helps slightly for InternVL3-8B (p = 0.004, 0/9). A blank image helps Gemma-4B as much as the matching clock and hurts Gemma-12B most (81.9%). The describe-then-answer gap (final answer wrong given both hands right) also does not follow size: InternVL3-2B is already at 0.7% while Qwen-3B is 70.5%.
+Both claims are descriptive comparisons of six models (three families, two sizes each), not tests of a size effect.
+
 ## Update log
+- 2026-11-12: GE3d gates G8/G8b/G9 amended pre-run to parsed-only (fourteenth deviations entry, flag `--gate_parsed_only`, default off); GE3d notebook rebuilt with the flag; section 10 records the two-claim paper framing.
+- 2026-11-12: G2b (Gemma-3-12B describe + behaviour) incorporated (section 9): six-model compare_families and selection-bias check re-run; headline table has the full Gemma-3-12B column. GE3d (Gemma-4B E3d minimal): verify gate FAILED (G8, G8b, G9), E3d not run, no verdict.
+- 2026-11-11: G2a (Gemma-3-12B, 256 tokens) incorporated (section 8): cap-check success rule met (0/0), merged no-clobber, aggregates and compare_families re-run with six models, `analysis/analyze_G2a.py`; G2b pending.
 - 2026-11-10: experiment R (styled synthetic clocks, real photos) and the Gemma-4B E3d minimal run pre-registered (ninth, tenth, eleventh deviations entries) and built (notebooks R1, R2, R3, GE3d); nothing run yet.
 - 2026-11-10: G2a raised to max_new_tokens=256 (eighth deviations entry; 4B still hit the 128 cap in 6/2016 and 6/1728); Gemma-4B outcome kept as logged (32 tokens headline, 128 sensitivity).
 - 2026-11-10: G1b (Gemma-4B at 128 tokens) incorporated as a sensitivity (success rule not met, nothing swapped); headline table gets a Gemma-3-4B column (32-token primary) and the tolerant-parse describe values for InternVL3-8B.

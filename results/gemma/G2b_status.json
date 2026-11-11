@@ -1,0 +1,26 @@
+[
+ {
+  "step": "00_gate_12b_bf16",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 7.0
+ },
+ {
+  "step": "01_describe_check",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 179.7
+ },
+ {
+  "step": "02_eval_behavior_bf16",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 68.8
+ },
+ {
+  "step": "03_purge_12b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]

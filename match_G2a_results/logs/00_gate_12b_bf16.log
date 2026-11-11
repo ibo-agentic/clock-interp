@@ -1,0 +1,63 @@
+bf16 supported (incl. emulation): True | native: False | capability (7, 5)
+Loading google/gemma-3-12b-it in bfloat16 (CLOCK_DTYPE=bfloat16) ...
+NOTE: google/gemma-3-12b-it is a GATED HF repo -- this call will fail with a 401 unless HF_TOKEN is set (env var or `huggingface-cli login`) AND access has been granted at https://huggingface.co/google/gemma-3-12b-it.
+max_memory (CLOCK_MAX_MEMORY): {0: '9.5GiB', 1: '13.5GiB'}
+Some parameters are on the meta device because they were offloaded to the disk.
+
+=== SMOKE: gemma-3-12b-it  (Gemma3_12BAdapter) ===
+dtype: bfloat16   torch 2.11.0+cu130
+transformers 5.20.2
+device map (module groups per device): {'0': 19, '1': 32, 'disk': 3}
+  [device_map] {'model.vision_tower': '0', 'model.multi_modal_projector': '0', 'model.language_model.embed_tokens': '0', 'lm_head': '0', 'model.language_model.layers.0': '0', 'model.language_model.layers.1': '0', 'model.language_model.layers.2': '0', 'model.language_model.layers.3': '0', 'model.language_model.layers.4': '0', 'model.language_model.layers.5': '0', 'model.language_model.layers.6': '0', 'model.language_model.layers.7': '0', 'model.language_model.layers.8': '0', 'model.language_model.layers.9': '0', 'model.language_model.layers.10': '0', 'model.language_model.layers.11': '0', 'model.language_model.layers.12': '0', 'model.language_model.layers.13': '0', 'model.language_model.layers.14': '0', 'model.language_model.layers.15': '1', 'model.language_model.layers.16': '1', 'model.language_model.layers.17': '1', 'model.language_model.layers.18': '1', 'model.language_model.layers.19': '1', 'model.language_model.layers.20': '1', 'model.language_model.layers.21': '1', 'model.language_model.layers.22': '1', 'model.language_model.layers.23': '1', 'model.language_model.layers.24': '1', 'model.language_model.layers.25': '1', 'model.language_model.layers.26': '1', 'model.language_model.layers.27': '1', 'model.language_model.layers.28': '1', 'model.language_model.layers.29': '1', 'model.language_model.layers.30': '1', 'model.language_model.layers.31': '1', 'model.language_model.layers.32': '1', 'model.language_model.layers.33': '1', 'model.language_model.layers.34': '1', 'model.language_model.layers.35': '1', 'model.language_model.layers.36': '1', 'model.language_model.layers.37': '1', 'model.language_model.layers.38': '1', 'model.language_model.layers.39': '1', 'model.language_model.layers.40': '1', 'model.language_model.layers.41': '1', 'model.language_model.layers.42': '1', 'model.language_model.layers.43': '1', 'model.language_model.layers.44': '1', 'model.language_model.layers.45': '1', 'model.language_model.layers.46': '1', 'model.language_model.layers.47': 'disk', 'model.language_model.norm': 'disk', 'model.language_model.rotary_emb': 'disk'}
+  [device_map_counts] {'0': 19, '1': 32, 'disk': 3}
+  [max_memory] {'0': '9.5GiB', '1': '13.5GiB'}
+  [disk_offload_note] modules mapped to 'disk' are offloaded by accelerate and streamed in per forward pass; identical arithmetic, only slower
+  [chat_template] Gemma3 turn format; <bos> comes from the template (tokenised via apply_chat_template, so no double BOS); no system prompt injected
+  [image] one image = 256 soft tokens (processor default, do_pan_and_scan False); processor also returns token_type_ids (1 = image) used for the bidirectional image-block mask in prefill
+  [decoding] greedy (do_sample=False), checkpoint sampling defaults top_k/top_p cleared, no repetition penalty (the checkpoint ships none)
+  [dtype] bfloat16 (default float16; env CLOCK_DTYPE=bfloat16|float32). Measured in notebook G0: float16 gives non-finite logits for gemma-3-4b-it and -12b-it on T4
+
+--- 3 prompts WITH an image (eval_behavior.py prompt) ---
+[10:10] image_tokens=256 pixel_values=(1, 3, 896, 896) logits_finite=True
+    raw: '10:10'
+[3:45] image_tokens=256 pixel_values=(1, 3, 896, 896) logits_finite=True
+    raw: '09:20'
+[7:20] image_tokens=256 pixel_values=(1, 3, 896, 896) logits_finite=True
+    raw: '07:20'
+
+--- 3 prompts WITHOUT an image ---
+image_tokens=0 logits_finite=True
+    prompt: 'The long minute hand is pointing at the number 4, and the short hour hand is pointing at the number 9. What time does the clock show? Answer only in HH:MM format.'
+    raw: '09:20'
+image_tokens=0 logits_finite=True
+    prompt: 'The long minute hand is pointing at the number 7. How many minutes past the hour does this represent? Answer with a number only.'
+    raw: '35'
+image_tokens=0 logits_finite=True
+    prompt: 'What is 7 times 5? Answer with a number only.'
+    raw: '35'
+
+--- 5 describe_check.py prompts (does the project's regex parsing fit this model's wording?) ---
+[10:10] parsed minute_number=None hour_number=None time=(2, 10) (all three parsed: False)
+    raw: "Here's the breakdown of the clock:\n\n*   **Minute hand:** The long hand is pointing at the number 10.\n*   **Hour hand:** The short hand is pointing at the number 2.\n\nTherefore, the time is **02:10**."
+[3:45] parsed minute_number=None hour_number=None time=(9, 20) (all three parsed: False)
+    raw: "Here's the breakdown of the clock:\n\n*   **Minute hand:** The long hand is pointing at the number 4.\n*   **Hour hand:** The short hand is pointing at the number 9.\n\nTherefore, the time is **09:20**."
+[7:20] parsed minute_number=None hour_number=None time=(7, 20) (all three parsed: False)
+    raw: "Here's the breakdown of the clock:\n\n*   **Minute hand:** The long hand is pointing at the number 4.\n*   **Hour hand:** The short hand is pointing at the number 7.\n\nTherefore, the time is **07:20**."
+[12:00] parsed minute_number=12 hour_number=12 time=(12, 0) (all three parsed: True)
+    raw: "Here's the breakdown of the clock:\n\n*   **Long minute hand:** The minute hand is pointing at the 12.\n*   **Short hour hand:** The hour hand is pointing at the 12.\n\nTherefore, the time is **12:00**."
+[5:35] parsed minute_number=None hour_number=None time=(6, 30) (all three parsed: False)
+    raw: "Here's the breakdown of the clock:\n\n*   **Minute hand:** The long hand is pointing at the number 6.\n*   **Hour hand:** The short hand is pointing at the number 6.\n\nTherefore, the time is **06:30**."
+
+regex fit: 1/5 describe replies fully parsed by describe_check.py's regexes.
+  -> LOW FIT: describe_check's regexes were tuned on Qwen's wording. Do NOT trust minute_desc_ok/hour_desc_ok for this model yet; propose tolerant-parse columns (additive, original columns untouched) and get approval before changing describe_check.py.
+cuda:0 peak memory 11.3 GiB
+cuda:1 peak memory 13.5 GiB
+
+VERDICT: PASS
+
+load time: 197 s   dtype: bfloat16
+timing [text_only]: {'seconds_per_generation_mean': 2.139958461125692, 'seconds_min': 2.136211395263672, 'seconds_max': 2.1427502632141113, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 0.7776412963867188, 'answer': '04:35', 'answers_identical': True, 'prompt_tokens': 49}
+timing [with_image]: {'seconds_per_generation_mean': 8.152745405832926, 'seconds_min': 8.012482643127441, 'seconds_max': 8.320577383041382, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 7.086528301239014, 'answer': '06:00', 'answers_identical': True, 'prompt_tokens': 283}
+
+wrote results/gemma/gemma-3-12b-it_bf16/smoke.json 
+SMOKE PASS

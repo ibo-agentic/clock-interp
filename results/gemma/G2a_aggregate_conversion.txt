@@ -1,0 +1,107 @@
+Wrote summary.csv, paired_tests.csv, parse_rates.csv, minute_accuracy_vs_position.png to 'results\conversion_test'.
+
+=== OVERALL (n=432 per cell) ===
+gemma-3-12b-it  blank             changed_vs_text_only   28.2% [24.2%, 32.7%] (n=432)
+gemma-3-12b-it  matching_clock    changed_vs_text_only   32.6% [28.4%, 37.2%] (n=432)
+gemma-3-12b-it  mismatched_clock  changed_vs_text_only   35.2% [30.8%, 39.8%] (n=432)
+gemma-3-12b-it  blank             correct                72.9% [68.5%, 76.9%] (n=432)
+gemma-3-12b-it  matching_clock    correct                85.0% [81.3%, 88.0%] (n=432)
+gemma-3-12b-it  mismatched_clock  correct                78.0% [73.9%, 81.7%] (n=432)
+gemma-3-12b-it  text_only         correct                84.0% [80.3%, 87.2%] (n=432)
+gemma-3-12b-it  mismatched_clock  matches_image_full      0.0% [0.0%, 0.9%] (n=432)
+gemma-3-12b-it  mismatched_clock  matches_image_hour      2.1% [1.1%, 3.9%] (n=432)
+gemma-3-12b-it  mismatched_clock  matches_image_minute    3.0% [1.8%, 5.1%] (n=432)
+gemma-3-12b-it  blank             minute_correct         81.9% [78.0%, 85.3%] (n=432)
+gemma-3-12b-it  matching_clock    minute_correct         88.7% [85.3%, 91.3%] (n=432)
+gemma-3-12b-it  mismatched_clock  minute_correct         83.6% [79.8%, 86.8%] (n=432)
+gemma-3-12b-it  text_only         minute_correct         92.4% [89.5%, 94.5%] (n=432)
+gemma-3-4b-it   blank             changed_vs_text_only   53.7% [49.0%, 58.4%] (n=432)
+gemma-3-4b-it   matching_clock    changed_vs_text_only   73.4% [69.0%, 77.3%] (n=432)
+gemma-3-4b-it   mismatched_clock  changed_vs_text_only   76.9% [72.6%, 80.6%] (n=432)
+gemma-3-4b-it   blank             correct                45.6% [41.0%, 50.3%] (n=432)
+gemma-3-4b-it   matching_clock    correct                41.9% [37.3%, 46.6%] (n=432)
+gemma-3-4b-it   mismatched_clock  correct                39.4% [34.9%, 44.0%] (n=432)
+gemma-3-4b-it   text_only         correct                27.5% [23.5%, 31.9%] (n=432)
+gemma-3-4b-it   mismatched_clock  matches_image_full      0.0% [0.0%, 0.9%] (n=432)
+gemma-3-4b-it   mismatched_clock  matches_image_hour      1.4% [0.6%, 3.0%] (n=432)
+gemma-3-4b-it   mismatched_clock  matches_image_minute    6.0% [4.1%, 8.7%] (n=432)
+gemma-3-4b-it   blank             minute_correct         47.9% [43.2%, 52.6%] (n=432)
+gemma-3-4b-it   matching_clock    minute_correct         46.1% [41.4%, 50.8%] (n=432)
+gemma-3-4b-it   mismatched_clock  minute_correct         44.9% [40.3%, 49.6%] (n=432)
+gemma-3-4b-it   text_only         minute_correct         32.4% [28.2%, 37.0%] (n=432)
+internvl3-2b    blank             changed_vs_text_only   53.9% [49.2%, 58.6%] (n=432)
+internvl3-2b    matching_clock    changed_vs_text_only   72.2% [67.8%, 76.2%] (n=432)
+internvl3-2b    mismatched_clock  changed_vs_text_only   79.9% [75.8%, 83.4%] (n=432)
+internvl3-2b    blank             correct                44.7% [40.1%, 49.4%] (n=432)
+internvl3-2b    matching_clock    correct                70.4% [65.9%, 74.5%] (n=432)
+internvl3-2b    mismatched_clock  correct                39.4% [34.9%, 44.0%] (n=432)
+internvl3-2b    text_only         correct                49.1% [44.4%, 53.8%] (n=432)
+internvl3-2b    mismatched_clock  matches_image_full      1.6% [0.8%, 3.3%] (n=432)
+internvl3-2b    mismatched_clock  matches_image_hour      7.9% [5.7%, 10.8%] (n=432)
+internvl3-2b    mismatched_clock  matches_image_minute   15.3% [12.2%, 19.0%] (n=432)
+internvl3-2b    blank             minute_correct         45.6% [41.0%, 50.3%] (n=432)
+internvl3-2b    matching_clock    minute_correct         71.8% [67.3%, 75.8%] (n=432)
+internvl3-2b    mismatched_clock  minute_correct         43.8% [39.1%, 48.5%] (n=432)
+internvl3-2b    text_only         minute_correct         49.8% [45.1%, 54.5%] (n=432)
+internvl3-8b    blank             changed_vs_text_only   60.0% [55.3%, 64.5%] (n=432)
+internvl3-8b    matching_clock    changed_vs_text_only   60.0% [55.3%, 64.5%] (n=432)
+internvl3-8b    mismatched_clock  changed_vs_text_only   58.8% [54.1%, 63.3%] (n=432)
+internvl3-8b    blank             correct                98.6% [97.0%, 99.4%] (n=432)
+internvl3-8b    matching_clock    correct               100.0% [99.1%, 100.0%] (n=432)
+internvl3-8b    mismatched_clock  correct                94.9% [92.4%, 96.6%] (n=432)
+internvl3-8b    text_only         correct                97.9% [96.1%, 98.9%] (n=432)
+internvl3-8b    mismatched_clock  matches_image_full      0.2% [0.0%, 1.3%] (n=432)
+internvl3-8b    mismatched_clock  matches_image_hour      0.7% [0.2%, 2.0%] (n=432)
+internvl3-8b    mismatched_clock  matches_image_minute    2.5% [1.4%, 4.5%] (n=432)
+internvl3-8b    blank             minute_correct         98.8% [97.3%, 99.5%] (n=432)
+internvl3-8b    matching_clock    minute_correct        100.0% [99.1%, 100.0%] (n=432)
+internvl3-8b    mismatched_clock  minute_correct         96.3% [94.1%, 97.7%] (n=432)
+internvl3-8b    text_only         minute_correct         97.9% [96.1%, 98.9%] (n=432)
+qwen2.5-vl-3b   blank             changed_vs_text_only   12.5% [9.7%, 16.0%] (n=432)
+qwen2.5-vl-3b   matching_clock    changed_vs_text_only   41.0% [36.4%, 45.7%] (n=432)
+qwen2.5-vl-3b   mismatched_clock  changed_vs_text_only   40.3% [35.8%, 45.0%] (n=432)
+qwen2.5-vl-3b   blank             correct                65.3% [60.7%, 69.6%] (n=432)
+qwen2.5-vl-3b   matching_clock    correct                54.2% [49.5%, 58.8%] (n=432)
+qwen2.5-vl-3b   mismatched_clock  correct                55.8% [51.1%, 60.4%] (n=432)
+qwen2.5-vl-3b   text_only         correct                63.4% [58.8%, 67.8%] (n=432)
+qwen2.5-vl-3b   mismatched_clock  matches_image_full      0.0% [0.0%, 0.9%] (n=432)
+qwen2.5-vl-3b   mismatched_clock  matches_image_hour      0.0% [0.0%, 0.9%] (n=432)
+qwen2.5-vl-3b   mismatched_clock  matches_image_minute    3.9% [2.5%, 6.2%] (n=432)
+qwen2.5-vl-3b   blank             minute_correct         66.2% [61.6%, 70.5%] (n=432)
+qwen2.5-vl-3b   matching_clock    minute_correct         54.2% [49.5%, 58.8%] (n=432)
+qwen2.5-vl-3b   mismatched_clock  minute_correct         56.0% [51.3%, 60.6%] (n=432)
+qwen2.5-vl-3b   text_only         minute_correct         64.4% [59.7%, 68.7%] (n=432)
+qwen2.5-vl-7b   blank             changed_vs_text_only    4.2% [2.7%, 6.5%] (n=432)
+qwen2.5-vl-7b   matching_clock    changed_vs_text_only    5.1% [3.4%, 7.6%] (n=432)
+qwen2.5-vl-7b   mismatched_clock  changed_vs_text_only    5.1% [3.4%, 7.6%] (n=432)
+qwen2.5-vl-7b   blank             correct                99.3% [98.0%, 99.8%] (n=432)
+qwen2.5-vl-7b   matching_clock    correct                99.5% [98.3%, 99.9%] (n=432)
+qwen2.5-vl-7b   mismatched_clock  correct                99.8% [98.7%, 100.0%] (n=432)
+qwen2.5-vl-7b   text_only         correct                96.5% [94.4%, 97.9%] (n=432)
+qwen2.5-vl-7b   mismatched_clock  matches_image_full      0.0% [0.0%, 0.9%] (n=432)
+qwen2.5-vl-7b   mismatched_clock  matches_image_hour      0.0% [0.0%, 0.9%] (n=432)
+qwen2.5-vl-7b   mismatched_clock  matches_image_minute    0.0% [0.0%, 0.9%] (n=432)
+qwen2.5-vl-7b   blank             minute_correct        100.0% [99.1%, 100.0%] (n=432)
+qwen2.5-vl-7b   matching_clock    minute_correct         99.5% [98.3%, 99.9%] (n=432)
+qwen2.5-vl-7b   mismatched_clock  minute_correct        100.0% [99.1%, 100.0%] (n=432)
+qwen2.5-vl-7b   text_only         minute_correct         97.9% [96.1%, 98.9%] (n=432)
+
+=== PAIRED McNEMAR, text_only vs image condition, overall ===
+gemma-3-12b-it  text_only_vs_matching_clock      only_text= 37 only_image= 21 both_ok=362 both_wrong= 12  p=0.04794
+gemma-3-12b-it  text_only_vs_blank               only_text= 50 only_image=  5 both_ok=349 both_wrong= 28  p=2.136e-10
+gemma-3-12b-it  text_only_vs_mismatched_clock    only_text= 52 only_image= 14 both_ok=347 both_wrong= 19  p=2.822e-06
+gemma-3-4b-it   text_only_vs_matching_clock      only_text= 46 only_image=105 both_ok= 94 both_wrong=187  p=1.765e-06
+gemma-3-4b-it   text_only_vs_blank               only_text= 31 only_image= 98 both_ok=109 both_wrong=194  p=2.723e-09
+gemma-3-4b-it   text_only_vs_mismatched_clock    only_text= 48 only_image=102 both_ok= 92 both_wrong=190  p=1.231e-05
+internvl3-2b    text_only_vs_matching_clock      only_text= 29 only_image=124 both_ok=186 both_wrong= 93  p=3.424e-15
+internvl3-2b    text_only_vs_blank               only_text= 48 only_image= 30 both_ok=167 both_wrong=187  p=0.05354
+internvl3-2b    text_only_vs_mismatched_clock    only_text= 93 only_image= 67 both_ok=122 both_wrong=150  p=0.04777
+internvl3-8b    text_only_vs_matching_clock      only_text=  0 only_image=  9 both_ok=423 both_wrong=  0  p=0.003906
+internvl3-8b    text_only_vs_blank               only_text=  4 only_image=  8 both_ok=419 both_wrong=  1  p=0.3877
+internvl3-8b    text_only_vs_mismatched_clock    only_text= 15 only_image=  8 both_ok=408 both_wrong=  1  p=0.21
+qwen2.5-vl-3b   text_only_vs_matching_clock      only_text= 79 only_image= 35 both_ok=199 both_wrong=119  p=4.609e-05
+qwen2.5-vl-3b   text_only_vs_blank               only_text= 13 only_image= 21 both_ok=265 both_wrong=133  p=0.2295
+qwen2.5-vl-3b   text_only_vs_mismatched_clock    only_text= 75 only_image= 39 both_ok=203 both_wrong=115  p=0.0009592
+qwen2.5-vl-7b   text_only_vs_matching_clock      only_text=  2 only_image=  9 both_ok=421 both_wrong=  0  p=0.06543
+qwen2.5-vl-7b   text_only_vs_blank               only_text=  0 only_image=  9 both_ok=423 both_wrong=  0  p=0.003906
+qwen2.5-vl-7b   text_only_vs_mismatched_clock    only_text=  0 only_image=  9 both_ok=423 both_wrong=  0  p=0.003906

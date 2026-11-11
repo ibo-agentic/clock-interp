@@ -1,0 +1,3 @@
+{'file': 'results/gemma-3-12b-it/text_only_v2.csv', 'cap': 256, 'n': 2016, 'max_tokens': 5, 'p99': 5, 'hit_cap': 0, 'within_1_of_cap': 0, 'unparsed': 0}
+{'file': 'results/gemma-3-12b-it/conversion_test.csv', 'cap': 256, 'n': 1728, 'max_tokens': 5, 'p99': 5, 'hit_cap': 0, 'within_1_of_cap': 0, 'unparsed': 0}
+wrote results/gemma-3-12b-it/cap_check_256.csv

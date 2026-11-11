@@ -1,0 +1,46 @@
+=== 1. STEPS ===
+  00_gate_12b_bf16           OK      7.1 min   guess   14
+  01_text_only_v2            OK     65.1 min   guess  100
+  02_conversion_test         OK    191.3 min   guess  240
+  03_aggregate_text_only     OK      0.0 min   guess    2
+  04_aggregate_conversion    OK      0.0 min   guess    2
+  05_cap_check               OK      0.2 min   guess    3
+  06_purge_12b_cache         OK      0.0 min   guess    1
+  total 4.39 h (guess ~6 h)
+  device map counts {'0': 19, '1': 32, 'disk': 3}; peak GiB {'cuda:0': 11.311454772949219, 'cuda:1': 13.487699031829834}; load 197 s; dtype bfloat16
+  timing: {'text_only': {'seconds_per_generation_mean': 2.139958461125692, 'seconds_min': 2.136211395263672, 'seconds_max': 2.1427502632141113, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 0.7776412963867188, 'answer': '04:35', 'answers_identical': True, 'prompt_tokens': 49}, 'with_image': {'seconds_per_generation_mean': 8.152745405832926, 'seconds_min': 8.012482643127441, 'seconds_max': 8.320577383041382, 'new_tokens_in_first_output': 5, 'prefill_forward_seconds': 7.086528301239014, 'answer': '06:00', 'answers_identical': True, 'prompt_tokens': 283}}
+
+=== 2. CAP CHECK at 256 (rule: 0 hits in conversion_test, <=5 in text_only_v2) ===
+                                      file  cap    n  max_tokens  p99  hit_cap  within_1_of_cap  unparsed
+   results/gemma-3-12b-it/text_only_v2.csv  256 2016           5    5        0                0         0
+results/gemma-3-12b-it/conversion_test.csv  256 1728           5    5        0                0         0
+  reply length (chars) max: text_only_v2 5, conversion_test 5; unparsed text_only_v2 0, conversion 0
+  VERDICT: rule MET (0 and 0 hits; residual hits: none)
+
+=== 3. TEXT-ONLY minute accuracy, two hands (b2 headline in text_only_v2; text_only cell of conversion_test) ===
+         model                     b2_minute         conv_text_only_minute                          leak  adjacent  default_0_30  other  unparsed
+ qwen2.5-vl-3b 278/432 = 64.4% [59.7%,68.7%] 278/432 = 64.4% [59.7%,68.7%]    40/432 = 9.3% [6.9%,12.4%]        48            22     44         0
+ qwen2.5-vl-7b 423/432 = 97.9% [96.1%,98.9%] 423/432 = 97.9% [96.1%,98.9%]      6/432 = 1.4% [0.6%,3.0%]         2             1      0         0
+  internvl3-2b 215/432 = 49.8% [45.1%,54.5%] 215/432 = 49.8% [45.1%,54.5%] 117/432 = 27.1% [23.1%,31.5%]        24            32     44         0
+  internvl3-8b 423/432 = 97.9% [96.1%,98.9%] 423/432 = 97.9% [96.1%,98.9%]      2/432 = 0.5% [0.1%,1.7%]         4             0      3         0
+ gemma-3-4b-it 140/432 = 32.4% [28.2%,37.0%] 140/432 = 32.4% [28.2%,37.0%] 132/432 = 30.6% [26.4%,35.1%]        20            12     80        48
+gemma-3-12b-it 399/432 = 92.4% [89.5%,94.5%] 399/432 = 92.4% [89.5%,94.5%]     16/432 = 3.7% [2.3%,5.9%]         0             8      9         0
+(Gemma-4B rows are the 32-token G1 files; at 128 tokens G1b: 39.4% minute, leak 133.)
+12B text-only by minute-hand number: 1:34/36(leak 0) 2:36/36(leak 0) 3:34/36(leak 0) 4:36/36(leak 0) 5:36/36(leak 0) 6:34/36(leak 0) 7:35/36(leak 1) 8:30/36(leak 1) 9:34/36(leak 2) 10:23/36(leak 7) 11:32/36(leak 4) 12:35/36(leak 1)
+12B text-only by hour==12: H12 | False    n=396 correct=369 leak=12 | True        n=36 correct=30 leak=4
+
+=== 4. CONVERSION conditions (n=432 each, minute accuracy vs the text; paired exact McNemar vs text_only) ===
+  qwen2.5-vl-3b   | text_only: 64.4% | matching_clock: 54.2% (text-only-better 79/image-better 35, p=4.6e-05) | blank: 66.2% (text-only-better 13/image-better 21, p=0.23) | mismatched_clock: 56.0% (text-only-better 75/image-better 39, p=0.00096)
+  qwen2.5-vl-7b   | text_only: 97.9% | matching_clock: 99.5% (text-only-better 2/image-better 9, p=0.065) | blank: 100.0% (text-only-better 0/image-better 9, p=0.0039) | mismatched_clock: 100.0% (text-only-better 0/image-better 9, p=0.0039)
+  internvl3-2b    | text_only: 49.8% | matching_clock: 71.8% (text-only-better 29/image-better 124, p=3.4e-15) | blank: 45.6% (text-only-better 48/image-better 30, p=0.054) | mismatched_clock: 43.8% (text-only-better 93/image-better 67, p=0.048)
+  internvl3-8b    | text_only: 97.9% | matching_clock: 100.0% (text-only-better 0/image-better 9, p=0.0039) | blank: 98.8% (text-only-better 4/image-better 8, p=0.39) | mismatched_clock: 96.3% (text-only-better 15/image-better 8, p=0.21)
+  gemma-3-4b-it   | text_only: 32.4% | matching_clock: 46.1% (text-only-better 46/image-better 105, p=1.8e-06) | blank: 47.9% (text-only-better 31/image-better 98, p=2.7e-09) | mismatched_clock: 44.9% (text-only-better 48/image-better 102, p=1.2e-05)
+  gemma-3-12b-it  | text_only: 92.4% | matching_clock: 88.7% (text-only-better 37/image-better 21, p=0.048) | blank: 81.9% (text-only-better 50/image-better 5, p=2.1e-10) | mismatched_clock: 83.6% (text-only-better 52/image-better 14, p=2.8e-06)
+
+=== 5. MISMATCHED clock: what does the answer follow? (12B and the other models) ===
+  qwen2.5-vl-3b   follows_image_minute 15/432 = 3.5% [2.1%,5.6%]  correct(text) 242  leak 20  other 70
+  qwen2.5-vl-7b   follows_image_minute 0/432 = 0.0% [0.0%,0.9%]  correct(text) 432  leak 0  other 0
+  internvl3-2b    follows_image_minute 54/432 = 12.5% [9.7%,16.0%]  correct(text) 189  leak 69  other 54
+  internvl3-8b    follows_image_minute 7/432 = 1.6% [0.8%,3.3%]  correct(text) 416  leak 4  other 4
+  gemma-3-4b-it   follows_image_minute 8/432 = 1.9% [0.9%,3.6%]  correct(text) 194  leak 85  other 107
+  gemma-3-12b-it  follows_image_minute 10/432 = 2.3% [1.3%,4.2%]  correct(text) 361  leak 14  other 37

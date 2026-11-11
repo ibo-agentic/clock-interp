@@ -1,0 +1,105 @@
+{
+ "model_id": "google/gemma-3-12b-it",
+ "dtype": "bfloat16",
+ "smoke_pass": true,
+ "load_seconds": 197.62547540664673,
+ "peak_memory_gib": {
+  "cuda:0": 11.311454772949219,
+  "cuda:1": 13.487699031829834
+ },
+ "timing": {
+  "text_only": {
+   "seconds_per_generation_mean": 2.028181473414103,
+   "seconds_min": 2.024984121322632,
+   "seconds_max": 2.030141830444336,
+   "new_tokens_in_first_output": 5,
+   "prefill_forward_seconds": 0.773672342300415,
+   "answer": "04:35",
+   "answers_identical": true,
+   "prompt_tokens": 49
+  },
+  "with_image": {
+   "seconds_per_generation_mean": 7.913129806518555,
+   "seconds_min": 7.901275396347046,
+   "seconds_max": 7.924221038818359,
+   "new_tokens_in_first_output": 5,
+   "prefill_forward_seconds": 6.92183780670166,
+   "answer": "06:00",
+   "answers_identical": true,
+   "prompt_tokens": 283
+  }
+ },
+ "device_map": {
+  "0": 19,
+  "1": 32,
+  "disk": 3
+ },
+ "device_map_full": {
+  "device_map": {
+   "model.vision_tower": "0",
+   "model.multi_modal_projector": "0",
+   "model.language_model.embed_tokens": "0",
+   "lm_head": "0",
+   "model.language_model.layers.0": "0",
+   "model.language_model.layers.1": "0",
+   "model.language_model.layers.2": "0",
+   "model.language_model.layers.3": "0",
+   "model.language_model.layers.4": "0",
+   "model.language_model.layers.5": "0",
+   "model.language_model.layers.6": "0",
+   "model.language_model.layers.7": "0",
+   "model.language_model.layers.8": "0",
+   "model.language_model.layers.9": "0",
+   "model.language_model.layers.10": "0",
+   "model.language_model.layers.11": "0",
+   "model.language_model.layers.12": "0",
+   "model.language_model.layers.13": "0",
+   "model.language_model.layers.14": "0",
+   "model.language_model.layers.15": "1",
+   "model.language_model.layers.16": "1",
+   "model.language_model.layers.17": "1",
+   "model.language_model.layers.18": "1",
+   "model.language_model.layers.19": "1",
+   "model.language_model.layers.20": "1",
+   "model.language_model.layers.21": "1",
+   "model.language_model.layers.22": "1",
+   "model.language_model.layers.23": "1",
+   "model.language_model.layers.24": "1",
+   "model.language_model.layers.25": "1",
+   "model.language_model.layers.26": "1",
+   "model.language_model.layers.27": "1",
+   "model.language_model.layers.28": "1",
+   "model.language_model.layers.29": "1",
+   "model.language_model.layers.30": "1",
+   "model.language_model.layers.31": "1",
+   "model.language_model.layers.32": "1",
+   "model.language_model.layers.33": "1",
+   "model.language_model.layers.34": "1",
+   "model.language_model.layers.35": "1",
+   "model.language_model.layers.36": "1",
+   "model.language_model.layers.37": "1",
+   "model.language_model.layers.38": "1",
+   "model.language_model.layers.39": "1",
+   "model.language_model.layers.40": "1",
+   "model.language_model.layers.41": "1",
+   "model.language_model.layers.42": "1",
+   "model.language_model.layers.43": "1",
+   "model.language_model.layers.44": "1",
+   "model.language_model.layers.45": "1",
+   "model.language_model.layers.46": "1",
+   "model.language_model.layers.47": "disk",
+   "model.language_model.norm": "disk",
+   "model.language_model.rotary_emb": "disk"
+  },
+  "device_map_counts": {
+   "0": 19,
+   "1": 32,
+   "disk": 3
+  },
+  "max_memory": {
+   "0": "9.5GiB",
+   "1": "13.5GiB"
+  },
+  "disk_offload_note": "modules mapped to 'disk' are offloaded by accelerate and streamed in per forward pass; identical arithmetic, only slower"
+ }
+}

@@ -1,0 +1,40 @@
+{
+ "copied": [
+  "results/gemma/G2b_STATUS.txt",
+  "results/gemma/G2b_status.json",
+  "results/gemma/G2b_env.txt",
+  "results/gemma-3-12b-it\\describe.csv",
+  "results/gemma-3-12b-it\\parse_failures.csv",
+  "results/gemma-3-12b-it\\results.csv",
+  "results/gemma/G2b_logs\\00_gate_12b_bf16.log",
+  "results/gemma/G2b_logs\\01_describe_check.log",
+  "results/gemma/G2b_logs\\02_eval_behavior_bf16.log",
+  "results/gemma/G2b_logs\\03_purge_12b_cache.log",
+  "results/gemma/GE3d_STATUS.txt",
+  "results/gemma/GE3d_status.json",
+  "results/gemma/GE3d_env.txt",
+  "results/mech_e3/gemma-3-4b-it\\decoding_rep_penalty.txt",
+  "results/mech_e3/gemma-3-4b-it\\verify.json",
+  "results/mech_e3/gemma-3-4b-it\\verify_g2_trials.csv",
+  "results/gemma/gemma-3-4b-it_bf16\\run_config.json",
+  "results/gemma/GE3d_logs\\00_gate_4b_bf16.log",
+  "results/gemma/GE3d_logs\\01_verify_gates.log"
+ ],
+ "skipped_existing": [
+  "results/gemma/gemma-3-12b-it_bf16\\run_config.json",
+  "results/gemma/gemma-3-12b-it_bf16\\smoke.json",
+  "results/gemma/gemma-3-12b-it_bf16\\timing_clock.png",
+  "results/gemma/gemma-3-12b-it_bf16\\smoke_images\\smoke_0_1010.png",
+  "results/gemma/gemma-3-12b-it_bf16\\smoke_images\\smoke_1_0345.png",
+  "results/gemma/gemma-3-12b-it_bf16\\smoke_images\\smoke_2_0720.png",
+  "results/gemma/gemma-3-12b-it_bf16\\smoke_images\\smoke_3_1200.png",
+  "results/gemma/gemma-3-12b-it_bf16\\smoke_images\\smoke_4_0535.png",
+  "results/gemma/gemma-3-4b-it_bf16\\smoke.json",
+  "results/gemma/gemma-3-4b-it_bf16\\timing_clock.png",
+  "results/gemma/gemma-3-4b-it_bf16\\smoke_images\\smoke_0_1010.png",
+  "results/gemma/gemma-3-4b-it_bf16\\smoke_images\\smoke_1_0345.png",
+  "results/gemma/gemma-3-4b-it_bf16\\smoke_images\\smoke_2_0720.png",
+  "results/gemma/gemma-3-4b-it_bf16\\smoke_images\\smoke_3_1200.png",
+  "results/gemma/gemma-3-4b-it_bf16\\smoke_images\\smoke_4_0535.png"
+ ]
+}

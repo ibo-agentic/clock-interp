@@ -1,0 +1,86 @@
+{
+ "model_id": "google/gemma-3-4b-it",
+ "dtype": "bfloat16",
+ "smoke_pass": true,
+ "load_seconds": 51.60536479949951,
+ "peak_memory_gib": {
+  "cuda:0": 7.760635852813721,
+  "cuda:1": 2.6870269775390625
+ },
+ "timing": {
+  "text_only": {
+   "seconds_per_generation_mean": 0.7617176373799642,
+   "seconds_min": 0.7436838150024414,
+   "seconds_max": 0.7870864868164062,
+   "new_tokens_in_first_output": 5,
+   "prefill_forward_seconds": 0.21578049659729004,
+   "answer": "07:24",
+   "answers_identical": true,
+   "prompt_tokens": 49
+  },
+  "with_image": {
+   "seconds_per_generation_mean": 5.203572193781535,
+   "seconds_min": 5.14865517616272,
+   "seconds_max": 5.235184192657471,
+   "new_tokens_in_first_output": 5,
+   "prefill_forward_seconds": 4.9367148876190186,
+   "answer": "10:30",
+   "answers_identical": true,
+   "prompt_tokens": 283
+  }
+ },
+ "device_map": {
+  "0": 23,
+  "1": 17
+ },
+ "device_map_full": {
+  "device_map": {
+   "model.vision_tower": "0",
+   "model.multi_modal_projector": "0",
+   "model.language_model.embed_tokens": "0",
+   "lm_head": "0",
+   "model.language_model.layers.0": "0",
+   "model.language_model.layers.1": "0",
+   "model.language_model.layers.2": "0",
+   "model.language_model.layers.3": "0",
+   "model.language_model.layers.4": "0",
+   "model.language_model.layers.5": "0",
+   "model.language_model.layers.6": "0",
+   "model.language_model.layers.7": "0",
+   "model.language_model.layers.8": "0",
+   "model.language_model.layers.9": "0",
+   "model.language_model.layers.10": "0",
+   "model.language_model.layers.11": "0",
+   "model.language_model.layers.12": "0",
+   "model.language_model.layers.13": "0",
+   "model.language_model.layers.14": "0",
+   "model.language_model.layers.15": "0",
+   "model.language_model.layers.16": "0",
+   "model.language_model.layers.17": "0",
+   "model.language_model.layers.18": "0",
+   "model.language_model.layers.19": "1",
+   "model.language_model.layers.20": "1",
+   "model.language_model.layers.21": "1",
+   "model.language_model.layers.22": "1",
+   "model.language_model.layers.23": "1",
+   "model.language_model.layers.24": "1",
+   "model.language_model.layers.25": "1",
+   "model.language_model.layers.26": "1",
+   "model.language_model.layers.27": "1",
+   "model.language_model.layers.28": "1",
+   "model.language_model.layers.29": "1",
+   "model.language_model.layers.30": "1",
+   "model.language_model.layers.31": "1",
+   "model.language_model.layers.32": "1",
+   "model.language_model.layers.33": "1",
+   "model.language_model.norm": "1",
+   "model.language_model.rotary_emb": "1"
+  },
+  "device_map_counts": {
+   "0": 23,
+   "1": 17
+  },
+  "max_memory": null,
+  "disk_offload_note": "modules mapped to 'disk' are offloaded by accelerate and streamed in per forward pass; identical arithmetic, only slower"
+ }
+}

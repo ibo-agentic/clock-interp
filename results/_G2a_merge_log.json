@@ -1,0 +1,30 @@
+{
+ "copied": [
+  "results/gemma/G2a_STATUS.txt",
+  "results/gemma/G2a_status.json",
+  "results/gemma/G2a_env.txt",
+  "results/gemma-3-12b-it\\cap_check_256.csv",
+  "results/gemma-3-12b-it\\conversion_test.csv",
+  "results/gemma-3-12b-it\\conversion_test_run_config.json",
+  "results/gemma-3-12b-it\\run_config.json",
+  "results/gemma-3-12b-it\\text_only_v2.csv",
+  "results/gemma/gemma-3-12b-it_bf16\\run_config.json",
+  "results/gemma/gemma-3-12b-it_bf16\\smoke.json",
+  "results/gemma/gemma-3-12b-it_bf16\\timing_clock.png",
+  "results/gemma/G2a_logs\\00_gate_12b_bf16.log",
+  "results/gemma/G2a_logs\\01_text_only_v2.log",
+  "results/gemma/G2a_logs\\02_conversion_test.log",
+  "results/gemma/G2a_logs\\03_aggregate_text_only.log",
+  "results/gemma/G2a_logs\\04_aggregate_conversion.log",
+  "results/gemma/G2a_logs\\05_cap_check.log",
+  "results/gemma/G2a_logs\\06_purge_12b_cache.log",
+  "results/gemma-3-12b-it/conversion_images\\manifest.csv"
+ ],
+ "skipped_existing": [
+  "results/gemma/gemma-3-12b-it_bf16\\smoke_images\\smoke_0_1010.png",
+  "results/gemma/gemma-3-12b-it_bf16\\smoke_images\\smoke_1_0345.png",
+  "results/gemma/gemma-3-12b-it_bf16\\smoke_images\\smoke_2_0720.png",
+  "results/gemma/gemma-3-12b-it_bf16\\smoke_images\\smoke_3_1200.png",
+  "results/gemma/gemma-3-12b-it_bf16\\smoke_images\\smoke_4_0535.png"
+ ]
+}

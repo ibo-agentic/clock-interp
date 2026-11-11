@@ -1,4 +1,13 @@
 model,task,phrasing,n,parse_ok,format_ok
+gemma-3-12b-it,a,a1,120,1.0,1.0
+gemma-3-12b-it,a,a2,120,1.0,1.0
+gemma-3-12b-it,a,a3,120,1.0,1.0
+gemma-3-12b-it,b,b1,432,1.0,1.0
+gemma-3-12b-it,b,b2,432,1.0,1.0
+gemma-3-12b-it,b,b3,432,1.0,1.0
+gemma-3-12b-it,c,c1,120,1.0,1.0
+gemma-3-12b-it,c,c2,120,1.0,1.0
+gemma-3-12b-it,c,c3,120,1.0,1.0
 gemma-3-4b-it,a,a1,120,1.0,0.9916666666666667
 gemma-3-4b-it,a,a2,120,1.0,0.9416666666666667
 gemma-3-4b-it,a,a3,120,1.0,0.9833333333333333

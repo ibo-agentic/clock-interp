@@ -1,0 +1,7 @@
+00_gate_12b_bf16                 OK                             7.0 min
+01_describe_check                OK                           179.7 min
+02_eval_behavior_bf16            OK                            68.8 min
+03_purge_12b_cache               OK                             0.0 min
+
+total wall time: 4.29 h
+MISSING expected files: none

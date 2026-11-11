@@ -405,6 +405,7 @@ def part_verify(ctx):
     try:
         st = ML.BlockState()
         exact, eag_default, vs_adapter, n5 = 0, 0, 0, 0
+        u8, ok8, u8b, ok8b = 0, 0, 0, 0       # --gate_parsed_only (fourteenth entry): usable keys = intact reply parses
         sub = pick[:50] if not ctx.smoke else pick[:6]
         for (lead, n, h) in sub:
             tp = ctx.prompt(lead, n, h)
@@ -418,11 +419,22 @@ def part_verify(ctx):
             eag_default += int(ML.parse_hhmm(a) == ML.parse_hhmm(c) and (ML.parse_hhmm(a)[1] is not None or ctx.smoke))
             d = ctx.gen(tp.prompt, 32)
             vs_adapter += int(ML.parse_hhmm(c) == ML.parse_hhmm(d) and (ML.parse_hhmm(c)[1] is not None or ctx.smoke))
+            if ML.parse_hhmm(a)[1] is not None:
+                u8 += 1; ok8 += int(ML.parse_hhmm(a) == ML.parse_hhmm(c))
+            if ML.parse_hhmm(c)[1] is not None:
+                u8b += 1; ok8b += int(ML.parse_hhmm(c) == ML.parse_hhmm(d))
             n5 += 1
         check("G5_empty_block_equals_no_hook", exact == n5, matches=f"{exact}/{n5}")
-        check("G8_eager_vs_default_attention_agree", eag_default / n5 >= 0.95, agreement=round(eag_default / n5, 3))
-        check("G8b_nocache_loop_vs_adapter_generate_agree", vs_adapter / n5 >= 0.95, agreement=round(vs_adapter / n5, 3),
-              note="parsed HH:MM equality; fp16 + different code path, so a small disagreement is expected")
+        if getattr(ctx.args, "gate_parsed_only", False):
+            floor = 3 if ctx.smoke else 30
+            check("G8_eager_vs_default_attention_agree", u8 >= floor and ok8 / max(u8, 1) >= 0.95, agreement=round(ok8 / max(u8, 1), 3), usable=u8, n=n5,
+                  all_key_agreement=round(eag_default / n5, 3), note="parsed-only (fourteenth entry): keys whose intact eager reply parses; needs >= 30 usable keys")
+            check("G8b_nocache_loop_vs_adapter_generate_agree", u8b >= floor and ok8b / max(u8b, 1) >= 0.95, agreement=round(ok8b / max(u8b, 1), 3), usable=u8b, n=n5,
+                  all_key_agreement=round(vs_adapter / n5, 3), note="parsed-only (fourteenth entry): keys whose default no-cache reply parses; parsed HH:MM equality with the adapter generate")
+        else:
+            check("G8_eager_vs_default_attention_agree", eag_default / n5 >= 0.95, agreement=round(eag_default / n5, 3))
+            check("G8b_nocache_loop_vs_adapter_generate_agree", vs_adapter / n5 >= 0.95, agreement=round(vs_adapter / n5, 3),
+                  note="parsed HH:MM equality; fp16 + different code path, so a small disagreement is expected")
     except Exception as e:  # noqa: BLE001
         check("G5_G8_attention_paths", False, error=_err(e))
 
@@ -474,15 +486,32 @@ def part_verify(ctx):
     # G9 the block really activates inside free generation (needs the model to produce ':'), H-span, all layers
     try:
         act, n9 = 0, 0
-        for (lead, n, h) in pick[:20]:
-            tp = ctx.prompt(lead, n, h)
-            st.calls = 0
-            with ML.block_attention(ad, (0, L), st):
-                ML.greedy_generate_blocked(ad, tp.ids, st, key_pos=tp.spans["H"], max_new=24)
-            act += int(st.calls > 0)
-            n9 += 1
-        check("G9_block_activates_during_generation", (act / n9 >= 0.9) or ctx.smoke, activated=f"{act}/{n9}",
-              note="needs >=90% (a model that never writes ':' would silently get no knockout); smoke only logs it")
+        if getattr(ctx.args, "gate_parsed_only", False):      # fourteenth entry: usable = intact (eager, no block) reply parses; first 50 picks; floor 30 usable keys
+            u9 = 0
+            for (lead, n, h) in (pick[:50] if not ctx.smoke else pick[:6]):
+                tp = ctx.prompt(lead, n, h)
+                with ML.eager_attention(ad):
+                    intact = ML.greedy_generate_blocked(ad, tp.ids, st, key_pos=None, max_new=24)
+                n9 += 1
+                if ML.parse_hhmm(intact)[1] is None:
+                    continue
+                u9 += 1
+                st.calls = 0
+                with ML.block_attention(ad, (0, L), st):
+                    ML.greedy_generate_blocked(ad, tp.ids, st, key_pos=tp.spans["H"], max_new=24)
+                act += int(st.calls > 0)
+            check("G9_block_activates_during_generation", (u9 >= 30 and act / max(u9, 1) >= 0.9) or ctx.smoke, activated=f"{act}/{u9}", usable=u9, n=n9,
+                  note="parsed-only (fourteenth entry): keys whose intact reply parses; needs >= 90% activation and >= 30 usable keys")
+        else:
+            for (lead, n, h) in pick[:20]:
+                tp = ctx.prompt(lead, n, h)
+                st.calls = 0
+                with ML.block_attention(ad, (0, L), st):
+                    ML.greedy_generate_blocked(ad, tp.ids, st, key_pos=tp.spans["H"], max_new=24)
+                act += int(st.calls > 0)
+                n9 += 1
+            check("G9_block_activates_during_generation", (act / n9 >= 0.9) or ctx.smoke, activated=f"{act}/{n9}",
+                  note="needs >=90% (a model that never writes ':' would silently get no knockout); smoke only logs it")
     except Exception as e:  # noqa: BLE001
         check("G9_block_activates_during_generation", False, error=_err(e))
 
@@ -1111,6 +1140,8 @@ def main():
                          "gold = the forced zero-padded gold prefix. The other one is logged as informational.")
     ap.add_argument("--d_intact_parsed", action="store_true",
                     help="E3d: ALSO summarise on the keys whose intact reply parsed (files *_intactparsed.*); the all-key summary is always written (Gemma-4B primary, tenth entry)")
+    ap.add_argument("--gate_parsed_only", action="store_true",
+                    help="verify gates G8, G8b, G9 are computed on the keys whose intact reply parses (PREREG fourteenth entry; Gemma-4B only); default off = unchanged")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
     parts = [p.strip() for p in args.parts.split(",") if p.strip()]
