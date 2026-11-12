@@ -1,0 +1,62 @@
+[
+ {
+  "step": "00_gate_4b_bf16",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 2.8
+ },
+ {
+  "step": "01_style_check",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 1.6
+ },
+ {
+  "step": "02_render_styled_sets",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 2.3
+ },
+ {
+  "step": "03_gemma-3-4b-it_s1_thin_eval",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 41.4
+ },
+ {
+  "step": "03_gemma-3-4b-it_s1_thin_describe",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 82.0
+ },
+ {
+  "step": "03_gemma-3-4b-it_s1_thin_conversion",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 72.4
+ },
+ {
+  "step": "03_gemma-3-4b-it_s2_ticks_eval",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 41.7
+ },
+ {
+  "step": "03_gemma-3-4b-it_s2_ticks_describe",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 80.4
+ },
+ {
+  "step": "03_gemma-3-4b-it_s2_ticks_conversion",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 72.7
+ },
+ {
+  "step": "04_purge_4b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]

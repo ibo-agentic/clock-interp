@@ -1,0 +1,98 @@
+[
+ {
+  "step": "00_prep_photos",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 1.6
+ },
+ {
+  "step": "01_qwen2.5-vl-3b_photos_eval",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 6.6
+ },
+ {
+  "step": "01_qwen2.5-vl-3b_photos_describe",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 24.6
+ },
+ {
+  "step": "01_purge_qwen3b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "02_internvl3-2b_photos_eval",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 8.6
+ },
+ {
+  "step": "02_internvl3-2b_photos_describe",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 21.0
+ },
+ {
+  "step": "02_purge_internvl2b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "03_qwen2.5-vl-7b_photos_eval",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 9.0
+ },
+ {
+  "step": "03_qwen2.5-vl-7b_photos_describe",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 33.6
+ },
+ {
+  "step": "03_purge_qwen7b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "04_internvl3-8b_photos_eval",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 23.2
+ },
+ {
+  "step": "04_internvl3-8b_photos_describe",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 37.3
+ },
+ {
+  "step": "04_purge_internvl8b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ },
+ {
+  "step": "05_gemma-3-4b-it_photos_eval",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 38.5
+ },
+ {
+  "step": "05_gemma-3-4b-it_photos_describe",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 84.1
+ },
+ {
+  "step": "05_purge_gemma4b_cache",
+  "status": "OK",
+  "returncode": 0,
+  "minutes": 0.0
+ }
+]

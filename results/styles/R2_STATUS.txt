@@ -1,0 +1,13 @@
+00_gate_4b_bf16                  OK                             2.8 min
+01_style_check                   OK                             1.6 min
+02_render_styled_sets            OK                             2.3 min
+03_gemma-3-4b-it_s1_thin_eval    OK                            41.4 min
+03_gemma-3-4b-it_s1_thin_describe OK                            82.0 min
+03_gemma-3-4b-it_s1_thin_conversion OK                            72.4 min
+03_gemma-3-4b-it_s2_ticks_eval   OK                            41.7 min
+03_gemma-3-4b-it_s2_ticks_describe OK                            80.4 min
+03_gemma-3-4b-it_s2_ticks_conversion OK                            72.7 min
+04_purge_4b_cache                OK                             0.0 min
+
+total wall time: 6.65 h
+MISSING expected files: none

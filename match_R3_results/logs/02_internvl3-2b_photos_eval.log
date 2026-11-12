@@ -1,0 +1,22 @@
+Loading OpenGVLab/InternVL3-2B-hf in bfloat16 (transformers-native InternVL, device_map='auto') ...
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] The tied weights mapping and config for this model specifies to tie model.language_model.embed_tokens.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+
+Evaluating clocks:   0%|          | 0/500 [00:00<?, ?it/s]
+Evaluating clocks:  13%|█▎        | 63/500 [01:00<06:57,  1.05it/s]
+Evaluating clocks:  13%|█▎        | 63/500 [01:11<06:57,  1.05it/s]
+Evaluating clocks:  25%|██▌       | 127/500 [02:00<05:54,  1.05it/s]
+Evaluating clocks:  25%|██▌       | 127/500 [02:11<05:54,  1.05it/s]
+Evaluating clocks:  38%|███▊      | 190/500 [03:00<04:54,  1.05it/s]
+Evaluating clocks:  38%|███▊      | 190/500 [03:11<04:54,  1.05it/s]
+Evaluating clocks:  51%|█████     | 253/500 [04:00<03:55,  1.05it/s]
+Evaluating clocks:  51%|█████     | 253/500 [04:11<03:55,  1.05it/s]
+Evaluating clocks:  63%|██████▎   | 316/500 [05:00<02:55,  1.05it/s]
+Evaluating clocks:  63%|██████▎   | 316/500 [05:11<02:55,  1.05it/s]
+Evaluating clocks:  76%|███████▌  | 379/500 [06:01<01:55,  1.05it/s]
+Evaluating clocks:  76%|███████▌  | 379/500 [06:12<01:55,  1.05it/s]
+Evaluating clocks:  88%|████████▊ | 442/500 [07:02<00:55,  1.04it/s]
+Evaluating clocks:  88%|████████▊ | 442/500 [07:20<00:55,  1.04it/s]
+Evaluating clocks: 100%|██████████| 500/500 [07:57<00:00,  1.05it/s]
+Done. 500 images evaluated, 0 parse failures (0.0%).
+Results saved to 'results/internvl3-2b_photos/results.csv', parse failures to 'results/internvl3-2b_photos/parse_failures.csv'.

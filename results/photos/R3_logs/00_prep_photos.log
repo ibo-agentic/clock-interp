@@ -1,0 +1,11 @@
+read data/test-00000-of-00009.parquet: 540 rows
+read data/test-00001-of-00009.parquet: 539 rows
+read data/test-00002-of-00009.parquet: 539 rows
+read data/test-00003-of-00009.parquet: 539 rows
+read data/test-00004-of-00009.parquet: 539 rows
+read data/test-00005-of-00009.parquet: 539 rows
+read data/test-00006-of-00009.parquet: 539 rows
+read data/test-00007-of-00009.parquet: 539 rows
+read data/test-00008-of-00009.parquet: 539 rows
+test rows 4852; licence values: {'CC BY 4.0': 3735, 'Unknown/Custom': 1117}; sources of CC BY 4.0 rows: {'coco2017': 1929, 'OpenImages': 1806}
+wrote 500 photos + data.csv + manifest_provenance.csv to data_photos_tt500; sources in the sample: {'coco2017': 256, 'OpenImages': 244}

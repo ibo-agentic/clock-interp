@@ -1,0 +1,3002 @@
+filename,true_hour,true_minute,true_minute_number,true_hour_number,said_minute_number,said_hour_number,pred_hour,pred_minute,raw_answer,minute_desc_ok,hour_desc_ok,answer_ok,said_hour_number_tolerant,hour_desc_ok_tolerant,said_minute_number_tolerant,minute_desc_ok_tolerant
+tt_0000.png,12,36,7,12,,,6,30,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **III** (which represents 3).
+*   **Short hour hand:** The short hour hand is pointing at the number **VI** (which represents 6).
+
+Therefore, the time displayed on the clock is **6:30**.",False,False,False,,False,,False
+tt_0001.png,11,48,10,11,8.0,6.0,6,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time displayed on the clock is **6:40**.",False,False,False,6,False,8,False
+tt_0002.png,8,28,6,8,1.0,12.0,12,1,"Okay, let's analyze the clock!
+
+*   The long minute hand is pointing at the number **1**.
+*   The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:01**.",False,False,False,12,False,1,False
+tt_0003.png,11,40,8,11,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:12**.",False,False,False,3,False,12,False
+tt_0004.png,4,35,7,4,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0005.png,2,23,5,2,12.0,1.0,1,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **01:00** (1:00).",False,False,False,1,False,12,False
+tt_0006.png,7,0,12,7,3.0,1.0,1,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **3**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **01:15**.",False,False,False,1,False,3,False
+tt_0007.png,3,27,5,3,8.0,6.0,6,40,"Okay, let's analyze the clock in the image.
+
+*   **Minute hand:** The long minute hand is pointing at the number **8**.
+*   **Hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time displayed on the clock is **6:40**.",False,False,False,6,False,8,False
+tt_0008.png,6,37,7,6,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:12**.",False,False,False,3,False,12,False
+tt_0009.png,10,17,3,10,8.0,2.0,2,40,"Here's the breakdown of the time shown on the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:40**.",False,False,False,2,False,8,False
+tt_0010.png,9,8,2,9,18.0,12.0,12,18,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **18**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:18**.",False,False,False,12,False,18,False
+tt_0011.png,10,30,6,10,15.0,12.0,12,45,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **15**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:45**.",False,False,False,12,False,15,False
+tt_0012.png,7,50,10,7,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0013.png,3,37,7,3,12.0,3.0,3,0,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,True,False,3,True,12,False
+tt_0014.png,1,19,4,1,12.0,3.0,3,0,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0015.png,4,46,9,4,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0016.png,11,5,1,11,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0017.png,1,35,7,1,8.0,1.0,1,8,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **8**.
+*   The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:08**.",True,True,False,1,True,8,True
+tt_0018.png,12,47,9,12,9.0,3.0,3,45,"Okay, let's analyze the image of the clock!
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed is **03:45** (3:45).",True,False,False,3,False,9,True
+tt_0019.png,6,12,2,6,2.0,1.0,1,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 2.
+*   **Short hour hand:** The short hour hand is pointing at the number 1.
+
+Therefore, the time is **01:12**.",True,False,False,1,False,2,True
+tt_0020.png,3,44,9,3,12.0,3.0,3,0,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,True,False,3,True,12,False
+tt_0021.png,9,10,2,9,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45** (3:45).",False,False,False,3,False,9,False
+tt_0022.png,2,7,1,2,12.0,11.0,11,0,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **11**.
+
+Therefore, the time displayed on the clock is **11:00**.",True,False,False,11,False,12,True
+tt_0023.png,12,34,7,12,6.0,3.0,3,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:06**.",True,False,False,3,False,6,True
+tt_0024.png,12,5,1,12,24.0,18.0,18,24,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **24**.
+*   **Short hour hand:** The short hour hand is pointing at the number **18**.
+
+Therefore, the time is **18:24** (or 6:24 PM).",True,False,False,18,False,24,True
+tt_0025.png,10,43,9,10,8.0,3.0,3,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:40**.",True,False,False,3,False,8,True
+tt_0026.png,8,31,6,8,6.0,8.0,8,36,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **8**.
+
+Therefore, the time is **08:36**.",True,True,False,8,True,6,True
+tt_0027.png,3,24,5,3,13.0,1.0,1,13,"Here's the breakdown of the clock face:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **13**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **01:13**.",False,False,False,1,False,13,False
+tt_0028.png,1,20,4,1,12.0,3.0,3,0,"Okay, let's analyze the image of the clocks.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0029.png,9,1,12,9,12.0,3.0,3,0,"Okay, let's analyze the image of the Rolex Yacht-Master watch.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the watch is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0030.png,2,40,8,2,6.0,3.0,3,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:06**.",False,False,False,3,False,6,False
+tt_0031.png,8,10,2,8,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0032.png,7,5,1,7,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0033.png,7,56,11,7,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0034.png,6,38,8,6,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0035.png,3,45,9,3,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,True,False,3,True,12,False
+tt_0036.png,9,10,2,9,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Minute hand:** The long minute hand is pointing at the number 12.
+*   **Hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:12**.",False,False,False,3,False,12,False
+tt_0037.png,12,31,6,12,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0038.png,2,20,4,2,9.0,2.0,2,9,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:09**.",False,True,False,2,True,9,False
+tt_0039.png,12,41,8,12,12.0,8.0,8,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 8.
+
+Therefore, the time is 08:12.",False,False,False,8,False,12,False
+tt_0040.png,3,44,9,3,8.0,1.0,1,8,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed on the clock is **1:08**.",True,False,False,1,False,8,True
+tt_0041.png,11,46,9,11,8.0,3.0,3,40,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",True,False,False,3,False,8,True
+tt_0042.png,10,30,6,10,12.0,3.0,3,0,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0043.png,5,20,4,5,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0044.png,10,5,1,10,7.0,1.0,1,7,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **7**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:07**.",False,False,False,1,False,7,False
+tt_0045.png,6,47,9,6,6.0,8.0,8,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 8.
+
+Therefore, the time is 08:30.",False,False,False,8,False,6,False
+tt_0046.png,12,19,4,12,12.0,3.0,3,0,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0047.png,3,13,3,3,3.0,2.0,2,3,"Here's the breakdown of the clock:
+
+*   **Minute hand:** The long minute hand is pointing at the number **3**.
+*   **Hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:03**.",True,False,False,2,False,3,True
+tt_0048.png,10,45,9,10,8.0,3.0,3,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",True,False,False,3,False,8,True
+tt_0049.png,7,33,7,7,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0050.png,2,31,6,2,4.0,10.0,10,40,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **4**.
+*   **Short hour hand:** The short hour hand is pointing at the number **10**.
+
+Therefore, the time is **10:40**.",False,False,False,10,False,4,False
+tt_0051.png,11,0,12,11,12.0,3.0,3,0,"Let's analyze the clock image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is 03:00.",True,False,False,3,False,12,True
+tt_0052.png,1,50,10,1,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0053.png,6,47,9,6,8.0,6.0,6,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **6:40**.",True,True,False,6,True,8,True
+tt_0054.png,10,50,10,10,9.0,3.0,3,45,"Okay, let's analyze the clock image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",True,False,False,3,False,9,True
+tt_0055.png,4,20,4,4,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0056.png,3,43,9,3,2.0,1.0,1,2,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **2**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:02**.",False,False,False,1,False,2,False
+tt_0057.png,8,34,7,8,45.0,12.0,12,45,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **45**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time displayed on the clock is **12:45**.",False,False,False,12,False,45,False
+tt_0058.png,5,52,10,5,12.0,3.0,3,0,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0059.png,9,44,9,9,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:12**.",False,False,False,3,False,12,False
+tt_0060.png,6,45,9,6,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0061.png,1,52,10,1,15.0,9.0,9,15,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **15**.
+*   **Short hour hand:** The short hour hand is pointing at the number **9**.
+
+Therefore, the time is **09:15**.",False,False,False,9,False,15,False
+tt_0062.png,10,27,5,10,9.0,3.0,3,45,"Let's analyze the clock image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 9.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is 03:45.",False,False,False,3,False,9,False
+tt_0063.png,11,38,8,11,30.0,4.0,4,30,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **30**.
+*   **Short hour hand:** The short hour hand is pointing at the number **4**.
+
+Therefore, the time is **04:30**.",False,False,False,4,False,30,False
+tt_0064.png,5,8,2,5,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:00**.",False,False,False,3,False,12,False
+tt_0065.png,12,44,9,12,8.0,3.0,3,40,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",True,False,False,3,False,8,True
+tt_0066.png,8,22,4,8,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0067.png,7,13,3,7,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0068.png,11,0,12,11,8.0,1.0,1,8,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:08**.",False,False,False,1,False,8,False
+tt_0069.png,11,50,10,11,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0070.png,8,24,5,8,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0071.png,2,25,5,2,11.0,3.0,3,11,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:11**.",False,False,False,3,False,11,False
+tt_0072.png,7,43,9,7,11.0,3.0,3,58,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:58** (3:58).",False,False,False,3,False,11,False
+tt_0073.png,3,7,1,3,6.0,3.0,3,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:06**.",False,True,False,3,True,6,False
+tt_0074.png,2,25,5,2,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 9.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:45**.",False,False,False,3,False,9,False
+tt_0075.png,11,25,5,11,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0076.png,10,28,6,10,12.0,3.0,3,0,"Here's the breakdown of the clock in the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0077.png,2,55,11,2,6.0,3.0,3,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:30** (3:30).",False,False,False,3,False,6,False
+tt_0078.png,2,34,7,2,6.0,9.0,9,6,"Here's the breakdown of the clock:
+
+*   **Minute hand:** The long minute hand is pointing at the number 6.
+*   **Hour hand:** The short hour hand is pointing at the number 9.
+
+Therefore, the time is **09:06**.",True,False,False,9,False,6,True
+tt_0079.png,1,8,2,1,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:45**.",False,False,False,3,False,9,False
+tt_0080.png,4,58,12,4,12.0,3.0,3,0,"Here's the breakdown of the clock in the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0081.png,10,50,10,10,8.0,3.0,3,40,"Okay, let's analyze the clock image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0082.png,10,10,2,10,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is 03:00 (3:00).",False,False,False,3,False,12,False
+tt_0083.png,2,20,4,2,8.0,2.0,2,48,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:48**.",False,True,False,2,True,8,False
+tt_0084.png,3,30,6,3,9.0,3.0,3,45,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",False,True,False,3,True,9,False
+tt_0085.png,1,25,5,1,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0086.png,1,17,3,1,8.0,6.0,6,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **6:40**.",False,False,False,6,False,8,False
+tt_0087.png,5,12,2,5,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0088.png,1,22,4,1,12.0,3.0,3,0,"Here's the breakdown:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0089.png,2,40,8,2,9.0,3.0,3,45,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **9**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:45** (3:45).",True,False,False,3,False,9,True
+tt_0090.png,2,55,11,2,9.0,3.0,3,9,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed is **03:09**.",False,False,False,3,False,9,False
+tt_0091.png,7,18,4,7,12.0,3.0,3,0,"Here's the breakdown of the time shown on the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0092.png,2,59,12,2,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0093.png,7,35,7,7,12.0,1.0,1,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **01:00** (1:00 AM).",False,False,False,1,False,12,False
+tt_0094.png,4,20,4,4,10.0,2.0,2,10,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **10**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:10**.",False,False,False,2,False,10,False
+tt_0095.png,10,35,7,10,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 8.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:40**.",True,False,False,3,False,8,True
+tt_0096.png,1,10,2,1,11.0,9.0,9,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 11.
+*   **Short hour hand:** The short hour hand is pointing at the number 9.
+
+Therefore, the time is **09:11**.",False,False,False,9,False,11,False
+tt_0097.png,5,16,3,5,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0098.png,7,7,1,7,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0099.png,11,55,11,11,11.0,3.0,3,55,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:55**.",True,False,False,3,False,11,True
+tt_0100.png,10,53,11,10,6.0,11.0,11,6,"Here's the breakdown of the time from the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **11**.
+
+Therefore, the time is **11:06**.",False,False,False,11,False,6,False
+tt_0101.png,10,0,12,10,8.0,3.0,3,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0102.png,9,15,3,9,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:12**.",False,False,False,3,False,12,False
+tt_0103.png,12,40,8,12,8.0,6.0,6,40,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **8**.
+*   The short hour hand is pointing at the number **6**.
+
+Therefore, the time displayed on the clock is **6:40**.",True,False,False,6,False,8,True
+tt_0104.png,12,55,11,12,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0105.png,10,50,10,10,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0106.png,11,50,10,11,12.0,3.0,3,0,"Let's analyze the clock image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0107.png,11,15,3,11,9.0,3.0,3,45,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",False,False,False,3,False,9,False
+tt_0108.png,7,33,7,7,8.0,12.0,12,40,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 8.
+*   **Short hour hand:** The short hour hand is pointing at the number 12.
+
+Therefore, the time is **12:40**.",True,False,False,12,False,8,True
+tt_0109.png,3,35,7,3,6.0,10.0,10,30,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **10**.
+
+Therefore, the time displayed on the clock is **10:30**.",True,False,False,10,False,6,True
+tt_0110.png,1,24,5,1,12.0,3.0,3,12,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:12**.",False,False,False,3,False,12,False
+tt_0111.png,1,40,8,1,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0112.png,7,13,3,7,12.0,3.0,3,0,"Let's analyze the image of the clock.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0113.png,4,55,11,4,15.0,1.0,1,15,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 15.
+*   **Short hour hand:** The short hour hand is pointing at the number 1.
+
+Therefore, the time is **01:15**.",False,False,False,1,False,15,False
+tt_0114.png,1,38,8,1,12.0,3.0,3,0,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0115.png,11,55,11,11,12.0,1.0,1,0,"Here's the breakdown:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **01:00** (1:00).",True,False,False,1,False,12,True
+tt_0116.png,10,50,10,10,11.0,10.0,10,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **10**.
+
+Therefore, the time is **10:11**.",True,True,False,10,True,11,True
+tt_0117.png,2,15,3,2,,,2,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **III** (which represents 3).
+*   **Short hour hand:** The short hour hand is pointing at the number **II** (which represents 2).
+
+Therefore, the time is **2:30**.",False,False,False,,False,,False
+tt_0118.png,3,29,6,3,9.0,3.0,3,45,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45** (3:45).",False,True,False,3,True,9,False
+tt_0119.png,9,55,11,9,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:12**.",True,False,False,3,False,12,True
+tt_0120.png,11,20,4,11,8.0,3.0,3,8,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:08**.",False,False,False,3,False,8,False
+tt_0121.png,2,26,5,2,14.0,12.0,12,14,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **14**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:14**.",False,False,False,12,False,14,False
+tt_0122.png,11,35,7,11,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 9.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:45**.",False,False,False,3,False,9,False
+tt_0123.png,10,20,4,10,9.0,6.0,6,45,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time displayed on the clock is **6:45**.",False,False,False,6,False,9,False
+tt_0124.png,12,22,4,12,8.0,6.0,6,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **06:40**.",False,False,False,6,False,8,False
+tt_0125.png,8,5,1,8,12.0,3.0,3,12,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:12**.",True,False,False,3,False,12,True
+tt_0126.png,2,7,1,2,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0127.png,3,0,12,3,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:40**.",False,True,False,3,True,8,False
+tt_0128.png,10,8,2,10,6.0,8.0,8,30,"Here's the breakdown of the time shown on the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 8.
+
+Therefore, the time is **08:30**.",False,False,False,8,False,6,False
+tt_0129.png,8,13,3,8,7.0,9.0,9,42,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **7**.
+*   **Short hour hand:** The short hour hand is pointing at the number **9**.
+
+Therefore, the time is **09:42**.",False,False,False,9,False,7,False
+tt_0130.png,12,54,11,12,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0131.png,4,21,4,4,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0132.png,12,3,1,12,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0133.png,12,29,6,12,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0134.png,10,8,2,10,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 8.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0135.png,6,30,6,6,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0136.png,1,16,3,1,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Minute hand:** The long minute hand is pointing at the number **8**.
+*   **Hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0137.png,9,37,7,9,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:40**.",True,False,False,3,False,8,True
+tt_0138.png,3,27,5,3,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,True,False,3,True,12,False
+tt_0139.png,11,47,9,11,8.0,8.0,8,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **8**.
+
+Therefore, the time displayed on the clock is **08:00** (8:00).",True,False,False,8,False,8,True
+tt_0140.png,7,20,4,7,8.0,1.0,1,8,"Okay, let's analyze the image!
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed on the clock is **1:08**.",False,False,False,1,False,8,False
+tt_0141.png,12,0,12,12,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Minute hand:** The long minute hand is pointing at the number **12**.
+*   **Hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:12**.",True,False,False,3,False,12,True
+tt_0142.png,4,15,3,4,9.0,3.0,3,45,"Okay, let's analyze the clock image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",False,False,False,3,False,9,False
+tt_0143.png,11,37,7,11,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0144.png,6,50,10,6,31.0,11.0,11,31,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **31**.
+*   **Short hour hand:** The short hour hand is pointing at the number **11**.
+
+Therefore, the time displayed is **11:31**.",False,False,False,11,False,31,False
+tt_0145.png,2,55,11,2,8.0,6.0,6,48,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **06:48**.",False,False,False,6,False,8,False
+tt_0146.png,6,58,12,6,9.0,3.0,3,9,"Here's the breakdown of the clock in the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:09**.",False,False,False,3,False,9,False
+tt_0147.png,3,45,9,3,6.0,3.0,3,6,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:06**.",False,True,False,3,True,6,False
+tt_0148.png,5,40,8,5,9.0,8.0,8,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 9.
+*   **Short hour hand:** The short hour hand is pointing at the number 8.
+
+Therefore, the time is **08:45**.",True,False,False,8,False,9,True
+tt_0149.png,12,40,8,12,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",True,False,False,3,False,9,True
+tt_0150.png,12,32,6,12,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0151.png,4,16,3,4,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0152.png,1,30,6,1,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0153.png,11,30,6,11,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0154.png,11,58,12,11,8.0,2.0,2,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:40**.",False,False,False,2,False,8,False
+tt_0155.png,10,0,12,10,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0156.png,9,35,7,9,5.0,1.0,1,5,"Okay, let's analyze the image of the watch.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **5**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed on the watch is **1:05**.",False,False,False,1,False,5,False
+tt_0157.png,1,23,5,1,9.0,3.0,3,29,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **9**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:29**.",False,False,False,3,False,9,False
+tt_0158.png,5,55,11,5,8.0,3.0,3,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0159.png,2,18,4,2,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0160.png,9,7,1,9,8.0,3.0,3,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:40**.",False,False,False,3,False,8,False
+tt_0161.png,12,8,2,12,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0162.png,11,40,8,11,11.0,9.0,9,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 11.
+*   **Short hour hand:** The short hour hand is pointing at the number 9.
+
+Therefore, the time is **09:11**.",False,False,False,9,False,11,False
+tt_0163.png,9,20,4,9,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45** (3:45).",False,False,False,3,False,9,False
+tt_0164.png,1,45,9,1,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0165.png,10,20,4,10,11.0,2.0,2,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:11**.",False,False,False,2,False,11,False
+tt_0166.png,8,57,11,8,2.0,12.0,12,2,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **2**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:02**.",False,False,False,12,False,2,False
+tt_0167.png,10,41,8,10,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 8.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:40**.",True,False,False,3,False,8,True
+tt_0168.png,2,54,11,2,12.0,3.0,3,0,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0169.png,3,0,12,3,6.0,1.0,1,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **01:06**.",False,False,False,1,False,6,False
+tt_0170.png,12,0,12,12,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0171.png,7,50,10,7,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0172.png,3,13,3,3,9.0,3.0,3,27,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:27** (3:27).",False,True,False,3,True,9,False
+tt_0173.png,2,35,7,2,6.0,11.0,11,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:06**.",True,False,False,11,False,6,True
+tt_0174.png,12,0,12,12,8.0,1.0,1,8,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed on the clock is **1:08**.",False,False,False,1,False,8,False
+tt_0175.png,2,5,1,2,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0176.png,1,35,7,1,45.0,12.0,12,45,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **45**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:45**.",False,False,False,12,False,45,False
+tt_0177.png,2,35,7,2,6.0,11.0,11,30,"Okay, let's analyze the clock!
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is 11:30.",True,False,False,11,False,6,True
+tt_0178.png,3,50,10,3,3.0,1.0,1,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **3**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:30**.",False,False,False,1,False,3,False
+tt_0179.png,10,18,4,10,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0180.png,12,42,8,12,4.0,1.0,1,20,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **4**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:20**.",False,False,False,1,False,4,False
+tt_0181.png,3,58,12,3,,,11,22,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** 11
+*   **Short hour hand:** 2
+*   **Time:** 11:22
+
+Let me know if you'd like to try another clock!",False,False,False,,False,,False
+tt_0182.png,2,25,5,2,8.0,3.0,3,40,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **8**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:40**.",False,False,False,3,False,8,False
+tt_0183.png,11,57,11,11,11.0,12.0,11,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **11:11**.",True,False,False,12,False,11,True
+tt_0184.png,3,25,5,3,9.0,3.0,3,45,"Here's the breakdown of the clock in the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45** (3:45).",False,True,False,3,True,9,False
+tt_0185.png,1,15,3,1,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0186.png,2,46,9,2,12.0,11.0,11,12,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **11**.
+
+Therefore, the time is **11:12**.",False,False,False,11,False,12,False
+tt_0187.png,4,27,5,4,6.0,8.0,8,36,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **8**.
+
+Therefore, the time is **08:36**.",True,False,False,8,False,6,True
+tt_0188.png,10,10,2,10,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0189.png,12,19,4,12,11.0,3.0,3,55,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:55**.",False,False,False,3,False,11,False
+tt_0190.png,12,10,2,12,6.0,3.0,3,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:30** (3:30).",False,False,False,3,False,6,False
+tt_0191.png,8,0,12,8,12.0,3.0,3,0,"Okay, let's analyze the clock!
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:00**.",True,False,False,3,False,12,True
+tt_0192.png,12,39,8,12,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0193.png,12,50,10,12,8.0,2.0,2,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time displayed on the clock is **2:40**.",False,False,False,2,False,8,False
+tt_0194.png,1,5,1,1,12.0,2.0,2,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:00** (2:00).",True,False,False,2,False,12,True
+tt_0195.png,4,15,3,4,12.0,2.0,2,12,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **2**.
+
+Therefore, the time displayed on the clock is **02:12**.",False,False,False,2,False,12,False
+tt_0196.png,11,0,12,11,12.0,11.0,11,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:12**.",True,True,False,11,True,12,True
+tt_0197.png,11,2,12,11,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:40**.",False,False,False,3,False,8,False
+tt_0198.png,12,21,4,12,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0199.png,12,7,1,12,12.0,1.0,1,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed on the clock is **1:00**.",True,False,False,1,False,12,True
+tt_0200.png,3,27,5,3,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:40**.",False,True,False,3,True,8,False
+tt_0201.png,12,55,11,12,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0202.png,12,43,9,12,3.0,8.0,8,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 3.
+*   **Short hour hand:** The short hour hand is pointing at the number 8.
+
+Therefore, the time is **08:15**.",False,False,False,8,False,3,False
+tt_0203.png,2,17,3,2,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0204.png,1,34,7,1,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",False,False,False,3,False,9,False
+tt_0205.png,7,30,6,7,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",False,False,False,3,False,9,False
+tt_0206.png,1,20,4,1,6.0,8.0,8,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **8**.
+
+Therefore, the time is **08:06**.",False,False,False,8,False,6,False
+tt_0207.png,7,33,7,7,8.0,8.0,8,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **8**.
+
+Therefore, the time displayed on the clock is **08:40**.",True,False,False,8,False,8,True
+tt_0208.png,12,4,1,12,12.0,1.0,1,0,"Here's the breakdown of the time from the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:00**.",True,False,False,1,False,12,True
+tt_0209.png,4,28,6,4,9.0,3.0,3,45,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:45**.",False,False,False,3,False,9,False
+tt_0210.png,3,47,9,3,8.0,3.0,3,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number 8.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time displayed on the clock is **03:40**.",True,True,False,3,True,8,True
+tt_0211.png,10,55,11,10,11.0,10.0,10,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **10**.
+
+Therefore, the time is **10:11**.",True,True,False,10,True,11,True
+tt_0212.png,12,17,3,12,3.0,1.0,1,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **3**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:15**.",True,False,False,1,False,3,True
+tt_0213.png,2,2,12,2,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0214.png,4,2,12,4,8.0,3.0,3,40,"Here's the breakdown of the time shown in the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0215.png,8,26,5,8,12.0,9.0,9,0,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **9**.
+
+Therefore, the time is **09:00** (9:00).",False,False,False,9,False,12,False
+tt_0216.png,10,8,2,10,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **3:00**.",False,False,False,3,False,12,False
+tt_0217.png,2,28,6,2,9.0,3.0,3,9,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:09**.",False,False,False,3,False,9,False
+tt_0218.png,10,5,1,10,8.0,6.0,6,40,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time displayed on the clock is **6:40**.",False,False,False,6,False,8,False
+tt_0219.png,10,40,8,10,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0220.png,12,24,5,12,8.0,6.0,6,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **6:40**.",False,False,False,6,False,8,False
+tt_0221.png,2,30,6,2,3.0,8.0,8,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **3**.
+*   **Short hour hand:** The short hour hand is pointing at the number **8**.
+
+Therefore, the time is **08:15**.",False,False,False,8,False,3,False
+tt_0222.png,6,14,3,6,12.0,1.0,1,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed is **1:00**.",False,False,False,1,False,12,False
+tt_0223.png,8,0,12,8,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:12**.",True,False,False,3,False,12,True
+tt_0224.png,11,4,1,11,6.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,6,False
+tt_0225.png,5,43,9,5,8.0,6.0,6,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **6:40**.",True,False,False,6,False,8,True
+tt_0226.png,6,25,5,6,6.0,3.0,3,30,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:30**.",True,False,False,3,False,6,True
+tt_0227.png,6,44,9,6,3.0,9.0,9,15,"Here's the breakdown of the time shown in the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **3**.
+*   **Short hour hand:** The short hour hand is pointing at the number **9**.
+
+Therefore, the time is **09:15**.",False,False,False,9,False,3,False
+tt_0228.png,11,36,7,11,9.0,3.0,3,9,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed is **03:09**.",False,False,False,3,False,9,False
+tt_0229.png,10,2,12,10,10.0,2.0,2,10,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **10**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:10**.",False,False,False,2,False,10,False
+tt_0230.png,11,3,1,11,12.0,1.0,1,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:00**.",True,False,False,1,False,12,True
+tt_0231.png,12,0,12,12,12.0,2.0,2,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 2.
+
+Therefore, the time is **02:12**.",True,False,False,2,False,12,True
+tt_0232.png,12,59,12,12,12.0,1.0,1,1,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:01**.",True,False,False,1,False,12,True
+tt_0233.png,10,17,3,10,8.0,6.0,6,40,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **06:40**.",False,False,False,6,False,8,False
+tt_0234.png,4,30,6,4,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0235.png,12,40,8,12,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0236.png,8,44,9,8,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0237.png,9,38,8,9,7.0,11.0,11,35,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **7**.
+*   **Short hour hand:** The short hour hand is pointing at the number **11**.
+
+Therefore, the time is **11:35**.",True,False,False,11,False,7,True
+tt_0238.png,10,53,11,10,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0239.png,4,33,7,4,11.0,8.0,8,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **8**.
+
+Therefore, the time is **08:11**.",False,False,False,8,False,11,False
+tt_0240.png,1,7,1,1,8.0,1.0,1,8,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:08**.",False,True,False,1,True,8,False
+tt_0241.png,1,20,4,1,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0242.png,5,10,2,5,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0243.png,12,16,3,12,3.0,9.0,9,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **3**.
+*   **Short hour hand:** The short hour hand is pointing at the number **9**.
+
+Therefore, the time is **09:15**.",True,False,False,9,False,3,True
+tt_0244.png,12,14,3,12,12.0,3.0,3,0,"Okay, let's analyze the clock face in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0245.png,1,33,7,1,11.0,3.0,3,11,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 11.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **3:11**.",False,False,False,3,False,11,False
+tt_0246.png,4,0,12,4,12.0,3.0,3,0,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:00**.",True,False,False,3,False,12,True
+tt_0247.png,12,38,8,12,12.0,3.0,3,0,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0248.png,2,30,6,2,8.0,6.0,6,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **6:40**.",False,False,False,6,False,8,False
+tt_0249.png,12,48,10,12,4.0,11.0,11,24,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 4.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is 11:24.",False,False,False,11,False,4,False
+tt_0250.png,12,8,2,12,6.0,9.0,9,6,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **9**.
+
+Therefore, the time is **09:06**.",False,False,False,9,False,6,False
+tt_0251.png,9,2,12,9,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0252.png,12,10,2,12,9.0,3.0,3,9,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed is **03:09**.",False,False,False,3,False,9,False
+tt_0253.png,12,22,4,12,3.0,1.0,1,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 3.
+*   **Short hour hand:** The short hour hand is pointing at the number 1.
+
+Therefore, the time is **01:15**.",True,False,False,1,False,3,True
+tt_0254.png,7,22,4,7,9.0,12.0,12,9,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:09**.",False,False,False,12,False,9,False
+tt_0255.png,2,36,7,2,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:00**.",False,False,False,3,False,12,False
+tt_0256.png,10,13,3,10,8.0,11.0,11,40,"Here's the breakdown of the clock:
+
+*   **Minute hand:** The long minute hand is pointing at the number **8**.
+*   **Hour hand:** The short hour hand is pointing at the number **11**.
+
+Therefore, the time is **11:40**.",False,False,False,11,False,8,False
+tt_0257.png,8,10,2,8,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Minute hand:** The long minute hand is pointing at the number **12**.
+*   **Hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0258.png,5,39,8,5,9.0,3.0,3,27,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:27**.",True,False,False,3,False,9,True
+tt_0259.png,12,6,1,12,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:12**.",True,False,False,3,False,12,True
+tt_0260.png,7,44,9,7,30.0,12.0,12,30,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **30**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:30**.",False,False,False,12,False,30,False
+tt_0261.png,11,30,6,11,8.0,1.0,1,8,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed on the clock is **1:08**.",False,False,False,1,False,8,False
+tt_0262.png,8,55,11,8,6.0,3.0,3,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:06**.",False,False,False,3,False,6,False
+tt_0263.png,9,5,1,9,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0264.png,5,49,10,5,12.0,3.0,3,0,"Here's the breakdown of the time from the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0265.png,12,50,10,12,9.0,3.0,3,45,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",True,False,False,3,False,9,True
+tt_0266.png,10,35,7,10,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45** (3:45).",False,False,False,3,False,9,False
+tt_0267.png,8,46,9,8,9.0,3.0,3,9,"Here's the breakdown of the clock:
+
+*   **Minute hand:** The long minute hand is pointing at the number **9**.
+*   **Hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:09**.",True,False,False,3,False,9,True
+tt_0268.png,1,28,6,1,27.0,1.0,1,27,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **27**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **01:27**.",False,True,False,1,True,27,False
+tt_0269.png,2,52,10,2,9.0,10.0,10,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **10**.
+
+Therefore, the time is **10:45**.",True,False,False,10,False,9,True
+tt_0270.png,10,55,11,10,8.0,1.0,1,8,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:08**.",False,False,False,1,False,8,False
+tt_0271.png,9,59,12,9,12.0,1.0,1,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 1.
+
+Therefore, the time is **1:00**.",True,False,False,1,False,12,True
+tt_0272.png,11,18,4,11,6.0,12.0,12,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 12.
+
+Therefore, the time is **12:06**.",False,False,False,12,False,6,False
+tt_0273.png,2,38,8,2,9.0,3.0,3,27,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:27** (3:27).",True,False,False,3,False,9,True
+tt_0274.png,7,3,1,7,8.0,6.0,6,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **6:40**.",False,False,False,6,False,8,False
+tt_0275.png,1,5,1,1,6.0,11.0,11,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:06**.",False,False,False,11,False,6,False
+tt_0276.png,12,0,12,12,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0277.png,8,2,12,8,6.0,12.0,12,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 12.
+
+Therefore, the time is **12:06**.",False,False,False,12,False,6,False
+tt_0278.png,9,27,5,9,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40** (3:40).",False,False,False,3,False,8,False
+tt_0279.png,7,55,11,7,,6.0,6,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **XII**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **6:00**.",False,False,False,6,False,,False
+tt_0280.png,11,6,1,11,12.0,2.0,2,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:12**.",True,False,False,2,False,12,True
+tt_0281.png,2,9,2,2,9.0,3.0,3,9,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:09**.",False,False,False,3,False,9,False
+tt_0282.png,2,0,12,2,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0283.png,10,55,11,10,8.0,3.0,3,8,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:08**.",False,False,False,3,False,8,False
+tt_0284.png,7,16,3,7,8.0,6.0,6,40,"Okay, let's analyze the clock in the image.
+
+*   **Minute hand:** The long minute hand is pointing at the number **8**.
+*   **Hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time displayed on the clock is **6:40**.",False,False,False,6,False,8,False
+tt_0285.png,1,45,9,1,8.0,3.0,3,8,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:08**.",True,False,False,3,False,8,True
+tt_0286.png,7,25,5,7,8.0,2.0,2,40,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time displayed on the clock is **2:40**.",False,False,False,2,False,8,False
+tt_0287.png,1,53,11,1,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0288.png,3,27,5,3,11.0,3.0,3,11,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed is **03:11**.",False,True,False,3,True,11,False
+tt_0289.png,12,0,12,12,12.0,1.0,1,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 1.
+
+Therefore, the time is **1:00**.",True,False,False,1,False,12,True
+tt_0290.png,12,53,11,12,9.0,11.0,11,9,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **11**.
+
+Therefore, the time is **11:09**.",False,False,False,11,False,9,False
+tt_0291.png,2,23,5,2,3.0,2.0,2,30,"Here's the breakdown of the clock in the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **3**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time displayed on the clock is **2:30**.",False,True,False,2,True,3,False
+tt_0292.png,5,31,6,5,15.0,12.0,12,15,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **15**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time displayed on the clock is **12:15**.",False,False,False,12,False,15,False
+tt_0293.png,5,40,8,5,12.0,10.0,10,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **10**.
+
+Therefore, the time displayed is **10:00**.",False,False,False,10,False,12,False
+tt_0294.png,1,20,4,1,6.0,11.0,11,6,"Here's the breakdown of the time on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:06**.",False,False,False,11,False,6,False
+tt_0295.png,12,3,1,12,12.0,1.0,1,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:00**.",True,False,False,1,False,12,True
+tt_0296.png,2,29,6,2,6.0,3.0,3,6,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **6**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:06**.",True,False,False,3,False,6,True
+tt_0297.png,6,24,5,6,8.0,1.0,1,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:40**.",False,False,False,1,False,8,False
+tt_0298.png,12,18,4,12,8.0,6.0,6,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time displayed on the clock is **6:40**.",False,False,False,6,False,8,False
+tt_0299.png,5,5,1,5,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0300.png,10,10,2,10,6.0,3.0,3,6,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:06**.",False,False,False,3,False,6,False
+tt_0301.png,6,8,2,6,8.0,1.0,1,8,"Here's the breakdown of the clock:
+
+*   **Minute hand:** The long minute hand is pointing at the number **8**.
+*   **Hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:08**.",False,False,False,1,False,8,False
+tt_0302.png,6,4,1,6,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0303.png,6,55,11,6,12.0,1.0,1,12,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed on the clock is **1:12**.",True,False,False,1,False,12,True
+tt_0304.png,5,28,6,5,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0305.png,4,13,3,4,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0306.png,3,15,3,3,12.0,8.0,8,12,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **8**.
+
+Therefore, the time is **08:12**.",False,False,False,8,False,12,False
+tt_0307.png,10,17,3,10,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:12**.",False,False,False,3,False,12,False
+tt_0308.png,4,8,2,4,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0309.png,3,19,4,3,12.0,11.0,11,12,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **11**.
+
+Therefore, the time displayed on the clock is **11:12**.",False,False,False,11,False,12,False
+tt_0310.png,4,12,2,4,8.0,6.0,6,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **6:40**.",False,False,False,6,False,8,False
+tt_0311.png,5,23,5,5,8.0,6.0,6,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **6:40**.",False,False,False,6,False,8,False
+tt_0312.png,6,37,7,6,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:00**.",False,False,False,3,False,12,False
+tt_0313.png,12,17,3,12,3.0,11.0,11,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 3.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:15**.",True,False,False,11,False,3,True
+tt_0314.png,2,32,6,2,8.0,2.0,2,48,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:48**.",False,True,False,2,True,8,False
+tt_0315.png,1,35,7,1,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0316.png,5,26,5,5,6.0,3.0,3,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:06**.",True,False,False,3,False,6,True
+tt_0317.png,7,8,2,7,12.0,6.0,6,0,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time is **06:00** (6:00).",False,False,False,6,False,12,False
+tt_0318.png,2,5,1,2,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0319.png,7,47,9,7,21.0,18.0,18,21,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **21**.
+*   **Short hour hand:** The short hour hand is pointing at the number **18**.
+
+Therefore, the time displayed on the clock is **18:21** (or 6:21 PM).",True,False,False,18,False,21,True
+tt_0320.png,4,21,4,4,20.0,3.0,3,20,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **20**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:20**.",False,False,False,3,False,20,False
+tt_0321.png,7,12,2,7,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0322.png,1,29,6,1,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:45**.",False,False,False,3,False,9,False
+tt_0323.png,1,50,10,1,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0324.png,8,3,1,8,12.0,2.0,12,20,"Here's the breakdown of the clock face:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **12:20**.",True,False,False,2,False,12,True
+tt_0325.png,12,15,3,12,4.0,1.0,1,4,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **4**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed is **1:04**.",True,False,False,1,False,4,True
+tt_0326.png,7,6,1,7,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0327.png,8,29,6,8,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0328.png,9,5,1,9,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0329.png,6,26,5,6,12.0,9.0,9,0,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **9**.
+
+Therefore, the time is **09:00** (9:00).",False,False,False,9,False,12,False
+tt_0330.png,9,50,10,9,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0331.png,10,10,2,10,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0332.png,10,54,11,10,6.0,11.0,11,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:30**.",False,False,False,11,False,6,False
+tt_0333.png,7,55,11,7,18.0,12.0,12,18,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **18**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:18**.",False,False,False,12,False,18,False
+tt_0334.png,2,22,4,2,12.0,10.0,10,12,"Okay, let's analyze the clock!
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **10**.
+
+Therefore, the time is **10:12**.",False,False,False,10,False,12,False
+tt_0335.png,8,41,8,8,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0336.png,8,20,4,8,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0337.png,7,55,11,7,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0338.png,8,10,2,8,12.0,3.0,3,0,"Okay, let's analyze the image of the Rolex Submariner.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the watch is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0339.png,5,53,11,5,9.0,3.0,3,45,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:45**.",False,False,False,3,False,9,False
+tt_0340.png,2,18,4,2,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Minute hand:** The long minute hand is pointing at the number **12**.
+*   **Hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0341.png,11,11,2,11,8.0,6.0,6,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **6**.
+
+Therefore, the time displayed on the clock is **6:40**.",False,False,False,6,False,8,False
+tt_0342.png,5,35,7,5,12.0,3.0,3,0,"Let's analyze the clock image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is 03:00 (3:00).",False,False,False,3,False,12,False
+tt_0343.png,6,20,4,6,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0344.png,3,8,2,3,6.0,1.0,1,6,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed on the clock is **1:06**.",False,False,False,1,False,6,False
+tt_0345.png,9,2,12,9,6.0,2.0,2,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 2.
+
+Therefore, the time is **2:06**.",False,False,False,2,False,6,False
+tt_0346.png,5,0,12,5,8.0,3.0,3,40,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 8.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0347.png,11,0,12,11,12.0,3.0,3,0,"Let's analyze the image of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0348.png,1,5,1,1,12.0,8.0,8,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 8.
+
+Therefore, the time is **08:12**.",True,False,False,8,False,12,True
+tt_0349.png,6,31,6,6,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 8.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0350.png,7,37,7,7,9.0,12.0,12,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 9.
+*   **Short hour hand:** The short hour hand is pointing at the number 12.
+
+Therefore, the time is **12:45**.",False,False,False,12,False,9,False
+tt_0351.png,6,59,12,6,9.0,3.0,3,9,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:09**.",False,False,False,3,False,9,False
+tt_0352.png,3,38,8,3,8.0,1.0,1,8,"Okay, let's analyze the clock image.
+
+*   The long minute hand is pointing at the number **8**.
+*   The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:08**.",True,False,False,1,False,8,True
+tt_0353.png,12,42,8,12,6.0,8.0,8,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 8.
+
+Therefore, the time is **08:30**.",False,False,False,8,False,6,False
+tt_0354.png,2,20,4,2,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:12**.",False,False,False,3,False,12,False
+tt_0355.png,11,12,2,11,8.0,3.0,3,8,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:08**.",False,False,False,3,False,8,False
+tt_0356.png,10,2,12,10,12.0,3.0,3,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:12**.",True,False,False,3,False,12,True
+tt_0357.png,11,30,6,11,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0358.png,1,40,8,1,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:40**.",True,False,False,3,False,8,True
+tt_0359.png,1,29,6,1,30.0,3.0,3,30,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **30**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:30**.",True,False,False,3,False,30,True
+tt_0360.png,5,0,12,5,55.0,12.0,12,55,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 55.
+*   **Short hour hand:** The short hour hand is pointing at the number 12.
+
+Therefore, the time is **12:55**.",False,False,False,12,False,55,False
+tt_0361.png,5,10,2,5,8.0,3.0,3,8,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:08**.",False,False,False,3,False,8,False
+tt_0362.png,5,55,11,5,3.0,11.0,11,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 3.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:15**.",False,False,False,11,False,3,False
+tt_0363.png,4,15,3,4,9.0,3.0,3,45,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",False,False,False,3,False,9,False
+tt_0364.png,4,15,3,4,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0365.png,12,35,7,12,8.0,3.0,3,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:40**.",True,False,False,3,False,8,True
+tt_0366.png,3,52,10,3,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,True,False,3,True,12,False
+tt_0367.png,8,40,8,8,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0368.png,5,47,9,5,6.0,11.0,11,6,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:06**.",False,False,False,11,False,6,False
+tt_0369.png,5,34,7,5,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0370.png,11,15,3,11,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0371.png,8,16,3,8,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0372.png,1,23,5,1,9.0,3.0,3,9,"Okay, let's analyze the image of the clock!
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed is **03:09**.",False,False,False,3,False,9,False
+tt_0373.png,4,43,9,4,8.0,7.0,7,48,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **7**.
+
+Therefore, the time is **07:48**.",True,False,False,7,False,8,True
+tt_0374.png,1,50,10,1,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0375.png,4,32,6,4,3.0,1.0,1,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 3.
+*   **Short hour hand:** The short hour hand is pointing at the number 1.
+
+Therefore, the time is **1:15**.",False,False,False,1,False,3,False
+tt_0376.png,9,30,6,9,8.0,3.0,3,40,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **3:40**.",False,False,False,3,False,8,False
+tt_0377.png,8,0,12,8,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0378.png,4,57,11,4,12.0,3.0,3,0,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0379.png,11,37,7,11,6.0,8.0,8,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **8**.
+
+Therefore, the time is **08:30**.",True,False,False,8,False,6,True
+tt_0380.png,11,24,5,11,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0381.png,10,3,1,10,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0382.png,5,32,6,5,6.0,10.0,10,6,"Okay, let's analyze the image!
+
+*   The long minute hand is pointing at the number **6**.
+*   The short hour hand is pointing at the number **10**.
+
+Therefore, the time displayed on the clock is **10:06**.",True,False,False,10,False,6,True
+tt_0383.png,1,3,1,1,12.0,3.0,3,0,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0384.png,12,4,1,12,8.0,3.0,3,8,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:08**.",False,False,False,3,False,8,False
+tt_0385.png,9,22,4,9,26.0,11.0,11,26,"Here's the breakdown of the time shown on the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **26**.
+*   **Short hour hand:** The short hour hand is pointing at the number **11**.
+
+Therefore, the time is **11:26**.",False,False,False,11,False,26,False
+tt_0386.png,2,51,10,2,45.0,9.0,9,45,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **45**.
+*   **Short hour hand:** The short hour hand is pointing at the number **9**.
+
+Therefore, the time displayed is **09:45**.",True,False,False,9,False,45,True
+tt_0387.png,9,30,6,9,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0388.png,9,42,8,9,3.0,9.0,9,15,"Here's the breakdown of the time shown on the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 3.
+*   **Short hour hand:** The short hour hand is pointing at the number 9.
+
+Therefore, the time is **9:15**.",False,True,False,9,True,3,False
+tt_0389.png,5,5,1,5,40.0,2.0,2,40,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **40**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:40**.",False,False,False,2,False,40,False
+tt_0390.png,9,28,6,9,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0391.png,9,17,3,9,8.0,1.0,1,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **01:40**.",False,False,False,1,False,8,False
+tt_0392.png,7,30,6,7,12.0,3.0,3,0,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0393.png,10,45,9,10,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45** (3:45).",True,False,False,3,False,9,True
+tt_0394.png,3,29,6,3,,,12,9,"Here's the breakdown of the time shown on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **IX** (which represents 9).
+*   **Short hour hand:** The short hour hand is pointing at the number **XII** (which represents 12).
+
+Therefore, the time is **12:09**.",False,False,False,,False,,False
+tt_0395.png,8,26,5,8,6.0,9.0,9,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 9.
+
+Therefore, the time is 9:30.",True,False,False,9,False,6,True
+tt_0396.png,1,16,3,1,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45** (3:45).",False,False,False,3,False,9,False
+tt_0397.png,2,4,1,2,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0398.png,5,4,1,5,12.0,3.0,3,0,"Okay, let's analyze the clock image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0399.png,8,12,2,8,8.0,2.0,2,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 8.
+*   **Short hour hand:** The short hour hand is pointing at the number 2.
+
+Therefore, the time is **2:40**.",False,False,False,2,False,8,False
+tt_0400.png,11,18,4,11,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Minute hand:** The long minute hand is pointing at the number **12**.
+*   **Hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0401.png,1,0,12,1,12.0,3.0,3,0,"Okay, let's analyze the clock!
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0402.png,12,55,11,12,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0403.png,3,45,9,3,11.0,3.0,3,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:11**.",False,True,False,3,True,11,False
+tt_0404.png,10,55,11,10,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0405.png,4,45,9,4,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0406.png,7,4,1,7,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Minute Hand:** The long minute hand is pointing at the number **12**.
+*   **Hour Hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0407.png,11,50,10,11,11.0,10.0,10,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **10**.
+
+Therefore, the time is **10:11**.",True,False,False,10,False,11,True
+tt_0408.png,6,38,8,6,12.0,8.0,8,12,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **8**.
+
+Therefore, the time is **08:12**.",False,False,False,8,False,12,False
+tt_0409.png,6,46,9,6,7.0,11.0,11,35,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 7.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:35**.",False,False,False,11,False,7,False
+tt_0410.png,11,55,11,11,6.0,11.0,11,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:30**.",False,True,False,11,True,6,False
+tt_0411.png,10,15,3,10,8.0,1.0,1,8,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:08**.",False,False,False,1,False,8,False
+tt_0412.png,3,21,4,3,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,True,False,3,True,12,False
+tt_0413.png,12,0,12,12,12.0,1.0,1,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:00**.",True,False,False,1,False,12,True
+tt_0414.png,8,46,9,8,8.0,2.0,2,8,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time displayed is **02:08**.",True,False,False,2,False,8,True
+tt_0415.png,3,40,8,3,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,True,False,3,True,12,False
+tt_0416.png,12,59,12,12,12.0,3.0,3,0,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0417.png,11,55,11,11,,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **XII** (which represents 12).
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:00**.",False,False,False,3,False,,False
+tt_0418.png,4,20,4,4,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:40**.",False,False,False,3,False,8,False
+tt_0419.png,3,20,4,3,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Minute hand:** The long minute hand is pointing at the number **9**.
+*   **Hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45** (3:45).",False,True,False,3,True,9,False
+tt_0420.png,7,25,5,7,9.0,3.0,3,45,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",False,False,False,3,False,9,False
+tt_0421.png,7,14,3,7,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0422.png,1,18,4,1,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0423.png,10,48,10,10,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 9.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:45**.",True,False,False,3,False,9,True
+tt_0424.png,3,5,1,3,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 9.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:45**.",False,True,False,3,True,9,False
+tt_0425.png,1,19,4,1,3.0,11.0,11,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 3.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:15**.",True,False,False,11,False,3,True
+tt_0426.png,3,29,6,3,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,True,False,3,True,12,False
+tt_0427.png,9,58,12,9,8.0,1.0,1,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed is **1:40**.",False,False,False,1,False,8,False
+tt_0428.png,12,50,10,12,8.0,3.0,3,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0429.png,5,50,10,5,1.0,8.0,8,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 1.
+*   **Short hour hand:** The short hour hand is pointing at the number 8.
+
+Therefore, the time is **08:15**.",False,False,False,8,False,1,False
+tt_0430.png,10,30,6,10,3.0,12.0,3,21,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **03**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time displayed is **03:21**.",False,False,False,12,False,3,False
+tt_0431.png,1,34,7,1,4.0,12.0,12,4,"Here's the breakdown of the time shown on the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **4**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:04**.",False,False,False,12,False,4,False
+tt_0432.png,1,55,11,1,11.0,3.0,3,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:11**.",True,False,False,3,False,11,True
+tt_0433.png,9,37,7,9,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0434.png,5,20,4,5,11.0,8.0,8,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 11.
+*   **Short hour hand:** The short hour hand is pointing at the number 8.
+
+Therefore, the time is **08:11**.",False,False,False,8,False,11,False
+tt_0435.png,2,31,6,2,,,6,12,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **XII**.
+*   **Short hour hand:** The short hour hand is pointing at the number **VI**.
+
+Therefore, the time displayed on the clock is **6:12**.",False,False,False,,False,,False
+tt_0436.png,7,21,4,7,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 8.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:40**.",False,False,False,3,False,8,False
+tt_0437.png,3,59,12,3,8.0,12.0,12,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:40**.",False,False,False,12,False,8,False
+tt_0438.png,11,13,3,11,11.0,9.0,9,11,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **11**.
+*   **Short hour hand:** The short hour hand is pointing at the number **9**.
+
+Therefore, the time is **09:11**.",False,False,False,9,False,11,False
+tt_0439.png,10,58,12,10,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0440.png,12,30,6,12,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",False,False,False,3,False,9,False
+tt_0441.png,4,10,2,4,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0442.png,11,10,2,11,8.0,3.0,3,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:40**.",False,False,False,3,False,8,False
+tt_0443.png,9,35,7,9,9.0,12.0,12,9,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:09**.",False,False,False,12,False,9,False
+tt_0444.png,6,33,7,6,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0445.png,2,2,12,2,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0446.png,4,52,10,4,9.0,3.0,3,45,"Let's analyze the image of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",True,False,False,3,False,9,True
+tt_0447.png,10,22,4,10,4.0,9.0,9,20,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **4**.
+*   **Short hour hand:** The short hour hand is pointing at the number **9**.
+
+Therefore, the time is **9:20**.",True,False,False,9,False,4,True
+tt_0448.png,12,0,12,12,12.0,3.0,3,12,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:12**.",True,False,False,3,False,12,True
+tt_0449.png,11,19,4,11,6.0,9.0,9,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 9.
+
+Therefore, the time is **09:06**.",False,False,False,9,False,6,False
+tt_0450.png,1,5,1,1,9.0,3.0,3,45,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45**.",False,False,False,3,False,9,False
+tt_0451.png,4,7,1,4,3.0,11.0,11,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 3.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:15**.",False,False,False,11,False,3,False
+tt_0452.png,12,0,12,12,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0453.png,7,22,4,7,3.0,6.0,6,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 3.
+*   **Short hour hand:** The short hour hand is pointing at the number 6.
+
+Therefore, the time is **06:30**.",True,False,False,6,False,3,True
+tt_0454.png,10,12,2,10,12.0,2.0,2,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 2.
+
+Therefore, the time is **02:00** (2:00).",False,False,False,2,False,12,False
+tt_0455.png,2,10,2,2,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0456.png,3,45,9,3,12.0,3.0,3,0,"Okay, let's analyze the clock in the image!
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,True,False,3,True,12,False
+tt_0457.png,2,47,9,2,9.0,3.0,9,15,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **09:15**.",True,False,False,3,False,9,True
+tt_0458.png,10,58,12,10,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Minute hand:** The long minute hand is pointing at the number **12**.
+*   **Hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",True,False,False,3,False,12,True
+tt_0459.png,10,18,4,10,12.0,2.0,2,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:12**.",False,False,False,2,False,12,False
+tt_0460.png,7,25,5,7,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0461.png,8,15,3,8,9.0,3.0,3,45,"Okay, let's analyze the image of the clock.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:45** (3:45).",False,False,False,3,False,9,False
+tt_0462.png,4,28,6,4,6.0,11.0,11,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 11.
+
+Therefore, the time is **11:06**.",True,False,False,11,False,6,True
+tt_0463.png,5,2,12,5,3.0,8.0,8,15,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 3.
+*   **Short hour hand:** The short hour hand is pointing at the number 8.
+
+Therefore, the time is **08:15**.",False,False,False,8,False,3,False
+tt_0464.png,1,46,9,1,12.0,3.0,3,0,"Okay, let's analyze the clock!
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0465.png,9,43,9,9,8.0,10.0,10,8,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **10**.
+
+Therefore, the time displayed on the clock is **10:08**.",True,False,False,10,False,8,True
+tt_0466.png,11,55,11,11,8.0,8.0,8,40,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **8**.
+
+Therefore, the time displayed on the clock is **08:40**.",False,False,False,8,False,8,False
+tt_0467.png,10,2,12,10,9.0,3.0,3,45,"Let's analyze the image of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 9.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is 03:45.",False,False,False,3,False,9,False
+tt_0468.png,11,36,7,11,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **3:40**.",True,False,False,3,False,8,True
+tt_0469.png,12,55,11,12,12.0,1.0,1,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 1.
+
+Therefore, the time is **01:00** (1:00).",True,False,False,1,False,12,True
+tt_0470.png,1,31,6,1,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0471.png,2,3,1,2,12.0,1.0,1,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time displayed on the clock is **1:00**.",True,False,False,1,False,12,True
+tt_0472.png,4,18,4,4,9.0,2.0,2,9,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time is **02:09**.",False,False,False,2,False,9,False
+tt_0473.png,11,20,4,11,6.0,1.0,1,6,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 1.
+
+Therefore, the time is **1:06**.",False,False,False,1,False,6,False
+tt_0474.png,3,36,7,3,6.0,8.0,8,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 6.
+*   **Short hour hand:** The short hour hand is pointing at the number 8.
+
+Therefore, the time is **08:30**.",True,False,False,8,False,6,True
+tt_0475.png,3,58,12,3,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",True,True,False,3,True,12,True
+tt_0476.png,8,25,5,8,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0477.png,11,35,7,11,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0478.png,2,23,5,2,8.0,3.0,3,40,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **8**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:40**.",False,False,False,3,False,8,False
+tt_0479.png,5,35,7,5,30.0,12.0,12,30,"Here's the breakdown of the time based on the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **30**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time is **12:30**.",True,False,False,12,False,30,True
+tt_0480.png,4,37,7,4,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0481.png,4,59,12,4,8.0,1.0,1,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:40**.",False,False,False,1,False,8,False
+tt_0482.png,3,9,2,3,30.0,12.0,12,30,"Okay, let's analyze the image of the Rolex Submariner.
+
+*   **Long minute hand:** The long minute hand is pointing at the number **30**.
+*   **Short hour hand:** The short hour hand is pointing at the number **12**.
+
+Therefore, the time displayed on the watch is **12:30**.",False,False,False,12,False,30,False
+tt_0483.png,6,45,9,6,11.0,3.0,3,55,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 11.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:55**.",False,False,False,3,False,11,False
+tt_0484.png,4,52,10,4,9.0,3.0,3,45,"Here's the breakdown of the time displayed on the watch:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:45** (3:45).",True,False,False,3,False,9,True
+tt_0485.png,1,50,10,1,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0486.png,5,14,3,5,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time displayed on the clock is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0487.png,10,47,9,10,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **8**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:40**.",True,False,False,3,False,8,True
+tt_0488.png,5,46,9,5,12.0,3.0,3,0,"Okay, let's analyze the clock in the image.
+
+*   The long minute hand is pointing at the number **12**.
+*   The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,False,False,3,False,12,False
+tt_0489.png,2,37,7,2,9.0,3.0,3,45,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 9.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:45**.",False,False,False,3,False,9,False
+tt_0490.png,11,55,11,11,9.0,2.0,2,9,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **9**.
+*   **Short hour hand:** The short hour hand is pointing at the number **2**.
+
+Therefore, the time displayed is **02:09**.",False,False,False,2,False,9,False
+tt_0491.png,4,58,12,4,45.0,1.0,1,45,"Here's the breakdown of the clock's time:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **45**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **01:45**.",False,False,False,1,False,45,False
+tt_0492.png,12,42,8,12,8.0,3.0,3,40,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 8.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:40**.",True,False,False,3,False,8,True
+tt_0493.png,8,48,10,8,1.0,7.0,7,1,"Here's the breakdown of the time from the image:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **1**.
+*   **Short hour hand:** The short hour hand is pointing at the number **7**.
+
+Therefore, the time is **07:01**.",False,False,False,7,False,1,False
+tt_0494.png,3,23,5,3,12.0,3.0,3,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **3**.
+
+Therefore, the time is **03:00** (3:00).",False,True,False,3,True,12,False
+tt_0495.png,4,12,2,4,8.0,3.0,3,8,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 8.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:08**.",False,False,False,3,False,8,False
+tt_0496.png,5,2,12,5,12.0,1.0,1,0,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 12.
+*   **Short hour hand:** The short hour hand is pointing at the number 1.
+
+Therefore, the time is **1:00**.",True,False,False,1,False,12,True
+tt_0497.png,4,5,1,4,12.0,1.0,1,12,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **12**.
+*   **Short hour hand:** The short hour hand is pointing at the number **1**.
+
+Therefore, the time is **1:12**.",True,False,False,1,False,12,True
+tt_0498.png,12,20,4,12,1.0,3.0,3,1,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number 1.
+*   **Short hour hand:** The short hour hand is pointing at the number 3.
+
+Therefore, the time is **03:01**.",False,False,False,3,False,1,False
+tt_0499.png,3,15,3,3,6.0,8.0,8,30,"Here's the breakdown of the clock:
+
+*   **Long minute hand:** The long minute hand is pointing at the number **6**.
+*   **Short hour hand:** The short hour hand is pointing at the number **8**.
+
+Therefore, the time is **08:30** (8:30).",False,False,False,8,False,6,False

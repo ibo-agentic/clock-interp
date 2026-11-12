@@ -1,0 +1,19 @@
+00_prep_photos                   OK                             1.6 min
+01_qwen2.5-vl-3b_photos_eval     OK                             6.6 min
+01_qwen2.5-vl-3b_photos_describe OK                            24.6 min
+01_purge_qwen3b_cache            OK                             0.0 min
+02_internvl3-2b_photos_eval      OK                             8.6 min
+02_internvl3-2b_photos_describe  OK                            21.0 min
+02_purge_internvl2b_cache        OK                             0.0 min
+03_qwen2.5-vl-7b_photos_eval     OK                             9.0 min
+03_qwen2.5-vl-7b_photos_describe OK                            33.6 min
+03_purge_qwen7b_cache            OK                             0.0 min
+04_internvl3-8b_photos_eval      OK                            23.2 min
+04_internvl3-8b_photos_describe  OK                            37.3 min
+04_purge_internvl8b_cache        OK                             0.0 min
+05_gemma-3-4b-it_photos_eval     OK                            38.5 min
+05_gemma-3-4b-it_photos_describe OK                            84.1 min
+05_purge_gemma4b_cache           OK                             0.0 min
+
+total wall time: 4.81 h
+MISSING expected files: none
